@@ -18,4 +18,7 @@ https://blog.csdn.net/ypt523/article/details/79958188
 ### 宋宝华：世上最好的共享内存(Linux共享内存最透彻的一篇)上集
 https://blog.csdn.net/21cnbao/article/details/102994278?utm_medium=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.pc_relevant_is_cache&depth_1-utm_source=distribute.pc_relevant.none-task-blog-BlogCommendFromMachineLearnPai2-1.pc_relevant_is_cache
 
+### PCL学习（4.5）——点云对象的两种定义方式的区别与转换
+https://blog.csdn.net/qq_30815237/article/details/86509741
+
 ### 
