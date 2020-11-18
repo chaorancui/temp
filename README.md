@@ -21,4 +21,18 @@ https://blog.csdn.net/21cnbao/article/details/102994278?utm_medium=distribute.pc
 ### PCL学习（4.5）——点云对象的两种定义方式的区别与转换
 https://blog.csdn.net/qq_30815237/article/details/86509741
 
+### [算法][包围盒]球，AABB，OBB
+https://www.cnblogs.com/lyggqm/p/5386174.html
+
+### 3D点云目标识别和抓取
+https://www.cnblogs.com/BellaVita/p/9979185.html
+
+### 点云处理---最小矩形包围盒
+https://blog.csdn.net/xuyi1218037/article/details/84298615
+
+### PCL ——最小包围盒(画出了最小包围盒并求出顶点坐标)
+https://blog.csdn.net/u013541523/article/details/82982522
+
+### PCL实时显示点云流？？？？
+
 ### 
