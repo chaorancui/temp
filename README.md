@@ -35,4 +35,10 @@ https://blog.csdn.net/u013541523/article/details/82982522
 
 ### PCL实时显示点云流？？？？
 
+### PCL滤波--参数化模型投影点云---三维点云投影到二维平面
+https://blog.csdn.net/Asabc12345/article/details/107045410
+
+### PCL 根据参数模型将点云数据映射到指定的几何模型
+https://blog.csdn.net/zhaoxr233/article/details/91997302?utm_medium=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param&depth_1-utm_source=distribute.pc_relevant_t0.none-task-blog-BlogCommendFromMachineLearnPai2-1.channel_param
+
 ### 
