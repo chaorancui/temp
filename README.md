@@ -78,3 +78,189 @@ https://www.cnblogs.com/lyggqm/p/5386174.html
 
 
 ### 
+
+
+// 相等IPV6地址数量
+// we have defined the necessary header files here for this problem.
+// If additional header files are needed in your program, please import here.
+#include <algorithm>
+#include <cctype>
+#include <cmath>
+#include <fstream>
+// #include <functional>
+#include <iostream>
+#include <map>
+#include <numeric>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+using namespace std;
+
+bool AllDigits(string str)
+{
+    bool flag = true;
+    for (char c : str) {
+        flag = flag && isdigit(c);
+    }
+    return flag;
+}
+
+int CountAlpha(string str)
+{
+    int ans = 0;
+    for (char c : str) {
+        ans = isalpha(c) ? ans + 1 : ans;
+    }
+    return ans;
+}
+
+bool Is4Char(string str)
+{
+    return str.size() == 4;
+}
+
+bool Is0Start(string str)
+{
+    return str.front() == '0';
+}
+
+bool IsZero(string str)
+{
+    return stoi(str) == 0;
+}
+
+int calcPossibilities(string str)
+{
+    if (IsZero(str)) {
+        return 2;
+    }
+
+    if (Is4Char(str)) {
+        if (!Is0Start(str)) {
+            if (CountAlpha(str) == 0) {
+                return 1; // 4字符 + 非0开头 + 无字母
+            } else {
+                return pow(2, CountAlpha(str)); // 4字符 + 非0开头 + 有字母
+            }
+        } else {
+            if (CountAlpha(str) == 0) {
+                return 2; // 4字符 + 0开头 + 无字母
+            } else {
+                return 2 * pow(2, CountAlpha(str)); // 4字符 + 0开头 + 有字母
+            }
+        }
+    } else { // 少于4字符
+        if (!Is0Start(str)) {
+            if (CountAlpha(str) == 0) {
+                return 2; // 少于4字符 + 非0开头 + 无字母
+            } else {
+                return 2 * pow(2, CountAlpha(str)); // 少于4字符 + 非0开头 + 有字母
+            }
+        } else {
+            if (CountAlpha(str) == 0) {
+                return 2 + 1; // 少于4字符 + 0开头 + 无字母
+            } else {
+                return 2 * pow(2, CountAlpha(str)) + 1; // 少于4字符 + 0开头 + 有字母
+            }
+        }
+    }
+}
+
+vector<vector<int>> Continue1Num(vector<int> vec)
+{
+    vector<vector<int>> ans;
+    vector<int> tmp;
+
+    int left = 0;
+    int right = left;
+    int len = vec.size();
+    while (left < len) {
+        if (vec[left] == 1) {
+            tmp.push_back(left);
+            right = left + 1;
+            while (right < len && vec[right] == 1) {
+                tmp.push_back(right);
+                right++;
+            }
+            if (tmp.size() > 1) {
+                ans.push_back(tmp);
+            }
+            tmp.clear();
+            left = right + 1;
+        } else {
+            left++;
+        }
+    }
+    return ans;
+}
+
+int main()
+{
+    // please define the C++ input here. For example: int a,b; cin>>a>>b;;
+    stringstream sstr;
+    string str;
+    string s;
+
+    vector<string> ipv6Seg;
+    getline(cin, str);
+    sstr.str(str);
+    while (getline(sstr, s, ':')) {
+        ipv6Seg.push_back(s);
+    }
+
+    // please finish the function body here.
+    vector<int> numPerSeg(8, 0);
+    vector<int> equalZero(8, 0);
+    // 对每个段进行判断，有几种可能
+    for (int i = 0; i < 8; i++) {
+        str = ipv6Seg[i];
+        numPerSeg[i] = calcPossibilities(str);
+        equalZero[i] = IsZero(str) ? 1 : 0;
+    }
+    int ans = 1;
+    ans = accumulate(numPerSeg.begin(), numPerSeg.end(), ans, multiplies<int>());
+    vector<vector<int>> subContinue1 = Continue1Num(equalZero);
+    int ansPartII = 1;
+    for (int i = 0; i < subContinue1.size(); i++) {
+        for (int j = 0; j < 8; j++) {
+            if (j == subContinue1[i])
+        }
+    }
+
+    // please define the C++ output here. For example:cout<<____<<endl;
+    // cout << stoi(ipv6Seg[6], 0, 16) << endl;
+    // cout << ans << endl;
+
+    // string x = "0a0";
+    // bool alldigits = AllDigits(x);
+    // int alphanum = CountAlpha(x);
+    // bool zerostart = Is0Start(x);
+    // bool fourchar = Is4Char(x);
+    // int cnt = calcPossibilities(x);
+
+
+    // stringstream sstr;
+    // string str("01100111");
+    // string s;
+
+    // vector<string> ipv6Seg;
+    // // getline(cin, str);
+    // sstr.str(str);
+    // while (getline(sstr, s, '0')) {
+    //     ipv6Seg.push_back(s);
+    // }
+    return 0;
+}
+  
+  
+  1050:0:0:1234:6789:3450:3333:3261
+  5
+  0:0:0000:0:0000:0:0000:0
+  257
+  a050:b000:c000:d234:a000:c450:c234:b269
+  256
+  0000:0000:1000:0:0:3450:0:0000
+  109
+  
