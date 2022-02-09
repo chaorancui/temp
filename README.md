@@ -79,7 +79,7 @@ https://www.cnblogs.com/lyggqm/p/5386174.html
 
 ### 
 
-
+```c++
 // 相等IPV6地址数量
 // we have defined the necessary header files here for this problem.
 // If additional header files are needed in your program, please import here.
@@ -259,24 +259,22 @@ int main()
     // }
     return 0;
 }
-  
-  
-  1050:0:0:1234:6789:3450:3333:3261
-  5
-  0:0:0000:0:0000:0:0000:0
-  257
-  a050:b000:c000:d234:a000:c450:c234:b269
-  256
-  0000:0000:1000:0:0:3450:0:0000
-  109
+```
+
+1050:0:0:1234:6789:3450:3333:3261
+5
+0:0:0000:0:0000:0:0000:0
+257
+a050:b000:c000:d234:a000:c450:c234:b269
+256
+0000:0000:1000:0:0:3450:0:0000
+109
+
   
     
     
-    ---
-    1、
-
-识别无线信号连续覆盖区域
-
+---
+1、 识别无线信号连续覆盖区域
 
 某天小王搭小黄的车从东莞一路到了深圳，期间接了一个电话，一路上电话都没有中断，小王在想这是为什么呢？基站的信号覆盖有这么远吗？实际上我们单个基站的信号覆盖并没有那么远，这中间可能切换了好几个基站了，但是对于打电话的人并不感知，这就得益于无线信号的连续覆盖和平滑切换。
 为了简化处理我们假设所有基站的信号都是360度覆盖，覆盖半径都是300m（也即两个站点间距离小于等于600m，则认为是连续覆盖），同时我们假设基站所在坐标是平面的，已知输入一批基站坐标，请帮忙计算小王打着电话从坐标A移动到坐标B的过程，能否找到一条信号不中断的路线，如果存在这样的路径，则输出小王所需要经过的最少的信号连续覆盖的站点数量，否则输出-1。
@@ -344,8 +342,8 @@ int main()
     
     
     
-    ```Java
-    // We have imported the necessary tool classes.
+```Java
+// We have imported the necessary tool classes.
 // If you need to import additional packages or classes, please import here.
 
 public class Main {
@@ -445,5 +443,4 @@ class SiteInfo {
         this.distance = -1;
     }
 }
-    
-    ```
+```
