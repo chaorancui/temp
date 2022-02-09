@@ -131,7 +131,8 @@ bool IsZero(string str)
     return stoi(str) == 0;
 }
 
-int calcPossibilities(string str)
+// 计算每个片段的可能性
+int calcPossibilitiesPerSeg(string str)
 {
     if (IsZero(str)) {
         return 2;
@@ -168,26 +169,29 @@ int calcPossibilities(string str)
     }
 }
 
-vector<vector<int>> Continue1Num(vector<int> vec)
+// 用途：双指针计算连续的0
+// 标记连续0段（大于1个）的位置，初始化为1，标记为0
+// 8段最多3个连续0
+vector<vector<int>> Continue0Pos(vector<int> vec)
 {
     vector<vector<int>> ans;
-    vector<int> tmp;
+    vector<int> tmp(8, 1); // 初始化为1，为0的段标记为0
 
     int left = 0;
     int right = left;
     int len = vec.size();
     while (left < len) {
-        if (vec[left] == 1) {
-            tmp.push_back(left);
+        if (vec[left] == 0) {
+            tmp[left] = 0;
             right = left + 1;
-            while (right < len && vec[right] == 1) {
-                tmp.push_back(right);
+            while (right < len && vec[right] == 0) {
+                tmp[right] = 0;
                 right++;
             }
-            if (tmp.size() > 1) {
+            if (count(tmp.begin(), tmp.end(), 0) > 1) { // 连续0（大于1个）
                 ans.push_back(tmp);
             }
-            tmp.clear();
+            tmp.assign(8, 1); // vector赋值全1
             left = right + 1;
         } else {
             left++;
@@ -212,22 +216,24 @@ int main()
 
     // please finish the function body here.
     vector<int> numPerSeg(8, 0);
-    vector<int> equalZero(8, 0);
-    // 对每个段进行判断，有几种可能
+    vector<int> equalZero(8, 0); // 标记0的位置
+    // 1、单个段
     for (int i = 0; i < 8; i++) {
         str = ipv6Seg[i];
-        numPerSeg[i] = calcPossibilities(str);
-        equalZero[i] = IsZero(str) ? 1 : 0;
+        numPerSeg[i] = calcPossibilitiesPerSeg(str);
+        equalZero[i] = IsZero(str) ? 0 : 1;
     }
     int ans = 1;
     ans = accumulate(numPerSeg.begin(), numPerSeg.end(), ans, multiplies<int>());
-    vector<vector<int>> subContinue1 = Continue1Num(equalZero);
+    // 2、连续零(不小于2段)
+    vector<vector<int>> subContinue0 = Continue0Pos(equalZero);
+
     int ansPartII = 1;
-    for (int i = 0; i < subContinue1.size(); i++) {
-        for (int j = 0; j < 8; j++) {
-            if (j == subContinue1[i])
-        }
-    }
+    // for (int i = 0; i < subContinue0.size(); i++) {
+    //     for (int j = 0; j < 8; j++) {
+    //         if (j == subContinue1[i])
+    //     }
+    // }
 
     // please define the C++ output here. For example:cout<<____<<endl;
     // cout << stoi(ipv6Seg[6], 0, 16) << endl;
@@ -264,3 +270,180 @@ int main()
   0000:0000:1000:0:0:3450:0:0000
   109
   
+    
+    
+    ---
+    1、
+
+识别无线信号连续覆盖区域
+
+
+某天小王搭小黄的车从东莞一路到了深圳，期间接了一个电话，一路上电话都没有中断，小王在想这是为什么呢？基站的信号覆盖有这么远吗？实际上我们单个基站的信号覆盖并没有那么远，这中间可能切换了好几个基站了，但是对于打电话的人并不感知，这就得益于无线信号的连续覆盖和平滑切换。
+为了简化处理我们假设所有基站的信号都是360度覆盖，覆盖半径都是300m（也即两个站点间距离小于等于600m，则认为是连续覆盖），同时我们假设基站所在坐标是平面的，已知输入一批基站坐标，请帮忙计算小王打着电话从坐标A移动到坐标B的过程，能否找到一条信号不中断的路线，如果存在这样的路径，则输出小王所需要经过的最少的信号连续覆盖的站点数量，否则输出-1。
+
+解答要求
+时间限制: 800ms, 内存限制: 100MB
+输入
+第一行为起始坐标A，
+第二行为终点坐标B，
+第三行为站点数量M，M的取值范围[1, 10000]；
+接下来M行为每个站点的坐标，坐标取值范围[-100000, 100000]，输入坐标可能是乱序的，比如：
+200 300
+800 800
+3
+400 400
+700 600
+500 500
+
+输出
+如果不会中断输出沿途经过的连续覆盖区域的最少站点数量，如果会中断则输出-1，如上例子，起点(200 300)和终点（800，800），则最少经过的站点为：
+400 400
+700 600
+
+最少2个站点，所以输出为：
+2
+
+样例1
+复制输入：
+200 300
+800 800
+3
+400 400
+500 500
+700 600
+复制输出：
+2
+解释：
+起点(200 300)和终点（800，800），则最少经过的站点为：
+400 400
+700 600
+则输出结果为2
+
+样例2
+复制输入：
+200 300
+800 800
+1
+500 500
+复制输出：
+-1
+解释：
+站点（500,500）无法覆盖起点和终点，所以输出结果为-1
+
+样例3
+复制输入：
+400 400
+800 800
+1
+600 600
+复制输出：
+1
+解释：
+站点（600,600）可以覆盖起点和终点，所以输出结果为1
+    
+    
+    
+    
+    ```Java
+    // We have imported the necessary tool classes.
+// If you need to import additional packages or classes, please import here.
+
+public class Main {
+    public static void main(String[] args) {
+    // please define the JAVA input here. For example: Scanner s = new Scanner(System.in);
+    // please finish the function body here.
+    // please define the JAVA output here. For example: System.out.println(s.nextInt());
+        Scanner scanner = new Scanner(System.in);
+        String start = scanner.nextLine();
+        String end = scanner.nextLine();
+        int siteNum = Integer.parseInt(scanner.nextLine());
+        String[] sites = new String[siteNum];
+        for (int i = 0; i < siteNum; i++) {
+            sites[i] = scanner.nextLine();
+        }
+        ShortestPathUtil shortestPathUtil = new ShortestPathUtil();
+        System.out.println(shortestPathUtil.solve(start, end, sites));
+    }
+}
+
+class ShortestPathUtil {
+    private static final int ISD = 300;
+    private final Queue<SiteInfo> opens = new ArrayDeque<>();
+
+    int solve(String rawStart, String rawEnd, String[] rawSites) {
+        int len = rawSites.length;
+        SiteInfo[] siteInfos = new SiteInfo[len + 2];
+        SiteInfo start = createPoint(rawStart, 0);
+        start.distance = 0;
+        start.isVisited = true;
+        siteInfos[0] = start;
+        int target = len + 1;
+        SiteInfo end = createPoint(rawEnd, target);
+        siteInfos[target] = end;
+        for (int i = 0; i < len; i++) {
+            siteInfos[i + 1] = createPoint(rawSites[i], i + 1);
+        }
+
+        opens.add(start);
+        while (!opens.isEmpty()) {
+            SiteInfo cur = opens.poll();
+            List<Integer> neighbors = searchNeighbors(cur, siteInfos);
+            for (int neighborId: neighbors) {
+                if (neighborId == target) {
+                    return cur.distance;
+                }
+                siteInfos[neighborId].isVisited = true;
+                siteInfos[neighborId].distance = cur.distance + 1;
+                opens.add(siteInfos[neighborId]);
+            }
+        }
+        return -1;
+    }
+
+    private List<Integer> searchNeighbors(SiteInfo cur, SiteInfo[] siteInfos) {
+        List<Integer> neighbors = new ArrayList<>();
+        for (SiteInfo siteInfo : siteInfos) {
+            if (siteInfo.isVisited) {
+                continue;
+            }
+            int coverage = 0;
+            if (cur.id != 0) {
+                coverage += ISD;
+            }
+            if (siteInfo.id != siteInfos.length - 1) {
+                coverage += ISD;
+            }
+            if (isNear(cur, siteInfo, coverage)) {
+                neighbors.add(siteInfo.id);
+            }
+        }
+        return neighbors;
+    }
+
+    private boolean isNear(SiteInfo a, SiteInfo b, int coverage) {
+        return Math.pow(a.lon - b.lon, 2) + Math.pow(a.lat - b.lat, 2) <= Math.pow(coverage, 2);
+    }
+
+    private SiteInfo createPoint(String raw, int index) {
+        String[] raws = raw.split(" ");
+        return new SiteInfo(Integer.parseInt(raws[0]), Integer.parseInt(raws[1]), index);
+    }
+}
+
+class SiteInfo {
+    int lat;
+    int lon;
+    int id;
+    boolean isVisited;
+    int distance;
+
+    public SiteInfo(int lat, int lon, int id) {
+        this.lat = lat;
+        this.lon = lon;
+        this.id = id;
+        this.isVisited = false;
+        this.distance = -1;
+    }
+}
+    
+    ```
