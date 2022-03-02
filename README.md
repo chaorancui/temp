@@ -583,3 +583,196 @@ class SiteInfo {
 https://shenjun4cplusplus.github.io/cplusplushtml/%E7%AC%AC3%E7%AB%A0%20%E5%A4%84%E7%90%86%E6%95%B0%E6%8D%AE/3_4_1%20%E8%BF%90%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E7%BA%A7%E5%92%8C%E7%BB%93%E5%90%88%E6%80%A7.html
 
 https://docs.microsoft.com/zh-cn/cpp/cpp/cpp-built-in-operators-precedence-and-associativity?view=msvc-170
+
+
+
+
+第一题：DiskSystem AC
+
+实现一个磁盘系统的增、删、整理
+
+初始化一个大小为capacity容量的磁盘
+
+增：给定一个文件fileid和大小，若磁盘能存放，将其存放在磁盘中，可以不连续，返回最后一个存放数据的位置索引。若空间不够，返回-1
+
+删：删除指定fileId的文件，若无这个文件，返回-1
+
+整理：将磁盘文件按大小依次存放在磁盘中，返回文件个数
+
+-Java 代码
+查看代码
+01
+import java.util.Map;
+02
+import java.util.TreeMap;
+03
+ 
+04
+class DiskSystem {
+05
+    // 这里使用一个数组作为磁盘容器，并使用一个int值记录剩下的磁盘容量
+06
+    private int[] disk;
+07
+    private int lastSize;
+08
+    // 初始化，按照给定的大小建立数组，并初始化剩余容量
+09
+    public DiskSystem(int capacity) {
+10
+        this.disk = new int[capacity];
+11
+        this.lastSize = capacity;
+12
+    }
+13
+ 
+14
+    public int add(int fileId, int fileSize) {
+15
+        // 看剩余容量是否满足增加文件，若不满足，返回-1。建立剩余容量的好处就在于可以少遍历几次数组
+16
+        int lastfile = fileSize;
+17
+        if (this.lastSize < fileSize) {
+18
+            return -1;
+19
+        }
+20
+        for (int i = 0; i < this.disk.length; i++) {
+21
+      // 遍历数组，为0的空间放置文件，同时减小剩余空间、文件大小，当文件大小为0，返回当前索引。
+22
+            if (this.disk[i] == 0) {
+23
+                this.disk[i] = fileId;
+24
+                lastfile -= 1;
+25
+                this.lastSize -= 1;
+26
+            }
+27
+            if (lastfile == 0) {
+28
+                return i;
+29
+            }
+30
+        }
+31
+        return -1;
+32
+    }
+33
+ 
+34
+    public int remove(int fileId) {                
+35
+    // 先记录当前剩余位置，遍历一边数组，符合给fileId的置0，磁盘剩余容量+1。判断遍历后的磁盘剩余容量是否相等。 
+36
+        // 若相同，则不存在fileId，返回-1;若不同，返回当前磁盘剩余容量。
+37
+        int beforeRemoveSize = this.lastSize;
+38
+        for (int i = 0; i < this.disk.length; i++) {
+39
+            if (this.disk[i] == fileId) {
+40
+                this.disk[i] = 0;
+41
+                this.lastSize += 1;
+42
+            }
+43
+        }
+44
+        if (this.lastSize > beforeRemoveSize) {
+45
+            return this.lastSize;
+46
+        } else {
+47
+            return -1;
+48
+        }
+49
+    }
+50
+ 
+51
+    public int defrag() { 
+52
+        // 整理空间，遍历数组，使用treeMap，记录文件个数，treeMap保证了文件按大小顺序排列，数组为0时跳过。
+53
+        Map<Integer, Integer> treemap = getFiles();
+54
+        int index = 0;
+55
+        int files = 0;
+56
+        for (Map.Entry<Integer, Integer> treeEntry : treemap.entrySet()) {
+57
+            // 遍历treeMap，将值填到数组中。
+58
+            files += 1;
+59
+            for (int i = 0; i < treeEntry.getValue(); i++) {
+60
+                this.disk[index] = treeEntry.getKey();
+61
+                index += 1;
+62
+            }
+63
+        }
+64
+        // 剩余数组，置0，有很多测试用例通过但是提交报错的可能就少这一步。
+65
+        for (int i = index; i < this.disk.length; i++) {
+66
+            this.disk[i] = 0;
+67
+        }
+68
+        return files;
+69
+    }
+70
+ 
+71
+    public Map<Integer, Integer> getFiles() {
+72
+        TreeMap<Integer, Integer> map = new TreeMap<>();
+73
+        for (int i : this.disk) {
+74
+            if (i == 0) {
+75
+                continue;
+76
+            }
+77
+            if (map.containsKey(i)) {
+78
+                int curNum = map.get(i);
+79
+                map.put(i, curNum + 1);
+80
+            } else {
+81
+                map.put(i, 1);
+82
+            }
+83
+        }
+84
+        return map;
+85
+    }
+
+
+
+
+
