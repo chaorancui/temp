@@ -774,5 +774,473 @@ class DiskSystem {
 
 
 
+第二题：操作系统文件拷贝
+输入：
+
+TargetDir []string：目标文件路径
+DstDirLine int：被拷贝到第几行文件夹下
+SrcDir []string：需要拷贝的文件夹
+输出：
+[]string：拷贝完后的文件路径，并且文件要以字典序排序
+题目描述得很复杂，但是其实就是把一个目录拷贝到另外一个目录下面，满足三个条件：
+
+同一层级不能有相同命名的文件夹，如果目标路径有和原路径相同的文件夹，则需要合并子文件
+如果目标路径有，但是原路径没有，则保留目标路径的文件夹
+如果目标路径没有，但是原路径有，则创建新的文件夹
+注意：SrcDir的根目录不会被拷贝
+例一：
+TargetDir :
+
+HOME
+  log
+    config
+  license
+    lib32
+    lib64
+  usr
+  pkg
+DstDirLine: 1
+SrcDir:
+
+bin
+  games
+  license
+    lib32
+    libx86
+  usr
+    pwd
+如上图，被拷贝到第一行文件夹下，也就是HOME下，最后输出如下
+
+HOME
+  games
+  license
+    lib32
+    lib64
+    libx86
+  log
+    config
+  pkg
+  usr
+    pwd
+代码：
+
+type treeNode struct {
+	name     string
+	level    int
+	children []*treeNode
+}
+ 
+func copyDir(targetDir []string, dstDirLine int, srcDir []string) []string {
+	res := make([]string, 0)
+	targetTree, dstTree := buildTree(targetDir, dstDirLine)
+	srcTree, _ := buildTree(srcDir, 0)
+	if dstDirLine == 1 {
+		combineTree(targetTree, srcTree)
+	} else {
+		combineTree(dstTree, srcTree)
+	}
+	res = printRes(targetTree, 0, res)
+	return res
+}
+ 
+func combineTree(dst, src *treeNode) {
+	if src == nil {
+		return
+	}
+	if len(dst.children) == 0 {
+		for _, node := range src.children {
+			dst.children = append(dst.children, node)
+		}
+		sortChildren(dst.children)
+		return
+	}
+	nameNodeMap := make(map[string]*treeNode)
+	for _, node := range dst.children {
+		nameNodeMap[node.name] = node
+	}
+	for _, node := range src.children {
+		if oriNode, ok := nameNodeMap[node.name]; ok {
+			combineTree(oriNode, node)
+		} else {
+			dst.children = append(dst.children, node)
+		}
+	}
+	sortChildren(dst.children)
+}
+ 
+func printRes(targetTree *treeNode, indent int, res []string) []string {
+	res = append(res, strings.Repeat(" ", indent*2) + targetTree.name)
+	sortChildren(targetTree.children)
+	for _, node := range targetTree.children {
+		res = printRes(node, indent + 1, res)
+	}
+	return res
+}
+ 
+func sortChildren(children []*treeNode) {
+	sort.Slice(children, func(i, j int) bool {
+		return children[i].name < children[j].name
+	})
+}
+
+
+
+
+请设计一个仓库管理系统，实现如下功能：
+
+StorageSystem(int coldStorageNum, int coldStoragePrice, int normalStorageNum, int normalStoragePrice, int delay) -初始化仓库信息。
+
+仓库有冷藏和常温两种类型的储藏室，初始化其对应的数量和每天租赁价格；
+
+若客户租赁过期且超出delay天后，依旧未提取货物，该储物区将被清空；
+
+Store(int date, int storageId, int storageType, int storageDays) -在日期date为存单storageId租赁storageType类型的一个储藏室，并存放物品storageDays天。
+
+若有空间则存储成功，则需预付storageDays的费用（按照实际储藏室类型进行计算：天数*每日租赁价格），返回该费用；
+
+        当常温储藏室空间不足时，可使用空闲的冷藏储藏室存储；反之不可以；
+
+        date为【租赁起始日期】，日期超过date + storageDays时开始过期
+
+若无空间则不做任何处理，并返回 -1.
+系统保证storageId参数全局唯一，storageType为0表示冷藏，1表示常温。
+
+Retrieve(int date, int storageId) -在日期date，客户取出存单storageId（存单一定存在且未被提取）对应的物品：
+
+若存单过期时，则取出物品，并返回0；
+
+若存单过期但未超出delay天，则取出物品，并返回需要补交的费用（实际延迟天数*每日价格），实际延迟天数=date - （租赁起始日期 + storageDays）；
+
+若存单过期且已超出delay天（日期超过 租赁起始日期 + storageDays + delay）时，则物品已被清空，则取出失败，并返回 -1.
+
+Query(int date) -请返回截止日期date时3种状态的存单数量序列，依次为：物品已成功取出，物品未取仍在仓库中，物品被清空的存单数量。
+
+注意：保证函数store、retrieve、query的日期date参数按输入顺序非严格递增；
+
+示例1：
+
+输入：
+
+["StorageSystem", "store", "retrieve", "query"]
+
+[[2,2,1,1,2], [0,1,0,2], [3.1], [3]]
+
+输出[null, 4, 2, [1, 0, 0]]
+
+
+
+
+class StorageSystem {
+
+public:
+
+    StorageSystem(int coldStorageNum, int coldStoragePrice, int normalStorageNum, 
+
+                                int normalStoragePrice, int delay)
+
+    {
+
+       
+
+    }
+
+
+
+    int Store(int date, int storageId, int storageType, int storageDays)
+
+    {
+
+        
+
+    }
+
+
+
+    int Retrieve(int date, int storageId)
+
+    {
+
+        
+
+    }
+
+
+
+    vector<int> Query(int date)
+
+    {
+
+       
+
+    }
+
+};
+
+
+分析：
+涉及题，首先得选好数据结构，由题意storageId全局唯一，且需要在函数调用中添加、查找、删除，可以使用时间复杂度为O（1）的哈希表<stroageId, 物品信息>来表示仓库，物品信息可自定义结构体表示。如下代码是提交已通过代码，可作参考。
+
+
+
+
+class StorageSystem {
+
+public:
+
+    StorageSystem(int coldStorageNum, int coldStoragePrice, int normalStorageNum, 
+
+                                int normalStoragePrice, int delay)
+
+    {
+
+        this->coldStorageNum = coldStorageNum;
+
+        this->coldStoragePrice = coldStoragePrice;
+
+        this->normalStorageNum = normalStorageNum;
+
+        this->normalStoragePrice = normalStoragePrice;
+
+        this->delay = delay;
+
+    }
+
+
+
+    int Store(int date, int storageId, int storageType, int storageDays)
+
+    {
+
+        Query(date);
+
+        if ((storageType == 0 && coldStorageNum <= 0) || 
+
+            (storageType == 1 && (coldStorageNum + normalStorageNum <= 0))) {
+
+            return -1;
+
+        }
+
+        if (storageType == 0) {
+
+            sys[storageId] = {date, storageType, storageDays};
+
+            coldStorageNum--;
+
+            return storageDays * coldStoragePrice;
+
+        }
+
+        if (normalStorageNum <= 0) {
+
+            sys[storageId] = {date, 0, storageDays};
+
+            coldStorageNum--;
+
+            return storageDays * coldStoragePrice;
+
+        } else {
+
+            sys[storageId] = {date, 1, storageDays};
+
+            normalStorageNum--;
+
+            return storageDays * normalStoragePrice;
+
+        }
+
+    }
+
+
+
+    int Retrieve(int date, int storageId)
+
+    {
+
+        int ret = 0;
+
+        Query(date);
+
+        if (sys.count(storageId) == 0) {
+
+            return -1;
+
+        }
+
+        int beyond = date - (sys[storageId].date + sys[storageId].storageDays);
+
+        if (beyond <= delay) {
+
+            get[storageId] = sys[storageId];
+
+        }
+
+        if (0 < beyond && beyond <= delay) {
+
+            int price = sys[storageId].storageType == 0 ? coldStoragePrice : normalStoragePrice;
+
+            ret = beyond * price;
+
+        }
+
+        if (sys[storageId].storageType == 0) {
+
+            coldStorageNum++;
+
+        } else {
+
+            normalStorageNum++;
+
+        }
+
+        sys.erase(storageId);
+
+        return ret;
+
+    }
+
+
+
+    vector<int> Query(int date)
+
+    {
+
+        for (auto it = sys.begin(); it != sys.end();) {
+
+            int beyond = date - (it->second.date + it->second.storageDays);
+
+            if (beyond > delay) {
+
+                del[it->first] = it->second;
+
+                if (it->second.storageType == 0) {
+
+                    coldStorageNum++;
+
+                } else {
+
+                    normalStorageNum++;
+
+                }
+
+                it = sys.erase(it);
+
+            } else {
+
+                it++;
+
+            }
+
+        }
+
+        int g = get.size();
+
+        int in = sys.size();
+
+        int d = del.size();
+
+        return {g, in, d};
+
+    }
+
+
+
+private:
+
+    unordered_map<int, crit> sys;
+
+    unordered_map<int, crit> del;
+
+    unordered_map<int, crit> get;
+
+    int coldStorageNum {0};
+
+    int coldStoragePrice {0};
+
+    int normalStorageNum {0};
+
+    int normalStoragePrice {0};
+
+    int delay {0};
+
+};
+
+
+
+class RateLimitSystem1 {
+public:
+    explicit RateLimitSystem1(int tokenLimit)
+    {
+        maxCardNum = tokenLimit;
+        this->rateSystem = vector<tuple<int, int, int>>(1000);
+    }
+
+    bool AddRule(int ruleId, int time, int interval, int number)
+    {
+        if (system.count(ruleId)) {
+            return false;
+        } else {
+            rateSystem[ruleId] = { time, interval, number };
+            system[ruleId] = 1;
+            UpdateCardNum(time);
+            return true;
+        }
+    }
+
+    bool RemoveRule(int ruleId, int time)
+    {
+        if (!system.count(ruleId)) {
+            return false;
+        } else {
+            UpdateCardNum(time);
+            system.erase(ruleId);
+            return true;
+        }
+    }
+
+    bool TransferData(int time, int size)
+    {
+        UpdateCardNum(time);
+        if (curCardNum < size) {
+            return false;
+        }
+        curCardNum = curCardNum - size;
+        return true;
+    }
+    void UpdateCardNum(int curTime)
+    {
+        for (int tempTime = lastOrderTime; tempTime <= curTime; tempTime++) {
+            for (auto item : system) {
+                int id = item.first;
+                auto [time, interval, number] = rateSystem[id];
+                if (tempTime < time) {
+                    continue;
+                }
+                if ((tempTime - time) % interval == 0) {        // 设计精妙的地方在这里，时间步长为1往后扫描！！！
+                    curCardNum = std::min(curCardNum + number, maxCardNum);
+                }
+            }
+        }
+        lastOrderTime = curTime + 1;
+    }
+    int QueryToken(int curTime)
+    {
+        UpdateCardNum(curTime);
+        return curCardNum;
+    }
+
+private:
+    int maxCardNum{0};
+    int curCardNum{0};
+    int lastOrderTime{0};
+    vector<tuple<int, int, int> > rateSystem;   //此处的tuple可以用struct替代
+    map<int, int> system;
+};
+
+
+
+
+
+
 
 
