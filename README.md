@@ -585,7 +585,119 @@ https://shenjun4cplusplus.github.io/cplusplushtml/%E7%AC%AC3%E7%AB%A0%20%E5%A4%8
 https://docs.microsoft.com/zh-cn/cpp/cpp/cpp-built-in-operators-precedence-and-associativity?view=msvc-170
 
 
+```c++
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <unordered_map>
+#include <vector>
 
+using namespace std;
+
+class StorageSystem {
+ public:
+  StorageSystem(int coldstoregeNum, int coldStoregePirce, int normalStorageNum,
+                int normalStoragePirce, int delay) {
+    coldSotregeNum_ = coldstoregeNum;
+    coldStoregePirce_ = coldStoregePirce;
+    normalStorageNum_ = normalStorageNum;
+    normalStoragePirce_ = normalStoragePirce;
+    delay_ = delay;
+  }
+
+  int Store(int date, int storageId, int storageType, int storageDays) {
+    Query(date);
+    if ((storageType == 0 && coldSotregeNum_ <= 0) ||
+        (storageType == 1 && (coldSotregeNum_ + normalStorageNum_ <= 0))) {
+      return -1;
+    }
+
+    if (storageType == 0) {
+      sys[storageId] = {date, storageType, storageDays};
+      coldSotregeNum_--;
+      return storageDays * coldStoregePirce_;
+    }
+
+    if (normalStorageNum_ <= 0) {
+      sys[storageId] = {date, 0, storageDays};
+      coldSotregeNum_--;
+      return storageDays * coldStoregePirce_;
+    } else {
+      sys[storageId] = {date, 1, storageDays};
+      normalStorageNum_--;
+      return storageDays * normalStoragePirce_;
+    }
+  }
+
+  int Retrieve(int date, int storageId) {
+    int ret = 0;
+    Query(date);
+    if (sys.count(storageId) == 0) {
+      return -1;
+    }
+    int beyond = date - (sys[storageId].date + sys[storageId].storageDays);
+    if (beyond <= delay_) {
+      get[storageId] = sys[storageId];
+    }
+    if (0 < beyond && beyond <= delay_) {
+      int price = sys[storageId].storageType == 0 ? coldStoregePirce_ : normalStoragePirce_;
+      ret = beyond * price;
+    }
+    if (sys[storageId].storageType == 0) {
+      coldSotregeNum_++;
+    } else {
+      normalStorageNum_++;
+    }
+    sys.erase(storageId);
+    return ret;
+  }
+
+  vector<int> Query(int date) {
+    for (auto it = sys.begin(); it != sys.end();) {
+      int beyond = date - (it->second.date + it->second.storageDays);
+      if (beyond > delay_) {
+        del[it->first] = it->second;
+        if (it->second.storageType == 0) {
+          coldSotregeNum_++;
+        } else {
+          normalStorageNum_++;
+        }
+        it = sys.erase(it);
+      } else {
+        it++;
+      }
+    }
+
+    int g = get.size();
+    int in = sys.size();
+    int d = del.size();
+    return {g, in, d};
+  }
+
+ private:
+  struct crit {
+    int date;
+    int storageType;
+    int storageDays;
+  };
+
+  unordered_map<int, crit> sys;
+  unordered_map<int, crit> del;
+  unordered_map<int, crit> get;
+  int coldSotregeNum_{0};
+  int coldStoregePirce_{0};
+  int normalStorageNum_{0};
+  int normalStoragePirce_{0};
+  int delay_{0};
+};
+
+int main() {
+  return 0;
+}
+
+```
 
 第一题：DiskSystem AC
 
