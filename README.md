@@ -1349,6 +1349,118 @@ private:
     map<int, int> system;
 };
 
+```C++
+#include <iostream>
+#include <string>
+#include <vector>
+#include <utility>
+#include <algorithm>
+#include <map>
+using namespace std;
+
+
+class RateLimitSystem {
+public:
+    int tokenLimit_;
+    int tokenNumber_;
+    int time_; // 用于保存每次操作的时间
+    struct Rule_ {
+        int time;
+        int interval;
+        int number;
+    };
+    map<int, Rule_> tokenMap_;
+
+    explicit RateLimitSystem(int tokenLimit)
+    {
+        tokenLimit_ = tokenLimit;
+        tokenNumber_ = 0;
+        time_ = 0;
+    }
+
+    bool AddRule(int ruleId, int time, int interval, int number)
+    {
+        Rule_ rule = { time, interval, number };
+        auto result = tokenMap_.insert(pair<int, Rule_>(ruleId, rule));
+        bool flag = result.second;
+        updateTokenNumber(time);
+        time_ = time + 1;
+        return flag;
+    }
+
+    bool RemoveRule(int ruleId, int time)
+    {
+        updateTokenNumber(time);
+        bool flag = false;
+        if (tokenMap_.find(ruleId) != tokenMap_.end()) {
+            tokenMap_.erase(ruleId);
+            flag = true;
+        }
+
+        time_ = time + 1;
+        return flag;
+    }
+
+    bool TransferData(int time, int size)
+    {
+        updateTokenNumber(time);
+        bool flag = false;
+        if (tokenNumber_ >= size) {
+            tokenNumber_ -= size;
+            flag = true;
+        }
+        time_ = time + 1;
+        return flag;
+    }
+
+    int QueryToken(int time)
+    {
+        updateTokenNumber(time);
+        time_ = time + 1;
+        return tokenNumber_;
+    }
+
+    void updateTokenNumber(int time)
+    {
+        for (auto iter = tokenMap_.begin(); iter != tokenMap_.end(); ++iter) { // 每一种规则令牌计数
+            for (int i = iter->second.time; i <= time; i += iter->second.interval) { // 规则i令牌计算
+                if (i < time_) {
+                    continue;
+                }
+                if (tokenNumber_ + iter->second.number <= tokenLimit_) {
+                    tokenNumber_ += iter->second.number;
+                } else {
+                    tokenNumber_ = tokenLimit_;
+                }
+            }
+        }
+    }
+};
+
+
+int main()
+{
+    RateLimitSystem sol(8);
+    cout << sol.AddRule(0, 0, 1, 3) << endl;
+    cout << sol.AddRule(1, 2, 2, 1) << endl;
+    cout << sol.TransferData(3, 12) << endl;
+    cout << sol.RemoveRule(3, 4) << endl;
+    cout << sol.RemoveRule(0, 5) << endl;
+    cout << sol.TransferData(6, 8) << endl;
+    cout << sol.QueryToken(7) << endl;
+    cout << sol.RemoveRule(1, 8) << endl;
+    cout << sol.QueryToken(9) << endl;
+    cout << sol.AddRule(0, 10, 2, 2) << endl;
+    cout << sol.QueryToken(12) << endl;
+    cout << sol.AddRule(0, 13, 2, 2) << endl;
+    cout << sol.TransferData(14, 8) << endl;
+
+
+    cout << 10 << endl;
+
+    return 0;
+}
+```
 
 
 
