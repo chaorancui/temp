@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### c++ cout 不能正常打印uint8_t
+https://blog.csdn.net/carbon06/article/details/80856436
+
 ### 回调函数
 https://www.runoob.com/w3cnote/c-callback-function.html
 
