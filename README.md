@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### c++算术运算时数据类型提升带来的问题
+https://www.programminghunter.com/article/2113391637/
+
 ### c++ cout 不能正常打印uint8_t
 https://blog.csdn.net/carbon06/article/details/80856436
 
