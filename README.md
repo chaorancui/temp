@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### [C++]五花八门的C++初始化规则
+https://segmentfault.com/a/1190000039844285
+
 ### c++算术运算时数据类型提升带来的问题
 https://www.programminghunter.com/article/2113391637/
 
