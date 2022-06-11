@@ -1,6 +1,8 @@
 # -
 无卵用的记录
 
+https://blog.csdn.net/Jxianxu/article/details/80524526
+
 ### [C++]五花八门的C++初始化规则
 https://segmentfault.com/a/1190000039844285
 
