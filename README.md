@@ -1,6 +1,8 @@
 # -
 无卵用的记录
 
+C++中的POD类型
+https://cloud.tencent.com/developer/article/1814242
 https://blog.csdn.net/Jxianxu/article/details/80524526
 
 ### [C++]五花八门的C++初始化规则
