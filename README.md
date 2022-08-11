@@ -1,10 +1,13 @@
 # -
 无卵用的记录
 
-C++点点滴滴（上）
+### vscode
+https://www.thisfaner.com/p/vs-code-tips/
+
+### C++点点滴滴（上）
 https://azurery.github.io/2019/03/09/C++%E7%82%B9%E7%82%B9%E6%BB%B4%E6%BB%B4%EF%BC%88%E4%B8%8A%EF%BC%89/
 
-C++中的POD类型
+### C++中的POD类型
 https://cloud.tencent.com/developer/article/1814242
 https://blog.csdn.net/Jxianxu/article/details/80524526
 
