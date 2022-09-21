@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### 设计模式网站
+https://refactoringguru.cn/design-patterns
+
 ### vscode
 https://www.thisfaner.com/p/vs-code-tips/
 
