@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### C++ Primer英文第五版
+chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://zhjwpku.com/assets/pdf/books/C++.Primer.5th.Edition_2013.pdf
+
 ### C++Primer第五版 习题答案
 https://github.com/smzztx/CppPrimer_5th_cn
 
