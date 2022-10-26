@@ -110,1395 +110,662 @@ https://blog.csdn.net/xuyi1218037/article/details/84298615
 https://www.cnblogs.com/lyggqm/p/5386174.html
 
 
+C++ 知识点总结
 
+类成员函数放在类声明中实现，则此函数默认是内联函数
+
+
+
+
+
+条件同时满足的写法
+
+    // a, b, c 同时为1时返回true；否则返回false
+    // 写法1
+    if (a && b && c) {
+    	return true;
+    }
     
-    
----
-```markdown
-1、 识别无线信号连续覆盖区域
-
-某天小王搭小黄的车从东莞一路到了深圳，期间接了一个电话，一路上电话都没有中断，小王在想这是为什么呢？基站的信号覆盖有这么远吗？实际上我们单个基站的信号覆盖并没有那么远，这中间可能切换了好几个基站了，但是对于打电话的人并不感知，这就得益于无线信号的连续覆盖和平滑切换。
-为了简化处理我们假设所有基站的信号都是360度覆盖，覆盖半径都是300m（也即两个站点间距离小于等于600m，则认为是连续覆盖），同时我们假设基站所在坐标是平面的，已知输入一批基站坐标，请帮忙计算小王打着电话从坐标A移动到坐标B的过程，能否找到一条信号不中断的路线，如果存在这样的路径，则输出小王所需要经过的最少的信号连续覆盖的站点数量，否则输出-1。
-
-解答要求
-时间限制: 800ms, 内存限制: 100MB
-输入
-第一行为起始坐标A，
-第二行为终点坐标B，
-第三行为站点数量M，M的取值范围[1, 10000]；
-接下来M行为每个站点的坐标，坐标取值范围[-100000, 100000]，输入坐标可能是乱序的，比如：
-200 300
-800 800
-3
-400 400
-700 600
-500 500
-
-输出
-如果不会中断输出沿途经过的连续覆盖区域的最少站点数量，如果会中断则输出-1，如上例子，起点(200 300)和终点（800，800），则最少经过的站点为：
-400 400
-700 600
-
-最少2个站点，所以输出为：
-2
-
-样例1
-复制输入：
-200 300
-800 800
-3
-400 400
-500 500
-700 600
-复制输出：
-2
-解释：
-起点(200 300)和终点（800，800），则最少经过的站点为：
-400 400
-700 600
-则输出结果为2
-
-样例2
-复制输入：
-200 300
-800 800
-1
-500 500
-复制输出：
--1
-解释：
-站点（500,500）无法覆盖起点和终点，所以输出结果为-1
-
-样例3
-复制输入：
-400 400
-800 800
-1
-600 600
-复制输出：
-1
-解释：
-站点（600,600）可以覆盖起点和终点，所以输出结果为1
-    
-```
-    
-    
-```Java
-// We have imported the necessary tool classes.
-// If you need to import additional packages or classes, please import here.
-
-public class Main {
-    public static void main(String[] args) {
-    // please define the JAVA input here. For example: Scanner s = new Scanner(System.in);
-    // please finish the function body here.
-    // please define the JAVA output here. For example: System.out.println(s.nextInt());
-        Scanner scanner = new Scanner(System.in);
-        String start = scanner.nextLine();
-        String end = scanner.nextLine();
-        int siteNum = Integer.parseInt(scanner.nextLine());
-        String[] sites = new String[siteNum];
-        for (int i = 0; i < siteNum; i++) {
-            sites[i] = scanner.nextLine();
-        }
-        ShortestPathUtil shortestPathUtil = new ShortestPathUtil();
-        System.out.println(shortestPathUtil.solve(start, end, sites));
+    // 写法2
+    if (!a) {
+    	return false;
     }
-}
-
-class ShortestPathUtil {
-    private static final int ISD = 300;
-    private final Queue<SiteInfo> opens = new ArrayDeque<>();
-
-    int solve(String rawStart, String rawEnd, String[] rawSites) {
-        int len = rawSites.length;
-        SiteInfo[] siteInfos = new SiteInfo[len + 2];
-        SiteInfo start = createPoint(rawStart, 0);
-        start.distance = 0;
-        start.isVisited = true;
-        siteInfos[0] = start;
-        int target = len + 1;
-        SiteInfo end = createPoint(rawEnd, target);
-        siteInfos[target] = end;
-        for (int i = 0; i < len; i++) {
-            siteInfos[i + 1] = createPoint(rawSites[i], i + 1);
-        }
-
-        opens.add(start);
-        while (!opens.isEmpty()) {
-            SiteInfo cur = opens.poll();
-            List<Integer> neighbors = searchNeighbors(cur, siteInfos);
-            for (int neighborId: neighbors) {
-                if (neighborId == target) {
-                    return cur.distance;
-                }
-                siteInfos[neighborId].isVisited = true;
-                siteInfos[neighborId].distance = cur.distance + 1;
-                opens.add(siteInfos[neighborId]);
-            }
-        }
-        return -1;
+    if (!b) {
+    	return false;
     }
-
-    private List<Integer> searchNeighbors(SiteInfo cur, SiteInfo[] siteInfos) {
-        List<Integer> neighbors = new ArrayList<>();
-        for (SiteInfo siteInfo : siteInfos) {
-            if (siteInfo.isVisited) {
-                continue;
-            }
-            int coverage = 0;
-            if (cur.id != 0) {
-                coverage += ISD;
-            }
-            if (siteInfo.id != siteInfos.length - 1) {
-                coverage += ISD;
-            }
-            if (isNear(cur, siteInfo, coverage)) {
-                neighbors.add(siteInfo.id);
-            }
-        }
-        return neighbors;
+    if (!c) {
+    	return false;
     }
+    return true;
 
-    private boolean isNear(SiteInfo a, SiteInfo b, int coverage) {
-        return Math.pow(a.lon - b.lon, 2) + Math.pow(a.lat - b.lat, 2) <= Math.pow(coverage, 2);
-    }
+这种好处是针对很长的条件判断，易读性较好。
 
-    private SiteInfo createPoint(String raw, int index) {
-        String[] raws = raw.split(" ");
-        return new SiteInfo(Integer.parseInt(raws[0]), Integer.parseInt(raws[1]), index);
-    }
-}
 
-class SiteInfo {
-    int lat;
-    int lon;
-    int id;
-    boolean isVisited;
-    int distance;
 
-    public SiteInfo(int lat, int lon, int id) {
-        this.lat = lat;
-        this.lon = lon;
-        this.id = id;
-        this.isVisited = false;
-        this.distance = -1;
-    }
-}
-```
+回调函数(callback)
 
+一般来说，只要参数是一个函数，那么这个函数就是回调。
 
-```markdown
-200 300
-800 800
-3
-400 400
-500 500
-700 600
+很多初学者不明白 callback 的用法，因为 callback 有一点「反直觉」。
 
-2
-```
+比如说我们用代码做一件事情，分为两步：step1( ) 和 step2( )。
 
-```markdown
-2100 0
-9900 0
-100
-46600 31300
-67100 88900
-42900 50200
-57900 83700
-79400 94000
-55400 40300
-56100 57800
-79800 37900
-7200 0
-91200 66700
-70700 61700
-73500 89000
-33200 60400
-28800 83000
-25200 50900
-85400 84500
-43700 41200
-5400 0
-80100 79800
-40800 88200
-43000 54300
-2400 0
-60700 49200
-40100 50800
-70800 64700
-7800 0
-69300 58800
-38900 34200
-1200 0
-89800 71400
-60100 42700
-94800 61900
-9600 0
-25900 60700
-69000 53200
-76200 37600
-55900 25300
-94000 26200
-500 5100
-80200 30000
-8700 10200
-58500 49900
-84400 97200
-52700 62300
-88900 42600
-60600 34200
-39700 85400
-74500 32900
-3000 0
-74700 62100
-89300 84000
-4200 2200
-33000 79600
-8400 0
-38200 84700
-5400 0
-48800 68600
-32900 28900
-78100 50300
-60700 52600
-98400 46500
-37700 32300
-72400 83500
-32800 25800
-76900 40700
-76400 38600
-4200 0
-6000 0
-1700 2400
-74600 99200
-96300 73900
-31900 60200
-52900 54000
-9300 1700
-94000 32900
-3600 0
-31400 38000
-57100 54900
-85700 26100
-47600 30500
-85200 32000
-98600 82400
-63700 65400
-47700 73900
-76500 84100
-91400 63500
-68500 37500
-82200 84300
-50200 50900
-38000 32900
-4800 0
-9000 0
-91900 92900
-95000 62000
-48000 70800
-6600 0
-99300 35900
-3000 0
-67700 26100
-63000 99700
+符合人类直觉的代码是：
 
-13
-```
+    step1()
+    step2()
 
-```markdown
-9300 0
-23700 0
-200
-5400 0
-7800 0
-48800 68600
-38200 84700
-8400 0
-48400 40700
-14400 0
-40100 50800
-23400 0
-80200 30000
-25900 60700
-99800 27500
-46900 88900
-70800 64700
-8700 10200
-92500 36200
-5400 0
-69300 58800
-89800 71400
-80200 30000
-1200 0
-18000 0
-91200 66700
-89800 71400
-80100 79800
-25200 50900
-9600 0
-43100 52000
-18000 0
-5400 0
-38900 34200
-13800 0
-82300 85100
-5400 0
-14400 0
-46900 44500
-600 0
-79400 94000
-600 0
-7800 0
-40100 50800
-65900 80500
-7200 0
-25900 60700
-60100 42700
-40800 88200
-9600 0
-13800 0
-20000 0
-5400 0
-32900 28900
-33200 60400
-32900 28900
-38200 84700
-94800 61900
-51200 32900
-91200 66700
-80200 30000
-8400 0
-89800 71400
-82500 85100
-40100 50800
-79400 94000
-48800 68600
-38900 34200
-94200 99500
-9600 0
-41300 86000
-48800 68600
-89800 71400
-15000 0
-20400 0
-1200 0
-60900 51000
-70700 61700
-94000 26200
-72300 70800
-1200 0
-5400 0
-56000 90700
-18600 0
-40800 88200
-94000 26200
-20000 0
-59200 36500
-21000 0
-8400 0
-19600 0
-79800 37900
-32900 28900
-79400 94000
-10800 0
-56100 57800
-16200 0
-84100 80000
-3000 0
-69300 58800
-79800 37900
-12600 0
-33200 35400
-21600 0
-7800 0
-21600 0
-33200 60400
-20400 0
-25200 50900
-91200 66700
-33200 60400
-7200 0
-13200 0
-23400 0
-19200 0
-51400 31900
-80100 79800
-38200 84700
-79400 94000
-22200 0
-21000 0
-18600 0
-27900 78800
-9600 0
-80200 30000
-44300 85400
-22800 0
-69300 58800
-8400 0
-91600 35400
-22200 0
-57700 96700
-8700 10200
-11400 0
-40100 50800
-60700 49200
-32900 28900
-91200 66700
-8700 10200
-89300 84000
-25200 50900
-1200 0
-12000 0
-38900 34200
-56100 57800
-60100 97800
-16200 0
-9600 0
-5400 0
-60700 49200
-16800 0
-7200 0
-69300 58800
-79800 37900
-10200 0
-5400 0
-94000 26200
-17400 0
-52500 84700
-3000 0
-16800 0
-600 0
-15600 0
-19200 0
-33200 60400
-17400 0
-38900 34200
-52000 54200
-7200 0
-15600 0
-81300 38500
-25900 60700
-19600 0
-70100 95300
-8700 10200
-4200 2200
-38600 89000
-25200 50900
-25900 60700
-15000 0
-94800 61900
-22800 0
-40100 50800
-56100 57800
-14300 8300
-94800 61900
-94800 61900
-48800 68600
-7000 6000
-58700 77500
-79800 37900
-7800 0
-36700 35800
-80100 79800
-4200 2200
-80100 79800
-94000 26200
-56100 57800
-60700 49200
-600 0
-6700 4900
-38200 84700
-60700 49200
+callback 的写法却是这样的：
 
-25
-```
+    step1(step2)
 
-https://shenjun4cplusplus.github.io/cplusplushtml/%E7%AC%AC3%E7%AB%A0%20%E5%A4%84%E7%90%86%E6%95%B0%E6%8D%AE/3_4_1%20%E8%BF%90%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E7%BA%A7%E5%92%8C%E7%BB%93%E5%90%88%E6%80%A7.html
+为什么要这样写？或者说在什么情况下应该用这个「反直觉」的写法？
 
-https://docs.microsoft.com/zh-cn/cpp/cpp/cpp-built-in-operators-precedence-and-associativity?view=msvc-170
+一般（注意我说了一般），在 step1() 是一个异步任务的时候，就会使用 callback。
 
 
-```c++
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <unordered_map>
-#include <vector>
 
-using namespace std;
+位域的使用
 
-class StorageSystem {
- public:
-  StorageSystem(int coldstoregeNum, int coldStoregePirce, int normalStorageNum,
-                int normalStoragePirce, int delay) {
-    coldSotregeNum_ = coldstoregeNum;
-    coldStoregePirce_ = coldStoregePirce;
-    normalStorageNum_ = normalStorageNum;
-    normalStoragePirce_ = normalStoragePirce;
-    delay_ = delay;
-  }
+有些信息在存储时，并不需要占用一个完整的字节，而只需占几个或一个二进制位。例如在存放一个开关量时，只有 0 和 1 两种状态，用 1 位二进位即可。为了节省存储空间，并使处理简便，C 语言又提供了一种数据结构，称为"位域"或"位段"。
 
-  int Store(int date, int storageId, int storageType, int storageDays) {
-    Query(date);
-    if ((storageType == 0 && coldSotregeNum_ <= 0) ||
-        (storageType == 1 && (coldSotregeNum_ + normalStorageNum_ <= 0))) {
-      return -1;
-    }
+所谓"位域"是把一个字节中的二进位划分为几个不同的区域，并说明每个区域的位数。每个域有一个域名，允许在程序中按域名进行操作。这样就可以把几个不同的对象用一个字节的二进制位域来表示。
 
-    if (storageType == 0) {
-      sys[storageId] = {date, storageType, storageDays};
-      coldSotregeNum_--;
-      return storageDays * coldStoregePirce_;
-    }
+典型的实例：
 
-    if (normalStorageNum_ <= 0) {
-      sys[storageId] = {date, 0, storageDays};
-      coldSotregeNum_--;
-      return storageDays * coldStoregePirce_;
-    } else {
-      sys[storageId] = {date, 1, storageDays};
-      normalStorageNum_--;
-      return storageDays * normalStoragePirce_;
-    }
-  }
+- 用 1 位二进位存放一个开关量时，只有 0 和 1 两种状态。
+- 读取外部文件格式——可以读取非标准的文件格式。例如：9 位的整数。
 
-  int Retrieve(int date, int storageId) {
-    int ret = 0;
-    Query(date);
-    if (sys.count(storageId) == 0) {
-      return -1;
-    }
-    int beyond = date - (sys[storageId].date + sys[storageId].storageDays);
-    if (beyond <= delay_) {
-      get[storageId] = sys[storageId];
-    }
-    if (0 < beyond && beyond <= delay_) {
-      int price = sys[storageId].storageType == 0 ? coldStoregePirce_ : normalStoragePirce_;
-      ret = beyond * price;
-    }
-    if (sys[storageId].storageType == 0) {
-      coldSotregeNum_++;
-    } else {
-      normalStorageNum_++;
-    }
-    sys.erase(storageId);
-    return ret;
-  }
 
-  vector<int> Query(int date) {
-    for (auto it = sys.begin(); it != sys.end();) {
-      int beyond = date - (it->second.date + it->second.storageDays);
-      if (beyond > delay_) {
-        del[it->first] = it->second;
-        if (it->second.storageType == 0) {
-          coldSotregeNum_++;
-        } else {
-          normalStorageNum_++;
-        }
-        it = sys.erase(it);
-      } else {
-        it++;
-      }
-    }
 
-    int g = get.size();
-    int in = sys.size();
-    int d = del.size();
-    return {g, in, d};
-  }
+位域定义： 
 
- private:
-  struct crit {
-    int date;
-    int storageType;
-    int storageDays;
-  };
+位域定义与结构定义相仿，可采用先定义后说明，同时定义说明或者直接说明这三种方式。其形式为：
 
-  unordered_map<int, crit> sys;
-  unordered_map<int, crit> del;
-  unordered_map<int, crit> get;
-  int coldSotregeNum_{0};
-  int coldStoregePirce_{0};
-  int normalStorageNum_{0};
-  int normalStoragePirce_{0};
-  int delay_{0};
-};
-
-int main() {
-  return 0;
-}
-
-```
-
-第一题：DiskSystem AC
-
-实现一个磁盘系统的增、删、整理
-
-初始化一个大小为capacity容量的磁盘
-
-增：给定一个文件fileid和大小，若磁盘能存放，将其存放在磁盘中，可以不连续，返回最后一个存放数据的位置索引。若空间不够，返回-1
-
-删：删除指定fileId的文件，若无这个文件，返回-1
-
-整理：将磁盘文件按大小依次存放在磁盘中，返回文件个数
-
--Java 代码
-查看代码
-01
-import java.util.Map;
-02
-import java.util.TreeMap;
-03
- 
-04
-class DiskSystem {
-05
-    // 这里使用一个数组作为磁盘容器，并使用一个int值记录剩下的磁盘容量
-06
-    private int[] disk;
-07
-    private int lastSize;
-08
-    // 初始化，按照给定的大小建立数组，并初始化剩余容量
-09
-    public DiskSystem(int capacity) {
-10
-        this.disk = new int[capacity];
-11
-        this.lastSize = capacity;
-12
-    }
-13
- 
-14
-    public int add(int fileId, int fileSize) {
-15
-        // 看剩余容量是否满足增加文件，若不满足，返回-1。建立剩余容量的好处就在于可以少遍历几次数组
-16
-        int lastfile = fileSize;
-17
-        if (this.lastSize < fileSize) {
-18
-            return -1;
-19
-        }
-20
-        for (int i = 0; i < this.disk.length; i++) {
-21
-      // 遍历数组，为0的空间放置文件，同时减小剩余空间、文件大小，当文件大小为0，返回当前索引。
-22
-            if (this.disk[i] == 0) {
-23
-                this.disk[i] = fileId;
-24
-                lastfile -= 1;
-25
-                this.lastSize -= 1;
-26
-            }
-27
-            if (lastfile == 0) {
-28
-                return i;
-29
-            }
-30
-        }
-31
-        return -1;
-32
-    }
-33
- 
-34
-    public int remove(int fileId) {                
-35
-    // 先记录当前剩余位置，遍历一边数组，符合给fileId的置0，磁盘剩余容量+1。判断遍历后的磁盘剩余容量是否相等。 
-36
-        // 若相同，则不存在fileId，返回-1;若不同，返回当前磁盘剩余容量。
-37
-        int beforeRemoveSize = this.lastSize;
-38
-        for (int i = 0; i < this.disk.length; i++) {
-39
-            if (this.disk[i] == fileId) {
-40
-                this.disk[i] = 0;
-41
-                this.lastSize += 1;
-42
-            }
-43
-        }
-44
-        if (this.lastSize > beforeRemoveSize) {
-45
-            return this.lastSize;
-46
-        } else {
-47
-            return -1;
-48
-        }
-49
-    }
-50
- 
-51
-    public int defrag() { 
-52
-        // 整理空间，遍历数组，使用treeMap，记录文件个数，treeMap保证了文件按大小顺序排列，数组为0时跳过。
-53
-        Map<Integer, Integer> treemap = getFiles();
-54
-        int index = 0;
-55
-        int files = 0;
-56
-        for (Map.Entry<Integer, Integer> treeEntry : treemap.entrySet()) {
-57
-            // 遍历treeMap，将值填到数组中。
-58
-            files += 1;
-59
-            for (int i = 0; i < treeEntry.getValue(); i++) {
-60
-                this.disk[index] = treeEntry.getKey();
-61
-                index += 1;
-62
-            }
-63
-        }
-64
-        // 剩余数组，置0，有很多测试用例通过但是提交报错的可能就少这一步。
-65
-        for (int i = index; i < this.disk.length; i++) {
-66
-            this.disk[i] = 0;
-67
-        }
-68
-        return files;
-69
-    }
-70
- 
-71
-    public Map<Integer, Integer> getFiles() {
-72
-        TreeMap<Integer, Integer> map = new TreeMap<>();
-73
-        for (int i : this.disk) {
-74
-            if (i == 0) {
-75
-                continue;
-76
-            }
-77
-            if (map.containsKey(i)) {
-78
-                int curNum = map.get(i);
-79
-                map.put(i, curNum + 1);
-80
-            } else {
-81
-                map.put(i, 1);
-82
-            }
-83
-        }
-84
-        return map;
-85
-    }
-
-
-
-第二题：操作系统文件拷贝
-输入：
-
-TargetDir []string：目标文件路径
-DstDirLine int：被拷贝到第几行文件夹下
-SrcDir []string：需要拷贝的文件夹
-输出：
-[]string：拷贝完后的文件路径，并且文件要以字典序排序
-题目描述得很复杂，但是其实就是把一个目录拷贝到另外一个目录下面，满足三个条件：
-
-同一层级不能有相同命名的文件夹，如果目标路径有和原路径相同的文件夹，则需要合并子文件
-如果目标路径有，但是原路径没有，则保留目标路径的文件夹
-如果目标路径没有，但是原路径有，则创建新的文件夹
-注意：SrcDir的根目录不会被拷贝
-例一：
-TargetDir :
-
-HOME
-  log
-    config
-  license
-    lib32
-    lib64
-  usr
-  pkg
-DstDirLine: 1
-SrcDir:
-
-bin
-  games
-  license
-    lib32
-    libx86
-  usr
-    pwd
-如上图，被拷贝到第一行文件夹下，也就是HOME下，最后输出如下
-
-HOME
-  games
-  license
-    lib32
-    lib64
-    libx86
-  log
-    config
-  pkg
-  usr
-    pwd
-代码：
-
-type treeNode struct {
-	name     string
-	level    int
-	children []*treeNode
-}
- 
-func copyDir(targetDir []string, dstDirLine int, srcDir []string) []string {
-	res := make([]string, 0)
-	targetTree, dstTree := buildTree(targetDir, dstDirLine)
-	srcTree, _ := buildTree(srcDir, 0)
-	if dstDirLine == 1 {
-		combineTree(targetTree, srcTree)
-	} else {
-		combineTree(dstTree, srcTree)
-	}
-	res = printRes(targetTree, 0, res)
-	return res
-}
- 
-func combineTree(dst, src *treeNode) {
-	if src == nil {
-		return
-	}
-	if len(dst.children) == 0 {
-		for _, node := range src.children {
-			dst.children = append(dst.children, node)
-		}
-		sortChildren(dst.children)
-		return
-	}
-	nameNodeMap := make(map[string]*treeNode)
-	for _, node := range dst.children {
-		nameNodeMap[node.name] = node
-	}
-	for _, node := range src.children {
-		if oriNode, ok := nameNodeMap[node.name]; ok {
-			combineTree(oriNode, node)
-		} else {
-			dst.children = append(dst.children, node)
-		}
-	}
-	sortChildren(dst.children)
-}
- 
-func printRes(targetTree *treeNode, indent int, res []string) []string {
-	res = append(res, strings.Repeat(" ", indent*2) + targetTree.name)
-	sortChildren(targetTree.children)
-	for _, node := range targetTree.children {
-		res = printRes(node, indent + 1, res)
-	}
-	return res
-}
- 
-func sortChildren(children []*treeNode) {
-	sort.Slice(children, func(i, j int) bool {
-		return children[i].name < children[j].name
-	})
-}
-
-
-
-
-请设计一个仓库管理系统，实现如下功能：
-
-StorageSystem(int coldStorageNum, int coldStoragePrice, int normalStorageNum, int normalStoragePrice, int delay) -初始化仓库信息。
-
-仓库有冷藏和常温两种类型的储藏室，初始化其对应的数量和每天租赁价格；
-
-若客户租赁过期且超出delay天后，依旧未提取货物，该储物区将被清空；
-
-Store(int date, int storageId, int storageType, int storageDays) -在日期date为存单storageId租赁storageType类型的一个储藏室，并存放物品storageDays天。
-
-若有空间则存储成功，则需预付storageDays的费用（按照实际储藏室类型进行计算：天数*每日租赁价格），返回该费用；
-
-        当常温储藏室空间不足时，可使用空闲的冷藏储藏室存储；反之不可以；
-
-        date为【租赁起始日期】，日期超过date + storageDays时开始过期
-
-若无空间则不做任何处理，并返回 -1.
-系统保证storageId参数全局唯一，storageType为0表示冷藏，1表示常温。
-
-Retrieve(int date, int storageId) -在日期date，客户取出存单storageId（存单一定存在且未被提取）对应的物品：
-
-若存单过期时，则取出物品，并返回0；
-
-若存单过期但未超出delay天，则取出物品，并返回需要补交的费用（实际延迟天数*每日价格），实际延迟天数=date - （租赁起始日期 + storageDays）；
-
-若存单过期且已超出delay天（日期超过 租赁起始日期 + storageDays + delay）时，则物品已被清空，则取出失败，并返回 -1.
-
-Query(int date) -请返回截止日期date时3种状态的存单数量序列，依次为：物品已成功取出，物品未取仍在仓库中，物品被清空的存单数量。
-
-注意：保证函数store、retrieve、query的日期date参数按输入顺序非严格递增；
-
-示例1：
-
-输入：
-
-["StorageSystem", "store", "retrieve", "query"]
-
-[[2,2,1,1,2], [0,1,0,2], [3.1], [3]]
-
-输出[null, 4, 2, [1, 0, 0]]
-
-
-
-
-class StorageSystem {
-
-public:
-
-    StorageSystem(int coldStorageNum, int coldStoragePrice, int normalStorageNum, 
-
-                                int normalStoragePrice, int delay)
-
+    struct 位域结构名 
     {
-
-       
-
-    }
-
-
-
-    int Store(int date, int storageId, int storageType, int storageDays)
-
-    {
-
-        
-
-    }
-
-
-
-    int Retrieve(int date, int storageId)
-
-    {
-
-        
-
-    }
-
-
-
-    vector<int> Query(int date)
-
-    {
-
-       
-
-    }
-
-};
-
-
-分析：
-涉及题，首先得选好数据结构，由题意storageId全局唯一，且需要在函数调用中添加、查找、删除，可以使用时间复杂度为O（1）的哈希表<stroageId, 物品信息>来表示仓库，物品信息可自定义结构体表示。如下代码是提交已通过代码，可作参考。
-
-
-
-
-class StorageSystem {
-
-public:
-
-    StorageSystem(int coldStorageNum, int coldStoragePrice, int normalStorageNum, 
-
-                                int normalStoragePrice, int delay)
-
-    {
-
-        this->coldStorageNum = coldStorageNum;
-
-        this->coldStoragePrice = coldStoragePrice;
-
-        this->normalStorageNum = normalStorageNum;
-
-        this->normalStoragePrice = normalStoragePrice;
-
-        this->delay = delay;
-
-    }
-
-
-
-    int Store(int date, int storageId, int storageType, int storageDays)
-
-    {
-
-        Query(date);
-
-        if ((storageType == 0 && coldStorageNum <= 0) || 
-
-            (storageType == 1 && (coldStorageNum + normalStorageNum <= 0))) {
-
-            return -1;
-
-        }
-
-        if (storageType == 0) {
-
-            sys[storageId] = {date, storageType, storageDays};
-
-            coldStorageNum--;
-
-            return storageDays * coldStoragePrice;
-
-        }
-
-        if (normalStorageNum <= 0) {
-
-            sys[storageId] = {date, 0, storageDays};
-
-            coldStorageNum--;
-
-            return storageDays * coldStoragePrice;
-
-        } else {
-
-            sys[storageId] = {date, 1, storageDays};
-
-            normalStorageNum--;
-
-            return storageDays * normalStoragePrice;
-
-        }
-
-    }
-
-
-
-    int Retrieve(int date, int storageId)
-
-    {
-
-        int ret = 0;
-
-        Query(date);
-
-        if (sys.count(storageId) == 0) {
-
-            return -1;
-
-        }
-
-        int beyond = date - (sys[storageId].date + sys[storageId].storageDays);
-
-        if (beyond <= delay) {
-
-            get[storageId] = sys[storageId];
-
-        }
-
-        if (0 < beyond && beyond <= delay) {
-
-            int price = sys[storageId].storageType == 0 ? coldStoragePrice : normalStoragePrice;
-
-            ret = beyond * price;
-
-        }
-
-        if (sys[storageId].storageType == 0) {
-
-            coldStorageNum++;
-
-        } else {
-
-            normalStorageNum++;
-
-        }
-
-        sys.erase(storageId);
-
-        return ret;
-
-    }
-
-
-
-    vector<int> Query(int date)
-
-    {
-
-        for (auto it = sys.begin(); it != sys.end();) {
-
-            int beyond = date - (it->second.date + it->second.storageDays);
-
-            if (beyond > delay) {
-
-                del[it->first] = it->second;
-
-                if (it->second.storageType == 0) {
-
-                    coldStorageNum++;
-
-                } else {
-
-                    normalStorageNum++;
-
-                }
-
-                it = sys.erase(it);
-
-            } else {
-
-                it++;
-
-            }
-
-        }
-
-        int g = get.size();
-
-        int in = sys.size();
-
-        int d = del.size();
-
-        return {g, in, d};
-
-    }
-
-
-
-private:
-
-    unordered_map<int, crit> sys;
-
-    unordered_map<int, crit> del;
-
-    unordered_map<int, crit> get;
-
-    int coldStorageNum {0};
-
-    int coldStoragePrice {0};
-
-    int normalStorageNum {0};
-
-    int normalStoragePrice {0};
-
-    int delay {0};
-
-};
-
-
-
-class RateLimitSystem1 {
-public:
-    explicit RateLimitSystem1(int tokenLimit)
-    {
-        maxCardNum = tokenLimit;
-        this->rateSystem = vector<tuple<int, int, int>>(1000);
-    }
-
-    bool AddRule(int ruleId, int time, int interval, int number)
-    {
-        if (system.count(ruleId)) {
-            return false;
-        } else {
-            rateSystem[ruleId] = { time, interval, number };
-            system[ruleId] = 1;
-            UpdateCardNum(time);
-            return true;
-        }
-    }
-
-    bool RemoveRule(int ruleId, int time)
-    {
-        if (!system.count(ruleId)) {
-            return false;
-        } else {
-            UpdateCardNum(time);
-            system.erase(ruleId);
-            return true;
-        }
-    }
-
-    bool TransferData(int time, int size)
-    {
-        UpdateCardNum(time);
-        if (curCardNum < size) {
-            return false;
-        }
-        curCardNum = curCardNum - size;
-        return true;
-    }
-    void UpdateCardNum(int curTime)
-    {
-        for (int tempTime = lastOrderTime; tempTime <= curTime; tempTime++) {
-            for (auto item : system) {
-                int id = item.first;
-                auto [time, interval, number] = rateSystem[id];
-                if (tempTime < time) {
-                    continue;
-                }
-                if ((tempTime - time) % interval == 0) {        // 设计精妙的地方在这里，时间步长为1往后扫描！！！
-                    curCardNum = std::min(curCardNum + number, maxCardNum);
-                }
-            }
-        }
-        lastOrderTime = curTime + 1;
-    }
-    int QueryToken(int curTime)
-    {
-        UpdateCardNum(curTime);
-        return curCardNum;
-    }
-
-private:
-    int maxCardNum{0};
-    int curCardNum{0};
-    int lastOrderTime{0};
-    vector<tuple<int, int, int> > rateSystem;   //此处的tuple可以用struct替代
-    map<int, int> system;
-};
-
-```C++
-#include <iostream>
-#include <string>
-#include <vector>
-#include <utility>
-#include <algorithm>
-#include <map>
-using namespace std;
-
-
-class RateLimitSystem {
-public:
-    int tokenLimit_;
-    int tokenNumber_;
-    int time_; // 用于保存每次操作的时间
-    struct Rule_ {
-        int time;
-        int interval;
-        int number;
+     位域列表
     };
-    map<int, Rule_> tokenMap_;
+    
+    其中位域列表的形式为：
+    type [member_name] : width ;
+    
+    struct packed_struct {
+        unsigned int f1:1;
+        unsigned int f2:1;
+        unsigned int f3:1;
+        unsigned int f4:1;
+        unsigned int type:4;
+        unsigned int my_int:9;
+    };
+    可以替换为：
+    struct packed_struct {
+        unsigned int f1:1,
+                     f2:1,
+                     f3:1,
+                     f4:1,
+                     type:4;
+        unsigned int my_int:9;
+    };
 
-    explicit RateLimitSystem(int tokenLimit)
-    {
-        tokenLimit_ = tokenLimit;
-        tokenNumber_ = 0;
-        time_ = 0;
+
+
+对于位域的定义尚有以下几点说明：
+
+- 一个位域存储在同一个字节中，如一个字节所剩空间不够存放另一位域时，则会从下一单元起存放该位域。也可以有意使某位域从下一单元开始。例如：
+      struct bs{
+          unsigned a:4;
+          unsigned  :4;    /* 空域 */
+          unsigned b:4;    /* 从下一单元开始存放 */
+          unsigned c:4;
+      }; // 在这个位域定义中，a 占第一字节的 4 位，后 4 位填 0 表示不使用，b 从第二字节开始，占用 4 位，c 占用 4 位。
+- 位域的宽度不能超过它所依附的数据类型的长度，成员变量都是有类型的，这个类型限制了成员变量的最大长度，: 后面的数字不能超过这个长度。
+- 位域可以是无名位域，这时它只用来作填充或调整位置。无名的位域是不能使用的。例如：
+      struct k{
+          int a:1;
+          int  :2;    /* 该 2 位不能使用 */
+          int b:3;
+          int c:2;
+      };
+
+从以上分析可以看出，位域在本质上就是一种结构类型，不过其成员是按二进位分配的。
+
+
+
+位域的使用：
+
+位域的使用和结构成员的使用相同，其一般形式为：
+
+    位域变量名.位域名
+    位域变量名指针->位域名
+
+位域允许用各种格式输出。
+
+    int main(){
+        struct bs{
+            unsigned a:1;
+            unsigned b:3;
+            unsigned c:4;
+        } bit,*pbit;
+        bit.a=1;    /* 给位域赋值（应注意赋值不能超过该位域的允许范围） */
+        bit.b=7;    /* 给位域赋值（应注意赋值不能超过该位域的允许范围） */
+        bit.c=15;    /* 给位域赋值（应注意赋值不能超过该位域的允许范围） */
+        printf("%d,%d,%d\n",bit.a,bit.b,bit.c);    /* 以整型量格式输出三个域的内容 */
+        pbit=&bit;    /* 把位域变量 bit 的地址送给指针变量 pbit */
+        pbit->a=0;    /* 用指针方式给位域 a 重新赋值，赋为 0 */
+        pbit->b&=3;    /* 使用了复合的位运算符 "&="，相当于：pbit->b=pbit->b&3，位域 b 中原有值为 7，与 3 作按位与运算的结果为 3（111&011=011，十进制值为 3） */
+        pbit->c|=1;    /* 使用了复合位运算符"|="，相当于：pbit->c=pbit->c|1，其结果为 15 */
+        printf("%d,%d,%d\n",pbit->a,pbit->b,pbit->c);    /* 用指针方式输出了这三个域的值 */
     }
 
-    bool AddRule(int ruleId, int time, int interval, int number)
-    {
-        Rule_ rule = { time, interval, number };
-        auto result = tokenMap_.insert(pair<int, Rule_>(ruleId, rule));
-        bool flag = result.second;
-        updateTokenNumber(time);
-        time_ = time + 1;
-        return flag;
+位域结构体中的变量不能取地址。
+
+有符号数在机器中是以补码的形式存在的，其正负的判断有其规则。位域是以原码的形式来进行操作的，这中间有差异。而关于位域的正负数判断，也不是简单的首bit的0或1来决定，否则上面的结果就应该是-1 -2 -3或者1 2 3了。位域的实现，是编译器相关的。建议是，使用位域不要使用正负这样的特性——理论上来说，应该只关注定义的那几个bit的0或者1，是无符号的。可以使用无符号类型来定义位域，这样不会产生正负号这样的问题。
+
+
+
+存储说明： 
+
+类可以将其（非静态）数据成员定义为位域（bit-field），在一个位域中含有一定数量的二进制位。当一个程序需要向其他程序或硬件设备传递二进制数据时，通常会用到位域。
+
+位域在内存中的布局是与机器有关的
+
+位域的类型必须是整型或枚举类型，带符号类型中的位域的行为将因具体实现而定
+
+取地址运算符（&）不能作用于位域，任何指针都无法指向类的位域
+
+
+
+无论小端还是大端，先定义的位域占据低bit地址。
+
+我们常用的x86结构是小端模式，而KEIL C51则为大端模式。 很多的ARM，DSP都为小端模式。 有些ARM处理器还可以由硬件来选择是大端模式还是小端模式。
+
+
+
+非const引用不应绑定到位域字段，
+
+由于指针不能指向位字段,因此非const引用不能绑定到位字段.
+
+非常量引用不能绑定(bind)到位域，原因与指针不能指向位域的原因相同。
+
+虽然没有指定引用是否占用存储空间，但很明显，在非平凡的情况下，它们被实现为伪装的指针，并且引用的这种实现是语言作者“有意”的。就像指针一样，引用必须指向一个可寻址的存储单元。不可能将非常量引用绑定(bind)到不可寻址的存储单元。由于非常量引用需要直接绑定(bind)，因此非常量引用不能绑定(bind)到位域。
+
+产生可以指向位域的指针/引用的唯一方法是实现某种“ super 指针”，除了存储中的实际地址外，还包含某种位偏移量和位宽信息，以便告诉编写代码要修改哪些位。请注意，此附加信息必须存在于所有数据指针类型中，因为 C++ 中没有“位域指针/引用”这样的类型。这基本上等同于实现更高级别的存储寻址模型，与底层操作系统/硬件平台提供的寻址模型完全分离。出于纯粹的效率考虑，C++ 语言从未打算要求对底层平台进行这种抽象。
+
+一种可行的方法是引入一个单独的指针/引用类别，例如“位域的指针/引用”，它具有比普通数据指针/引用更复杂的内部结构。这样的类型可以从普通的数据指针/引用类型转换，但反过来不行。但这似乎并不值得。
+
+在实际情况下，当我必须处理打包成位和位序列的数据时，我通常更喜欢手动实现位域并避免语言级别的位域。位域的名称是一个编译时实体，不可能进行任何类型的运行时选择。当需要运行时选择时，更好的方法是声明一个普通的 uint32_t数据字段并手动管理其中的单个位和位组。这种手动“位域”的运行时选择很容易通过掩码和移位(两者都可以是运行时值)实现。基本上，这接近于上述“ super 指针”的手动实现。
+
+
+
+参考资料
+
+C 位域：https://www.runoob.com/cprogramming/c-bit-fields.html
+
+
+
+
+
+protected访问权限
+
+Java 包(package)
+
+为了更好地组织类，Java 提供了包机制，用于区别类名的命名空间。
+
+包的作用
+
+- 1、把功能相似或相关的类或接口组织在同一个包中，方便类的查找和使用。
+- 2、如同文件夹一样，包也采用了树形目录的存储方式。同一个包中的类名字是不同的，不同的包中的类的名字是可以相同的，当同时调用两个不同包中相同类名的类时，应该加上包名加以区别。因此，包可以避免名字冲突。
+- 3、包也限定了访问权限，拥有包访问权限的类才能访问某个包中的类。
+
+Java 使用包（package）这种机制是为了防止命名冲突，访问控制，提供搜索和定位类（class）、接口、枚举（enumerations）和注释（annotation）等。
+
+
+
+当父类与子类位于同一包中时，不管是子类对象还是父类对象都可以访问protected，但是它们的意义是不一样的；对于子类对象，之所以可以访问是因为：子类从父类继承了protected成员，理所当然可以访问；父类对象（在子类中创建的）之所以可以访问是因为protected提供了包访问极限！
+
+  当父类与子类位于不同包中时，protected成员就只能通过子类对象来访问（因为protected对于子类是可见的），而父类对象不再可以访问！不过，可以访问static 成员（因为protected的包访问极限已失去作用）
+
+
+
+inline函数
+
+内联函数：告知编译器在进行有内联标识的函数调用时将函数体部分在调用处展开。这样做可以消除函数传参（堆栈调用）的负担，提高了函数的调用效率。
+
+而且inlining的函数并不存在，因为已经被展开了。
+
+如果需要定义一个内联函数，需要在函数体定义的地方使用inline关键字标识，写在函数声明处是没有意义的。原因是一个函数要inline，编译器必须见过它的实现，否则编译器无米之炊无法inline。
+
+    int func(int);  //函数声明
+     
+    inline int func(int a)  //函数定义
+    { 
+        return ++a;
     }
 
-    bool RemoveRule(int ruleId, int time)
-    {
-        updateTokenNumber(time);
-        bool flag = false;
-        if (tokenMap_.find(ruleId) != tokenMap_.end()) {
-            tokenMap_.erase(ruleId);
-            flag = true;
-        }
+1. 在C++类的实现过程中，如果想要将成员函数设置成inline内联函数的话，需要在类的头文件.h中定义这个函数，不能在相应的.cpp文件中定义。
+2. 在类内部定义的成员函数默认设置成内联函数。
+3. inline内联关键字只是给编译器一个建议，有些函数即使有inline标识，也不会被设置成内联函数。
+4. 有些函数即使没有inline标识，编译器在优化时也有可能将这个函数作为内联函数来处理。
 
-        time_ = time + 1;
-        return flag;
+整数的位操作：按位与&、或|、异或^、取反~
+
+机器数：一个数在计算机中的二进制表示形式, 叫做这个数的机器数。机器数是带符号的，在计算机用一个数的最高位存放符号, 正数为0, 负数为1。比如，十进制中的数 +3 ，计算机字长为8位，转换成二进制就是00000011。如果是 -3 ，就是 10000011 。这里的 00000011 和 10000011 就是机器数。
+
+真值：因为第一位是符号位，所以机器数的形式值就不等于真正的数值。例如上面的有符号数 10000011，其最高位1代表负，其真正数值是 -3 而不是形式值131（10000011转换成十进制等于131）。所以，为区别起见，将带符号位的机器数对应的真正数值称为机器数的真值。例：0000 0001的真值 = +000 0001 = +1，1000 0001的真值 = –000 0001 = –1
+
+正数：原码 = 反码 = 补码
+
+负数：原码、反码为原码除符号为按位取反、补码为反码加1
+
+整数在计算机中是以补码的方式存储。
+
+这些操作都是按补码来操作的，输出为8进制或16进制时也是输出的补码，输出为10进制时才转换为机器数真值。
+
+    // -88&100 负数参与按位且，分析步骤
+         1111 1111 1010 1000 // -88补码
+        &0000 0000 0110 0100 // 100补码
+         -------------------
+         0000 0000 0010 0000 // 转成十进制结果为：32， 即-88&100 = 32
+
+结构体初始化的四种方法
+
+定义
+
+    struct InitMember
+    {
+        int first；
+        double second；
+        char* third；
+        float four;
+    };
+
+方法一：定义时赋值
+
+    struct InitMember test = {-10,3.141590，"method one"，0.25}；
+
+需要注意对应的顺序，不能错位。
+
+方法二：定义后逐个赋值
+
+    struct InitMember test；
+    
+    test.first = -10;
+    test.second = 3.141590;
+    test.third = "method two";
+    test.four = 0.25;
+    
+
+因为是逐个确定的赋值，无所谓顺序啦。
+
+方法三：定义时乱序赋值（C风格）
+
+这种方法类似于第一种方法和第二种方法的结合体，既能初始化时赋值，也可以不考虑顺序；
+
+    struct InitMember test = {
+        .second = 3.141590,
+        .third = "method three",
+        .first = -10,
+        .four = 0.25
+    };
+
+这种方法在Linux内核（kernel）中经常使用，在音视频编解码库FFmpeg中也大量频繁使用，还是很不错的一种方式。
+
+方法四：定义时乱序赋值（C++风格）
+
+这种方法和前一种类似，网上称之为C++风格，类似于key-value键值对的方式，同样不考虑顺序。
+
+    struct InitMember test = {
+        second：3.141590,
+        third："method three",
+        first：-10,
+        four：0.25
+    };
+
+__builtin_expect 说明
+
+引言
+
+这个指令是 gcc 引入的，作用是允许程序员将最有可能执行的分支告诉编译器。这个指令的写法为：__builtin_expect(EXP, N)。
+意思是：EXP==N 的概率很大。
+
+一般的使用方法是将__builtin_expect指令封装为likely和unlikely宏。这两个宏的写法如下.
+
+    #define likely(x) __builtin_expect(!!(x), 1) //x很可能为真       
+    #define unlikely(x) __builtin_expect(!!(x), 0) //x很可能为假
+
+!!(x) 的作用是把(x)转变成"布尔值"：无论(x)的值是多少，!(x) 得到的是 true 或 false, !!(x) 就得到了原值的"布尔值"。
+
+内核中的 likely() 与 unlikely()
+
+首先要明确：
+
+    if(likely(value))  //等价于 if(value)
+    if(unlikely(value))  //也等价于 if(value)
+
+__builtin_expect() 是 GCC (version >= 2.96）提供给程序员使用的，目的是将“分支转移”的信息提供给编译器，这样编译器可以对代码进行优化，以减少指令跳转带来的性能下降。
+ __builtin_expect((x),1) 表示 x 的值为真的可能性更大；
+ __builtin_expect((x),0) 表示 x 的值为假的可能性更大。
+ 也就是说，使用likely()，执行 if 后面的语句的机会更大，使用 unlikely()，执行 else 后面的语句的机会更大。通过这种方式，编译器在编译过程中，会将可能性更大的代码紧跟着起面的代码，从而减少指令跳转带来的性能上的下降。
+
+例子
+
+    int x, y;
+     if(unlikely(x > 0))
+        y = 1; 
+    else 
+        y = -1;
+
+上面的代码中 gcc 编译的指令会预先读取 y = -1 这条指令，这适合 x 的值大于 0 的概率比较小的情况。如果 x 的值在大部分情况下是大于 0 的，就应该用 likely(x > 0)，这样编译出的指令是预先读取 y = 1 这条指令了。这样系统在运行时就会减少重新取指了。
+
+C/C++中 # 和 ## 的用法
+
+C/C++ 宏定义中的 # 的用法分为两种：# 和 ##
+
+# 表示将宏定义中的参数变成字符串
+
+## 表示将宏定义中的参数变成字符串连在一起
+
+    #include <iostream>
+    
+    #define STR(a)       #a
+    #define FUNC(a, b)   a##b
+     
+    int main()
+    {
+        using namespace std;
+     
+        int a = 1, b = 2;
+        string ab("Hello");
+     
+        cout << STR(a) << endl;
+        cout << FUNC(a, b) << endl;
+     
+        return 0;
+    } 
+
+输出：
+
+a
+Hello
+
+解释：
+
+#a：将 a 转为了字符串，所以输出的不是 1，而是 a
+
+a##b：将输入的参数 a、b 连接为字符串 ab，而变量 ab 为字符串类型，值为 Hello，所以输出的是 Hello
+
+需要注意的是有 # 或者 ## 的地方，不会将参数展开了，例如：
+
+    #include <iostream>
+     
+    #define PI           3.14
+    #define STR(a)       #a
+    #define F(t,f)       t##f
+     
+    int main()
+    {
+        using namespace std;
+     
+        int P = 5, I = 6;
+        cout << STR(PI) << endl;
+        cout << F(5, 6) << endl;
+        cout << F(P, I) << endl;
+     
+        return 0;
     }
 
-    bool TransferData(int time, int size)
+输出：
+
+PI
+56
+3.14
+
+解释：
+
+没有将 PI 解释，直接将 PI 转为字符串了
+
+56 输出正常与下面的输出对比，P 和 I 没有转义，而是直接输出 PI，因为 PI 为 3.14，所以输出的是 3.14
+
+解决方法：加一层中间转换层
+
+    #include <iostream>
+     
+    #define PI           3.14
+     
+    #define _STR(a)      #a
+    #define STR(a)       _STR(a)
+     
+    #define _F(t,f)       t##f
+    #define F(t,f)       _F(t,f)
+     
+    int main()
     {
-        updateTokenNumber(time);
-        bool flag = false;
-        if (tokenNumber_ >= size) {
-            tokenNumber_ -= size;
-            flag = true;
-        }
-        time_ = time + 1;
-        return flag;
+        using namespace std;
+     
+        int P = 5, I = 6;
+        cout << STR(PI) << endl;
+        cout << F(5, 6) << endl;
+        cout << F(P, I) << endl;
+     
+        return 0;
     }
 
-    int QueryToken(int time)
+输出：
+
+3.14
+56
+3.14
+
+C/C++语言中的#和##的作用
+
+c语言中的#号和##号的作用
+
+struct 和 union 内存对齐
+
+计算规则
+
+首先需要介绍有效对齐值：每个平台上的编译器都有默认对齐系数 n,可以通过 #pragma pack(n) 来指定。有效对齐值就等与该对齐系数和结构体中最长的数据类型的长度两者最小的那一个值，即 min(有效对齐值, 结构体中最长的数据类型的长度) 比如对齐系数是8,而结构体中最长的是int,4个字节,那么有效对齐值为4。
+
+
+
+内存对齐：
+
+　　在 32 位系统下，gcc 的对齐方式为 1,2,4，默认为 4 字节对齐。 
+　　在 64 为系统下，gcc 的对齐方式为 1,2,4,8，默认为 8 字节对齐
+
+
+
+#pragma pack （）是用来控制字节对齐的，一般头文件中没有的话是默认值，即以结构体中的最大元素所占字节对齐；
+
+若存在多个#pragma pack (n),遵从向上对齐原则，即某个结构体定义上方最近的一个#pragma pack（）
+
+
+
+C++函数参数为指针
+
+1. 函数入参为 **， 通过这种调用可以修改指针对象值。
+
+    void my_malloc(void** p, int size)  
+    {  
+        *p = malloc(sizeof(int)*size);
+    }
+    int main（）
     {
-        updateTokenNumber(time);
-        time_ = time + 1;
-        return tokenNumber_;
+        int *a;
+        my_malloc(&a ， 10);
+        return 1;
     }
 
-    void updateTokenNumber(int time)
-    {
-        for (auto iter = tokenMap_.begin(); iter != tokenMap_.end(); ++iter) { // 每一种规则令牌计数
-            for (int i = iter->second.time; i <= time; i += iter->second.interval) { // 规则i令牌计算
-                if (i < time_) {
-                    continue;
-                }
-                if (tokenNumber_ + iter->second.number <= tokenLimit_) {
-                    tokenNumber_ += iter->second.number;
-                } else {
-                    tokenNumber_ = tokenLimit_;
-                }
-            }
-        }
+2. 函数参数中 *& 和 **& 符合分别代表什么呢？例如：
+
+    int *&p;
+    int **&p;
+    // 其实这两个*& 和 **&是表示引用，*&表示指针的引用，**&表示指针的指针的引用。
+
+举例：修改调用函数中的x和y，会直接影响到主函数中的a和b的值。因为他们是引用关系。
+
+    void foo(int*& x, int**& y) {
+        // modifying x or y here will modify a or b in main
     }
-};
+    
+    int main() {
+        int val = 42;
+        int *a  = &val;
+        int **b = &a;
+    
+    	foo(a, b);
+    	return 0;
+    }
 
+3. 指针传值和指针传引用的区别：
 
-int main()
-{
-    RateLimitSystem sol(8);
-    cout << sol.AddRule(0, 0, 1, 3) << endl;
-    cout << sol.AddRule(1, 2, 2, 1) << endl;
-    cout << sol.TransferData(3, 12) << endl;
-    cout << sol.RemoveRule(3, 4) << endl;
-    cout << sol.RemoveRule(0, 5) << endl;
-    cout << sol.TransferData(6, 8) << endl;
-    cout << sol.QueryToken(7) << endl;
-    cout << sol.RemoveRule(1, 8) << endl;
-    cout << sol.QueryToken(9) << endl;
-    cout << sol.AddRule(0, 10, 2, 2) << endl;
-    cout << sol.QueryToken(12) << endl;
-    cout << sol.AddRule(0, 13, 2, 2) << endl;
-    cout << sol.TransferData(14, 8) << endl;
-
-
-    cout << 10 << endl;
-
+    /* 再说一点和标题不想关的，还是上篇文章提到的问题，这里再给个实例： */
+    void pass_by_value(int* p)
+    {
+        //Allocate memory for int and store the address in p
+        p = new int;
+    }
+    
+    void pass_by_reference(int*& p)
+    {
+        p = new int;
+    }
+    
+    int main()
+    {
+        int* p1 = NULL;
+        int* p2 = NULL;
+    
+    pass_by_value(p1); //p1 will still be NULL after this call
+    pass_by_reference(p2); //p2 's value is changed to point to the newly allocate memory
+     
     return 0;
-}
-```
+
+
+
+typedef 使用
+
+在编程中使用typedef目的一般有两个，一个是给变量一个易记且意义明确的新名字，另一个是简化一些比较复杂的类型声明。
+
+用途1
+
+定义一种类型的别名，而不只是简单的宏替换。可以用作同时声明指针型的多个对象。
+
+    typedef char* PCHAR; // 一般用大写
+    PCHAR pa, pb; // 可行，同时声明了两个指向字符变量的指针
+    char *pa, *pb; // 也可行，但相对来说没有用typedef的形式直观，尤其在需要大量指针的地方，typedef的方式更省事。
+    
+    typedef char TA[5];//定义数组类型
+    typedef char *TB[5];//定义指针数组类型,PA定义的变量为含5个char*指针元素的数组(指针数组类型)
+    typedef char *(TC[5]);//指针数组类型，因为[]的结合优先级最高，所以加不加()没啥区别，TC等价于TB
+    typedef char (*TD)[5];//数组指针类型
+
+用途2
+
+用在旧的C的代码中（具体多旧没有查），声明struct新对象时，必须要带上struct，即形式为： struct 结构名 对象名，使用 typedef 可以少写一个 struct。如：
+
+    struct tagPOINT1  
+    {  
+        int x;  
+        int y;  
+    };  
+    struct tagPOINT1 p1; 
+    
+    typedef struct tagPOINT  
+    {  
+        int x;  
+        int y;  
+    }POINT;  
+    POINT p1; // 这样就比原来的方式少写了一个struct，比较省事，尤其在大量使用的时候 
+
+而在C++中，在C++中，typedef的这种用途二不是很大，因为 C++ 中可以直接写：结构名 对象名，即：
+
+    tagPOINT1 p1;
+
+用途3
+
+用typedef来定义与平台无关的类型。当跨平台时，只要改下 typedef 本身就行，不用对其他源码做任何修改。标准库就广泛使用了这个技巧，比如size_t。
+
+    // 比如定义一个叫 REAL 的浮点类型，在目标平台一上，让它表示最高精度的类型为：
+    typedef long double REAL;
+    
+    // 在不支持 long double 的平台二上，改为：
+    typedef double REAL;
+    
+    // 在连 double 都不支持的平台三上，改为：
+    typedef float REAL;
+
+用途4
+
+为复杂的声明定义一个新的简单的别名。方法是：在原来的声明里逐步用别名替换一部分复杂声明，如此循环，把带变量名的部分留到最后替换，得到的就是原声明的最简化版。举例：
+
+1. 复杂声明1：
+
+    void (*b[10]) (void (*)());
+    // 首先*b[10]为指针数组，它里面的十个元素全是指针。到底是什么指针呢，是一个返回类型为空，形参为空的函数指针。
+    
+    // 用typedef进行简化： 
+    typedef void (pFunParam *)(); // 1：首先声明后面的函数指针
+    typedef void (*pFunx)(pFunParam); // 2：接着声明前面的指针数组
+    
+    // 原声明的最简化版：
+    typedef void (*pFun[10]) (void (*)());
+    pFun b[10];
+
+2. 复杂声明2：
+
+    double(*(*pa)[9])();
+    // pa是一个指向9维数组的指针，数组内为函数指针，该函数指针形参为空，返回类型为double。
+    
+    // 用typedef进行简化： 
+    typedef double(*pFunParam)(); //1：首先声明一个函数指针 
+    typedef pFunParam (*pFun)[9]; //2：接着声明一个新类型 
+    
+    // 原声明的最简化版：
+    typedef double(*(*pa)[9])();
+    pa x;
+
+网络博客typedef用法中提到一个复杂的声明：
+
+    doube()() (e)[9]; // 这个声明在gcc下编译时不通过的。按照作者的本意，应该这样声明：double(*(*pa)[9])();
+
+
+
+理解复杂声明可用的“右左法则”：
+
+从变量名看起，先往右，再往左，碰到一个圆括号就调转阅读的方向；括号内分析完就跳出括号，还是按先右后左的顺序，如此循环，直到整个声明分析完。举例：
+
+    int (*func)(int *p);
+
+首先找到变量名func，外面有一对圆括号，而且左边是一个号，这说明func是一个指针；然后跳出这个圆括号，先看右边，又遇到圆括号，这说明 (func)是一个函数，所以func是一个指向这类函数的指针，即函数指针，这类函数具有int*类型的形参，返回值类型是int。
+
+    int (*func[5])(int *);
+
+func 右边是一个[]运算符，说明func是具有5个元素的数组；func的左边有一个，说明func的元素是指针（注意这里的不是修饰func，而是修饰 func[5]的，原因是[]运算符优先级比高，func先跟[]结合）。跳出这个括号，看右边，又遇到圆括号，说明func数组的元素是函数类型的指 针，它指向的函数具有int类型的形参，返回值类型为int。
+
+也可以记住2个模式：
+
+    type (*)(....)函数指针 
+    type (*)[]数组指针
 
 
 
 
+
+Vscode
+
+查看反汇编代码
+
+运行程序后，在监视变量中添加：
+
+    -exec disassemble /m main
+    # 或
+    -exec disassemble /m
+
+然后在调试控制台就可以看到汇编代码了。
+
+ 
 
 
 
