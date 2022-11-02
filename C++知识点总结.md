@@ -182,7 +182,8 @@ CSDN博客(http://blog.csdn.net/jasonding1354)
 简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)
   
 https://blog.csdn.net/zzyczzyc/article/details/86529138
-  
+
+  【Vim】使用map自定义快捷键：https://blog.csdn.net/JasonDing1354/article/details/45372007
   
   
   
