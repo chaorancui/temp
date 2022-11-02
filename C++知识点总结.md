@@ -182,3 +182,21 @@ CSDN博客(http://blog.csdn.net/jasonding1354)
 简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)
   
 https://blog.csdn.net/zzyczzyc/article/details/86529138
+  
+  
+  
+  
+vim 编辑模式下移动光标一般是先按 ESC 键，回到 Normal 模式后才去移动光标。
+
+这样在 编辑模式 和 正常模式 下频繁切换的情况下，操作很麻烦。
+
+所以在 .vimrc 里追加了如下的快捷键：
+
+inoremap <C-f> <Right>
+inoremap <C-b> <Left>
+inoremap <C-a> <Home>
+inoremap <C-e> <End>
+inoremap <C-k> <Up>
+inoremap <C-l> <Down>
+inoremap <C-q> <PageUp>
+inoremap <C-z> <PageDown>
