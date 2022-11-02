@@ -191,7 +191,7 @@ vim 编辑模式下移动光标一般是先按 ESC 键，回到 Normal 模式后
 这样在 编辑模式 和 正常模式 下频繁切换的情况下，操作很麻烦。
 
 所以在 .vimrc 里追加了如下的快捷键：
-
+```bash
 inoremap <C-f> <Right>
 inoremap <C-b> <Left>
 inoremap <C-a> <Home>
@@ -200,3 +200,5 @@ inoremap <C-k> <Up>
 inoremap <C-l> <Down>
 inoremap <C-q> <PageUp>
 inoremap <C-z> <PageDown>
+```
+  
