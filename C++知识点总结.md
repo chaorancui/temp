@@ -202,4 +202,20 @@ inoremap <C-l> <Down>
 inoremap <C-q> <PageUp>
 inoremap <C-z> <PageDown>
 ```
+
   
+```bash
+// 将键绑定放在此文件中以覆盖默认值
+[
+    {
+        "key": "ctrl+f",
+        "command": "cursorRight",
+        "when": "editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode == 'Insert'"
+    },
+    {
+        "key": "ctrl+b",
+        "command": "cursorLeft",
+        "when": "editorTextFocus && vim.active && vim.use<C-b> && !inDebugRepl && vim.mode == 'Insert'"
+    },
+]
+```
