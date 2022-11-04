@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### extern "C"：实现C++和C的混合编程
+http://c.biancheng.net/view/8064.html
+
 ### 加载符号表：Linux下__attribute__((visibility ("default")))的使用
 https://blog.csdn.net/fengbingchun/article/details/78898623
 
