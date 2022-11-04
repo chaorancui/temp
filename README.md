@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### 加载符号表：Linux下__attribute__((visibility ("default")))的使用
+https://blog.csdn.net/fengbingchun/article/details/78898623
+
 ### C++ Primer英文第五版
 chrome-extension://efaidnbmnnnibpcajpcglclefindmkaj/https://zhjwpku.com/assets/pdf/books/C++.Primer.5th.Edition_2013.pdf
 
