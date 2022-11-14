@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### C++ 直接初始化和拷贝初始化
+https://blog.csdn.net/twdlll/article/details/78302349
+
 ### extern "C"：实现C++和C的混合编程
 http://c.biancheng.net/view/8064.html
 
