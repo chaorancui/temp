@@ -134,6 +134,20 @@ git clone 只能 clone 远程库的 master 分支，无法 clone 所有分支。
 
 
 
+
+
+### git fetch
+
+git fetch 命令命令用于从远程获取代码库。
+
+```bash
+git fetch <remote>
+```
+
+
+
+
+
 ### git pull
 
 在克隆远程项目的时候，本地分支会自动与远程仓库建立追踪关系，可以使用默认的origin来替代远程仓库名，因此下文中的 <仓库关联命名> 常常写成 origin。若一个本地仓库关联了多个远程仓库，则需要根据实际情况选择 <仓库关联命名>。
@@ -182,7 +196,12 @@ git clone 只能 clone 远程库的 master 分支，无法 clone 所有分支。
   git reset --hard origin/<远程分支名>
   ```
 
-  
+
+> **git fetch**：这将更新 git remote 中所有的远程仓库所包含分支的最新commit-id, 将其记录到.git/FETCH_HEAD文件中
+>
+> 
+>
+> 所以**可以认为git pull是git fetch和git merge两个步骤的结合**。
 
 ### git push
 
@@ -535,7 +554,6 @@ git config --global https.proxy http://proxyaddress:port
 ```
 
 *注意环境变量的大写。某些操作系统版本可能需要小写字母或默认定义了小写字母变量。*
-
 
 
 
