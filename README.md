@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### C++-[override]关键字使用详解
+https://blog.csdn.net/qq_42542471/article/details/124659190?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-124659190-blog-79122136.pc_relevant_recovery_v2&spm=1001.2101.3001.4242.1&utm_relevant_index=1
+
 ### C++ 直接初始化和拷贝初始化
 https://blog.csdn.net/twdlll/article/details/78302349
 
