@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### 如何离线安装 Oh My Zsh
+https://blog.csdn.net/u012814856/article/details/100668640
+
 ### C++成员函数修饰词的意义和使用（&， &&， const， override）
 https://blog.csdn.net/qls315/article/details/106849340
 
