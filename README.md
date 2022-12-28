@@ -3,6 +3,10 @@
 
 ### 如何离线安装 Oh My Zsh
 https://blog.csdn.net/u012814856/article/details/100668640
+Windows 系统中配置终端 Oh-My-Zsh 教程:https://dreamhomes.top/posts/202201092010/
+Git-Zsh on Windows安装与配置:https://amagi.yukisaki.io/article/96e5adc4-1212-4260-8399-4dfd3964dc3b/
+Zsh / Oh-my-zsh on Windows Git Bash:https://gist.github.com/fworks/af4c896c9de47d827d4caa6fd7154b6b
+
 
 ### C++成员函数修饰词的意义和使用（&， &&， const， override）
 https://blog.csdn.net/qls315/article/details/106849340
