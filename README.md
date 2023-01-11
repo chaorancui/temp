@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### C++ 为什么要让 struct 可以定义成员函数？
+https://www.zhihu.com/question/49072961
+
 ### 如何离线安装 Oh My Zsh
 https://blog.csdn.net/u012814856/article/details/100668640
 
