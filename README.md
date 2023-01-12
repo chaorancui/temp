@@ -15,6 +15,25 @@ Zsh / Oh-my-zsh on Windows Git Bash:https://gist.github.com/fworks/af4c896c9de47
 
 ### zsh 编译下载
 https://zsh.sourceforge.io/Arc/source.html
+```shell
+# 进入源码目录
+cd zsh-5.8
+
+# 执行配置
+./configure   # 默认安装在：/usr/local/bin/zsh
+
+# 编译和安装
+make && make install
+
+# 添加信息
+vim /etc/shells
+# 在最后一行加上：/usr/local/bin/zsh
+
+./Util/preconfig
+./configure
+make && make install
+```
+
 
 
 ### C++成员函数修饰词的意义和使用（&， &&， const， override）
