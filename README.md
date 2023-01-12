@@ -13,6 +13,9 @@ Git-Zsh on Windows安装与配置:https://amagi.yukisaki.io/article/96e5adc4-121
 
 Zsh / Oh-my-zsh on Windows Git Bash:https://gist.github.com/fworks/af4c896c9de47d827d4caa6fd7154b6b
 
+主题powerlevel10k：https://github.com/romkatv/powerlevel10k#oh-my-zsh
+
+
 ### zsh 编译下载
 https://zsh.sourceforge.io/Arc/source.html
 ```shell
