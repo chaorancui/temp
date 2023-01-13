@@ -15,6 +15,7 @@ Zsh / Oh-my-zsh on Windows Git Bash:https://gist.github.com/fworks/af4c896c9de47
 
 主题powerlevel10k：https://github.com/romkatv/powerlevel10k#oh-my-zsh
 
+Linux查看及测试网络：https://blog.csdn.net/FP202530/article/details/125362831?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-1-125362831-blog-79207806.pc_relevant_3mothn_strategy_and_data_recovery&spm=1001.2101.3001.4242.2&utm_relevant_index=2
 
 ### zsh 编译下载
 https://zsh.sourceforge.io/Arc/source.html
