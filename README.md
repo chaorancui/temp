@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### C++函数定义中占位参数（没有参数名）的作用
+https://blog.csdn.net/LIsmooth/article/details/127210379
+
 ### C++ 为什么要让 struct 可以定义成员函数？
 https://www.zhihu.com/question/49072961
 
