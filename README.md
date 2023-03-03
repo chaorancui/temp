@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### C++函数传参的时候，右引（T&&）和常引（const T&）接收的参数有什么不同，分别该什么时候用？
+https://www.zhihu.com/question/437590377
+
 ### C++函数定义中占位参数（没有参数名）的作用
 https://blog.csdn.net/LIsmooth/article/details/127210379
 
