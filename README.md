@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### c++11增加的变参数模板，今天总算整明白了
+https://www.helloworld.net/p/7580029278
+
 ### C++函数传参的时候，右引（T&&）和常引（const T&）接收的参数有什么不同，分别该什么时候用？
 https://www.zhihu.com/question/437590377
 
