@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### Gutter Indicators
+搜了半天，发现这玩意叫做Gutter Indicators。作用是在一个git仓库中，如果对某个文件做了修改，编辑器会在行号旁边用不同颜色标志该文件的修改情况。
+
 ### c++11增加的变参数模板，今天总算整明白了
 https://www.helloworld.net/p/7580029278
 
