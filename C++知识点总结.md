@@ -4,6 +4,9 @@
 
 ## 类成员函数放在类声明中实现，则此函数默认是内联函数
 
+## C++11
+https://www.apiref.com/cpp-zh/cpp/11.html
+
 ## extern声明变量或函数
 https://blog.csdn.net/weixin_38145317/article/details/86496041
 
