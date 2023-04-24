@@ -6,6 +6,8 @@
 
 ## C++11
 https://www.apiref.com/cpp-zh/cpp/11.html
+值初始化
+https://www.apiref.com/cpp-zh/cpp/language/value_initialization.html
 
 ## extern声明变量或函数
 https://blog.csdn.net/weixin_38145317/article/details/86496041
