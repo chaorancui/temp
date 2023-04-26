@@ -4,6 +4,9 @@
 
 ## 类成员函数放在类声明中实现，则此函数默认是内联函数
 
+## 空结构体指针作为形参时传递参数
+https://blog.csdn.net/qq_31815979/article/details/105211126
+
 ## C++11
 https://www.apiref.com/cpp-zh/cpp/11.html
 值初始化
