@@ -4,6 +4,57 @@
 
 ## 类成员函数放在类声明中实现，则此函数默认是内联函数
 
+## 空struct指针的用途C++
+在C++中，空的结构体指针可以用于以下情况：
+
+占位符
+在一些代码中，我们可能需要一个占位符来表示某个变量或参数的位置，但是这个变量或参数当前并没有被定义或赋值。这时候，我们可以使用一个空的结构体指针来代替该变量或参数的位置，以便于后续代码的编写。
+
+例如，下面的代码中，我们定义了一个空的结构体Dummy，并将其用作一个函数的参数占位符：
+
+c++
+Copy code
+struct Dummy {};
+void myFunction(Dummy* param1, int param2) {
+  // ...
+}
+
+int main() {
+  myFunction(nullptr, 42);
+  return 0;
+}
+作为泛型指针
+在C++中，有时候我们需要定义一个通用的指针类型，以便于在不同的上下文中使用。这时候，我们可以使用空的结构体指针来定义这个通用的指针类型。
+
+例如，下面的代码中，我们定义了一个名为GenericPointer的类型，该类型是一个空的结构体指针：
+
+c++
+Copy code
+struct GenericPointer {};
+using MyPointer = GenericPointer*;
+在这个例子中，我们使用了GenericPointer来定义了一个别名MyPointer，这个别名可以在不同的上下文中使用，以表示一个通用的指针类型。
+
+作为哨兵值
+有时候，我们需要定义一个特殊的值来表示某种状态或条件。在这种情况下，我们可以使用空的结构体指针来作为哨兵值。
+
+例如，下面的代码中，我们定义了一个名为EndOfList的哨兵值，用于表示一个链表的末尾：
+
+c++
+Copy code
+struct EndOfList {};
+struct ListNode {
+  int value;
+  ListNode* next;
+};
+
+int main() {
+  ListNode* head = new ListNode{1, new ListNode{2, new ListNode{3, new EndOfList}}};
+  // ...
+  return 0;
+}
+在这个例子中，我们使用了一个空的结构体指针EndOfList来表示链表的末尾。由于EndOfList是一个空的结构体指针，它不会占用任何内存空间，因此可以作为一个轻量级的哨兵值来使用。
+
+
 ## 为什么使用空类
 空类在“泛型编程”中，空类（空结构）的用处非常广：
 我们利用类型（通常是空类），来区别对待不同类对象的属性。
