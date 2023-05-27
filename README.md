@@ -1,6 +1,9 @@
 # -
 无卵用的记录
 
+### 天地图key
+702f9a64c89bc4c93c57338a0d5da2e6
+
 ### vscode git 不显示修改颜色标记  Gutter Indicators
 搜了半天，发现这玩意叫做Gutter Indicators。作用是在一个git仓库中，如果对某个文件做了修改，编辑器会在行号旁边用不同颜色标志该文件的修改情况。
 原因是在项目最外层文件夹（项目名的同级目录下）git init了，产生了.git文件。
