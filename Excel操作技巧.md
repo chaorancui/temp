@@ -486,6 +486,9 @@ https://zhuanlan.zhihu.com/p/68901540
 
 6. DAY 函数：DAY(serial_number)
 
+7. 计算时间差：=C2-B2，即两个时间直接相减，然后`单元格格式`设置为为`时间`，就会以时间格式显示时间差如 0:00:01。
+   
+8. 计算日期差：以天为单位：=DATEDIF(D9,E9,"d")，以月为单位：=DATEDIF(D9,E9,"m")，以年为单位：=DATEDIF(D9,E9,"y")
 
 
 > 1、插入函数
