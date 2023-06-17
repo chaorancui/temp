@@ -234,6 +234,8 @@ https://zhuanlan.zhihu.com/p/68901540
 
 > https://support.microsoft.com/zh-cn/office/bitrshift-%E5%87%BD%E6%95%B0-274d6996-f42c-4743-abdb-4ff95351222c
 
+> `F9` 查看公式过程：在编辑公式的时候，如果想知道这个公式中某一段会输出什么结果的时候可以，选择这一部分按 `F9`，选择的必须是一段完整的公式，或者单个引用单元格。返回可以按 `ESC` 或者 `Ctrl+Z`
+
 ### 进制转换
 
 1. 十进制转十六进制
