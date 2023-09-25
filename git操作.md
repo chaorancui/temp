@@ -466,6 +466,28 @@ git revert -n commit-id
 git revert -n commit-idA..commit-idB
 ```
 
+### git stash
+
+贮藏（stash）会处理工作目录的脏的状态——即跟踪文件的修改与暂存的改动——然后将未完成的修改保存到一个栈上， 而你可以在任何时候重新应用这些改动（甚至在不同的分支上）。
+
+```shell
+# 贮藏修改，将新的贮藏推送到栈上（ git stash 或 git stash push）
+git status
+git stash push
+
+# 查看贮藏的东西
+git stash list
+
+# 应用其中一个的贮藏，栈上不删除（指定一个贮藏，Git 认为指定的是最近的贮藏）
+git stash apply
+git stash apply stash@{2}
+
+# 应用贮藏并从栈上删除
+git stash pop
+
+# 移除贮藏
+git stash drop stash@{0}
+```
 
 
 ### git branch
