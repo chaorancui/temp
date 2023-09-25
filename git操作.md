@@ -238,6 +238,14 @@ git fetch <remote>
 
 
 
+l 用户上行平均吞吐率（User Uplink Average Throughput）
+
+
+
+
+
+
+
 ### git add
 
 经常会有这么一种情况，一个文件修改了很多次代码，才发现 – 咦？忘记commit了。 而且往往这些修改可能它们本来应该属于不同的提交。
@@ -355,6 +363,12 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
   ```shell
   git log (--pretty=)oneline
+  ```
+
+* 图形显示
+
+  ```shell
+  git log --oneline --decorate --graph --all
   ```
 
   
@@ -488,15 +502,11 @@ git revert -n commit-idA..commit-idB
 
 * 本地分支重命名（还没有推送到远程）
 
-  如果对于分支不是当前分支，可以使用下面代码：
-
-  ```bash
+  ```shell
+  # 如果对于分支不是当前分支，可以使用下面代码：
   git branch -m <原分支名> <新分支名>
-  ```
-
-  如果是当前分支，那么可以使用加上新名字：
-
-  ```bash
+  
+  # 如果是当前分支，那么可以使用加上新名字：
   git branch -m <新分支名>
   ```
 
@@ -524,6 +534,7 @@ git revert -n commit-idA..commit-idB
 
   ```shell
   git branch --set-upstream-to origin/<新分支名>
+  git branch --set-upstream-to=23B/master 23bmaster
   ```
 
 * 
@@ -577,7 +588,34 @@ git revert -n commit-idA..commit-idB
   git cherry-pick --quit
   ```
 
-  
+
+
+### git rm
+
+git rm 命令用于删除文件。
+
+如果只是简单地从工作目录中手工删除文件，运行 **git status** 时就会在 **Changes not staged for commit** 的提示。
+
+git rm 删除文件有以下几种形式：
+
+1. 将文件从暂存区和工作区中删除：
+
+   ```shell
+   git rm <file>
+   
+   # 如果删除之前修改过并且已经放到暂存区域的话，则必须要用强制删除选项 -f。
+   git rm -f <file>
+   ```
+
+2. 如果想把文件从暂存区域移除，但仍然希望保留在当前工作目录中，换句话说，仅是从跟踪清单中删除，使用 **--cached** 选项即可：
+
+```shell
+git rm --cached <file>
+```
+
+
+
+
 
 ### git 仓库忽略大小写
 
@@ -691,6 +729,31 @@ git clean -df
 ```
 
 git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉编译后生成的.o和.exe等文件. 这个在打包要发布一个release的时候非常有用
+
+
+
+### git 修改.gitignore后重新生效
+
+```shell
+git rm -r --cached .  #清除缓存
+git add . #重新trace file
+git commit -m "update .gitignore" #提交和注释
+git push origin master #可选，如果需要同步到remote上的话
+```
+
+会在已有的提交上新增一个提交，并且刷新 `.gitignore` 文件。
+
+
+
+配置语法:
+
+以斜杠“/”开头表示目录；
+以星号“*”通配多个字符；
+以问号“?”通配单个字符
+以方括号“[]”包含单个字符的匹配列表；
+以叹号“!”表示不忽略(跟踪)匹配到的文件或目录；
+
+
 
 
 
@@ -837,6 +900,68 @@ $ man wdiff
 
 以上介绍的两款是 Linux 命令行的对比工具，我们再来看一些 GUI 比对工具。
 
+配置方法：
+
+```shell
+git config --global merge.tool vimdiff
+git config --global merge.conflictstyle diff3
+git config --global mergetool.prompt false
+ 
+#让git mergetool不再生成备份文件(*.orig)  
+git config --global mergetool.keepBackup false
+```
+
+使用方法：
+
+```shell
+git mergetool <filename>
+# 文件名参数是可选的。如果不传文件名，那么将会自动挨个打开有冲突的文件
+```
+
+上一层三个小窗口分别对应：
+
+- `LOCAL` buffer: 当前分支
+- `BASE` buffer: 两个分支共同祖先，代表两个分支修改前
+- `REMOTE` buffer: 需要合并到当前分支的分支
+
+下层窗口为：
+
+- `MERGED` buffer: 合并后的，即有冲突的
+
+鼠标移动到MERGED窗口(CTRL-w切换窗口)，
+
+:diffget REMOTE # 获取REMOTE的修改到MERGED文件, 忽略大小写
+:diffg BASE # get from base
+:diffg LOCAL # get from local
+
+注意：通过diffget只能选取local, base, remote三种的一种，要想都需要3种或者两种，只能通过修改MERGED文件
+
+修改完成后， 保存
+
+:wqa
+
+vimdiff 命令参考
+
+```shell
+]c      # nect difference
+[c      # previous difference
+zo      # open folded text
+zc      # close folded text
+zr      # open all folds
+zm      # close all folds
+:diffupdate     # re-scan the file for difference
+do      # diff obtain
+dp      # diff put
+:set diffopt+=iwhite    # to avoid whitespace comparison
+Ctrl+W+W                # toggle between the diff columns
+Ctrl+W+h/j/k/l          # 移动鼠标到不同窗口
+:set wrap               # wrap line
+:set nowrap
+:syn off                # remove colors
+```
+
+
+
 
 
 ### 3.Kompare
@@ -875,3 +1000,293 @@ Kompare 的特性有如下：
 
 
 > [推荐9款代码对比工具](https://zhuanlan.zhihu.com/p/336414874)
+
+
+
+## [如何解决Git中的合并冲突？详细操作步骤指南](https://www.lsbin.com/9410.html)
+
+### Git 合并冲突的类型
+
+合并冲突的一般类型取决于问题出现的时间。冲突发生在：
+
+- **合并前**，表示有本地更改不是最新的。在合并开始之前会出现冲突错误消息以避免出现问题。
+- **在合并期间**，表明存在覆盖问题。出现错误消息并停止合并过程以避免覆盖更改。
+
+如何解决 Git 中的合并冲突
+
+在 Git 中解决合并冲突的**方法**有以下**三种**：
+
+1.**接受本地版本**。要接受来自本地版本的文件的所有更改，请运行：
+
+```
+git checkout --ours <file name>
+```
+
+或者，要接受**所有**冲突文件的本地版本，请使用：
+
+```
+git merge --strategy-option ours
+```
+
+2.**接受远程版本**。要从远程分支更新文件的更改，请运行：
+
+```
+git checkout --theirs <file name>
+```
+
+接受**所有**冲突文件的远程版本：
+
+```
+git merge --strategy-option theirs
+```
+
+3.**单独审查更改**。最后一个选项是分别查看每个更改。此选项也是最佳选择，尤其是在处理多个文件和人员时。为了使这项工作更易于管理，请使用特殊工具来帮助查看个别冲突。
+
+最终，选择保留哪些代码部分以及不保留哪些部分取决于开发人员对当前项目的决定。
+
+
+
+### 在 Git 中设置默认 Diff 工具
+
+[Git中的合并冲突如何解决](https://www.lsbin.com/tag/git中的合并冲突如何解决/)？为 设置默认差异工具**`git mergetool`**：
+
+1. 在终端中运行以下行：
+
+```shell
+git mergetool --tool-help
+```
+
+输出打印出当前设置的所有支持的差异工具：
+
+```shell
+'git mergetool --tool=<tool>' may be set to one of the following:
+                meld
+                tortoisemerge
+                vimdiff
+                vimdiff1
+                vimdiff2
+                vimdiff
+The following tools are valid, but not currently available:
+                araxis
+                bc
+                bc3
+                bc4
+```
+
+根据选择的编辑器，可以使用不同的工具。例如：
+
+- **Emacs**差异工具：Ediff 或emerge
+- **Vim**差异工具：vimdiff、vimdiff2 或 vimdiff3
+
+[Git合并冲突的解决方法](https://www.lsbin.com/tag/git合并冲突的解决方法/)：进一步的步骤显示了如何为 Vim设置**vimdiff**工具的示例。
+
+2. 更改 `git config` 设置默认合并工具：
+
+```shell
+git config merge.tool <tool name>
+# 例如，如果使用 Vim，请运行：
+git config merge.tool vimdiff
+```
+
+3. 设置冲突显示格式， diff3 工具以显示两个文件的共同祖先，即任何编辑之前的版本：
+
+```shell
+git config merge.conflictstyle diff3
+```
+
+4. 启动合并解析工具前不提示：
+
+```
+git config mergetool.prompt false
+```
+
+Git 的 diff 工具设置已完成。
+
+
+
+### 使用 Mergetool 查看差异
+
+如何解决Git中的合并冲突？要使用**`mergetool `**并查看差异，请运行：
+
+```shell
+git mergetool
+# 或
+git mergetool <filename>
+# 文件名参数是可选的。如果不传文件名，那么将会自动挨个打开有冲突的文件
+```
+
+![如何解决Git中的合并冲突？详细操作步骤指南](https://www.lsbin.com/wp-content/uploads/2021/11/git-mergetool-vimdiff.png)
+
+输出显示一个具有四个视图的窗口：
+
+\1. **LOCAL**代表来自当前分支的文件版本。
+
+\2. **BASE**是文件在任何更改之前的样子。
+
+\3. **REMOTE**显示文件在冲突信息所在的远程分支中的外观。
+
+\4. **MERGED**有最终的合并文件。此结果表示保存到存储库的内容。
+
+这些窗口之间的主要导航命令是：
+
+```
+Ctrl+W+W                # toggle between the diff columns
+Ctrl w + h   # move to the split on the left 
+Ctrl w + j   # move to the split below
+Ctrl w + k   # move to the split on top
+Ctrl w + l   # move to the split on the right
+```
+
+对于高级导航，可通过命令获取信息**`:help window-moving`**。
+
+### 更新和解决合并冲突
+
+更新 MERGED 文件以解决冲突。更新 MERGED 版本的一些快捷方式包括：
+
+```shell
+:diffg RE  # get from REMOTE
+:diffg BA  # get ]c]c[cjkjfrom BASE
+:diffg LO  # get from LOCAL
+# or
+:diffg REMOTE  # get from REMOTE
+:diffg BASE  # get from BASE
+:diffg LOCAL  # get from LOCAL
+```
+
+**注意：**在运行这些命令之前，确保光标位于冲突所在的行上。
+
+一旦信息被更新，保存并退出用**`:wqa`**。
+
+### vim 中用于解决冲突的相关命令
+
+[使用 MacVim/GVim 作为 git 冲突解决工具 (mergetool)](https://hanleylee.com/articles/use-macvim_as_git_merge_tool/)
+
+作为编辑器之神, vim 自然早早就考虑到了很多人会使用其进行冲突合并, 因此也内置了很多非常高效有用的操作命令, 我挑选了比较有用的列在下面:
+
+- `:diffget LOCAL`: 选择 LCOAL 作为本行最终结果
+- `:diffget REMOTE`: 选择 REMOTE 作为本行最终结果
+- `:diffget BASE`: 选择 BASE 作为本行最终结果
+- `:diffput [num]`: 放置结果到缓冲区上, `num` 为缓冲区编号
+- `:diffg LO`: 这里 vim 为我们做了简略命令, 同样可用于 `REMTOE` 与 `BASE` 上
+- `:diffget //2`: `//2` 将被替换为左侧文件名
+- `:diffget //3`: `//3` 将被替换为右侧文件名
+- `:%diffget LO`: 将所有变更使用 local 的结果
+- `:'<'>diffget LO`: 将当前选中范围的使用 local 的结果
+- `dp/do`: 如果只有两个文件则可以使用 `dp/do` 来替代 `:diffput/:diffget`
+- `:diffoff`: 关闭 diff mode
+- `:diffthis`: 开启 diff mode
+- `:ls!`: 显示当前所有缓冲区的号码kkkjk
+- `[c`: conflict, 移动到上一个冲突处
+- `]c`: conflict, 移动到下一个冲突处
+- `:diffsplit filename`: 已经在 vim 中时, 使用此命令与别的文件进行对比
+- `:vert diffsplit filename`: 同上
+- `vimidff file1 file2`: 对比 `file1` 与 `file2` 的差别
+- `vim -d file1 file2`: 同上 🐷
+- `:wqa`: 冲突修复完成保存退出, 如果仍然有文件冲突则进入下一个冲突
+- `:cq`: 放弃修复, 终止流程(在 merge conflict 时很有用, 否则使用了 `qa` 的话想再次进入 mergetool 就必须使用 `git checkout --conflict=diff3 {file}` 了)
+
+> 更多 vim 操作可参考 [神级编辑器 Vim 使用-操作篇](https://www.hanleylee.com/usage-of-vim-editor.html)
+
+
+
+```markdown
+]c      # nect difference
+[c      # previous difference
+zo      # open folded text
+zc      # close folded text
+zr      # open all folds
+zm      # close all folds
+:diffupdate     # re-scan the file for difference
+do      # diff obtain
+dp      # diff put
+:set diffopt+=iwhite    # to avoid whitespace comparison
+:set wrap               # wrap line
+:set nowrap
+:syn off                # remove colors
+```
+
+
+
+
+
+### 提交和清理
+
+Git合并冲突的解决方法：最后一步是提交和清理额外的文件。通过运行提交更新的版本：
+
+```
+git commit -m "<your message>"
+```
+
+**注意：**如果你在提交时犯了错误，你可以撤消最后一次提交。
+
+diff 工具会在项目上创建额外的文件来比较版本。用以下方法清理它们：
+
+```
+git clean -f
+```
+
+![如何解决Git中的合并冲突？详细操作步骤指南](https://www.lsbin.com/wp-content/uploads/2021/11/git-clean-output.png)
+
+
+
+
+
+> [快速处理 Git 冲突](https://taoshu.in/git/git-diff3.html)
+>
+> git 的默认 `conflictstyle` 是 `merge`，遇到冲突后会显示如下标记：
+>
+> ```shell
+> <<<<<<< HEAD
+> Alice asked her parents if she could
+> borrow their car. They said ok but told
+> =======
+> Alice asked her father if she could
+> borrow his motorbike. He said ok but told
+> >>>>>>> feature_branch
+> her she had to be back by 11pm.
+> ```
+>
+> 这其中`<<<<<<< HEAD`与`=======`之间的部分表示当前所在分支（也就是HEAD）的内容，而`=======`与`>>>>>>> feature_branch`之间的部分则是 feature_branch 分支的内容。看到这个冲突就头大，因为我们无法确定要留哪一行删哪一行。
+>
+> 
+>
+> 如果我们执行`git config --global merge.conflictstyle diff3`将`conflictstyle`设成`diff3`，则结果会变成
+>
+> ```shell
+> <<<<<<< HEAD
+> Alice asked her parents if she could
+> borrow their car. They said ok but told
+> ||||||| merged common ancestors
+> Alice asked her father if she could
+> borrow his car. He said ok but told
+> =======
+> Alice asked her father if she could
+> borrow his motorbike. He said ok but told
+> >>>>>>> feature_branch
+> her she had to be back by 11pm.
+> ```
+>
+> 大家注意多出来的`||||||| merged common ancestors`到`=======`之间的部分。git 在合并分支的时候用的是**三路合并**(3-way merge)。三路合并的关键就是找到两个分支的最新公共提交版本。在这个例子中，公共提交版本的内容就保存到了`||||||| merged common ancestors`和`=======`之间。
+>
+> 很显然，master 分支将`Alice asked her father if she could`改成了`Alice asked her parents if she could`，也就是 Alice 现在要向她的父母借车；而 feature_branch 分支则将 `borrow his car...`改成了`borrow his motorbike...`，也就是不借车了，要借摩托。两者合并，最终结果应该是：
+>
+> ```shell
+> Alice asked her parents if she could
+> borrow their motorbike. They said ok but told
+> her she had to be back by 11pm.
+> ```
+
+> **[Git_mergetool_tutorial_with_Vim.md](https://gist.github.com/karenyyng/f19ff75c60f18b4b8149)**
+>
+> ```
+> let mapleader=','
+> let g:mapleader=','
+> 
+> if &diff
+>     map <leader>1 :diffget LOCAL<CR>
+>     map <leader>2 :diffget BASE<CR>
+>     map <leader>3 :diffget REMOTE<CR>
+> endif
+> ```
+
+> [关于vim：使用vimdiff时加载不同的颜色](https://www.codenong.com/2019281/)
