@@ -2,6 +2,9 @@
 
 # C++ 知识点总结
 
+## c++ enum class compare
+https://juejin.cn/s/c%2B%2B%20enum%20class%20compare
+
 ## 不能delete void指针
 释放指针void*那里有问题，正确的做法应该做一个强制转换
 
