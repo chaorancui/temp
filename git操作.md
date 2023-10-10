@@ -77,6 +77,14 @@ git 有三种配置
   ```
 注：每一个级别的配置都会覆盖上层的相同配置，例如 .git/config 里的配置会覆盖 %Git$/etc/gitconfig 中的同名变量。
 
+### 配置个人身份
+首次的 Git 设定（设定身份，自己做主）
+```bash
+git config --global user.name "Zhang San"
+git config --global user.email zhangsan@qq.com
+```
+这个配置信息会在 Git 仓库中提交的修改信息中体现，但和 Git 服务器认证使用的密码或者公钥密码无关。
+
 ### git remote
 
 * 查看已关联的远程仓库
