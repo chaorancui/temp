@@ -85,6 +85,20 @@ git config --global user.email zhangsan@qq.com
 ```
 这个配置信息会在 Git 仓库中提交的修改信息中体现，但和 Git 服务器认证使用的密码或者公钥密码无关。
 
+### 与服务器认证的配置
+常见的两种协议认证的方式
+* http/https 协议认证
+  设置口令缓存：
+  ```bash
+  git config --global credential.helper store
+  ```
+  设置HTTPS证书信任：
+  ```bash
+  git config http.sslverfy false
+  ```
+* ssh 协议认证
+  SSH 协议是一种非常常用的 Git 仓库访问协议，使用公钥认证、无需输入密码，加密传输，操作便利又保证安全。
+
 ### git remote
 
 * 查看已关联的远程仓库
