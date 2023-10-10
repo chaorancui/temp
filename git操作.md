@@ -58,6 +58,24 @@ Windows下秘钥默认权限：-rw-r--r--
 > [服务器上的 Git - 生成 SSH 公钥](https://git-scm.com/book/zh/v2/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%9A%84-Git-%E7%94%9F%E6%88%90-SSH-%E5%85%AC%E9%92%A5)
 
 
+### git 配置
+git 有三种配置
+* 系统配置（对所有用户都适用）
+  存放在 git 的安装目录下：%Git%/etc/gitconfig；若使用 git config 时使用 --system 选项，读写的就是这个文件：
+  ```bash
+  git config --system core.autocrlf
+  ```
+* 用户配置（只适用于改用户）
+  存放在用户目录下。例如 Linux 存放在：~/.gitconfig；若使用 git config 时使用 --global 选项，读写的就是这个文件：
+  ```bash
+  git config --global user.name
+  ```
+* 仓库配置（只对当前项目有效）
+  当前仓库的配置文件（也就是工作目录中的 .git/config文件）；若使用 git config 时使用 --local 选项，读写的就是这个文件：
+  ```bash
+  git config --local remote.origin.url
+  ```
+注：每一个级别的配置都会覆盖上层的相同配置，例如 .git/config 里的配置会覆盖 %Git$/etc/gitconfig 中的同名变量。
 
 ### git remote
 
