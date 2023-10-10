@@ -85,6 +85,9 @@ git config --global user.email zhangsan@qq.com
 ```
 这个配置信息会在 Git 仓库中提交的修改信息中体现，但和 Git 服务器认证使用的密码或者公钥密码无关。
 
+### 文本换行符配置
+
+
 ### 与服务器认证的配置
 常见的两种协议认证的方式
 * http/https 协议认证
