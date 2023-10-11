@@ -102,6 +102,28 @@ git config --global user.email zhangsan@qq.com
 * ssh 协议认证
   SSH 协议是一种非常常用的 Git 仓库访问协议，使用公钥认证、无需输入密码，加密传输，操作便利又保证安全。
 
+
+
+### 创建 git 仓库
+创建 git 仓库:
+```bash
+mkdir git-test
+cd git-test
+git init 
+touch README.md
+git add README.md
+git commit -m "first commit"
+git remote add origin https://gitee.com/cuichaoran/git-test.git
+git push -u origin "master"
+```
+已有仓库?
+```bash
+cd existing_git_repo
+git remote add origin https://gitee.com/cuichaoran/git-test.git
+git push -u origin "master"
+```
+
+
 ### git remote
 
 * 查看已关联的远程仓库
