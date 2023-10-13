@@ -148,6 +148,13 @@ git push -u origin "master"
 
   其中，`name` 表示你要给这个远程库起的名字
 
+* 命修改远程主机名
+
+  ```bash
+  git remote rename <原主机名> <新主机名>
+  ```
+
+  其中，`name` 表示你要给这个远程库起的名字
   
 
 ------
@@ -201,6 +208,11 @@ git push -u origin "master"
 
 git clone 只能 clone 远程库的 master 分支，无法 clone 所有分支。
 
+* 从远程主机克隆一个版本库，未指定本地目录名则与远程主机的版本库同名。
+```bash
+git clone <版本库的网址>
+git clone <版本库的网址> <本地目录名>
+```
 
 
 
@@ -209,29 +221,50 @@ git clone 只能 clone 远程库的 master 分支，无法 clone 所有分支。
 
 git fetch 命令命令用于从远程获取代码库。
 
+* 将某个远程主机的所有分支的更新，全部取回本地。如果只想取回特定分支的更新，可以指定分支名。
 ```bash
-git fetch <remote>
+git fetch <远程主机名>
+git fetch <远程主机名> <分支名>
 ```
 
+> 注：所取回的更新，在本地主机上要用 "远程主机名/分支名" 的形式读取。
+> 比如origin主机的master，就要用origin/master读取。
 
+* 取回远程主机的更新以后，可以在它的基础上，使用git switch/checkout命令创建一个新的分支。
+```bash
+git checkout -b newBrach origin/master
+```
 
+* 此外，也可以使用 git merge 命令或者 git rebase 命令，在本地分支上合并远程分支。
+```bash
+git merge origin/master
+# 或者
+git rebase origin/master
+```
 
+ 
 
 ### git pull
 
 在克隆远程项目的时候，本地分支会自动与远程仓库建立追踪关系，可以使用默认的origin来替代远程仓库名，因此下文中的 <仓库关联命名> 常常写成 origin。若一个本地仓库关联了多个远程仓库，则需要根据实际情况选择 <仓库关联命名>。
 
-* 将远程指定分支拉取到本地**指定**分支上：
+* 将远程指定分支拉取且合并到本地**指定**分支上：
 
   ```bash
   git pull <仓库关联命名> <远程分支名>:<本地分支名>
+  
+  # 取回origin主机的next分支，与本地的master分支合并
+  git pull origin next:master
   ```
 
 
-* 将远程指定分支拉取到本地**当前**分支上：
+* 将远程指定分支拉取且合并到本地**当前**分支上：
 
   ```bash
   git pull <仓库关联命名> <远程分支名>
+  
+  # 取回origin/master分支，与当前分支合并
+  git pull origin master
   ```
 
 * 将与本地当前分支**同名**的远程分支拉取到本地**当前**分支上(需先关联远程分支，方法如下)
@@ -300,10 +333,6 @@ git fetch <remote>
   同样的，推荐使用第2种方式，git push origin <远程同名分支名>
 
 > 注意：pull是远程在前本地在后，push相反
-
-
-
-l 用户上行平均吞吐率（User Uplink Average Throughput）
 
 
 
