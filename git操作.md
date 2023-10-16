@@ -725,9 +725,9 @@ git rm 删除文件有以下几种形式：
 
 2. 如果想把文件从暂存区域移除，但仍然希望保留在当前工作目录中，换句话说，仅是从跟踪清单中删除，使用 **--cached** 选项即可：
 
-```shell
-git rm --cached <file>
-```
+   ```shell
+   git rm --cached <file>
+   ```
 
 
 
