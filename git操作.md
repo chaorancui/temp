@@ -883,6 +883,47 @@ git push origin master #可选，如果需要同步到remote上的话
 以叹号“!”表示不忽略(跟踪)匹配到的文件或目录；
 
 
+### 利用git bisec二分法查找定位bug问题
+如果出现bug，很容易想到的是回滚git记录查找bug出现的提交，通常可以手动回滚记录进行定位，找到引入bug的提交进行修复。git提供了一种二分查找的方式帮助开发者快速定位bug引入的提交。很久没用做个记录。
+
+步骤：
+开始git二分定位
+标记包含bug提交
+标记上一个不含bug的提交
+运行验证
+进行标记
+重复2~5步
+定位bug git提交
+结束git二分查找
+修复bug
+
+实战
+步骤1：开始二分查找
+git bisec start
+
+步骤2：假设当前提交包含bug，进行标记
+git bisec bad
+
+步骤3：找到上一个不含bug的提交，假设在之前的提交46aa1abd5不含bug，进行标记
+git bisec good 46aa1abd5
+
+步骤4：git会自动回滚到两次提交中间的提交，运行代码进行验证
+步骤5：进行标记，标记后代码会自动回滚或者前进到中间git提交
+
+如果回滚后依旧存在bug，进行bad标记：$ git bisec bad
+如果回滚后bug没了，进行good标记：$ git bisec good，这里不用跟commit hash也行了，默认是当前提交。
+
+步骤6：重复前前几步，知道git提示找到了bug引入的提交记录
+步骤7：根据之前的标记，git会找到引入bug的commit提交
+提示如：
+bash复制代码da5207dec2(这里是你的git记录) is the first bad commit
+// 下面的提示省略。。。
+
+关键字在 is the first bad commit，说明这个提交引入了bug，review代码进行修复吧。
+步骤8：结束git二分查找
+git bisec reset
+
+
 
 
 
