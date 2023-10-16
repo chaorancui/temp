@@ -883,6 +883,9 @@ git push origin master #可选，如果需要同步到remote上的话
 以叹号“!”表示不忽略(跟踪)匹配到的文件或目录；
 
 
+
+
+
 ### 利用git bisec二分法查找定位bug问题
 如果出现bug，很容易想到的是回滚git记录查找bug出现的提交，通常可以手动回滚记录进行定位，找到引入bug的提交进行修复。git提供了一种二分查找的方式帮助开发者快速定位bug引入的提交。很久没用做个记录。
 
@@ -923,6 +926,13 @@ bash复制代码da5207dec2(这里是你的git记录) is the first bad commit
 步骤8：结束git二分查找
 git bisec reset
 
+
+
+
+### git 对象在一个项目里面具体的运作方式
+git cat-file -t <commit-id>
+
+git cat-file commit <commit-id>
 
 
 
