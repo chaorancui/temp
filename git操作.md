@@ -343,6 +343,9 @@ git rebase origin/master
   
   # 如果当前是 master 分支，那么下面代码就是将 dev 分支合并到 master 分支
   git merge dev
+
+  # 将源分支合并到目的分支
+  git merge <source_branch> <dest_branch>
   ```
 
 
