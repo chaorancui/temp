@@ -439,7 +439,7 @@ git commit --amend
 在弹出的 vim 编辑窗口中，最上方，修改 message 后，:wq 即可。
 
 > 参考网址：[7.6 Git 工具 - 重写历史](https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E9%87%8D%E5%86%99%E5%8E%86%E5%8F%B2)
-
+> [git-cz 讓你的 Git Commit 訊息更美一點！](https://israynotarray.com/git/20221115/721294310/)
 
 
 ### git log
