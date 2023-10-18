@@ -562,6 +562,18 @@ HEAD^3 上上上一个版本
 ```
 
 
+### git reflog
+git reflog 命令是用来恢复本地错误操作很重要的一个命令，可处理代码丢失、恢复代码。
+> reflog 是 Git 操作的一道安全保障，它能够记录几乎所有本地仓库的改变。包括所有分支 commit 提交，已经删除（其实并未被实际删除）commit 都会被记录。总结而言，只要 HEAD 发生变化，就可以通过 reflog 查看到。
+
+```bash
+# 执行 git reflog 查看操作日志
+git reflog
+
+# 查看对应的版本号,就可以恢复到任意版本:
+git reset --hard <commit-id>
+```
+
 
 ### git revert
 
