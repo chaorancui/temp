@@ -23,7 +23,9 @@ Preferences: Open Keyboard shortcurs(JSON)，就进入了 快捷键文件 keybin
     { "key": "ctrl+7",                "command": "workbench.action.terminal.focusAtIndex7", "when": "terminalFocus" },
     { "key": "ctrl+8",                "command": "workbench.action.terminal.focusAtIndex8", "when": "terminalFocus" },
     { "key": "ctrl+9",                "command": "workbench.action.terminal.focusAtIndex9", "when": "terminalFocus" },
-    { "key": "ctrl+t",                "command": "workbench.action.terminal.new" }
+    { "key": "ctrl+t",                "command": "workbench.action.terminal.new", "when": "terminalFocus" },
+    { "key": "ctrl+p",                "command": "cursorup", "when": "terminalFocus" },
+    { "key": "ctrl+n",                "command": "cursordown", "when": "terminalFocus" }
 
 ]
 
