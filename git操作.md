@@ -14,6 +14,7 @@ Git 并不会在你输入部分命令时自动推断出你想要的命令。 如
 
 ```bash
 git config --global alias.co checkout
+git config --global alias.sw switch
 git config --global alias.br branch
 git config --global alias.ci commit
 git config --global alias.st status
