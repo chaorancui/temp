@@ -2,6 +2,10 @@
 
 # C++ 知识点总结
 
+## 《重构 改善既有代码的设计第二版》中文版
+https://github.com/MwumLi/book-refactoring2
+
+
 ## c++ enum class compare
 https://juejin.cn/s/c%2B%2B%20enum%20class%20compare
 
