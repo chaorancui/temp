@@ -593,7 +593,8 @@ git revert -n commit-idA..commit-idB
 ```shell
 # 贮藏修改，将新的贮藏推送到栈上（ git stash 或 git stash push）
 git status
-git stash push
+git stash push -m "save message"
+# git stash save 会逐渐弃用
 
 # 查看贮藏的东西
 git stash list
