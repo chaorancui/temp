@@ -389,6 +389,13 @@ git rebase origin/master
     ? - 显示当前帮助信息(当你不记得这些缩写是什么意思时相当有用)
 ```
 
+```bash
+Update>> 1,2
+           staged     unstaged path
+* 1:    unchanged        +0/-1 TODO
+* 2:    unchanged        +1/-1 index.html
+  3:    unchanged        +5/-1 lib/simplegit.rb
+```
 
 > [7.2 Git 工具 - 交互式暂存](https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E4%BA%A4%E4%BA%92%E5%BC%8F%E6%9A%82%E5%AD%98)
 > [Git tips – 同一个文件修改了多处如何分作多个提交](https://ttys3.dev/blog/git-how-to-commit-only-parts-of-a-file)
