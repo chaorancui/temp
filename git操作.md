@@ -391,7 +391,7 @@ git rebase origin/master
 
 
 
-> [Git tips – 同一个文件修改了多处如何分作多个提交](https://ttys3.dev/post/git-how-to-commit-only-parts-of-a-file/)
+> [Git tips – 同一个文件修改了多处如何分作多个提交](https://ttys3.dev/blog/git-how-to-commit-only-parts-of-a-file)
 
 
 
