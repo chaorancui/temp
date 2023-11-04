@@ -1082,6 +1082,54 @@ git config --global --unset https.proxy
 ```
 
 
+### GIT 自动补全命令,分支名 以及 高亮显示当前分支
+
+【注】`~/.bashrc` 是 Linux 的，对应到 Mac 是 `~/.bash_profile` ，看网上的教程要注意区分和替换
+
+##### 1、执行以下命令，克隆官方git库，然后在`git/contrib/completion`找到两个关键文件
+
+```shell
+git clone https://github.com/git/git.git
+cd git/contrib/completion
+```
+
+- `contrib/completion/git-completion.bash` 自动补全
+- `contrib/completion/git-prompt.sh` 高亮显示当前分支名称
+
+##### 2、执行以下命令，将两个文件复制到用户目录，并设置隐藏
+
+```shell
+cp git-completion.bash ~/.git-completion.bash
+cp git-prompt.sh ~/.git-prompt.sh
+```
+
+##### 3、配置 `~/.bash_profile` 文件，没有该文件就新增，然后加入以下内容(会使命令响应时间变长...)
+
+```bash
+# git命令自动补全
+source ~/.git-completion.bash
+# git显示分支官方实现
+GIT_PS1_SHOWDIRTYSTATE=true
+GIT_PS1_SHOWCOLORHINTS=true
+GIT_PS1_SHOWSTASHSTATE=true
+GIT_PS1_SHOWUNTRACKEDFILES=true
+#GIT_PS1_SHOWUPSTREAM=auto           
+if [ -f ~/.git-completion.bash ]; then
+  source ~/.git-prompt.sh
+  PROMPT_COMMAND='__git_ps1 "[\t][\u@\h:\w]" "\\\$ "'
+fi
+```
+
+##### 4、执行以下命令进行刷新
+
+```
+source ~/.bash_profile
+```
+
+
+
+
+
 
 ## 代码对比工具
 
