@@ -1127,7 +1127,32 @@ source ~/.bash_profile
 ```
 
 
+### 解决git命令会将结果输出到单独窗口必须按q才能退出的问题
 
+这与 git 的 pager 设置有关。
+
+pager 其实就是分页器，也就是对一大段内容进行分页显示的工具，git 在一些版本中**默认使用的是 less 工具**，不同的版本默认设置会有差异，这也就是造成我在 windows 下没有自动分页，而在 linux 下会打开新窗口进行分页的原因。
+
+git 的分页器可以通过 core.pager 来进行设置，他会被 git 命令行解释，影响分页器的变量有多个，他们起作用的顺序依次是
+
+1. `$GIT_PAGER` 环境变量
+2. `core.pager` git配置
+3. `$PAGER` 环境变量
+
+如果这些都没有设置，默认会选择编译时的选项（通常为less），具体细节可以参考官方文档 [git core.pager](https://git-scm.com/docs/git-config#Documentation/git-config.txt-corepager)。
+
+```shell
+# 全局禁用分页器，直接显示在终端窗口上，不再进行分页处理
+# git branch 比较方便，但 git log 等长页显示会一直滚屏，巨难用
+git config --global core.pager ''
+
+# 对某个命令禁用分页器，只想屏蔽 git branch 的分页，而想保留git show 和 git log 等的分页显示
+git config --global pager.branch false # git branch 不分页
+# 重新启用分页器
+git config --global pager.branch true # git branch 分页
+```
+
+> [解决git命令会将结果输出到单独窗口必须按q才能退出的问题](https://blog.csdn.net/albertsh/article/details/114806994)
 
 
 
