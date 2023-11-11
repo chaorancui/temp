@@ -164,6 +164,35 @@ git push -u origin "master"
 推送到远程库上面已经说了。删除远程分支比较麻烦。一种方式是，可以直接在 github 网页上操作，另一种方式是：`git push <name> :<branch>` （注意冒号前的空格）
 
 
+### git chekcout
+1.切换与创建分支
+git checkout <branch_name > 切换分支
+#git switch <branch_name> 切换分支
+
+git checkout -b <branch_name> 创建并切换至分支
+#git switch -c <branch_name> 创建并切换至分支
+
+git checkout -b <branch_name>origin/<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
+
+2.还原工作区（文件内容）
+git checkout – <file_name> 丢弃工作区的修改，并用最近一次的commit内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
+
+git checkout HEAD^ – <file_name> 将指定commit提交的内容(HEAD^表示上一个版本)还原到当前工作区
+
+git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
+
+
+二、git restore 用法总结
+git restore --staged <file_name> 将暂存区的修改重新放回工作区（包括对文件自身的操作，如添加文件、删除文件）
+
+git restore <file_name> 丢弃工作区的修改（不包括对文件自身的操作，如添加文件、删除文件）(如果不在工作区（已暂存，已提交），本本命令无效)
+
+三、git reset 用法总结
+git reset HEAD <file_name> 丢弃暂存区的修改，重新放回工作区，会将暂存区的内容和本地已提交的内容全部恢复到未暂存的状态，不影响原来本地文件(相当于撤销git add 操作，不影响上一次commit后对本地文件的修改) （包括对文件的操作，如添加文件、删除文件）
+
+git reset –hard HEAD 清空暂存区，将已提交的内容的版本恢复到本地，本地的文件也将被恢复的版本替换（恢复到上一次commit后的状态，上一次commit后的修改也丢弃）
+
+> https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
 
 ### git switch
 
@@ -233,7 +262,8 @@ git fetch <远程主机名> <分支名>
 
 * 取回远程主机的更新以后，可以在它的基础上，使用git switch/checkout命令创建一个新的分支。
 ```bash
-git checkout -b newBrach origin/master
+# 在本地创建和远程分支对应的分支，本地和远程分支的名称一致
+git checkout -b <branch_name> origin/<branch_name>
 ```
 
 * 此外，也可以使用 git merge 命令或者 git rebase 命令，在本地分支上合并远程分支。
@@ -1604,5 +1634,8 @@ git clean -f
 >     map <leader>3 :diffget REMOTE<CR>
 > endif
 > ```
+
+修改结束后 :wq 保存退出即可，git 自动完成了 git add file。终止需要 :cq，直接 :qa! 退出了相当于直接结束了 merge
+如果意外退出，需要将文件从 staged 状态改回 both modified，但目前好像没有办法做到这一点。我们可以考虑直接对该文件手动修改。
 
 > [关于vim：使用vimdiff时加载不同的颜色](https://www.codenong.com/2019281/)
