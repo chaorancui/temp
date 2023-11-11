@@ -76,7 +76,7 @@ git 有三种配置
   ```bash
   git config --local remote.origin.url
   ```
-注：每一个级别的配置都会覆盖上层的相同配置，例如 .git/config 里的配置会覆盖 %Git$/etc/gitconfig 中的同名变量。
+  注：每一个级别的配置都会覆盖上层的相同配置，例如 .git/config 里的配置会覆盖 %Git$/etc/gitconfig 中的同名变量。
 
 ### 配置个人身份
 首次的 Git 设定（设定身份，自己做主）
@@ -162,101 +162,6 @@ git push -u origin "master"
 
 补充：
 推送到远程库上面已经说了。删除远程分支比较麻烦。一种方式是，可以直接在 github 网页上操作，另一种方式是：`git push <name> :<branch>` （注意冒号前的空格）
-
-
-### git chekcout
-1.切换与创建分支
-git checkout <branch_name > 切换分支
-#git switch <branch_name> 切换分支
-
-git checkout -b <branch_name> 创建并切换至分支
-#git switch -c <branch_name> 创建并切换至分支
-
-git checkout -b <branch_name>origin/<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
-
-2.还原工作区（文件内容）
-git checkout – <file_name> 丢弃工作区的修改，并用最近一次的commit内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
-
-git checkout HEAD^ – <file_name> 将指定commit提交的内容(HEAD^表示上一个版本)还原到当前工作区
-
-git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
-
-
-二、git restore 用法总结
-git restore --staged <file_name> 将暂存区的修改重新放回工作区（包括对文件自身的操作，如添加文件、删除文件）
-
-git restore <file_name> 丢弃工作区的修改（不包括对文件自身的操作，如添加文件、删除文件）(如果不在工作区（已暂存，已提交），本本命令无效)
-
-三、git reset 用法总结
-git reset HEAD <file_name> 丢弃暂存区的修改，重新放回工作区，会将暂存区的内容和本地已提交的内容全部恢复到未暂存的状态，不影响原来本地文件(相当于撤销git add 操作，不影响上一次commit后对本地文件的修改) （包括对文件的操作，如添加文件、删除文件）
-
-git reset –hard HEAD 清空暂存区，将已提交的内容的版本恢复到本地，本地的文件也将被恢复的版本替换（恢复到上一次commit后的状态，上一次commit后的修改也丢弃）
-
-> https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
-
-### git switch
-
-* 切换分支（本地已有分支 / 本地不存在但远端存在分支）
-
-  ```bash
-  git switch <branchName>
-  ```
-
-  > 远程有而本地没有的分支，而如果要从远程分支建一个同名的本地分支，并且关联远程分支。可以理解为拉取远程分支到本地，并建立远程分支和本地分支的关联关系
-
-* 切换到上一个切换的分支
-
-  ```bash
-  git switch -
-  ```
-
-* 创建一个新分支并切换到该新分支
-
-  ```bash
-  git switch -c <branchName>
-  ```
-
-* 以一个提交commit来创建一个分支
-
-  ```bash
-  git switch -c <new_branch_name> <commid_id>
-  # 或用
-  git checkout -b <new_branch_name> <commid_id>
-  ```
-
-  其中，`new_branch_name` 是要创建的新的本地分支名称，`commid_id` 是 cherry-pick 或 fetch 后的最新commit id。
-
-  显示 commit id 而不是分支名的情况：
-
-  1. 在本地 A 仓库拉取 B 仓库 master 分支，checkout 到 B/master 后，是只有最新 commit id 而没有分支名称的。
-
-  2. cherry-pick 后的代码没有分支名，只有最新的 commit id，同样需要为最新的 commit id 创建一个分支，用于推送远程仓库时。
-
-
-
-### git store
-
-**git restore** 命令用于恢复或撤销文件的更改。
-
-**git restore** 命令作用包括还原文件到最新提交的状态、丢弃未暂存的更改、丢弃已暂存但未提交的更改等。
-
-```shell
-# 「工作区修改撤销」将 <file> 恢复到最新的提交状态，丢弃所有未提交的更改。对于撤销不需要的更改非常有用
-git restore <file>
-git restore .		# 全部文件，工作区修改撤销
-
-# 「暂存区重新放回工作区」如果你已经使用 git add 将文件添加到暂存区，但希望重新放回工作区
-git restore --staged <file>
-git restore --staged .		# 全部文件，暂存区重新放回工作区
-
-# 「还原文件到指定提交的状态」将文件 <file> 恢复到特定提交 <commit> 的状态，但分支已有提交节点不会变化，且回退的差异会保存在工作区。将文件还原到历史版本时非常有用
-git restore --source=<commit> <file>
-
-# 「交互式还原」执行这个命令它会打开一个交互式界面，让你选择如何处理每个更改。
-git restore -i
-
-```
-
 
 
 
@@ -361,6 +266,8 @@ git rebase origin/master
 > 
 >
 > 所以**可以认为git pull是git fetch和git merge两个步骤的结合**。
+
+
 
 ### git push
 
@@ -506,6 +413,33 @@ git commit --amend
 > [git-cz 讓你的 Git Commit 訊息更美一點！](https://israynotarray.com/git/20221115/721294310/)
 
 
+
+### git stash
+
+贮藏（stash）会处理工作目录的脏的状态——即跟踪文件的修改与暂存的改动——然后将未完成的修改保存到一个栈上， 而你可以在任何时候重新应用这些改动（甚至在不同的分支上）。
+
+```shell
+# 贮藏修改，将新的贮藏推送到栈上（ git stash 或 git stash push）
+git status
+git stash push -m "save message"
+# git stash save 会逐渐弃用
+
+# 查看贮藏的东西
+git stash list
+
+# 应用其中一个的贮藏，栈上不删除（指定一个贮藏，Git 认为指定的是最近的贮藏）
+git stash apply
+git stash apply stash@{2}
+
+# 应用贮藏并从栈上删除
+git stash pop
+
+# 移除贮藏
+git stash drop stash@{0}
+```
+
+
+
 ### git log
 
 `git log`命令用于显示提交日志信息。
@@ -542,136 +476,9 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   git log --oneline --decorate --graph --all
   ```
 
-  
-
-### git rebase
-
-rebase的作用简要概括为：可以对某一段线性提交历史进行编辑、删除、复制、粘贴；因此，合理使用rebase命令可以使我们的提交历史干净、简洁！
-
-**使用git rebase合并多次commit：**
-
-* 方法1：指名要合并的版本号区间
-
-  ```bash
-  git rebase -i  [startpoint]  [endpoint]
-  ```
-
-  其中 `-i` 的意思是 `--interactive`，即弹出交互式的界面让用户编辑完成合并操作，`[startpoint] [endpoint]`则指定了一个编辑区间，如果不指定`[endpoint]`，则该区间的终点默认是当前分支 HEAD 所指向的 commit （注：该区间指定的是一个前开后闭的区间，`[startpoint]` **本身不参与合并**，可以把它当做一个坐标）。
-
-* 方法2：从HEAD版本开始往过去数3个版本
-
-  ```bash
-  git rebase -i HEAD~3 
-  ```
-
-  在弹出的 vim 编辑窗口中，会列出要合并的 commit message，提交时间最早的列在上面，最晚的在下面，由于 squash 是要和前一个 commit 合并，因此**最早的一个填 pick，比较晚的几个都填 squash**，然后 `:wq` 即可。
-
-  > 指令解释（交互编辑时使用）：
-  >
-  > pick：保留该commit（缩写:p）
-  >
-  > reword：保留该commit，但我需要修改该commit的注释（缩写:r）
-  >
-  > edit：保留该commit, 但我要停下来修改该提交(不仅仅修改注释)（缩写:e）
-  >
-  > squash：将该commit和前一个commit合并（缩写:s）
-  >
-  > fixup：将该commit和前一个commit合并，但我不要保留该提交的注释信息（缩写:f）
-  >
-  > exec：执行shell命令（缩写:x）
-  >
-  > drop：我要丢弃该commit（缩写:d）
 
 
 
-```shell
-# 重新打开vim窗口
-git rebase --edit-todo
-```
-
-
-
-
-
-### git reset
-
-git reset 命令用于回退版本，可以指定退回某一次提交的版本。
-
-```
-git reset [--soft | --mixed | --hard] [HEAD]
-```
-
---mixed(默认)：将指定 commit id 撤回之后所有内容`全部放进工作区`中。
-
---soft：将指定 commit id 撤回之后所有内容`全部放进暂存区`。
-
---hard：将指定 commit id 撤回并`清空工作目录及暂存区`所有修改。
-
-
-
-```bash
-HEAD 说明：
-HEAD 表示当前版本
-HEAD^ 上一个版本
-HEAD^^ 上上一个版本
-HEAD^^^ 上上上一个版本
-以此类推...
-
-可以使用 ~ 数字表示
-HEAD~0 表示当前版本
-HEAD~1 上一个版本
-HEAD^2 上上一个版本
-HEAD^3 上上上一个版本
-以此类推...
-```
-
-
-### git reflog
-git reflog 命令是用来恢复本地错误操作很重要的一个命令，可处理代码丢失、恢复代码。
-> reflog 是 Git 操作的一道安全保障，它能够记录几乎所有本地仓库的改变。包括所有分支 commit 提交，已经删除（其实并未被实际删除）commit 都会被记录。总结而言，只要 HEAD 发生变化，就可以通过 reflog 查看到。
-
-```bash
-# 执行 git reflog 查看操作日志
-git reflog
-
-# 查看对应的版本号,就可以恢复到任意版本:
-git reset --hard <commit-id>
-```
-
-
-### git revert
-
-Git revert 用于撤回某次提交的内容，同时再产生一个新的提交(commit)。原理就是在一个新的提交中，对之前提交的内容相反的操作。
-
-```shell
-git revert -n commit-id
-# 反做多个commit-id
-git revert -n commit-idA..commit-idB
-```
-
-### git stash
-
-贮藏（stash）会处理工作目录的脏的状态——即跟踪文件的修改与暂存的改动——然后将未完成的修改保存到一个栈上， 而你可以在任何时候重新应用这些改动（甚至在不同的分支上）。
-
-```shell
-# 贮藏修改，将新的贮藏推送到栈上（ git stash 或 git stash push）
-git status
-git stash push -m "save message"
-# git stash save 会逐渐弃用
-
-# 查看贮藏的东西
-git stash list
-
-# 应用其中一个的贮藏，栈上不删除（指定一个贮藏，Git 认为指定的是最近的贮藏）
-git stash apply
-git stash apply stash@{2}
-
-# 应用贮藏并从栈上删除
-git stash pop
-
-# 移除贮藏
-git stash drop stash@{0}
-```
 
 
 ### git branch
@@ -707,7 +514,7 @@ git stash drop stash@{0}
   ```
 
 * 本地关联远程分支
-使用git在本地新建一个分支后，需要做远程分支关联。如果没有关联，git会在下面的操作中提示你显示的添加关联。
+  使用git在本地新建一个分支后，需要做远程分支关联。如果没有关联，git会在下面的操作中提示你显示的添加关联。
 
 关联目的是在执行git pull, git push操作时就不需要指定对应的远程分支，你只要没有显示指定，git pull的时候，就会提示你。
 
@@ -762,6 +569,218 @@ git stash drop stash@{0}
 * 
 
 
+
+
+
+### git switch
+
+* 切换分支（本地已有分支 / 本地不存在但远端存在分支）
+
+  ```bash
+  git switch <branchName>
+  ```
+
+  > 远程有而本地没有的分支，而如果要从远程分支建一个同名的本地分支，并且关联远程分支。可以理解为拉取远程分支到本地，并建立远程分支和本地分支的关联关系
+
+* 切换到上一个切换的分支
+
+  ```bash
+  git switch -
+  ```
+
+* 创建一个新分支并切换到该新分支
+
+  ```bash
+  git switch -c <branchName>
+  ```
+
+* 以一个提交commit来创建一个分支
+
+  ```bash
+  git switch -c <new_branch_name> <commid_id>
+  # 或用
+  git checkout -b <new_branch_name> <commid_id>
+  ```
+
+  其中，`new_branch_name` 是要创建的新的本地分支名称，`commid_id` 是 cherry-pick 或 fetch 后的最新commit id。
+
+  显示 commit id 而不是分支名的情况：
+
+  1. 在本地 A 仓库拉取 B 仓库 master 分支，checkout 到 B/master 后，是只有最新 commit id 而没有分支名称的。
+
+  2. cherry-pick 后的代码没有分支名，只有最新的 commit id，同样需要为最新的 commit id 创建一个分支，用于推送远程仓库时。
+
+
+
+### git chekcout
+
+1.切换与创建分支
+git checkout <branch_name > 切换分支
+#git switch <branch_name> 切换分支
+
+git checkout -b <branch_name> 创建并切换至分支
+#git switch -c <branch_name> 创建并切换至分支
+
+git checkout -b <branch_name>origin/<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
+
+2.还原工作区（文件内容）
+git checkout – <file_name> 丢弃工作区的修改，并用最近一次的commit内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
+
+git checkout HEAD^ – <file_name> 将指定commit提交的内容(HEAD^表示上一个版本)还原到当前工作区
+
+git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
+
+
+二、git restore 用法总结
+git restore --staged <file_name> 将暂存区的修改重新放回工作区（包括对文件自身的操作，如添加文件、删除文件）
+
+git restore <file_name> 丢弃工作区的修改（不包括对文件自身的操作，如添加文件、删除文件）(如果不在工作区（已暂存，已提交），本本命令无效)
+
+三、git reset 用法总结
+git reset HEAD <file_name> 丢弃暂存区的修改，重新放回工作区，会将暂存区的内容和本地已提交的内容全部恢复到未暂存的状态，不影响原来本地文件(相当于撤销git add 操作，不影响上一次commit后对本地文件的修改) （包括对文件的操作，如添加文件、删除文件）
+
+git reset –hard HEAD 清空暂存区，将已提交的内容的版本恢复到本地，本地的文件也将被恢复的版本替换（恢复到上一次commit后的状态，上一次commit后的修改也丢弃）
+
+> https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
+
+
+
+### git store
+
+**git restore** 命令用于恢复或撤销文件的更改。
+
+**git restore** 命令作用包括还原文件到最新提交的状态、丢弃未暂存的更改、丢弃已暂存但未提交的更改等。
+
+```shell
+# 「工作区修改撤销」将 <file> 恢复到最新的提交状态，丢弃所有未提交的更改。对于撤销不需要的更改非常有用
+git restore <file>
+git restore .		# 全部文件，工作区修改撤销
+
+# 「暂存区重新放回工作区」如果你已经使用 git add 将文件添加到暂存区，但希望重新放回工作区
+git restore --staged <file>
+git restore --staged .		# 全部文件，暂存区重新放回工作区
+
+# 「还原文件到指定提交的状态」将文件 <file> 恢复到特定提交 <commit> 的状态，但分支已有提交节点不会变化，且回退的差异会保存在工作区。将文件还原到历史版本时非常有用
+git restore --source=<commit> <file>
+
+# 「交互式还原」执行这个命令它会打开一个交互式界面，让你选择如何处理每个更改。
+git restore -i
+
+```
+
+
+
+
+
+### git reset
+
+git reset 命令用于回退版本，可以指定退回某一次提交的版本。
+
+```
+git reset [--soft | --mixed | --hard] [HEAD]
+```
+
+--mixed(默认)：将指定 commit id 撤回之后所有内容`全部放进工作区`中。
+
+--soft：将指定 commit id 撤回之后所有内容`全部放进暂存区`。
+
+--hard：将指定 commit id 撤回并`清空工作目录及暂存区`所有修改。
+
+
+
+```bash
+HEAD 说明：
+HEAD 表示当前版本
+HEAD^ 上一个版本
+HEAD^^ 上上一个版本
+HEAD^^^ 上上上一个版本
+以此类推...
+
+可以使用 ~ 数字表示
+HEAD~0 表示当前版本
+HEAD~1 上一个版本
+HEAD^2 上上一个版本
+HEAD^3 上上上一个版本
+以此类推...
+```
+
+
+
+
+
+
+
+### git rebase
+
+rebase的作用简要概括为：可以对某一段线性提交历史进行编辑、删除、复制、粘贴；因此，合理使用rebase命令可以使我们的提交历史干净、简洁！
+
+**使用git rebase合并多次commit：**
+
+* 方法1：指名要合并的版本号区间
+
+  ```bash
+  git rebase -i  [startpoint]  [endpoint]
+  ```
+
+  其中 `-i` 的意思是 `--interactive`，即弹出交互式的界面让用户编辑完成合并操作，`[startpoint] [endpoint]`则指定了一个编辑区间，如果不指定`[endpoint]`，则该区间的终点默认是当前分支 HEAD 所指向的 commit （注：该区间指定的是一个前开后闭的区间，`[startpoint]` **本身不参与合并**，可以把它当做一个坐标）。
+
+* 方法2：从HEAD版本开始往过去数3个版本
+
+  ```bash
+  git rebase -i HEAD~3 
+  ```
+
+  在弹出的 vim 编辑窗口中，会列出要合并的 commit message，提交时间最早的列在上面，最晚的在下面，由于 squash 是要和前一个 commit 合并，因此**最早的一个填 pick，比较晚的几个都填 squash**，然后 `:wq` 即可。
+
+  > 指令解释（交互编辑时使用）：
+  >
+  > pick：保留该commit（缩写:p）
+  >
+  > reword：保留该commit，但我需要修改该commit的注释（缩写:r）
+  >
+  > edit：保留该commit, 但我要停下来修改该提交(不仅仅修改注释)（缩写:e）
+  >
+  > squash：将该commit和前一个commit合并（缩写:s）
+  >
+  > fixup：将该commit和前一个commit合并，但我不要保留该提交的注释信息（缩写:f）
+  >
+  > exec：执行shell命令（缩写:x）
+  >
+  > drop：我要丢弃该commit（缩写:d）
+
+
+
+```shell
+# 重新打开vim窗口
+git rebase --edit-todo
+```
+
+
+
+### git revert
+
+Git revert 用于撤回某次提交的内容，同时再产生一个新的提交(commit)。原理就是在一个新的提交中，对之前提交的内容相反的操作。
+
+```shell
+git revert -n commit-id
+# 反做多个commit-id
+git revert -n commit-idA..commit-idB
+```
+
+
+
+### git reflog
+
+git reflog 命令是用来恢复本地错误操作很重要的一个命令，可处理代码丢失、恢复代码。
+> reflog 是 Git 操作的一道安全保障，它能够记录几乎所有本地仓库的改变。包括所有分支 commit 提交，已经删除（其实并未被实际删除）commit 都会被记录。总结而言，只要 HEAD 发生变化，就可以通过 reflog 查看到。
+
+```bash
+# 执行 git reflog 查看操作日志
+git reflog
+
+# 查看对应的版本号,就可以恢复到任意版本:
+git reset --hard <commit-id>
+```
 
 
 
@@ -834,6 +853,47 @@ git rm 删除文件有以下几种形式：
    ```shell
    git rm --cached <file>
    ```
+
+
+
+
+
+### git clean
+
+`git clean` 命令用来从你的工作目录中删除所有没有 tracked 过的文件。
+
+`git clean` 经常和 `git reset --hard` 一起结合使用。reset 只影响被 track 过的文件, 所以需要 clean 来删除没有 track 过的文件。结合使用这两个命令能让你的工作目录完全回到一个指定的 <commit> 的状态
+
+* 用法
+
+  ```bash
+  # 列出哪些文件会被删除，但不会真正的删除文件，只是一个提醒
+  git clean -n
+  
+  # 删除当前目录下所有没有track过的文件。不会删除.gitignore文件里面指定的文件夹和文件, 不管这些文件有没有被track过
+  git clean -f
+  
+  # 删除指定路径下的没有被track过的文件
+  git clean -f <path>
+  
+  # 删除当前目录下没有被track过的文件和文件夹 ---- 常用
+  git clean -df
+  
+  # 删除当前目录下所有没有track过的文件. 不管是否为.gitignore文件里面指定的文件夹和文件
+  git clean -xf
+  
+  ```
+
+git reset --hard 和 git clean -f 是一对好基友，结合使用他们能让你的工作目录完全回退到最近一次 <commit> 的时候。
+
+下面的例子要删除所有工作目录下面的修改, 包括新添加的文件. 假设你已经提交了一些快照了, 而且做了一些新的开发运行后, 工作目录和缓存区回到最近一次 <commit> 时候一摸一样的状态，git status 会告诉你这是一个干净的工作目录, 又是一个新的开始了！
+
+```bash
+git reset --hard
+git clean -df
+```
+
+git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉编译后生成的.o和.exe等文件. 这个在打包要发布一个release的时候非常有用
 
 
 
@@ -913,44 +973,6 @@ git rebase --abort
 > 参考网址：[7.6 Git 工具 - 重写历史](https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E9%87%8D%E5%86%99%E5%8E%86%E5%8F%B2)
 
 
-
-
-
-### git clean
-
-`git clean` 命令用来从你的工作目录中删除所有没有 tracked 过的文件。
-
-`git clean` 经常和 `git reset --hard` 一起结合使用。reset 只影响被 track 过的文件, 所以需要 clean 来删除没有 track 过的文件。结合使用这两个命令能让你的工作目录完全回到一个指定的 <commit> 的状态
-
-* 用法
-
-  ```bash
-  # 列出哪些文件会被删除，但不会真正的删除文件，只是一个提醒
-  git clean -n
-  
-  # 删除当前目录下所有没有track过的文件。不会删除.gitignore文件里面指定的文件夹和文件, 不管这些文件有没有被track过
-  git clean -f
-  # 删除指定路径下的没有被track过的文件
-  git clean -f <path>
-  
-  # 删除当前目录下没有被track过的文件和文件夹 ---- 常用
-  git clean -df
-  
-  # 删除当前目录下所有没有track过的文件. 不管是否为.gitignore文件里面指定的文件夹和文件
-  git clean -xf
-  
-  ```
-
-git reset --hard 和 git clean -f 是一对好基友，结合使用他们能让你的工作目录完全回退到最近一次 <commit> 的时候。
-
-下面的例子要删除所有工作目录下面的修改, 包括新添加的文件. 假设你已经提交了一些快照了, 而且做了一些新的开发运行后, 工作目录和缓存区回到最近一次 <commit> 时候一摸一样的状态，git status 会告诉你这是一个干净的工作目录, 又是一个新的开始了！
-
-```bash
-git reset --hard
-git clean -df
-```
-
-git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉编译后生成的.o和.exe等文件. 这个在打包要发布一个release的时候非常有用
 
 
 
@@ -1377,6 +1399,55 @@ Kompare 的特性有如下：
 
 ## [如何解决Git中的合并冲突？详细操作步骤指南](https://www.lsbin.com/9410.html)
 
+### [Git 冲突显示方式](https://taoshu.in/git/git-diff3.html)
+
+git 的默认 `conflictstyle` 是 `merge`，遇到冲突后会显示如下标记：
+
+```shell
+<<<<<<< HEAD
+Alice asked her parents if she could
+borrow their car. They said ok but told
+=======
+Alice asked her father if she could
+borrow his motorbike. He said ok but told
+>>>>>>> feature_branch
+her she had to be back by 11pm.
+```
+
+这其中`<<<<<<< HEAD`与`=======`之间的部分表示当前所在分支（也就是HEAD）的内容，而`=======`与`>>>>>>> feature_branch`之间的部分则是 feature_branch 分支的内容。看到这个冲突就头大，因为我们无法确定要留哪一行删哪一行。
+
+
+
+如果我们执行`git config --global merge.conflictstyle diff3`将`conflictstyle`设成`diff3`，则结果会变成
+
+```shell
+<<<<<<< HEAD
+Alice asked her parents if she could
+borrow their car. They said ok but told
+||||||| merged common ancestors
+Alice asked her father if she could
+borrow his car. He said ok but told
+=======
+Alice asked her father if she could
+borrow his motorbike. He said ok but told
+>>>>>>> feature_branch
+her she had to be back by 11pm.
+```
+
+大家注意多出来的`||||||| merged common ancestors`到`=======`之间的部分。git 在合并分支的时候用的是**三路合并**(3-way merge)。三路合并的关键就是找到两个分支的最新公共提交版本。在这个例子中，公共提交版本的内容就保存到了`||||||| merged common ancestors`和`=======`之间。
+
+很显然，master 分支将`Alice asked her father if she could`改成了`Alice asked her parents if she could`，也就是 Alice 现在要向她的父母借车；而 feature_branch 分支则将 `borrow his car...`改成了`borrow his motorbike...`，也就是不借车了，要借摩托。两者合并，最终结果应该是：
+
+```shell
+Alice asked her parents if she could
+borrow their motorbike. They said ok but told
+her she had to be back by 11pm.
+```
+
+
+
+
+
 ### Git 合并冲突的类型
 
 合并冲突的一般类型取决于问题出现的时间。冲突发生在：
@@ -1476,7 +1547,7 @@ Git 的 diff 工具设置已完成。
 
 
 
-### 使用 Mergetool 查看差异
+### Mergetool 查看差异解决合并冲突
 
 如何解决Git中的合并冲突？要使用**`mergetool `**并查看差异，请运行：
 
@@ -1491,93 +1562,125 @@ git mergetool <filename>
 
 输出显示一个具有四个视图的窗口：
 
-\1. **LOCAL**代表来自当前分支的文件版本。
+`LOCAL` - 这个文件来自**当前分支**；
 
-\2. **BASE**是文件在任何更改之前的样子。
+`BASE` - 两个分支的**共同祖先**，在两个分支上的文件改变之前的样子；
 
-\3. **REMOTE**显示文件在冲突信息所在的远程分支中的外观。
+`REMOTE` - 要合并到你当前分支的**外部分支**上的文件；
 
-\4. **MERGED**有最终的合并文件。此结果表示保存到存储库的内容。
+`MERGED` - **合并结果**，将会保存到本地存储库的内容。
 
-这些窗口之间的主要导航命令是：
 
-```
-Ctrl+W+W                # toggle between the diff columns
-Ctrl w + h   # move to the split on the left 
-Ctrl w + j   # move to the split below
-Ctrl w + k   # move to the split on top
-Ctrl w + l   # move to the split on the right
+
+假设我们希望**`保留来自REMOTE`**。为此，为此，移动到 `MERGED` 文件上（Ctrl + w, j），**移动光标到一个合并冲突的区域**，然后：
+
+```shell
+:diffg RE
 ```
 
-对于高级导航，可通过命令获取信息**`:help window-moving`**。
-
-### 更新和解决合并冲突
-
-更新 MERGED 文件以解决冲突。更新 MERGED 版本的一些快捷方式包括：
+其他命令如下：
 
 ```shell
 :diffg RE  # get from REMOTE
 :diffg BA  # get ]c]c[cjkjfrom BASE
 :diffg LO  # get from LOCAL
 # or
-:diffg REMOTE  # get from REMOTE
-:diffg BASE  # get from BASE
-:diffg LOCAL  # get from LOCAL
+:diffget REMOTE  # get from REMOTE
+:diffget BASE  # get from BASE
+:diffget LOCAL  # get from LOCAL
 ```
-
-**注意：**在运行这些命令之前，确保光标位于冲突所在的行上。
 
 一旦信息被更新，保存并退出用**`:wqa`**。
 
-### vim 中用于解决冲突的相关命令
+> 配置 vim 快捷键：**[Git_mergetool_tutorial_with_Vim.md](https://gist.github.com/karenyyng/f19ff75c60f18b4b8149)**
+>
+> ```shell
+> let mapleader=','
+> let g:mapleader=','
+> 
+> if &diff
+>  map <leader>1 :diffget LOCAL<CR>
+>  map <leader>2 :diffget BASE<CR>
+>  map <leader>3 :diffget REMOTE<CR>
+> endif
+> ```
+>
+> vim 窗口移动
+>
+> ```shell
+> Ctrl+W+W     # toggle between the diff columns
+> Ctrl w + h   # move to the split on the left 
+> Ctrl w + j   # move to the split below
+> Ctrl w + k   # move to the split on top
+> Ctrl w + l   # move to the split on the right
+> # 对于高级导航，可通过命令获取信息:help window-moving。
+> ```
+>
+> 
+>
+> [关于vim：使用vimdiff时加载不同的颜色](https://www.codenong.com/2019281/)
 
-[使用 MacVim/GVim 作为 git 冲突解决工具 (mergetool)](https://hanleylee.com/articles/use-macvim_as_git_merge_tool/)
+
+
+### vim 中用于解决冲突的相关命令
 
 作为编辑器之神, vim 自然早早就考虑到了很多人会使用其进行冲突合并, 因此也内置了很多非常高效有用的操作命令, 我挑选了比较有用的列在下面:
 
 - `:diffget LOCAL`: 选择 LCOAL 作为本行最终结果
-- `:diffget REMOTE`: 选择 REMOTE 作为本行最终结果
-- `:diffget BASE`: 选择 BASE 作为本行最终结果
-- `:diffput [num]`: 放置结果到缓冲区上, `num` 为缓冲区编号
-- `:diffg LO`: 这里 vim 为我们做了简略命令, 同样可用于 `REMTOE` 与 `BASE` 上
-- `:diffget //2`: `//2` 将被替换为左侧文件名
-- `:diffget //3`: `//3` 将被替换为右侧文件名
-- `:%diffget LO`: 将所有变更使用 local 的结果
-- `:'<'>diffget LO`: 将当前选中范围的使用 local 的结果
-- `dp/do`: 如果只有两个文件则可以使用 `dp/do` 来替代 `:diffput/:diffget`
-- `:diffoff`: 关闭 diff mode
-- `:diffthis`: 开启 diff mode
-- `:ls!`: 显示当前所有缓冲区的号码kkkjk
-- `[c`: conflict, 移动到上一个冲突处
-- `]c`: conflict, 移动到下一个冲突处
-- `:diffsplit filename`: 已经在 vim 中时, 使用此命令与别的文件进行对比
-- `:vert diffsplit filename`: 同上
-- `vimidff file1 file2`: 对比 `file1` 与 `file2` 的差别
-- `vim -d file1 file2`: 同上 🐷
-- `:wqa`: 冲突修复完成保存退出, 如果仍然有文件冲突则进入下一个冲突
-- `:cq`: 放弃修复, 终止流程(在 merge conflict 时很有用, 否则使用了 `qa` 的话想再次进入 mergetool 就必须使用 `git checkout --conflict=diff3 {file}` 了)
 
+- `:diffget REMOTE`: 选择 REMOTE 作为本行最终结果
+
+- `:diffget BASE`: 选择 BASE 作为本行最终结果
+
+- `:diffput [num]`: 放置结果到缓冲区上, `num` 为缓冲区编号
+
+- `:diffg LO`: 这里 vim 为我们做了简略命令, 同样可用于 `REMTOE` 与 `BASE` 上 === **重要**
+
+- `:diffget //2`: `//2` 将被替换为左侧文件名
+
+- `:diffget //3`: `//3` 将被替换为右侧文件名
+
+- `:%diffget LO`: 将所有变更使用 local 的结果
+
+- `:'<'>diffget LO`: 将当前选中范围的使用 local 的结果
+
+- `dp/do`: 如果只有两个文件则可以使用 `dp/do` 来替代 `:diffput/:diffget`
+
+- `:diffoff`: 关闭 diff mode
+
+- `:diffthis`: 开启 diff mode
+
+- `:ls!`: 显示当前所有缓冲区的号码kkkjk
+
+- `[c`: conflict, 移动到上一个冲突处
+
+- `]c`: conflict, 移动到下一个冲突处
+
+- `:diffsplit filename`: 已经在 vim 中时, 使用此命令与别的文件进行对比
+
+- `:vert diffsplit filename`: 同上
+
+- `vimidff file1 file2`: 对比 `file1` 与 `file2` 的差别
+
+- `vim -d file1 file2`: 同上 🐷
+
+- `:wqa`: 冲突修复完成保存退出, 如果仍然有文件冲突则进入下一个冲突
+
+- `:cq`: 放弃修复, 终止流程(在 merge conflict 时很有用, 否则使用了 `qa` 的话，
+
+  想再次进入 mergetool 就必须使用 `git checkout --conflict=diff3 {file}` 了)
+
+> [使用 MacVim/GVim 作为 git 冲突解决工具 (mergetool)](https://hanleylee.com/articles/use-macvim_as_git_merge_tool/)
+>
 > 更多 vim 操作可参考 [神级编辑器 Vim 使用-操作篇](https://www.hanleylee.com/usage-of-vim-editor.html)
 
+完成冲突合并
 
+当我们使用 MacVim 完成了冲突文件的修复之后(或者因为其他原因不修复了), 那么以下命令你总会有用到的:
 
-```markdown
-]c      # nect difference
-[c      # previous difference
-zo      # open folded text
-zc      # close folded text
-zr      # open all folds
-zm      # close all folds
-:diffupdate     # re-scan the file for difference
-do      # diff obtain
-dp      # diff put
-:set diffopt+=iwhite    # to avoid whitespace comparison
-:set wrap               # wrap line
-:set nowrap
-:syn off                # remove colors
-```
-
-
+- `git merge --continue`: 冲突全部解决完后继续之前的 `merge` 操作
+- `git merge --abort`: 放弃之前的 `merge` 操作
+- `git checkout --conflict=diff3 test.txt`: 将文件重置回冲突状态, 适用于 merge 时发生冲突后没有完全解决时被一些其他工具将文件标记为了解决
 
 
 
@@ -1589,8 +1692,6 @@ Git合并冲突的解决方法：最后一步是提交和清理额外的文件�
 git commit -m "<your message>"
 ```
 
-**注意：**如果你在提交时犯了错误，你可以撤消最后一次提交。
-
 diff 工具会在项目上创建额外的文件来比较版本。用以下方法清理它们：
 
 ```
@@ -1601,67 +1702,3 @@ git clean -f
 
 
 
-
-
-> [快速处理 Git 冲突](https://taoshu.in/git/git-diff3.html)
->
-> git 的默认 `conflictstyle` 是 `merge`，遇到冲突后会显示如下标记：
->
-> ```shell
-> <<<<<<< HEAD
-> Alice asked her parents if she could
-> borrow their car. They said ok but told
-> =======
-> Alice asked her father if she could
-> borrow his motorbike. He said ok but told
-> >>>>>>> feature_branch
-> her she had to be back by 11pm.
-> ```
->
-> 这其中`<<<<<<< HEAD`与`=======`之间的部分表示当前所在分支（也就是HEAD）的内容，而`=======`与`>>>>>>> feature_branch`之间的部分则是 feature_branch 分支的内容。看到这个冲突就头大，因为我们无法确定要留哪一行删哪一行。
->
-> 
->
-> 如果我们执行`git config --global merge.conflictstyle diff3`将`conflictstyle`设成`diff3`，则结果会变成
->
-> ```shell
-> <<<<<<< HEAD
-> Alice asked her parents if she could
-> borrow their car. They said ok but told
-> ||||||| merged common ancestors
-> Alice asked her father if she could
-> borrow his car. He said ok but told
-> =======
-> Alice asked her father if she could
-> borrow his motorbike. He said ok but told
-> >>>>>>> feature_branch
-> her she had to be back by 11pm.
-> ```
->
-> 大家注意多出来的`||||||| merged common ancestors`到`=======`之间的部分。git 在合并分支的时候用的是**三路合并**(3-way merge)。三路合并的关键就是找到两个分支的最新公共提交版本。在这个例子中，公共提交版本的内容就保存到了`||||||| merged common ancestors`和`=======`之间。
->
-> 很显然，master 分支将`Alice asked her father if she could`改成了`Alice asked her parents if she could`，也就是 Alice 现在要向她的父母借车；而 feature_branch 分支则将 `borrow his car...`改成了`borrow his motorbike...`，也就是不借车了，要借摩托。两者合并，最终结果应该是：
->
-> ```shell
-> Alice asked her parents if she could
-> borrow their motorbike. They said ok but told
-> her she had to be back by 11pm.
-> ```
-
-> **[Git_mergetool_tutorial_with_Vim.md](https://gist.github.com/karenyyng/f19ff75c60f18b4b8149)**
->
-> ```
-> let mapleader=','
-> let g:mapleader=','
-> 
-> if &diff
->     map <leader>1 :diffget LOCAL<CR>
->     map <leader>2 :diffget BASE<CR>
->     map <leader>3 :diffget REMOTE<CR>
-> endif
-> ```
-
-修改结束后 :wq 保存退出即可，git 自动完成了 git add file。终止需要 :cq，直接 :qa! 退出了相当于直接结束了 merge
-如果意外退出，需要将文件从 staged 状态改回 both modified，但目前好像没有办法做到这一点。我们可以考虑直接对该文件手动修改。
-
-> [关于vim：使用vimdiff时加载不同的颜色](https://www.codenong.com/2019281/)
