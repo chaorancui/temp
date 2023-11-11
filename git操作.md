@@ -234,6 +234,32 @@ git reset –hard HEAD 清空暂存区，将已提交的内容的版本恢复到
 
 
 
+### git store
+
+**git restore** 命令用于恢复或撤销文件的更改。
+
+**git restore** 命令作用包括还原文件到最新提交的状态、丢弃未暂存的更改、丢弃已暂存但未提交的更改等。
+
+```shell
+# 「工作区修改撤销」将 <file> 恢复到最新的提交状态，丢弃所有未提交的更改。对于撤销不需要的更改非常有用
+git restore <file>
+git restore .		# 全部文件，工作区修改撤销
+
+# 「暂存区重新放回工作区」如果你已经使用 git add 将文件添加到暂存区，但希望重新放回工作区
+git restore --staged <file>
+git restore --staged .		# 全部文件，暂存区重新放回工作区
+
+# 「还原文件到指定提交的状态」将文件 <file> 恢复到特定提交 <commit> 的状态，但分支已有提交节点不会变化，且回退的差异会保存在工作区。将文件还原到历史版本时非常有用
+git restore --source=<commit> <file>
+
+# 「交互式还原」执行这个命令它会打开一个交互式界面，让你选择如何处理每个更改。
+git restore -i
+
+```
+
+
+
+
 ### git clone
 
 git clone 只能 clone 远程库的 master 分支，无法 clone 所有分支。
