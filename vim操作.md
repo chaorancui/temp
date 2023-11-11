@@ -1,7 +1,9 @@
 map简介
+
 map是一个映射命令,将常用的很长的命令映射到一个新的功能键上。map是Vim强大的一个重要原因，可以自定义各种快捷键，用起来自然得心应手。
 
 映射的种类
+
 有五种映射存在：
 
 用于普通模式: 输入命令时。
@@ -10,8 +12,8 @@ map是一个映射命令,将常用的很长的命令映射到一个新的功能�
 用于插入模式: 也用于替换模式。
 用于命令行模式: 输入 “:” 或 “/” 命令时。
 
-
 几种模式的介绍
+
 Normal Mode
 也就是最一般的普通模式，默认进入vim之后，处于这种模式。
 
@@ -30,6 +32,7 @@ Command-Line/Ex Mode
 使用vim的各种强大功能。普通模式下按Q进入Ex模式，其实就是多行的Command-Line模式。
 
 命令的组合
+
 同Vim下的其他命令一样，命令的名字往往由好几段组成。前缀作为命令本身的修饰符，微调命令的效果。
 对于map而言，可能有这么几种前缀：
 
@@ -84,7 +87,8 @@ mapclear
 
 另外
 {rhs} 之前可能显示一个特殊字符:
-* 表示它不可重映射
+
+- 表示它不可重映射
 & 表示仅脚本的局部映射可以被重映射
 @ 表示缓冲区的局部映射
 
@@ -101,6 +105,8 @@ mapclear
 <Space> 插入空格
 <Tab> 插入Tab
 <CR> 等于<Enter>
+
+
 
 特殊参数
 有些特殊参数必须映射命令的后边，在其他任何参数的前面。
@@ -142,19 +148,7 @@ func ListReset()
 let g:counter = 0 
 return '' 
 endfunc 
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
+
 在插入模式下，CTRL-L插入顺序的列表编号，并返回；CTRL-R复位列表编号到0，并返回空。
 
 <unique>
@@ -175,52 +169,43 @@ let mapleader = ","
 <LocalLeader>和<Leader>类似，只不过它只作用于缓冲区。
 因此在设置mapleader和maplocalleader时最好区分开，不要出现冲突。
 
-转载请注明作者Jason Ding及其出处
-GitCafe博客主页(http://jasonding1354.gitcafe.io/)
-Github博客主页(http://jasonding1354.github.io/)
-CSDN博客(http://blog.csdn.net/jasonding1354)
-简书主页(http://www.jianshu.com/users/2bd9b48f6ea8/latest_articles)
-  
+
+
 https://blog.csdn.net/zzyczzyc/article/details/86529138
 
-  【Vim】使用map自定义快捷键：https://blog.csdn.net/JasonDing1354/article/details/45372007
+【Vim】使用map自定义快捷键：https://blog.csdn.net/JasonDing1354/article/details/45372007
+
   
-  
-  
+
 vim 编辑模式下移动光标一般是先按 ESC 键，回到 Normal 模式后才去移动光标。
 
 这样在 编辑模式 和 正常模式 下频繁切换的情况下，操作很麻烦。
 
 所以在 .vimrc 里追加了如下的快捷键：
-```bash
-inoremap <C-f> <Right>
-inoremap <C-b> <Left>
-inoremap <C-a> <Home>
-inoremap <C-e> <End>
-inoremap <C-k> <Up>
-inoremap <C-l> <Down>
-inoremap <C-q> <PageUp>
-inoremap <C-z> <PageDown>
-```
 
-  
-```bash
-// 将键绑定放在此文件中以覆盖默认值
-[
-    {
-        "key": "ctrl+f",
-        "command": "cursorRight",
-        "when": "editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode == 'Insert'"
-    },
-    {
-        "key": "ctrl+b",
-        "command": "cursorLeft",
-        "when": "editorTextFocus && vim.active && vim.use<C-b> && !inDebugRepl && vim.mode == 'Insert'"
-    },
-]
-```
-  
+    inoremap <C-f> <Right>
+    inoremap <C-b> <Left>
+    inoremap <C-a> <Home>
+    inoremap <C-e> <End>
+    inoremap <C-k> <Up>
+    inoremap <C-l> <Down>
+    inoremap <C-q> <PageUp>
+    inoremap <C-z> <PageDown>
+
+    // 将键绑定放在此文件中以覆盖默认值
+    [
+        {
+            "key": "ctrl+f",
+            "command": "cursorRight",
+            "when": "editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode == 'Insert'"
+        },
+        {
+            "key": "ctrl+b",
+            "command": "cursorLeft",
+            "when": "editorTextFocus && vim.active && vim.use<C-b> && !inDebugRepl && vim.mode == 'Insert'"
+        },
+    ]
+
   VSCode when 子句上下文：https://juejin.cn/post/7072621434605928462
-  
-  VIM 剪切复制粘贴：https://linux265.com/course/vim-cut-copy-paste.html
 
+  VIM 剪切复制粘贴：https://linux265.com/course/vim-cut-copy-paste.html
