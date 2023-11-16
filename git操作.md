@@ -1700,5 +1700,9 @@ git clean -f
 
 ![如何解决Git中的合并冲突？详细操作步骤指南](https://www.lsbin.com/wp-content/uploads/2021/11/git-clean-output.png)
 
+### vimdiff命令
+https://ipcmen.com/vimdiff
+
+https://blog.csdn.net/pengxianchen/article/details/125711338?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-1-125711338-blog-109371860.235^v38^pc_relevant_sort_base2&spm=1001.2101.3001.4242.2&utm_relevant_index=2
 
 
