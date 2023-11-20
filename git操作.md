@@ -1735,9 +1735,52 @@ git clean -f
 
 ![如何解决Git中的合并冲突？详细操作步骤指南](https://www.lsbin.com/wp-content/uploads/2021/11/git-clean-output.png)
 
-### vimdiff命令
-https://ipcmen.com/vimdiff
 
-https://blog.csdn.net/pengxianchen/article/details/125711338?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-1-125711338-blog-109371860.235^v38^pc_relevant_sort_base2&spm=1001.2101.3001.4242.2&utm_relevant_index=2
+
+vimdiff命令
+
+vimdiff命令
+
+如果希望把一个差异点中当前文件的内容复制到另一个文件里，可以使用命令
+
+    dp （":diffget"）
+
+如果希望把另一个文件的内容复制到当前行中，可以使用命令
+
+    do (":diffput"，"o" 表示 "obtain" (不能用"dg"，因为那可能是 "dgg" 的开始！))
+
+在比较和合并告一段落之后，可以用下列命令对两个文件同时进行操作。比如同时退出：
+
+    :qa （quit all）
+
+如果希望保存全部文件：
+
+    :wa （write all）
+
+或者是两者的合并命令，保存全部文件，然后退出：
+
+    :wqa （write, then quit all）
+
+如果在退出的时候不希望保存任何操作的结果：
+
+    :qa! （force to quit all）
+
+
+
+如何防止 git vimdiff 以只读方式打开文件？
+
+    [difftool "vimdiff"] 
+            cmd = vim -f -d -c 'wincmd l' -c 'cd "$GIT_PREFIX"' "$LOCAL" "$REMOTE"
+    
+    git config --global difftool.vimdiff.cmd 'vim -f -d -c "wincmd l" -c '\''cd "$GIT_PREFIX"'\'' "$LOCAL" "$REMOTE"'
+
+配置 Git 以使用 Vimdiff
+
+默认情况下，vimdiff 将以只读模式打开文件，以便您无法进行任何更改。您可以通过运行以下命令在编辑器内启用编辑：
+
+    :set noro
+
+要使其成为默认值，请编辑您的$HOME/.vimrc配置，添加以下内容（您可能需要创建它）：
+
 
 
