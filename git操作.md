@@ -1770,9 +1770,7 @@ vimdiff命令
 如何防止 git vimdiff 以只读方式打开文件？
 
     [difftool "vimdiff"] 
-            cmd = vim -f -d -c 'wincmd l' -c 'cd "$GIT_PREFIX"' "$LOCAL" "$REMOTE"
-    
-    git config --global difftool.vimdiff.cmd 'vim -f -d -c "wincmd l" -c '\''cd "$GIT_PREFIX"'\'' "$LOCAL" "$REMOTE"'
+            cmd = vimdiff "$LOCAL" "$REMOTE"
 
 配置 Git 以使用 Vimdiff
 
