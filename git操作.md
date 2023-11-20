@@ -713,6 +713,37 @@ HEAD^3 上上上一个版本
 
 
 
+### git diff
+
+假定：HEAD、缓存区、工作区中的 <file_name> 文件内容均不相同。
+
+```shell
+# 工作区（已track未add） <=> 暂存区（已add未commit）。若暂存区为空对比的是：工作区 <=> 最近一次commit。
+git diff <file_name>
+
+# 暂存区（已add未commit） <=> 最近一次commit(HEAD)
+git diff --cached <file_name>	# 或
+git diff --staged <file_name>
+
+# 工作区（已track未add）+暂存区（已add未commit） <=> 最近一次commit(HEAD)
+git diff HEAD <file_name>
+
+# 最近一次commit(HEAD) <=> 过去X个的之前的 commit。
+git diff HEAD~X		# X为正整数
+git diff HEAD^^^	# 有X个^符号
+
+
+# 两个分支上最后 commit 的内容的差别
+git diff <branch_name1> <branch_name2> <file_name>
+
+# 两个 commit 节点的差异
+git diff <commit_hash> <commit_hash> <file_name>
+```
+
+
+
+
+
 
 ### git rebase
 
