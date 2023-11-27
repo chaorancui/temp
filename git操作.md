@@ -40,7 +40,7 @@ config            id_dsa.pub
 在 git bash 中输入命令，引号中内容为邮箱：
 
 ```bash
-ssh-keygen -t rsa -C "cuichaoran@huawei.com"
+ssh-keygen -t rsa -C "915422643@qq.com"
 ```
 
 该命令会在用户主目录（Windows：C:\Users\用户名\，Linux：~/）里生产.ssh文件夹，里面有id_rsa和id_rsa.pub两个文件，这两个文件就是SSH Key的秘钥对。其中，id_rsa是私钥，不能泄露，id_rsa.pub是公钥，可以告诉别人。
