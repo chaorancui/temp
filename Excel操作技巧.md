@@ -879,7 +879,7 @@ https://zhuanlan.zhihu.com/p/68901540
 
 ## 其他
 
-1. 方方格子 excel超好用插件
+1. [方方格子](https://dumuzhou.org/1553.html) excel超好用插件
 
 2. [教程：创建 Excel 任务窗格加载项](https://docs.microsoft.com/zh-cn/office/dev/add-ins/tutorials/excel-tutorial) 
 
