@@ -1,5 +1,10 @@
 # 无卵用的记录
 
+### 巨魔商店
+github：
+https://github.com/opa334/TrollStore
+
+https://dkxuanye.cn/?p=8852
 
 ### Kutools fot excel
 https://www.423down.com/14506.html
