@@ -2,6 +2,9 @@
 
 # C++ 知识点总结
 
+### 返回函数指针的函数
+https://www.cnblogs.com/lifexy/p/14098103.html
+
 ### C++17 新特性之 std::optional（上）
 https://zhuanlan.zhihu.com/p/64985296
 
