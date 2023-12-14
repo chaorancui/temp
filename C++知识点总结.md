@@ -2,6 +2,9 @@
 
 # C++ 知识点总结
 
+### C++ 类定义中class+宏+类名的意义
+https://vzhougm.gitee.io/2021/06/25/c&c++/C++%20%E7%B1%BB%E5%AE%9A%E4%B9%89%E4%B8%ADclass+%E5%AE%8F+%E7%B1%BB%E5%90%8D%E7%9A%84%E6%84%8F%E4%B9%89/
+
 ### 返回函数指针的函数
 https://www.cnblogs.com/lifexy/p/14098103.html
 
