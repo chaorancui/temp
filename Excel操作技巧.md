@@ -870,6 +870,150 @@ https://zhuanlan.zhihu.com/p/68901540
 
 
 
+## 宏
+
+> Microsoft文档：[Office VBA 参考](https://learn.microsoft.com/zh-cn/office/vba/api/overview/)
+>
+> [Excel VBA：单元格对象](https://blog.csdn.net/qq_36551226/article/details/106833877?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-106833877-blog-106648689.235^v39^pc_relevant_3m_sort_dl_base4&spm=1001.2101.3001.4242.1&utm_relevant_index=1)
+>
+> [VBA中日期和时间相关的计算](https://blog.51cto.com/alun51cto/2425920)
+
+### 运行宏的方法
+
+1. 菜单栏【开发工具】->  【查看宏】 -> 【点击要执行的宏】
+
+2. 快速打开宏对话框：Alt+F8 -> 【点击要执行的宏】
+
+3. 自定义菜单栏运行宏
+
+   方法：？？
+
+4. 通过工作表里面的按钮运行宏
+
+   方法：？？
+
+5. ？？
+
+
+
+### 参考宏
+
+1. 首行_换行筛选冻结
+
+   ```vb
+   Sub 首行_换行筛选冻结()
+   '
+   ' 首行_换行筛选冻结 宏
+   '
+   
+   '
+       Rows("1:1").Select
+       With Selection
+           .WrapText = True
+       End With
+       Selection.AutoFilter
+       With ActiveWindow
+           .SplitColumn = 0
+           .SplitRow = 1
+       End With
+       ActiveWindow.FreezePanes = True
+       Range("A1").Select
+   End Sub
+   ```
+
+2. 首列_文本时间插入
+
+   ```vb
+   Sub 首列_文本时间插入()
+   '
+   ' 首列_文本时间插入 宏
+   '
+   
+   '
+       Columns("A:A").Select
+       Selection.Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+       Range("A1").Select
+       ActiveCell.FormulaR1C1 = "时间"
+       ' A2单元格公式填充
+       Range("A2").Select
+       ActiveCell.FormulaR1C1 = "=TEXT(RC[1],""HH:MM:SS"")"
+       ' A2-Axx公式填充
+       curSheetColumn = ActiveSheet.UsedRange.Rows.Count
+       Set SourceRange = ActiveSheet.Range("A2")
+       Set fillRange = ActiveSheet.Range(Cells(2, 1), Cells(curSheetColumn, 1))
+       SourceRange.AutoFill Destination:=fillRange
+       Range("A2:A110508").Select
+       Range("A1").Select
+   End Sub
+   ```
+
+3. 创建透视表_490
+
+   ```vb
+   Sub 创建透视表_490()
+   '
+   ' 创建透视表_490 宏
+   '
+   
+   '
+       ' 生成透视表名字、透视表sheet名字
+       Dim timeStamp As Date
+       Dim tableName As String, sheetName As String
+       timeStamp = Now()
+       tableName = Month(timeStamp) & "_" & Day(timeStamp) & "T" & _
+           Hour(timeStamp) & "_" & Minute(timeStamp) & "_" & Second(timeStamp)
+       sheetName = "Sheet" & tableName
+       
+       ' 生成透视区域、透视表位置
+       Dim sourceData As String, tableDest As String
+       sourceData = ActiveSheet.Name & "!" & ActiveSheet.UsedRange.Address(ReferenceStyle:=xlR1C1)
+       tableDest = sheetName & "!" & "R3C1"
+       
+       ' 新建sheet页，创建透视表
+       Sheets.Add.Name = sheetName
+       ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, sourceData:= _
+           sourceData, Version:=7).CreatePivotTable _
+           tableDestination:=tableDest, tableName:=tableName, DefaultVersion:=7
+       
+       ' 选中透视页，增加透视字段
+       Sheets(sheetName).Select
+   
+       Dim pt As PivotTable
+       Dim pf As PivotField
+       Dim dataField As PivotField
+   
+       Set pt = ActiveSheet.PivotTables(tableName)
+       ' 检查透视表是否存在
+       If Not pt Is Nothing Then
+           ' 添加字段到透视表的行区域
+           Set pf = pt.PivotFields("bit08AirSlotNoInFrm") ' 替换为你实际的字段名称
+           With pf
+               .Orientation = xlRowField
+               .Position = 1
+           End With
+           
+           ' 添加字段到透视表的列区域
+           Set pf = pt.PivotFields("totalReNum") ' 替换为你实际的字段名称
+           With pf
+               .Orientation = xlColumnField
+               .Position = 1
+           End With
+           
+           ' 添加同一字段到透视表的值区域，并设置为求和
+           Set pf = pt.PivotFields("totalReNum") ' 替换为你实际的字段名称
+           pf.Orientation = xlDataField
+           pf.Function = xlSum
+           pf.Name = "求和项:totalReNum"
+       Else
+           MsgBox "透视表未找到！", vbExclamation
+       End If
+   
+   End Sub
+   
+   ```
+
+   
+
 
 
 
