@@ -1,5 +1,15 @@
 # 无卵用的记录
 
+### C++函数传参
+1. 非指针变量、class、struct：
+   * 函数内修改值，不影响外部：传值(int)、传const引用(const int &)
+   * 函数内修改值，影响外部：传指针(int *)、传非const引用(int &)
+2. 指针变量：
+   * 函数内修改指针指向，不影响外部：传指针(int *，对指针类型来说，就是传值)、传指向指针的const引用(const int *&)
+   * 函数内修改指针指向，影响外部：传指针的指针(int **)、传向指针的非const引用(int *&)
+3. 一维数组：
+   * 函数内修改值，不影响外部：传指向数组的const引用(const int (&arr)[2])
+   * 函数内修改值，影响外部：传指向数组的指针(int */int arr[2])、传指向数组的引用(int (&arr)[2])
 
 ### IQ信号的学习
 https://blog.csdn.net/goodnessg/article/details/123706807?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-9-123706807-blog-85958872.235^v40^pc_relevant_3m_sort_dl_base4&spm=1001.2101.3001.4242.6&utm_relevant_index=10
