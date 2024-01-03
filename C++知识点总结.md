@@ -600,6 +600,9 @@ int main()
 
 [c语言中的#号和##号的作用](https://blog.csdn.net/zxx2096/article/details/81206935?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-2-81206935-blog-82853634.pc_relevant_multi_platform_whitelistv2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-2-81206935-blog-82853634.pc_relevant_multi_platform_whitelistv2&utm_relevant_index=3)
 
+[C语言中嵌套宏的展开规律](https://blog.csdn.net/mary288267/article/details/116499135)
+一般宏调用的展开规律是，先展开内层宏参数，再展开外层宏函数，所以展开顺序是由内而外
+
 ## struct 和 union 内存对齐
 
 计算规则
