@@ -13,6 +13,9 @@
    * 函数内修改值，不影响外部：传指向数组的const引用(const int (&arr)[2])
    * 函数内修改值，影响外部：传指向数组的指针(int */int arr[2])、传指向数组的引用(int (&arr)[2])
 
+### C/C++ for循环的几种用法
+https://blog.csdn.net/cpp_learner/article/details/117395735?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-117395735-blog-54602752.235^v40^pc_relevant_3m_sort_dl_base4&spm=1001.2101.3001.4242.1&utm_relevant_index=1
+
 ### C++ 类定义中class+宏+类名的意义
 https://vzhougm.gitee.io/2021/06/25/c&c++/C++%20%E7%B1%BB%E5%AE%9A%E4%B9%89%E4%B8%ADclass+%E5%AE%8F+%E7%B1%BB%E5%90%8D%E7%9A%84%E6%84%8F%E4%B9%89/
 
