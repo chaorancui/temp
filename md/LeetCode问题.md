@@ -243,6 +243,13 @@
 729.**每日温度：** 1.暴力搜索；2.单调栈(递减栈)（O(n), O(n)）(在当前元素后边中搜索)
 
 
+832. **翻转图像：** 1.C++库函数水平翻转+1-x进行01反转；2.双指针水平翻转+与1异或01反转；（(O($n^2$),O(1))；3.[将两次遍历合并到一次遍历中](https://leetcode.cn/problems/flipping-an-image/solutions/2571210/832-fan-zhuan-tu-xiang-by-stormsunshine-p6tp/)，一行中需水平翻转的元素x==y时都变，x!=y时都不变。
+
+
+
+
+
+
 
 
 
