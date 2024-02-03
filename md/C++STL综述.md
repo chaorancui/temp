@@ -102,10 +102,10 @@ C++ 对模板（Template）支持得很好，STL 就是借助模板把常用的[
 
 * 查找
   * find(v.begin(), v.end(), 9);
-      > 查找指定元素 没有返回 end
+    > 查找指定元素 没有返回 end
   
   * find_if(v.begin(), v.end(), [](int x) {return x >= 3; });
-      > 返回一系列有条件的元素迭代器，最后一个参数是c++11中 LAMBDA表达式（匿名函数）写法，自定义了具体条件
+    > 返回一系列有条件的元素迭代器，最后一个参数是c++11中 LAMBDA表达式（匿名函数）写法，自定义了具体条件
 
 * 替换
 
@@ -115,7 +115,10 @@ C++ 对模板（Template）支持得很好，STL 就是借助模板把常用的[
   
 
 * 遍历
+  * for_each(uni.begin(), uni.end(), [](int x) {cout << x << endl; });  
 
+  * transform(str.begin(), str.end(), str.begin(), ::toupper);
+    > // 遍历每一个元素，进行处理其中的数据
 
 
   
