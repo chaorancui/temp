@@ -18,7 +18,8 @@ https://zhuanlan.zhihu.com/p/507590692
 ### 你需要来自XXX的权限才能对此文件进行更改
 https://zhuanlan.zhihu.com/p/82036101
 
-
+### win11修改蓝牙设备的名称教程
+https://zhuanlan.zhihu.com/p/625885504
 
 
 
