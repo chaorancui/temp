@@ -2,6 +2,9 @@
 
 # C++ 知识点总结
 
+### 【C++断言机制】深入理解C/C++ 中静态断言static_assert与断言 assert
+https://blog.csdn.net/qq_21438461/article/details/132293042
+
 ### C++函数传参
 1. 非指针变量、class、struct：
    * 函数内修改值，不影响外部：传值(int)、传const引用(const int &)
