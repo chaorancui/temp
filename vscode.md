@@ -45,7 +45,11 @@ Preferences: Open Keyboard shortcurs(JSON)，就进入了 快捷键文件 keybin
     },
 
 
+# CLion
 
+### clion 高亮快捷键
+
+选中文本，Ctrl+Shift+f7：高亮显示所有该文本，按ESC高亮消失（类似Ctrl+Shift+F）
 
 
 
