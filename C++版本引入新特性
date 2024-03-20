@@ -340,6 +340,41 @@ int main()
 
 > 使用C++11进行多线程开发 (std::thread)：https://blog.csdn.net/weixin_36888577/article/details/82891531
 
+
+
+### 9. alignof 运算符(C++11 起)
+
+> [alignof 运算符(C++11 起)](https://zh.cppreference.com/w/cpp/language/alignof)
+
+查询类型的对齐要求。
+
+语法：
+
+```C++
+alignof(类型标识)		
+```
+
+[返回std::size_t](https://en.cppreference.com/w/cpp/types/size_t)类型的值。
+
+解释
+
+返回由[类型标识](https://zh.cppreference.com/w/cpp/language/type#.E7.B1.BB.E5.9E.8B.E7.9A.84.E5.91.BD.E5.90.8D)所指示的类型的任何实例所要求的[对齐](https://zh.cppreference.com/w/cpp/language/object#.E5.AF.B9.E9.BD.90)字节数，该类型可以是[完整](https://zh.cppreference.com/w/cpp/language/type#.E4.B8.8D.E5.AE.8C.E6.95.B4.E7.B1.BB.E5.9E.8B)对象类型、元素类型完整的数组类型或者到这些类型之一的引用类型。
+
+如果类型是引用类型，那么运算符返回*被引用*类型的对齐要求；如果类型是数组类型，那么返回元素类型的对齐要求。
+
+
+
+https://zhuanlan.zhihu.com/p/611511876
+
+1. 对于基础变量来说，内存对齐最大要求就是它们自身所占空间的大小。如下代码所示
+2. 一般来说，一个结构体占用多大存储空间不仅取决于里面有什么元素，还取决于这些元素的排列顺序。我们用下面代码来实验。
+
+**用途**
+
+可以在为结构体数组分配内存的时候，使用该关键字计算出最大对齐要求，让分配出的首地址满足相应的内存对齐要求。
+
+
+
 ## `C++ 14`
 
 ### 1. std::make_unique<T>()
@@ -424,7 +459,49 @@ int test(int a, int b, [[maybe_unused]] int c) {  // Modified
 
 
 
+### 3.标准库头文件 <memory_resource>
+
+> [C++17 的 多态内存分配器 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/359409607)
+>
+> [标准库头文件  - C++中文 - API参考文档 (apiref.com)](https://www.apiref.com/cpp-zh/cpp/header/memory_resource.html)
+
+C++ 17 引入了一系列新的内存管理工具, 定义在 header `<memory_resources>` 之中. 其中的东西都在 namespace `std::pmr` 下. pmr 的意思是 polymorphic memory resources.多态的内存分配器。
+
+```c++
+class memory_resource; 
+
+template<class Tp> class polymorphic_allocator; // Tp 是需要被分配的类型
+
+memory_resource* new_delete_resource() noexcept; 
+memory_resource* null_memory_resource() noexcept; 
+memory_resource* set_default_resource(memory_resource* r) noexcept; 
+memory_resource* get_default_resource() noexcept; 
+
+struct pool_options; 
+class synchronized_pool_resource; 
+class unsynchronized_pool_resource; 
+class monotonic_buffer_resource;
+```
+
+简单描述一下是做什么的.
+
+1. `memory_resource` 是一个抽象类, 定义了各种接口. 你可以在上面 `allocate` 和 `deallocate`. 可以理解成资源池子, 需要的时候问它要一块资源.
+2. 而 `synchronized_pool_resource` , `unsynchronized_pool_resource` , `monotonic_buffer_resource` 就继承了上面这个抽象类, 是三种不同的内存资源.
+3. `polymorphic_allocator` 是一个分配器. 可以在指定的内存资源上进行分配. 如果没有给出指定的资源, 那么就会用 `get_default_resource()` 得到一个默认资源.
+4. `new_delete_resource()` 会返回一个使用全局 `new` 和全局 `delete` 的 `memory resource*`.
+5. `null_memory_resource()` 会返回一个啥也不干的 `memory resource*`.
+
+所以 PMR 使用起来很简单, 创建一个 `memory_resource` , 然后用 `polymorphic_allocator` 在上面进行分配就行了.
+
+
+
+
+
 ## `C++ 20`
+
+
+
+
 
 
 
@@ -638,3 +715,18 @@ const 成员函数本质上是修饰 this 指针，成员变量引用会被看�
 ## 6. new 方法
 
 stl_placement_new
+
+
+
+## 7. 类型转换
+
+[C++标准转换运算符reinterpret_cast](https://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html)
+
+reinterpret_cast运算符是用来处理无关类型之间的转换；它会产生一个新的值，这个值会有与原始参数（expressoin）有完全相同的比特位。
+
+所以总结来说：reinterpret_cast用在任意指针（或引用）类型之间的转换；以及指针与足够大的整数类型之间的转换；从整数类型（包括枚举类型）到指针类型，无视大小。
+
+（所谓"足够大的整数类型",取决于操作系统的参数，如果是32位的操作系统，就需要整形（int）以上的；如果是64位的操作系统，则至少需要长整形（long）。具体大小可以通过sizeof运算符来查看）。
+
+
+
