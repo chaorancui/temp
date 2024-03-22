@@ -1,5 +1,10 @@
 # 无卵用的记录
 
+### book-refactoring2
+《重构 改善既有代码的设计第二版》中文版
+https://book-refactoring2.ifmicro.com
+电子书: pdf, epub, mobi
+
 
 ### 编程API学习
 https://www.apiref.com/
