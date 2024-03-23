@@ -6,30 +6,12 @@ https://book-refactoring2.ifmicro.com
 电子书: pdf, epub, mobi
 
 
-### 编程API学习
-https://www.apiref.com/
-
 ### IQ信号的学习
 https://blog.csdn.net/goodnessg/article/details/123706807?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-9-123706807-blog-85958872.235^v40^pc_relevant_3m_sort_dl_base4&spm=1001.2101.3001.4242.6&utm_relevant_index=10
 
-### 巨魔商店
-github：
-https://github.com/opa334/TrollStore
-
-https://dkxuanye.cn/?p=8852
-
-### Kutools fot excel
-https://www.423down.com/14506.html
 
 ### 天地图key
 702f9a64c89bc4c93c57338a0d5da2e6
-
-### vscode git 不显示修改颜色标记  Gutter Indicators
-搜了半天，发现这玩意叫做Gutter Indicators。作用是在一个git仓库中，如果对某个文件做了修改，编辑器会在行号旁边用不同颜色标志该文件的修改情况。
-原因是在项目最外层文件夹（项目名的同级目录下）git init了，产生了.git文件。
-解决方法：在终端进入最外层（项目名所在目录，而不是下一层）的文件夹执行 rm -rf .git 命令即可。
-https://www.jianshu.com/p/2d70f26e4229
-git项目,VSCode显示不同颜色块的含义:https://www.cnblogs.com/soyxiaobi/p/9708518.html
 
 ### c++11增加的变参数模板，今天总算整明白了
 https://www.helloworld.net/p/7580029278

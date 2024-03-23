@@ -1346,6 +1346,20 @@ git config --global pager.branch true # git branch 分页
 
 
 
+### vscode git 不显示修改颜色标记  Gutter Indicators
+
+搜了半天，发现这玩意叫做Gutter Indicators。作用是在一个git仓库中，如果对某个文件做了修改，编辑器会在行号旁边用不同颜色标志该文件的修改情况。
+
+原因是在项目最外层文件夹（项目名的同级目录下）git init了，产生了.git文件。
+
+解决方法：在终端进入最外层（项目名所在目录，而不是下一层）的文件夹执行 rm -rf .git 命令即可。
+
+https://www.jianshu.com/p/2d70f26e4229
+
+git项目,VSCode显示不同颜色块的含义:https://www.cnblogs.com/soyxiaobi/p/9708518.html
+
+
+
 ## 代码对比工具
 
 ### diff命令
