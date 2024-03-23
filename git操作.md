@@ -85,6 +85,7 @@ git 有三种配置
   注：每一个级别的配置都会覆盖上层的相同配置，例如 .git/config 里的配置会覆盖 %Git$/etc/gitconfig 中的同名变量。
 
 ### 配置个人身份
+
 首次的 Git 设定（设定身份，自己做主）
 ```bash
 git config --global user.name "Zhang San"
@@ -98,7 +99,8 @@ git config --global user.email zhangsan@qq.com
 ### 与服务器认证的配置
 常见的两种协议认证的方式
 * http/https 协议认证
-  设置口令缓存：
+  设置口令缓存，可以不用每次都输入用户名和密码：
+  
   ```bash
   git config --global credential.helper store
   ```
@@ -108,6 +110,18 @@ git config --global user.email zhangsan@qq.com
   ```
 * ssh 协议认证
   SSH 协议是一种非常常用的 Git 仓库访问协议，使用公钥认证、无需输入密码，加密传输，操作便利又保证安全。
+
+### Git 凭证存储
+
+如果大家使用http协议向fetch或push私有库（或push公有库）的话，命令行（或其他git工具）会提示输入用户名和密码，每次这样做都很麻烦，那设置下git证书缓存就好了。
+
+在Git Bash上执行即可：
+
+```shell
+git config --global credential.helper wincred
+```
+
+然后使用 http 协议操作仓库时输入一次用户名密码就会被缓存起来，后面就不需要重复输入了。
 
 
 
@@ -580,6 +594,32 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
 
 
+### git chekcout
+
+原来是 git 中的 checkout 命令承载了分支操作和文件恢复的部分功能，有点复杂，并且难以使用和学习，所以社区解决将这两部分功能拆分开，在 git 2.23.0 中引入了两个新的命令 switch 和 restore 用来取代 checkout。
+
+1. 切换与创建分支
+
+    ```shell
+    git checkout <branch_name > 切换分支
+    #git switch <branch_name> 切换分支
+    git checkout -b <branch_name> 创建并切换至分支
+    # git switch -c <branch_name> 创建并切换至分支
+    ```
+
+​	**git checkout -b** <branch_name>**origin/**<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
+
+2. 还原工作区（文件内容）
+   git checkout – <file_name> 丢弃工作区的修改，并用最近一次的commit内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
+
+   git checkout HEAD^ – <file_name> 将指定commit提交的内容(HEAD^表示上一个版本)还原到当前工作区
+
+   git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
+
+
+
+> https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
+
 
 
 ### git switch
@@ -588,6 +628,8 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
   ```bash
   git switch <branchName>
+  # 如果要切换到某个commit-id，只能用 checkout，如
+  git checkout commitid # 切换到某个commit id
   ```
 
   > 远程有而本地没有的分支，而如果要从远程分支建一个同名的本地分支，并且关联远程分支。可以理解为拉取远程分支到本地，并建立远程分支和本地分支的关联关系
@@ -618,35 +660,9 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
   1. 在本地 A 仓库拉取 B 仓库 master 分支，checkout 到 B/master 后，是只有最新 commit id 而没有分支名称的。
 
-  2. cherry-pick 后的代码没有分支名，只有最新的 commit id，同样需要为最新的 commit id 创建一个分支，用于推送远程仓库时。
+  2. cherry-pick 后的代码没有分支名，只有最新的 commit id，同样需要为最新的 commit id 创建一个分支，用于推送远程仓库时
 
 > 切换分支时，如果有未提交的修改，会把修改带到切换后的分支。如果想保证切换后的分支干净，需要在切换前 commit 或 stash 修改。
-
-### git chekcout
-
-原来是 git 中的 checkout 命令承载了分支操作和文件恢复的部分功能，有点复杂，并且难以使用和学习，所以社区解决将这两部分功能拆分开，在 git 2.23.0 中引入了两个新的命令 switch 和 restore 用来取代 checkout。
-
-1. 切换与创建分支
-
-    ```shell
-    git checkout <branch_name > 切换分支
-    #git switch <branch_name> 切换分支
-    git checkout -b <branch_name> 创建并切换至分支
-    # git switch -c <branch_name> 创建并切换至分支
-    ```
-
-​	**git checkout -b** <branch_name>**origin/**<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
-
-2. 还原工作区（文件内容）
-   git checkout – <file_name> 丢弃工作区的修改，并用最近一次的commit内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
-
-   git checkout HEAD^ – <file_name> 将指定commit提交的内容(HEAD^表示上一个版本)还原到当前工作区
-
-   git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
-
-
-
-> https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
 
 
 
@@ -670,7 +686,6 @@ git restore --source=<commit> <file>
 
 # 「交互式还原」执行这个命令它会打开一个交互式界面，让你选择如何处理每个更改。
 git restore -i
-
 ```
 
 
@@ -888,8 +903,6 @@ git rm 删除文件有以下几种形式：
 
 
 
-
-
 ### git clean
 
 `git clean` 命令用来从你的工作目录中删除所有没有 tracked 过的文件。
@@ -929,6 +942,26 @@ git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉
 
 
 
+### git  优雅地解决冲突：使用ours和theirs
+
+> [Git-优雅地解决冲突：使用ours和theirs]https://blog.csdn.net/qq_41603165/article/details/104922336
+
+对于merge和rebase来说，ours 和 theirs 对应的分支正好是相反的。
+
+假设当前指向的分支为`branch_a`，
+
+在使用 merge 时 `git merge branch_b`，ours 指的是当前分支，即branch_a，theirs 指的是要被合并的分支，即branch_b。
+
+而在使用 rebase 时 `git rebase branch_b`，theirs 指的是当前分支，即branch_a，ours 指向修改参考分支，即branch_b。
+
+
+
+git merge会抽取两个分支上新增的提交，并将其合并在一起，产生一个新的提交D，生成的D节点有两个父节点。其中在合并的过程中可能会发生冲突。
+
+git rebase会以branch_a为参照，提取branch_b分支上的提交，将这些修改作用在branch_a分支上，最终结果不会产生新的提交节点。其中在将提取的修改作用在branch_a的过程中可能会发生冲突。
+
+通常而言，在开发过程中很少应用git merge合并代码，更常用的是git rebase。此外在开发过程中，经常使用git rebase命令获取master主分支的最新提交代码，在完成个人的开发任务之后，也需要rebase master分支上的代码才能申请 Pull Request，自动合并。
+
 
 
 ### git 仓库忽略大小写
@@ -936,6 +969,53 @@ git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉
 ```bash
 git config core.ignorecase true
 ```
+
+
+
+### Git commit 规范
+
+https://zhuanlan.zhihu.com/p/182553920
+
+**commit message格式**
+
+```text
+<type>(<scope>): <subject>
+```
+
+**type(必须)**
+
+用于说明git commit的类别，只允许使用下面的标识。
+
+feat：新功能（feature）。
+
+fix/to：修复bug，可以是QA发现的BUG，也可以是研发自己发现的BUG。
+
+* fix：产生diff并自动修复此问题。适合于一次提交直接修复问题
+* to：只产生diff不自动修复此问题。适合于多次提交。最终修复问题提交时使用fix
+
+docs：文档（documentation）。
+
+style：格式（不影响代码运行的变动）。
+
+refactor：重构（即不是新增功能，也不是修改bug的代码变动）。
+
+perf：优化相关，比如提升性能、体验。
+
+test：增加测试。
+
+chore：构建过程或辅助工具的变动。
+
+revert：回滚到上一个版本。
+
+merge：代码合并。
+
+sync：同步主线或分支的Bug。
+
+**scope(可选)**
+
+scope用于说明 commit 影响的范围，比如数据层、控制层、视图层等等，视项目不同而不同。
+
+
 
 
 
