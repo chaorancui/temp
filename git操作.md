@@ -7,7 +7,9 @@
 > https://git-scm.com/book/zh/v2/%E8%B5%B7%E6%AD%A5-%E5%85%B3%E4%BA%8E%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6
 >
 > 推荐博文
-> https://www.cnblogs.com/xiaochenNN/p/17234617.html
+> [玩转Git三剑客笔记](https://www.cnblogs.com/xiaochenNN/p/17234617.html)
+> [三年 Git 使用心得 & 常见问题整理](https://segmentfault.com/a/1190000023734704)
+
 
 
 在Git管理下，大家实际操作的目录被称为工作树，也就是工作区域
@@ -165,8 +167,12 @@ git push -u origin "master"
 ------
 
 补充：
-推送到远程库上面已经说了。删除远程分支比较麻烦。一种方式是，可以直接在 github 网页上操作，另一种方式是：`git push <name> :<branch>` （注意冒号前的空格）
-
+推送到远程库上面已经说了。删除远程分支比较麻烦。一种方式是，可以直接在 github 网页上操作，另一种方式是：
+```shell
+git push <remote> --delete <branch>
+或
+git push <remote> :<branch>   #（注意冒号前的空格）
+```
 
 
 ### git clone
@@ -614,36 +620,31 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
   2. cherry-pick 后的代码没有分支名，只有最新的 commit id，同样需要为最新的 commit id 创建一个分支，用于推送远程仓库时。
 
-
+> 切换分支时，如果有未提交的修改，会把修改带到切换后的分支。如果想保证切换后的分支干净，需要在切换前 commit 或 stash 修改。
 
 ### git chekcout
 
-1.切换与创建分支
-git checkout <branch_name > 切换分支
-#git switch <branch_name> 切换分支
+原来是 git 中的 checkout 命令承载了分支操作和文件恢复的部分功能，有点复杂，并且难以使用和学习，所以社区解决将这两部分功能拆分开，在 git 2.23.0 中引入了两个新的命令 switch 和 restore 用来取代 checkout。
 
-git checkout -b <branch_name> 创建并切换至分支
-#git switch -c <branch_name> 创建并切换至分支
+1. 切换与创建分支
 
-git checkout -b <branch_name>origin/<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
+    ```shell
+    git checkout <branch_name > 切换分支
+    #git switch <branch_name> 切换分支
+    git checkout -b <branch_name> 创建并切换至分支
+    # git switch -c <branch_name> 创建并切换至分支
+    ```
 
-2.还原工作区（文件内容）
-git checkout – <file_name> 丢弃工作区的修改，并用最近一次的commit内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
+​	**git checkout -b** <branch_name>**origin/**<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
 
-git checkout HEAD^ – <file_name> 将指定commit提交的内容(HEAD^表示上一个版本)还原到当前工作区
+2. 还原工作区（文件内容）
+   git checkout – <file_name> 丢弃工作区的修改，并用最近一次的commit内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
 
-git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
+   git checkout HEAD^ – <file_name> 将指定commit提交的内容(HEAD^表示上一个版本)还原到当前工作区
+
+   git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
 
 
-二、git restore 用法总结
-git restore --staged <file_name> 将暂存区的修改重新放回工作区（包括对文件自身的操作，如添加文件、删除文件）
-
-git restore <file_name> 丢弃工作区的修改（不包括对文件自身的操作，如添加文件、删除文件）(如果不在工作区（已暂存，已提交），本本命令无效)
-
-三、git reset 用法总结
-git reset HEAD <file_name> 丢弃暂存区的修改，重新放回工作区，会将暂存区的内容和本地已提交的内容全部恢复到未暂存的状态，不影响原来本地文件(相当于撤销git add 操作，不影响上一次commit后对本地文件的修改) （包括对文件的操作，如添加文件、删除文件）
-
-git reset –hard HEAD 清空暂存区，将已提交的内容的版本恢复到本地，本地的文件也将被恢复的版本替换（恢复到上一次commit后的状态，上一次commit后的修改也丢弃）
 
 > https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
 
@@ -674,8 +675,6 @@ git restore -i
 
 
 
-
-
 ### git reset
 
 git reset 命令用于回退版本，可以指定退回某一次提交的版本。
@@ -689,8 +688,6 @@ git reset [--soft | --mixed | --hard] [HEAD]
 --soft：将指定 commit id 撤回之后所有内容`全部放进暂存区`。
 
 --hard：将指定 commit id 撤回并`清空工作目录及暂存区`所有修改。
-
-
 
 ```bash
 HEAD 说明：
