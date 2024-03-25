@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### 【C++】override和final关键字
+https://blog.csdn.net/weixin_41838721/article/details/125232736?spm=1001.2014.3001.5502
+
 ### 面试经典问题，谈谈你对OOA,OOD,OOP的理解
 https://lovojava.github.io/2017/06/19/20170619/
 
