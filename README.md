@@ -3,6 +3,9 @@
 ### 面试经典问题，谈谈你对OOA,OOD,OOP的理解
 https://lovojava.github.io/2017/06/19/20170619/
 
+### 纯虚函数设置为public、protected和private的区别
+https://blog.csdn.net/CLZHIT/article/details/105936620
+
 ### book-refactoring2
 《重构 改善既有代码的设计第二版》中文版
 https://book-refactoring2.ifmicro.com
