@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### 继承与多态public private
+https://shaofengjiang.cn/programming-course/lec9-inheritance.pdf
+
 ### 【C++】override和final关键字
 https://blog.csdn.net/weixin_41838721/article/details/125232736?spm=1001.2014.3001.5502
 
