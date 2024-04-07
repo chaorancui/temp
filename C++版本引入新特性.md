@@ -364,6 +364,10 @@ alignof(类型标识)
 
 
 
+### 10.tuple
+
+
+
 
 
 > [alignas 说明符 (C++11 起)](https://www.apiref.com/cpp-zh/cpp/language/alignas.html)
@@ -424,9 +428,54 @@ unique_ptr<int> uptr = make_unique<int>();	// 改为使用此代码
 
 ## `C++ 17`
 
+> [std::optional](https://zh.cppreference.com/w/cpp/utility/optional)
+>
+> [C++语法糖(std::optional)详解以及示例代码](https://zhuanlan.zhihu.com/p/627806230)
+>
+> [C++17之std::optional全方位详解](https://blog.csdn.net/hhdshg/article/details/103433781)
+>
+> 
+
 ### 1. std::optional
 
-有时我们会用一个值来表示一种“没有什么意义”的状态，这就是C++17的std::optional的用处。
+类模板 `std::optional` 管理一个*可选* ﻿的所含值，即**既可以存在也可以不存在的值**。
+
+一种常见的 `optional` 使用情况是作为可能失败的函数的返回值。与如 [std::pair](http://zh.cppreference.com/w/cpp/utility/pair)<T, bool> 等其他手段相比，`optional` 可以很好地处理构造开销高昂的对象，并更加可读，因为它明确表达了意图。
+
+当一个 `optional<T>` 类型的对象被[按语境转换到 bool](https://zh.cppreference.com/w/cpp/language/implicit_conversion) 时，若对象*含值* ﻿则转换返回 true，若它*不含值*" ﻿则返回 false。
+
+```C++
+#include <iostream>
+#include <optional>
+
+std::optional<int> divide(int a, int b) {
+    if (b == 0) {
+        return std::nullopt;
+    } else {
+        return a / b;
+    }
+}
+
+int main() {
+    auto result1 = divide(10, 2);
+    if (result1.has_value()) {
+        std::cout << "Result 1: " << result1.value() << std::endl;
+    } else {
+        std::cout << "Result 1: division by zero" << std::endl;
+    }
+    
+    auto result2 = divide(10, 0);
+    if (result2.has_value()) {
+        std::cout << "Result 2: " << result2.value() << std::endl;
+    } else {
+        std::cout << "Result 2: division by zero" << std::endl;
+    }
+    
+    return 0;
+}
+```
+
+如果分母为零，则返回一个std::nullopt，表示结果不存在。否则，返回一个包含除法结果的std::optional<int>类型的对象。
 
 
 
@@ -789,8 +838,11 @@ reinterpret_cast运算符是用来处理无关类型之间的转换；它会产�
 限定符：
 
 - const: 用于声明常量，表示该变量的值在初始化后不能被修改。
+
 - volatile: 用于声明易变的变量，告诉编译器不要进行优化，因为变量的值可能会在意料之外的情况下改变（如中断）。
+
 - restrict（C99标准新增）：用于告知编译器，该指针是访问对象的唯一且初始的方式，从而进行优化。
+
   在保证多个指针所指向的区域无交叠的前提下，可以将这些指针加上restrict限定符，用于指导编译器做出更激进的优化。
 
 访问限定符：
