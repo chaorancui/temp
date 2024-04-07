@@ -1,858 +1,1059 @@
 [toc]
 
-# `C++ 11/14/17/20 新特性总结`
+# C++ 知识点总结
 
-## `C++11`
+> [*C++ FAQ LITE* — Frequently Asked Questions](https://www.sunistudio.com/cppfaq/index.html)
 
-### 1. constexpr
+## 类的拷贝控制
 
-`constexpr` 是 C++ 11 中新增加的用于**指示常量表达式**的关键字。在此之前（C++ 98/03标准）只有 `const` 关键字，其在实际使用中经常会表现出**两种不同的语义**。举个例子：
+1. 拷贝构造:
+
+   第一个参数必须是自身类型的引用（ch13.1.1，否则为调用拷贝构造，必须拷贝实参，为拷贝实参，又要调用拷贝构造，无限循环），通常加const。拷贝构造函数通常不应该是explicit的（ch13.1.1），考虑加explicit。
+
+2. 拷贝赋值运算符：
+
+   本质为operator=的重载函数，入参通常是const引用，为了与内置类型赋值运算符（=）一致，返回值通常是指向其左侧运算符对象的引用。
+
+   赋值运算符通常**组合**了**析构函数**和**构造函数**的操作（ch13.2.1）。必须正确处理自赋值。
+
+3. 三/五法则（ch13.1.4)：
+
+   一个基本原则：如果这个类需要一个析构函数（指的是需要自定义析构函数，如delete动态内存）， 我们几乎可以肯定它也需要一个拷贝构造函数和一个拷贝赋值运算符。
+
+   第二个基本原则：如一个类需要一个拷贝构造函数， 几乎可以肯定它也需要个拷贝赋值运算符。反之亦然。
+
+4. 移动赋值运算符：
+
+   类似拷贝构造函数， 移动构造函数的第一个参数是该类类型的一个引用，且是右值引用。**通常无const**。
+
+5. 拷贝构造、拷贝赋值：不应该抛出异常???
+
+6. 移动构造、移动赋值：不应该抛出异常
+
+   搞清楚为什么需要noexcept能帮助我们深入理解标准库是如何与我们自定义的类型交互的。我们需要指出一个移动操作不抛出异常，这是因为两个相互关联的事实：**首先，虽然移动操作通常不抛出异常， 但抛出异常也是允许的**；**其次， 标准库容器能对异常发生时其自身的行为提供保陷**。例如，vector保证， 如果我们调用push_back时发生异常，vector自身不会发生改变。
+
+   现在让我们思考push—back 内部发生了什么。类似对应的StrVec 操作（参见13.5节， 第466页）， 对一个vector调用push_back可能要求为vector重新分配内存空间。当重新分配vector的内存时， vector将元素从旧空间移动到新内存中， 就像我们在reallocate中所做的那样（参见13.5节， 第469页）。
+   如我们刚刚看到的那样， 移动一个对象通常会改变它的值。如果重新分配过程使用了移动构造函数， 且在移动了部分而不是全部元素后抛出了一个异常， 就会产生问题。旧空间中的移动源元素已经被改变了， 而新空间中未构造的元素可能尚不存在。在此情况下，vector将不能满足自身保持不变的要求。
+   另一方面， 如果vector使用了拷贝构造函数且发生了异常， 它可以很容易地满足要求。在此情况下， 当在新内存中构造元素时， 旧元素保持不变。如果此时发生了异常，vector可以释放新分配的（但还未成功构造的）内存并返回。vector原有的元素仍然存在。
+   为了避免这种潜在问题， 除非vector知道元素类型的移动构造函数不会抛出异常，否则在重新分配内存的过程中， 它就必须使用拷贝构造函数而不是移动构造函数。**如果希望在vector重新分配内存这类情况下对我们自定义类型的对象进行移动而不是拷贝，就**
+   **必须显式地告诉标准库我们的移动构造函数可以安全使用**。我们通过将移动构造函数（及移动赋值运算符）标记为noexcept来做到这一点。
+
+7. 拷贝赋值运算符、移动赋值运算符：必须正确处理自赋值：
+
+   ```C++
+   StrVec &StrVec::operator=(StrVec &&rhs) noexcept {
+       // 直接检测自赋值
+       if (this != &rhs) {
+           free(); // 释放已有元素
+           elements = rhs.elements; // 从rhs接节资源
+           first_free = rhs.first_free;
+           cap = rhs.cap;
+           // 将rhs置于可析构状态
+           rhs.elements = rhs.first_free = rhs.cap = nullptr;
+       }
+       return *this;
+   }
+   ```
+
+   
+
+8. 移动赋值运算符：
+
+   **在移动操作之后， 移后源对象必须保持有效的、可析构的状态，但是用户不能对其值进行任何假设。**
+
+   当我们编写一个移动操作时， 必须确保移后源对象进入一个可析构的状态。我们的StrVec的移动操作满足这一要求， 这是通过将移后源对象的指针成员置为nullptr来实现的。
+
+   除了将移后源对象置为析构安全的状态之外， 移动操作还必须保证对象仍然是有效的。一般来说， 对象有效就是指可以安全地为其赋予新值或者可以安全地使用而不依赖其当前值。另一方面， 移动操作对移后源对象中留下的值没有任何要求。
+
+9. 合成的移动操作：
+
+   **定义了一个移动构造函数或移动赋值运算符的类必须也定义自己的拷贝操作。否则， 这些成员默认地被定义为删除的。**
+
+   与拷贝操作不同， 编译器根本不会为某些类合成移动操作。特别是， 如果一个类定义了自己的拷贝构造函数、拷贝赋值运算符或者析构函数， 编译器就不会为它合成移动构造函数和移动赋值运算符了。
+
+   只有当一个类没有定义任何自己版本的拷贝控制成员，且类的每个非static数据成员都可以移动时， 编译器才会为它合成移动构造函数或移动赋值运算符。
+
+   如果我们显式地要求编译器生成＝default的（参见7.1.4节， 第237页）移动操作， 且编译器不能移动所有成员， 则编译器会将移动操作定义为删除的函数。（有成员不可移动、类无析构函数被定义为删除或不可访问、类成员是const的或是引用）
+
+   如果类定义了一个移动构造函数和/或一个移动赋值运算符， 则该类的合成拷贝构造函数和拷贝赋值运算符会被定义为删除的。
+
+10. 右值引用和成员函数
+
+    **区分移动和拷贝的重载函数通常有一个版本接受一个const T&， 而另一个版本接受一个T&＆。**
+
+    如果一个成员函数**同时提供拷贝和移动版本**，它**也能从中受益**。这种允许移动的成员函数通常使用与拷贝／移动构造函数和赋值运算符相同的参数模式 ---- 一个版本接受一个指向**const的左值引用**， 第二个版本接受一个指向**非const的右值引用**。
+
+    例如， 定义了push_back的标准库容器提供两个版本： 一个版本有一个右值引用参数， 而另一个版本有一个const左值引用。假定x是元素类型， 那么这些容器就会定义以下两个push_back 版本：
+    ```C++
+    void push_back(const X&); // 拷贝： 绑定到任意类型的X
+    void push_back(X&&); // 移动： 只能绑定到类型X的可修改的右值
+    ```
+
+    我们可以将能转换为类型x 的任何对象传递给第一个版本的push_back。此版本从其参数拷贝数据。对于第二个版本， 我们只可以传递给它非con江的右值。此版本对千非const的右值是精确匹配（也是更好的匹配）的， 因此当我们传递一个可修改的右值（参见13.6.2节， 第477页）时， 编译器会选择运行这个版本。此版本会从其参数窃取数据。
+
+    一般来说， 我们不需要为函数操作定义接受一个const X&＆或是一个（普通的）X&参数的版本。**当我们希望从实参＂窃取“ 数据时， 通常传递一个右值引用。为了达到这一目的， 实参不能是const的**。类似的， 从一个对象进行拷贝的操作不应该改变该对象。因此， 通常不需要定义一个接受一个（普通的）X＆参数的版本。
+
+    
+
+    ```C++
+    sl + s2 = "wow'";
+    ```
+
+    此处我们对两个string的连接结果 ---- 一个右值， 进行了赋值。在旧标准中， 我们没有办法阻止这种使用方式。为了**维持向后兼容性， 新标准库类仍然允许向右值赋值**。但是， 我们可能**希望在自己的类中阻止这种用法**。在此情况下， 我们希望强制左侧运算对象（即， this指向的对象）是一个左值。
+
+    我们指出this的左值／右值屈性的方式与定义const成员函数相同（参见7.1.2节，第231页）， 即， 在参数列表后放置一个引用限定符(reference qualifier):
+
+    ```c++
+    class Foo {
+    public:
+        Foo &operator=(const Foo &) &; // 只能向可修改的左值赋值
+        // Foo 的其他参数
+    };
+    
+    Foo &Foo::operator=(const Foo &rhs) &{
+        // 执行将rhs 赋子本对象所需的工作
+        return *this;
+    }
+    ```
+
+    **引用限定符可以是&或&&**，分别指出this可以指向一个左值或右值。类似const限定符，**引用限定符只能用千（非static)成员函数， 且必须同时出现在函数的声明和定义中**。
+
+    一个函数可以同时用const和引用限定。在此情况下，引用限定符必须跟随在const限定符之后：
+
+    ```c++
+    class Foo {
+    public:
+        Foo someMem() & const; // 错误： const 限定符必须在前
+        Foo anotherMem() const &; // 正确： const 限定符在前
+    };
+    ```
+
+    就像一个成员函数可以根据是否有const来区分其重载版本一样（参见7.3.2节， 第247页）， 引用限定符也可以区分重载版本。而且， 我们可以综合引用限定符和const来区分一个成员函数的重载版本。
+
+    ```C++
+    class Foo {
+    public:
+        Foo sorted() &&; // 可用于可改变的右值
+        Foo sorted() const &; // 可用于任何类型的Foo
+        Foo sorted() const; // 错误： 必须加上引用限定符
+        // Foo的其他成员的定义
+    private:
+        vector<int> data;
+    };
+    
+    // 本对象为右值， 因此可以原址排序
+    Foo Foo::sorted() &&{
+        sort(data.begin(), data.end());
+        return *this;
+    }
+    
+    // 本对象是const 或是一个左值， 哪种情况我们都不能对其进行原址排序
+    Foo Foo::sorted() const &{
+        Foo ret(*this); // 拷贝一个副本
+        sort(ret.data.begin(), ret．data.end()); // 排序副本
+        return ret; // 返回副本
+    }
+    ```
+
+    当我们对一个右值执行sorted时， 它可以安全地直接对data成员进行排序。对象是一个右值， 意味着没有其他用户， 因此我们可以改变对象。当对一个const 右值或一个左值执行sorted时， 我们不能改变对象， 因此就需要在排序前拷贝data。
+    编译器会根据调用sorted的对象的左值／右值属性来确定使用哪个sorted版本：
+
+    ```c++
+    retVal().sorted(); // retVal()是一个右值， 调用Foo: : sorted() &&
+    retFoo().sorted(); // retFoo()是一个左值， 调用Foo: : sorted() const &
+    ```
+
+    
+
+    **如果一个成员函数有引用限定符，则具有相同参数列表的所有版本都必须有引用限定符。**
+
+    如果我们定义两个或两个以上具有相同名字和相同参数列表的成员函数， 就必须对所有函数都加上引用限定符， 或者所有都不加：
 
 
 
 
 
+## 类成员函数放在类声明中实现，则此函数默认是内联函数
 
 
-总的来说在 C++ 11 标准中，`const` 用于为修饰的变量添加“只读”属性；而 `constexpr` 关键字则用于指明其后是一个常量（或者常量表达式），编译器在编译程序时可以顺带将其结果计算出来，而无需等到程序运行阶段，这样的优化极大地**提高了程序的执行效率**。
 
-### 2. 自动推导 atuo 和 decltype
 
-auto 和 decltype 是在 C++11 中新增的类型推导方法，它可以让程序员不再需要手工编写变量的类型。
 
-#### **auto**
-
-在 **《Effective Modern C++》** 这本书中，**Scott Meyers** 将 **auto** 的类型推导规则划分为了3种场景，并对每种场景依次介绍了其推导方式[1]：
-
-##### 场景1：声明的变量类型是引用或者指针，但不是转发引用
-
-在这种场景下，按照以下方式推导：
-
-1. 如果初始化表达式是引用类型，先忽略引用部分；
-2. 将初始化表达式的类型作为**auto**占位的类型。
-
-```c++
-int x = 27;
-const int cx = x;
-const int& rx = x;
- 
-auto& a = x;  // a被推导为int&
-auto& b = cx;  // b被推导为const int&
-auto& c = rx;  // c被推导为const int&
-```
-
-对变量 b 来说，其初始化表达式 cx 的类型是 const int，用 const int 替换 auto 占位符，得到 b 的类型是 const int&。
-
-对变量 c 来说，其初始化表达式 rx 的类型是 const int&，这时要先应用步骤1，把引用去掉，变为 const int，之后的推导和 b 一样。
-
-场景1还有一个变体：当声明的变量是 **const** 引用或指针时，推导过程大致相同，但是这个时候，初始化表达式的 **const** 属性不再需要作为 **auto** 占位符的一部分：
-
-```c++
-int x = 27;
-const int cx = x;
-const int& rx = x; 
-
-const auto& a = x;  // a被推导为const int&
-const auto& b = cx;  // b被推导为const int&
-const auto& c = rx;  // c被推导为const int&
-```
-
-这里的 b 和 c 在推导时，由于声明的类型已经带有 const，因此 auto 占位符只需要被替换为 int，得到 const int& 类型。
-
-##### 场景2：声明的变量类型是转发引用
-
-在这种场景下，变量类型的推导大体遵循以下规则：
-
-1. 如果初始化表达式的类型是左值，变量被推导为左值引用类型；
-2. 如果初始化表达式的类型是右值，推导方式同场景1。
+## 条件同时满足的写法
 
 ```C++
-int x = 27;
-const int cx = x;
-const int& rx = x;
+// a, b, c 同时为1时返回true；否则返回false
+// 写法1
+if (a && b && c) {
+	return true;
+}
 
-auto&& a = x;  // a被推导为int&
-auto&& b = cx;  // b被推导为const int&
-auto&& c = rx;  // c被推导为const int&
-auto&& d = 28;  // d被推导为int&&
+// 写法2
+if (!a) {
+	return false;
+}
+if (!b) {
+	return false;
+}
+if (!c) {
+	return false;
+}
+return true;
 ```
 
-注意转发引用的语法很像右值引用，很多同学会把 auto&& 误解为右值引用。但实际上从上面的例子可以看出，a、b、c 三个变量都不是右值引用，只有 d 因为初始化表达式是右值，所以成为了右值引用。
+这种好处是针对很长的条件判断，易读性较好。
 
-转发引用的推导背后还有引用折叠的原理，需要了解相关知识的，可以阅读《Effective Modern C++》的Item24~Item28。
 
-##### 场景3：声明的变量类型既不是引用也不是指针
 
-在这种场景下，按照以下方式推导：
+## 回调函数(callback)
 
-1. 如果初始化表达式是引用类型，忽略引用部分（和场景1一样）；
-2. 如果初始化表达式带有const或volatile属性，同样忽略。
+**一般来说**，只要参数是一个函数，那么这个函数就是回调。
 
-```C++
-int x = 27;
-const int cx = x;
-const int& rx = x;
- 
-auto a = x;  // a被推导为int
-auto b = cx;  // b被推导为int
-auto c = rx;  // c被推导为int
+很多初学者不明白 callback 的用法，因为 callback 有一点「反直觉」。
+
+比如说我们用代码做一件事情，分为两步：step1( ) 和 step2( )。
+
+符合人类直觉的代码是：
+
+```
+step1()
+step2()
 ```
 
-在这个场景下，推导出的类型不会是引用类型，它往往会导致非预期的拷贝（或者移动）。
+callback 的写法却是这样的：
 
-#### **decltype**
+```
+step1(step2)
+```
 
-**decltype** 的推导规则比**auto**要简单得多： 它几乎总是得到其内部表达式的原始类型。
+为什么要这样写？或者说在什么情况下应该用这个「反直觉」的写法？
 
-需要注意的是，**decltype** 并不对其内部的表达式真正求值（这和 **sizeof** 很像），因此 **decltype(Foo())** 不会真的去调用 **Foo()**，只是推导出 **Foo** 的返回值类型 **const A&**。
+一般（注意我说了一般），在 step1() 是一个异步任务的时候，就会使用 callback。
 
-```C++
-// decltype 应用场景：decltype 通常用于追踪返回类型『复合符号 -> decltype() 』
-// 某些库用 decltype 来实现完美转发
-template <typename T1, typename T2>
-auto sum(T1 &t1, T2 &t2) -> decltype(t1 + t2)
+
+
+## 位域的使用
+
+有些信息在存储时，并不需要占用一个完整的字节，而只需占几个或一个二进制位。例如在存放一个开关量时，只有 0 和 1 两种状态，用 1 位二进位即可。为了节省存储空间，并使处理简便，C 语言又提供了一种数据结构，称为"位域"或"位段"。
+
+所谓"位域"是把一个字节中的二进位划分为几个不同的区域，并说明每个区域的位数。每个域有一个域名，允许在程序中按域名进行操作。这样就可以把几个不同的对象用一个字节的二进制位域来表示。
+
+**典型的实例：**
+
+- 用 1 位二进位存放一个开关量时，只有 0 和 1 两种状态。
+- 读取外部文件格式——可以读取非标准的文件格式。例如：9 位的整数。
+
+
+
+**位域定义：** 
+
+位域定义与结构定义相仿，可采用先定义后说明，同时定义说明或者直接说明这三种方式。其形式为：
+
+```
+struct 位域结构名 
 {
-    return t1 + t2;
-}
-```
-
-### 3. Lambda 表达式
-
-C++11 的一大亮点就是引入了 Lambda 表达式。利用 Lambda 表达式，可以方便的定义和创建匿名函数。
-
-```c++
-// Lambda 表达式完整的声明格式如下：
-[capture list] (params list) mutable exception -> return type { function body }
-
-// 省略其中的某些成分来声明“不完整”的Lambda表达式,常见的有以下几种：
-[capture list] (params list) -> return type {function body} // 不能修改捕获列表中的值
-[capture list] (params list) {function body} // 省略了返回值类型，编译器推导（有 return 根据表达式来，无 return 为 viod）
-[capture list] {function body} // 省略了参数列表，类似普通函数中的无参函数
-```
-
-**各项具体含义如下** 
-
-1. capture list：捕获外部变量列表
-2. params list：形参列表
-3. mutable指示符：用来说用是否可以修改捕获的变量
-4. exception：异常设定
-5. return type：返回类型
-6. function body：函数体
-
-**捕获列表** 
-
-- []：默认**不捕获**任何变量；
-
-- [=]：默认**以值捕获**所有变量；
-
-- [&]：默认**以引用捕获**所有变量；
-
-- [x]：仅以值捕获x，其它变量不捕获，捕获多个变量用 "," 分隔；
-
-- [&x]：仅以引用捕获x，其它变量不捕获；
-
-- [=, &x]：默认以值捕获所有变量，但是x是例外，通过引用捕获；
-
-- [&, x]：默认以引用捕获所有变量，但是x是例外，通过值捕获；
-
-- [this]：通过引用捕获当前对象（其实是复制指针）；
-
-- [*this]：通过传值方式捕获当前对象；没有[&this]
-
-  > C++11/14/17/20 的捕获行为有差异
-
-**修改捕获变量** 
-在Lambda表达式中，如果以传值方式捕获外部变量，则函数体中不能修改该外部变量，否则会引发编译错误。那么有没有办法可以修改值捕获的外部变量呢？这是就需要使用mutable关键字，该关键字用以说明**表达式体内的代码可以修改值捕获的变量**。
-
-**Lambda 表达式的参数** 
-Lambda 表达式的参数和普通函数的参数类似，但有区别。在 **Lambda 表达式中传递参数限制**如下：
-
-1. 参数列表中不能有默认参数
-2. 不支持可变参数
-3. 所有参数必须有参数名
-
-
-
-### 4. 强类型枚举
-
-C++11 引入了语法为 `enum class` 的强类型枚举。 它们与整数类型不兼容，并且需要显式转换以获取其数值。 C++11 还引入了以 `enum name : type {}` 形式为弱类型枚举指定存储类的功能。 
-
-
-
-### 5. for_each
-
-
-
-
-
-### 6. 基于范围的 for 循环
-
-C++11 中引入了 for_each 循环的语言特性（自动确定循环范围），使用这个特性能够非常方便快捷的对**「普通数组 / STL 容器」**中的元素进行遍历，而不必再关心和计算他们的的界限。
-
-```C++
-int num[5] = {1, 2, 3, 4, 5};    
-for (auto x : num) {
-   cout << x << endl; 
-}
-```
-
-上面`for`述句的第一部分定义被用来做范围迭代的变量，就像被声明在一般for循环的变量一样，其作用域仅只于循环的范围。而在":"之后的第二区块，代表将被迭代的范围。
-
-这种for语句还可以用于**C型数组**，**初始化列表**，和任何定义了`begin()`和`end()`来回返**首尾迭代器的类型**。
-
-**基于范围for循环使用细节：** 
-
-```C++
-/*  1.基于范围的FOR循环的遍历是只读的遍历，除非将变量变量的类型声明为引用类型。 */
-std::vector<int> vec {1,2,3,4,5,6,7,8,9,10};
-for (auto& n :vec) {
-    n++; // vec 中每个元素自加1
-}
-
-/* 2.在遍历容器的时候，auto 自动推导的类型是容器的value_type类型，而不是迭代器，而 map 中的 value_type 是 std::pair，也就是说 val 的类型是 std::pair 类型的，因此需要使用 val.first,val.second 来访问数据。 */
-std::map<string, int>  map = { { "a", 1 }, { "b", 2 }, { "c", 3 } };
-for (auto &val : map) {
-    cout << val.first << "->" << val.second << endl;
-}
-
-/* 3.用基于范围的for循环迭代时修改容器会导致代码崩溃 */
-vector<int> vec = { 1, 2, 3, 4, 5, 6 };
-for (auto &n : vec) {
-    cout << n << endl;
-    vec.push_back(7);
-}
-
-/* 4.如果冒号后面的表达式是一个函数调用时，函数仅会被调用一次。 */
-set<int> ss = { 1, 2, 3, 4, 5, 6 };
-const set<int>& getSet() {
-	cout << "GetSet" << << ", ";
-	return ss;
-}
-for (auto &n : getSet()) {
-    cout << n << ", ";
-} // 输出为：GetSet， 1， 2， 3， 4， 5， 6，
-```
-
-> 1. 基于范围的for循环和普通的for循环一样，在遍历的过程中如果修改容器，会造成迭代器失效，（有关迭代器失效的问题请参阅C++ primer这本书，写的很详细）
-> 2. 注意：如果数组（集合）的大小（范围）在编译期间不能确定，那么不能够使用基于范围的 for 循环。
-
-
-
-### 7. static_assert
-
-C++11 中引入了 `static_assert` 这个关键字，用来做**编译期间的断言**，因此叫做静态断言。
-
-语法： `static_assert(常量表达式，提示字符串)`; 
-
-如果“常量表达式”的值为真( true 或者非零值)，那么 static_assert 不做任何事情，否则会产生一条编译错误，错误位置就是该 static_assert 语句所在行，错误提示就是“提示字符串”。
-
-static_assert 的特点：
-
-* 使用范围：可以用在全局作用域，命名空间、类或函数的作用域中
-
-* 常量表达式的结果必须是在编译时期可以计算的表达式，即必须是常量表达式
-
-* 可检查模板参数
-
-* 编译期间断言，不生成目标代码，不会产生任何运行期性能开销
-
-对于**常量表达式、模板参数的检查**建议使用静态断言 static_assert 。
-
-```c++
-// 使用静态断言检查类型的大小。
-static_assert(sizeof(int) == 4, "system is not supported.");
-
-// 使用静态断言检查模板参数。
-template <typename T>
-void swap(T& a, T& b)
-{
-    static_assert(std::is_copy_constructible<T>::value, "Swap requires copy");
-    static_assert(std::is_nothrow_copy_assignable<T>::value, "Swap requires nothrow assign");
-    static_assert(std::is_nothrow_copy_constructible<T>::value, "Swap requires nothrow copy");
-    auto c = b;
-    b = a;
-    a = c;
-}
-```
-
-> 在 C++20 开始引入 `concepts` ，相比 `static_assert` ，其功能上更强大，提供了很好的诊断功能。
-
-
-
-### 8. std::thread
-
-C++11 增加了线程以及线程相关的类, 而之前并没有对并发编程提供语言级别的支持。
-
-`std::thread 类` 
-
-使用 `std::thread` 类来创建线程, 我们需要提供的只是线程函数, 或者线程对象, 同时提供必要的参数。`std::thread` 表示单个执行的线程, 使用`thread` 类首先会构造一个线程对象, 然后开始执行线程函数。
-
-```C++
-#include <iostream>
-#include <thread> //需要包含的头
-
-using namespace std;
-
-void func(int a, double b)  //有参数, 参数数量不限
-{
-    cout << a << ' ' << b << endl;
-}
-
-void func2() //无参数
-{
-    cout << "hello!\n";
-}
-
-int main() 
-{
-    thread t1(func, 1, 2); //提供参数
-    thread t2(func2);
-
-    //可以使用 lambda表达式
-    thread t3([](int a, double b){cout << a << ' ' << b << endl;}, 3, 4);
-
-    cout << t1.get_id()  << "****" << endl;  //可以使用 get_id() 获取线程 id
-    t1.join();
-    t2.join();
-    t3.join();
-
-    return 0;
-}
-```
-
-**使用join()** 
-我们知道, 上例中如果主线程 (main) 先退出, 那些还未完成任务的线程将得不到执行机会, 因为 main 会在执行完调用 exit(), 然后整个进程就结束了, 那它的"子线程" (我们知道线程是平级的, 这里只是, 形象一点) 自然也就 over 了。
-所以就像上例中, 线程对象调用 join() 函数, **join() 会阻塞当前线程**, 直到线程函数执行结束, 如果线程有返回值, 会被忽略。
-
-**使用 detach()** 
-对比于 join(), 我们肯定有**不想阻塞当前线程的时候, 这时可以调用 detach(**), 这个函数会分离线程对象和线程函数, 让线程作为后台线程去执行, 当前线程也不会被阻塞了, 但是分离之后, 也不能再和线程发生联系了, 例如不能再调用 get_id() 来获取线程 id 了, 或者调用 join() 都是不行的, 同时也无法控制线程何时结束。程序终止后, 不会等待在后台执行的其余分离线程, 而是将他们挂起, 并且本地对象被破坏。
-
-**警惕作用域**  
-
-`std::thread` 出了作用域之后就会被析构, 这时如果线程函数还没有执行完就会发生错误, 因此, 要注意**保证线程函数的生命周期在线程变量之内**。
-
-**线程不能复制** 
-
-**`std::thread` 不能复制, 但是可以移动**
-也就是说, 不能对线程进行复制构造, 复制赋值, 但是可以移动构造, 移动赋值
-
-
-
-> 使用C++11进行多线程开发 (std::thread)：https://blog.csdn.net/weixin_36888577/article/details/82891531
-
-
-
-### 9. alignof alignas 说明符
-
-> [alignof 运算符(C++11 起)](https://zh.cppreference.com/w/cpp/language/alignof)
-
-查询类型的对齐要求。
-
-语法：
-
-```C++
-alignof(类型标识)		
-```
-
-[返回std::size_t](https://en.cppreference.com/w/cpp/types/size_t)类型的值。
-
-解释
-
-返回由[类型标识](https://zh.cppreference.com/w/cpp/language/type#.E7.B1.BB.E5.9E.8B.E7.9A.84.E5.91.BD.E5.90.8D)所指示的类型的任何实例所要求的[对齐](https://zh.cppreference.com/w/cpp/language/object#.E5.AF.B9.E9.BD.90)字节数，该类型可以是[完整](https://zh.cppreference.com/w/cpp/language/type#.E4.B8.8D.E5.AE.8C.E6.95.B4.E7.B1.BB.E5.9E.8B)对象类型、元素类型完整的数组类型或者到这些类型之一的引用类型。
-
-如果类型是引用类型，那么运算符返回*被引用*类型的对齐要求；如果类型是数组类型，那么返回元素类型的对齐要求。
-
-
-
-### 10.tuple
-
-
-
-
-
-> [alignas 说明符 (C++11 起)](https://www.apiref.com/cpp-zh/cpp/language/alignas.html)
->
-> [alignas用法](https://juejin.cn/s/alignas%E7%94%A8%E6%B3%95)
-
-`alignas` 是一个 C++11 中的关键字，用于指定变量、结构体、联合体、类等对象的对齐方式。它可以用来控制数据的内存对齐，以优化内存的访问速度。
-
-`alignas` 的使用方法如下：
-
-```scss
-scss
-复制代码alignas(n) type variable;
-```
-
-其中，`n` 是对齐要求的字节数，必须是 2 的幂次方，`type` 是变量的数据类型，`variable` 是变量名。
-
-`alignas` 的作用是让变量在内存中按照指定的对齐方式分配内存。例如：
-
-```scss
-scss复制代码alignas(16) int a; // 按照 16 字节对齐
-alignas(32) char b; // 按照 32 字节对齐
-```
-
-在这个例子中，变量 `a` 按照 16 字节对齐，变量 `b` 按照 32 字节对齐。
-
-需要注意的是，如果指定的对齐值比默认对齐值更小，则指定的对齐值会被忽略。例如：
-
-```c
-c复制代码struct alignas(4) A {
-  char c;
-  int i;
+ 位域列表
 };
 
-sizeof(A) // 结果为 8，而不是 6
+其中位域列表的形式为：
+type [member_name] : width ;
+
+struct packed_struct {
+    unsigned int f1:1;
+    unsigned int f2:1;
+    unsigned int f3:1;
+    unsigned int f4:1;
+    unsigned int type:4;
+    unsigned int my_int:9;
+};
+可以替换为：
+struct packed_struct {
+    unsigned int f1:1,
+                 f2:1,
+                 f3:1,
+                 f4:1,
+                 type:4;
+    unsigned int my_int:9;
+};
 ```
 
-在这个例子中，`A` 结构体的对齐方式为 4 字节，但是由于默认对齐值是 8 字节，所以实际上 `A` 结构体的大小是 8 字节。
-
-总之，`alignas` 可以用来控制数据的内存对齐方式，以优化内存访问速度。但是需要注意，如果指定的对齐值比默认对齐值更小，则指定的对齐值会被忽略。
 
 
+**对于位域的定义尚有以下几点说明：**
 
-## `C++ 14`
+- 一个位域存储在同一个字节中，如一个字节所剩空间不够存放另一位域时，则会从下一单元起存放该位域。也可以有意使某位域从下一单元开始。例如：
 
-### 1. std::make_unique<T>()
+  ```C++
+  struct bs{
+      unsigned a:4;
+      unsigned  :4;    /* 空域 */
+      unsigned b:4;    /* 从下一单元开始存放 */
+      unsigned c:4;
+  }; // 在这个位域定义中，a 占第一字节的 4 位，后 4 位填 0 表示不使用，b 从第二字节开始，占用 4 位，c 占用 4 位。
+  ```
 
-从 C++14 开始，有一个库函数 make_unique<T>() 可用于创建 unique_ptr 对象。该函数分配一个类型为 T 的对象，然后返回一个拥有该对象的独占指针。例如，来看下面的代码：
+- 位域的宽度不能超过**它所依附的**数据类型的长度，成员变量都是有类型的，这个类型限制了成员变量的最大长度，**:** 后面的数字不能超过这个长度。
 
-```c++
-unique_ptr<int> uptr(new int);	// 可以弃用此代码
-unique_ptr<int> uptr = make_unique<int>();	// 改为使用此代码
+- 位域可以是无名位域，这时它只用来作填充或调整位置。无名的位域是不能使用的。例如：
+
+  ```C++
+  struct k{
+      int a:1;
+      int  :2;    /* 该 2 位不能使用 */
+      int b:3;
+      int c:2;
+  };
+  ```
+
+从以上分析可以看出，位域在本质上就是一种结构类型，不过其成员是按二进位分配的。
+
+
+
+**位域的使用：**
+
+位域的使用和结构成员的使用相同，其一般形式为：
+
+```
+位域变量名.位域名
+位域变量名指针->位域名
 ```
 
+位域允许用各种格式输出。
+
+```C++
+int main(){
+    struct bs{
+        unsigned a:1;
+        unsigned b:3;
+        unsigned c:4;
+    } bit,*pbit;
+    bit.a=1;    /* 给位域赋值（应注意赋值不能超过该位域的允许范围） */
+    bit.b=7;    /* 给位域赋值（应注意赋值不能超过该位域的允许范围） */
+    bit.c=15;    /* 给位域赋值（应注意赋值不能超过该位域的允许范围） */
+    printf("%d,%d,%d\n",bit.a,bit.b,bit.c);    /* 以整型量格式输出三个域的内容 */
+    pbit=&bit;    /* 把位域变量 bit 的地址送给指针变量 pbit */
+    pbit->a=0;    /* 用指针方式给位域 a 重新赋值，赋为 0 */
+    pbit->b&=3;    /* 使用了复合的位运算符 "&="，相当于：pbit->b=pbit->b&3，位域 b 中原有值为 7，与 3 作按位与运算的结果为 3（111&011=011，十进制值为 3） */
+    pbit->c|=1;    /* 使用了复合位运算符"|="，相当于：pbit->c=pbit->c|1，其结果为 15 */
+    printf("%d,%d,%d\n",pbit->a,pbit->b,pbit->c);    /* 用指针方式输出了这三个域的值 */
+}
+```
+
+位域结构体中的变量不能取地址。
+
+有符号数在机器中是以**补码**的形式存在的，其正负的判断有其规则。位域是以**原码**的形式来进行操作的，这中间有差异。而关于位域的正负数判断，也不是简单的首bit的0或1来决定，否则上面的结果就应该是-1 -2 -3或者1 2 3了。位域的实现，是编译器相关的。**建议是，使用位域不要使用正负这样的特性**——理论上来说，应该只关注定义的那几个bit的0或者1，是无符号的。可以使用无符号类型来定义位域，这样不会产生正负号这样的问题。
 
 
 
+**存储说明：** 
 
-## `C++ 17`
+类可以将其（非静态）数据成员定义为位域（bit-field），在一个位域中含有一定数量的二进制位。当一个程序需要向其他程序或硬件设备传递二进制数据时，通常会用到位域。
 
-> [std::optional](https://zh.cppreference.com/w/cpp/utility/optional)
+位域在内存中的布局是与机器有关的
+
+位域的类型必须是整型或枚举类型，带符号类型中的位域的行为将因具体实现而定
+
+取地址运算符（&）不能作用于位域，任何指针都无法指向类的位域
+
+
+
+无论小端还是大端，先定义的位域占据低bit地址。
+
+我们常用的x86结构是小端模式，而KEIL C51则为大端模式。 很多的ARM，DSP都为小端模式。 有些ARM处理器还可以由硬件来选择是大端模式还是小端模式。
+
+
+
+**非const引用不应绑定到位域字段，**
+
+由于指针不能指向位字段,因此非const引用不能绑定到位字段.
+
+非常量引用不能绑定(bind)到位域，原因与指针不能指向位域的原因相同。
+
+虽然没有指定引用是否占用存储空间，但很明显，在非平凡的情况下，它们被实现为伪装的指针，并且引用的这种实现是语言作者“有意”的。就像指针一样，引用必须指向一个可寻址的存储单元。不可能将非常量引用绑定(bind)到不可寻址的存储单元。由于非常量引用需要直接绑定(bind)，因此非常量引用不能绑定(bind)到位域。
+
+产生可以指向位域的指针/引用的唯一方法是实现某种“ super 指针”，除了存储中的实际地址外，还包含某种位偏移量和位宽信息，以便告诉编写代码要修改哪些位。请注意，此附加信息必须存在于所有数据指针类型中，因为 C++ 中没有“位域指针/引用”这样的类型。这基本上等同于实现更高级别的存储寻址模型，与底层操作系统/硬件平台提供的寻址模型完全分离。出于纯粹的效率考虑，C++ 语言从未打算要求对底层平台进行这种抽象。
+
+一种可行的方法是引入一个单独的指针/引用类别，例如“位域的指针/引用”，它具有比普通数据指针/引用更复杂的内部结构。这样的类型可以从普通的数据指针/引用类型转换，但反过来不行。但这似乎并不值得。
+
+在实际情况下，当我必须处理打包成位和位序列的数据时，我通常更喜欢手动实现位域并避免语言级别的位域。位域的名称是一个编译时实体，不可能进行任何类型的运行时选择。当需要运行时选择时，更好的方法是声明一个普通的 `uint32_t`数据字段并手动管理其中的单个位和位组。这种手动“位域”的运行时选择很容易通过掩码和移位(两者都可以是运行时值)实现。基本上，这接近于上述“ super 指针”的手动实现。
+
+
+
+> 参考资料
 >
-> [C++语法糖(std::optional)详解以及示例代码](https://zhuanlan.zhihu.com/p/627806230)
->
-> [C++17之std::optional全方位详解](https://blog.csdn.net/hhdshg/article/details/103433781)
+> C 位域：https://www.runoob.com/cprogramming/c-bit-fields.html
 >
 > 
 
-### 1. std::optional
 
-类模板 `std::optional` 管理一个*可选* ﻿的所含值，即**既可以存在也可以不存在的值**。
 
-一种常见的 `optional` 使用情况是作为可能失败的函数的返回值。与如 [std::pair](http://zh.cppreference.com/w/cpp/utility/pair)<T, bool> 等其他手段相比，`optional` 可以很好地处理构造开销高昂的对象，并更加可读，因为它明确表达了意图。
+## protected访问权限
 
-当一个 `optional<T>` 类型的对象被[按语境转换到 bool](https://zh.cppreference.com/w/cpp/language/implicit_conversion) 时，若对象*含值* ﻿则转换返回 true，若它*不含值*" ﻿则返回 false。
+> Java 包(package)
+>
+> 为了更好地组织类，Java 提供了包机制，用于区别类名的命名空间。
+>
+> 包的作用
+>
+> - 1、把功能相似或相关的类或接口组织在同一个包中，方便类的查找和使用。
+> - 2、如同文件夹一样，包也采用了树形目录的存储方式。同一个包中的类名字是不同的，不同的包中的类的名字是可以相同的，当同时调用两个不同包中相同类名的类时，应该加上包名加以区别。因此，包可以避免名字冲突。
+> - 3、包也限定了访问权限，拥有包访问权限的类才能访问某个包中的类。
+>
+> Java 使用包（package）这种机制是为了防止命名冲突，访问控制，提供搜索和定位类（class）、接口、枚举（enumerations）和注释（annotation）等。
+
+
+
+当父类与子类位于同一包中时，不管是子类对象还是父类对象都可以访问protected，但是它们的意义是不一样的；对于子类对象，之所以可以访问是因为：子类从父类继承了protected成员，理所当然可以访问；父类对象（在子类中创建的）之所以可以访问是因为protected提供了包访问极限！
+
+
+  当父类与子类位于不同包中时，protected成员就只能通过子类对象来访问（因为protected对于子类是可见的），而父类对象不再可以访问！不过，可以访问static 成员（因为protected的包访问极限已失去作用）
+
+### 公有（public）、私有（private）和保护（protected）成员
+
+* 公有成员：类内和类外都可访问。
+* 私有成员：类内可访问，类外不可访问。友元可访问。什么是友元，下面会介绍。
+* 保护成员：不涉及继承，和私有成员没什么区别。涉及继承，保护成员在派生类（即子类）中是可访问的。 private 成员只能被本类成员（类内）和友元访问，不能被派生类访问；
+
+> [C++ protected继承和private继承是不是没用的废物？](https://www.zhihu.com/question/425852397/answer/1528656579) 
+
+
+
+## inline函数
+
+内联函数：告知编译器在进行有内联标识的函数调用时将函数体部分在调用处展开。这样做可以消除函数传参（堆栈调用）的负担，提高了函数的调用效率。
+
+而且inlining的函数并不存在，因为已经被展开了。
+
+
+如果需要定义一个内联函数，需要在函数体定义的地方使用inline关键字标识，写在函数声明处是没有意义的。原因是一个函数要inline，编译器必须见过它的实现，否则编译器无米之炊无法inline。
 
 ```C++
-#include <iostream>
-#include <optional>
-
-std::optional<int> divide(int a, int b) {
-    if (b == 0) {
-        return std::nullopt;
-    } else {
-        return a / b;
-    }
+int func(int);  //函数声明
+ 
+inline int func(int a)  //函数定义
+{ 
+    return ++a;
 }
+```
 
-int main() {
-    auto result1 = divide(10, 2);
-    if (result1.has_value()) {
-        std::cout << "Result 1: " << result1.value() << std::endl;
-    } else {
-        std::cout << "Result 1: division by zero" << std::endl;
-    }
-    
-    auto result2 = divide(10, 0);
-    if (result2.has_value()) {
-        std::cout << "Result 2: " << result2.value() << std::endl;
-    } else {
-        std::cout << "Result 2: division by zero" << std::endl;
-    }
-    
+1. 在C++类的实现过程中，如果想要将成员函数设置成inline内联函数的话，需要在类的头文件.h中定义这个函数，不能在相应的.cpp文件中定义。
+2. 在类内部定义的成员函数默认设置成内联函数。
+3. inline内联关键字只是给编译器一个建议，有些函数即使有inline标识，也不会被设置成内联函数。
+4. 有些函数即使没有inline标识，编译器在优化时也有可能将这个函数作为内联函数来处理。
+
+## 整数的位操作：按位与&、或|、异或^、取反~
+
+**机器数：**一个数在计算机中的二进制表示形式, 叫做这个数的机器数。**机器数是带符号的**，在计算机用一个数的最高位存放符号, 正数为0, 负数为1。比如，十进制中的数 +3 ，计算机字长为8位，转换成二进制就是00000011。如果是 -3 ，就是 10000011 。这里的 00000011 和 10000011 就是机器数。
+
+**真值：**因为第一位是符号位，所以机器数的形式值就不等于真正的数值。例如上面的有符号数 10000011，其最高位1代表负，其真正数值是 -3 而不是形式值131（10000011转换成十进制等于131）。所以，为区别起见，将**带符号位的机器数对应的真正数值称为机器数的真值**。例：0000 0001的真值 = +000 0001 = +1，1000 0001的真值 = –000 0001 = –1
+
+正数：原码 = 反码 = 补码
+
+负数：原码、反码为原码除符号为按位取反、补码为反码加1
+
+整数在计算机中是**以补码的方式存储**。
+
+这些操作都是按**补码**来操作的，输出为8进制或16进制时也是输出的补码，输出为10进制时才转换为机器数真值。
+
+```C++
+// -88&100 负数参与按位且，分析步骤
+     1111 1111 1010 1000 // -88补码
+    &0000 0000 0110 0100 // 100补码
+     -------------------
+     0000 0000 0010 0000 // 转成十进制结果为：32， 即-88&100 = 32
+```
+
+## 结构体初始化的四种方法
+
+### 定义
+```c++
+struct InitMember
+{
+    int first；
+    double second；
+    char* third；
+    float four;
+};
+```
+
+
+### 方法一：定义时赋值
+```c++
+struct InitMember test = {-10,3.141590，"method one"，0.25}；
+```
+
+需要注意对应的顺序，不能错位。
+
+### 方法二：定义后逐个赋值
+
+```c++
+struct InitMember test；
+
+test.first = -10;
+test.second = 3.141590;
+test.third = "method two";
+test.four = 0.25;
+
+```
+
+因为是逐个确定的赋值，无所谓顺序啦。
+
+### 方法三：定义时乱序赋值（C风格）
+
+这种方法类似于第一种方法和第二种方法的结合体，既能初始化时赋值，也可以不考虑顺序；
+
+```c++
+struct InitMember test = {
+    .second = 3.141590,
+    .third = "method three",
+    .first = -10,
+    .four = 0.25
+};
+```
+
+这种方法在Linux内核（kernel）中经常使用，在音视频编解码库FFmpeg中也大量频繁使用，还是很不错的一种方式。
+
+### 方法四：定义时乱序赋值（C++风格）
+
+这种方法和前一种类似，网上称之为C++风格，类似于key-value键值对的方式，同样不考虑顺序。
+
+```c++
+struct InitMember test = {
+    second：3.141590,
+    third："method three",
+    first：-10,
+    four：0.25
+};
+```
+
+## __builtin_expect 说明
+
+### 引言
+
+> 这个指令是 gcc 引入的，作用是**允许程序员将最有可能执行的分支告诉编译器**。这个指令的写法为：`__builtin_expect(EXP, N)`。
+> 意思是：EXP==N 的概率很大。
+
+一般的使用方法是将`__builtin_expect`指令封装为`likely`和`unlikely`宏。这两个宏的写法如下.
+
+```c++
+#define likely(x) __builtin_expect(!!(x), 1) //x很可能为真       
+#define unlikely(x) __builtin_expect(!!(x), 0) //x很可能为假
+```
+
+`!!(x)` 的作用是把(x)转变成"布尔值"：无论(x)的值是多少，`!(x)` 得到的是 `true` 或 `false`, `!!(x)` 就得到了原值的"布尔值"。
+
+### 内核中的 likely() 与 unlikely()
+
+首先要明确：
+
+```c++
+if(likely(value))  //等价于 if(value)
+if(unlikely(value))  //也等价于 if(value)
+```
+
+`__builtin_expect()` 是 GCC (version >= 2.96）提供给程序员使用的，目的是将“分支转移”的信息提供给编译器，这样编译器可以对代码进行优化，以减少指令跳转带来的性能下降。
+ `__builtin_expect((x),1)` 表示 x 的值为真的可能性更大；
+ `__builtin_expect((x),0)` 表示 x 的值为假的可能性更大。
+ 也就是说，使用`likely()`，执行 if 后面的语句的机会更大，使用 `unlikely()`，执行 else 后面的语句的机会更大。通过这种方式，编译器在编译过程中，会将可能性更大的代码紧跟着起面的代码，从而减少指令跳转带来的性能上的下降。
+
+### 例子
+
+```c++
+int x, y;
+ if(unlikely(x > 0))
+    y = 1; 
+else 
+    y = -1;
+```
+
+上面的代码中 gcc 编译的指令会预先读取 y = -1 这条指令，这适合 x 的值大于 0 的概率比较小的情况。如果 x 的值在大部分情况下是大于 0 的，就应该用 likely(x > 0)，这样编译出的指令是预先读取 y = 1 这条指令了。这样系统在运行时就会减少重新取指了。
+
+## C/C++中 `#` 和 `##` 的用法
+
+C/C++ 宏定义中的 # 的用法分为两种：`#` 和 `##`
+
+==**`#` 表示将宏定义中的参数变成字符串**==
+
+==**`##` 表示将宏定义中的参数变成字符串连在一起**==
+
+```c++
+#include <iostream>
+
+#define STR(a)       #a
+#define FUNC(a, b)   a##b
+ 
+int main()
+{
+    using namespace std;
+ 
+    int a = 1, b = 2;
+    string ab("Hello");
+ 
+    cout << STR(a) << endl;
+    cout << FUNC(a, b) << endl;
+ 
+    return 0;
+} 
+```
+
+> 输出：
+>
+> a
+> Hello
+>
+> 解释：
+>
+> \#a：将 a 转为了字符串，所以输出的不是 1，而是 a
+>
+> a##b：将输入的参数 a、b 连接为字符串 ab，而变量 ab 为字符串类型，值为 Hello，所以输出的是 Hello
+
+==**需要注意的是有 # 或者 ## 的地方，不会将参数展开了**==，例如：
+
+```c++
+#include <iostream>
+ 
+#define PI           3.14
+#define STR(a)       #a
+#define F(t,f)       t##f
+ 
+int main()
+{
+    using namespace std;
+ 
+    int P = 5, I = 6;
+    cout << STR(PI) << endl;
+    cout << F(5, 6) << endl;
+    cout << F(P, I) << endl;
+ 
     return 0;
 }
 ```
 
-如果分母为零，则返回一个std::nullopt，表示结果不存在。否则，返回一个包含除法结果的std::optional<int>类型的对象。
+> 输出：
+>
+> PI
+> 56
+> 3.14
+>
+> 解释：
+>
+> 没有将 PI 解释，直接将 PI 转为字符串了
+>
+> 56 输出正常与下面的输出对比，P 和 I 没有转义，而是直接输出 PI，因为 PI 为 3.14，所以输出的是 3.14
 
+**解决方法：加一层中间转换层**
 
-
-### 2. [[maybe_unused]]
-
-提示编译器修饰的内容可能暂时没有使用，避免产生警告。
-
-这个属性可以出现在以下实体的声明中。
-
-- [class / struct / union](https://runebook.dev/zh-CN/docs/cpp/language/classes)： `struct [[maybe_unused]] S;` ，
-- [typedef](https://runebook.dev/zh-CN/docs/cpp/language/typedef)，包括[别名声明](https://runebook.dev/zh-CN/docs/cpp/language/type_alias)所声明的那些： `[[maybe_unused]] typedef S* PS;` ， `using PS [[maybe_unused]] = S*;` ，
-- 变量，包括[静态数据成员](https://runebook.dev/zh-CN/docs/cpp/language/static)： `[[maybe_unused]] int x;` ，
-- [非静态数据成员](https://runebook.dev/zh-CN/docs/cpp/language/data_members)： `union U { [[maybe_unused]] int n; };` ，
-- [函数](https://runebook.dev/zh-CN/docs/cpp/language/function)： `[[maybe_unused]] void f();` ，
-- [枚举](https://runebook.dev/zh-CN/docs/cpp/language/enum)： `enum [[maybe_unused]] E {};` ，
-- 枚举器： `enum { A [[maybe_unused]], B [[maybe_unused]] = 42 };` 。
-
-如果编译器对未使用的实体发出警告,那么对于任何被声明为maybe_unused的实体,该警告将被抑制。
-
-```C++
-[[maybe_unused]] void f([[maybe_unused]] bool thing1,
-                        [[maybe_unused]] bool thing2)
+```c++
+#include <iostream>
+ 
+#define PI           3.14
+ 
+#define _STR(a)      #a
+#define STR(a)       _STR(a)
+ 
+#define _F(t,f)       t##f
+#define F(t,f)       _F(t,f)
+ 
+int main()
 {
-   [[maybe_unused]] bool b = thing1 && thing2;
-   assert(b); // in release mode, assert is compiled out, and b is unused
-              // no warning because it is declared [[maybe_unused]]
-} // parameters thing1 and thing2 are not used, no warning
+    using namespace std;
+ 
+    int P = 5, I = 6;
+    cout << STR(PI) << endl;
+    cout << F(5, 6) << endl;
+    cout << F(P, I) << endl;
+ 
+    return 0;
+}
 ```
 
+> 输出：
+>
+> 3.14
+> 56
+> 3.14
+
+[C/C++语言中的#和##的作用](https://blog.csdn.net/michaelhit/article/details/82853634?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0-82853634-blog-44133701.pc_relevant_multi_platform_whitelistv2&spm=1001.2101.3001.4242.1&utm_relevant_index=1)
+
+[c语言中的#号和##号的作用](https://blog.csdn.net/zxx2096/article/details/81206935?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-2-81206935-blog-82853634.pc_relevant_multi_platform_whitelistv2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-2-81206935-blog-82853634.pc_relevant_multi_platform_whitelistv2&utm_relevant_index=3)
+
+## struct 和 union 内存对齐
+
+计算规则
+
+首先需要介绍**有效对齐值**：每个平台上的编译器都有默认对齐系数 n,可以通过 `#pragma pack(n)` 来指定。有效对齐值就等与该对齐系数和结构体中最长的数据类型的长度两者最小的那一个值，即 `min(有效对齐值, 结构体中最长的数据类型的长度)` 比如对齐系数是8,而结构体中最长的是int,4个字节,那么有效对齐值为4。
 
 
-许多 C/C++ 编译器能帮我们找出「未使用变量」，并产生警告信息，然而，在一些情況下，这些「未使用变量」并不是真的沒用。举例来说，有時候使用这些变量的代码被 `#ifdef` 与 `#endif` 包起來，在特定状态下才会发生作用。例如：
+
+内存对齐：
+
+　　在 32 位系统下，gcc 的对齐方式为 1,2,4，默认为 4 字节对齐。 
+　　在 64 为系统下，gcc 的对齐方式为 1,2,4,8，默认为 8 字节对齐
+
+
+
+\#pragma pack （）是用来控制[字节对齐](https://so.csdn.net/so/search?q=字节对齐&spm=1001.2101.3001.7020)的，一般头文件中没有的话是默认值，即以结构体中的最大元素所占字节对齐；
+
+若存在多个#pragma pack (n),遵从向上对齐原则，即某个结构体定义上方最近的一个#pragma pack（）
+
+
+
+## C++函数参数为指针
+
+1. 函数入参为 `**`， 通过这种调用可以修改指针对象值。
+
+```c++
+void my_malloc(void** p, int size)  
+{  
+    *p = malloc(sizeof(int)*size);
+}
+int main（）
+{
+    int *a;
+    my_malloc(&a ， 10);
+    return 1;
+}
+```
+
+2. 函数参数中 `*&` 和 `**&` 符合分别代表什么呢？例如：
 
 ```C++
-#include <iostream>
+int *&p;
+int **&p;
+// 其实这两个*& 和 **&是表示引用，*&表示指针的引用，**&表示指针的指针的引用。
+```
 
-int test(int a, int b, int c) {
-    int result = a + b;
+举例：修改调用函数中的x和y，会直接影响到主函数中的a和b的值。因为他们是引用关系。
 
-#ifdef ENABLE_FEATURE_C
-    result += c;
-#endif
-    return result;
+```c++
+void foo(int*& x, int**& y) {
+    // modifying x or y here will modify a or b in main
 }
 
 int main() {
-    std::cout << test(1, 2, 3) << std::endl;
+    int val = 42;
+    int *a  = &val;
+    int **b = &a;
+
+	foo(a, b);
+	return 0;
 }
 ```
+3. 指针传值和指针传引用的区别：
 
-编译后会产生警告信息。
+```c++
+/* 再说一点和标题不想关的，还是上篇文章提到的问题，这里再给个实例： */
+void pass_by_value(int* p)
+{
+    //Allocate memory for int and store the address in p
+    p = new int;
+}
 
-如果想要关闭警告信息，我们能加上 `[[maybe_unused]]` 属性：
+void pass_by_reference(int*& p)
+{
+    p = new int;
+}
+
+int main()
+{
+    int* p1 = NULL;
+    int* p2 = NULL;
+
+pass_by_value(p1); //p1 will still be NULL after this call
+pass_by_reference(p2); //p2 's value is changed to point to the newly allocate memory
+ 
+return 0;
+```
+
+
+
+## typedef 使用
+
+在编程中使用typedef目的一般有两个，一个是给变量一个易记且意义明确的新名字，另一个是简化一些比较复杂的类型声明。
+
+### 用途1
+
+定义一种类型的别名，==而不只是简单的宏替换==。可以用作同时声明指针型的多个对象。
 
 ```C++
-int test(int a, int b, [[maybe_unused]] int c) {  // Modified
+typedef char* PCHAR; // 一般用大写
+PCHAR pa, pb; // 可行，同时声明了两个指向字符变量的指针
+char *pa, *pb; // 也可行，但相对来说没有用typedef的形式直观，尤其在需要大量指针的地方，typedef的方式更省事。
+
+typedef char TA[5];//定义数组类型
+typedef char *TB[5];//定义指针数组类型,PA定义的变量为含5个char*指针元素的数组(指针数组类型)
+typedef char *(TC[5]);//指针数组类型，因为[]的结合优先级最高，所以加不加()没啥区别，TC等价于TB
+typedef char (*TD)[5];//数组指针类型
 ```
 
-
-
-> [C++ 17 fallthrough、nodiscard、maybe_unused 屬性](https://zh-blog.logan.tw/2020/07/19/cxx-17-fallthrough-nodiscard-maybe-unused-attribute/) 
-
-
-
-### 3.标准库头文件 <memory_resource>
-
-> [C++17 的 多态内存分配器 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/359409607)
->
-> [标准库头文件  - C++中文 - API参考文档 (apiref.com)](https://www.apiref.com/cpp-zh/cpp/header/memory_resource.html)
-
-C++ 17 引入了一系列新的内存管理工具, 定义在 header `<memory_resources>` 之中. 其中的东西都在 namespace `std::pmr` 下. pmr 的意思是 polymorphic memory resources.多态的内存分配器。
-
-```c++
-class memory_resource; 
-
-template<class Tp> class polymorphic_allocator; // Tp 是需要被分配的类型
-
-memory_resource* new_delete_resource() noexcept; 
-memory_resource* null_memory_resource() noexcept; 
-memory_resource* set_default_resource(memory_resource* r) noexcept; 
-memory_resource* get_default_resource() noexcept; 
-
-struct pool_options; 
-class synchronized_pool_resource; 
-class unsynchronized_pool_resource; 
-class monotonic_buffer_resource;
-```
-
-简单描述一下是做什么的.
-
-1. `memory_resource` 是一个抽象类, 定义了各种接口. 你可以在上面 `allocate` 和 `deallocate`. 可以理解成资源池子, 需要的时候问它要一块资源.
-2. 而 `synchronized_pool_resource` , `unsynchronized_pool_resource` , `monotonic_buffer_resource` 就继承了上面这个抽象类, 是三种不同的内存资源.
-3. `polymorphic_allocator` 是一个分配器. 可以在指定的内存资源上进行分配. 如果没有给出指定的资源, 那么就会用 `get_default_resource()` 得到一个默认资源.
-4. `new_delete_resource()` 会返回一个使用全局 `new` 和全局 `delete` 的 `memory resource*`.
-5. `null_memory_resource()` 会返回一个啥也不干的 `memory resource*`.
-
-所以 PMR 使用起来很简单, 创建一个 `memory_resource` , 然后用 `polymorphic_allocator` 在上面进行分配就行了.
-
-
-
-
-
-## `C++ 20`
-
-
-
-
-
-
-
-
-
-## 开发准则支持库(GSL)
-
-(GSL:Guidelines support library)
-
-C++ 的语法特性实在是太多了，因此实践过程中许多人只选择了 C++ 的一部分语言特性进行开发，从而约定了最佳实践（用什么、怎么用、要不要用）。其中一个著名的规范就是CCG （C++ Core Guidelines）。为了在开发过程中更好地遵守 CCG 的最佳实践，可以使用 GSL（The Guideline Support Library） 库。
-
-Philosophy.4: Ideally, a program should be statically type safe
-
-- narrowing conversions – minimize their use and use `narrow` or `narrow_cast` (from the GSL) where they are necessary
-
-```c++
-int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
-```
-
-在转化的类型可以容纳时，narrow_cast可以正常运行，如果narrow_cast转化后的值与原值不同时，会抛出runtime_error的异常。
-
-
-
-
-
-
-
-
-
-
-
-# 零碎知识
-
-## 1. 整形提升和寻常算数转换
-
-**整型提升**：
-
-整型提升是 C 程序设计语言中的一项规定：在**表达式计算**时，各种整形首先要提升为 int 类型，如果 int 类型不足以表示则要提升为 unsigned int 类型；然后执行表达式的运算。
-
-一些数据类型（比如char，short int）比int占用更少的字节数，对它们执行操作时，这些数据类型会自动提升为int或unsigned int。
-
-**寻常算术转换**：
-
-许多操作数类型为算术类型的双目运算符会引发转换，并以类似的方式产生结果类型。它的目的的产生一个普通类型，同时也是运算结果的类型。这个模式成为“寻常算术转换”。
-
- 如果其中一个操作数类型是long double，那么另一个操作数也被转换为long double。其次如果一个操作数的类型是double，那么另一个操作数也被转换为double，再次，如果其中一个操作数的类型是float，那么另一个操作数也被转换为float。否则两个操作数进行整形升级，执行下面的规则：
-
-如果其中一个操作数的类型是unsigned long int，那么另一个操作数也被转换成unsigned long int。其次，如果其中一个操作数类型是long int，而另一个操作数的类型是unsigned int，如果long int能够完整表示unsigned int的所有值，那么unsigned int 类型操作数操作数被转换为long int，如果long int 不能完整表示unsigned int的所有值，那么两个操作数都被转换为unsigned long int。再次，如果一个操作数的类型是long int，那么另一个操作数被转换为long int。再再次，如果一个操作数的类型是是unsigned int，那么另一个操作数被转换为unsigned int。如果所有以上情况都不属于，那么两个操作数都为int。
-
-采用通俗语言大意如下：**当执行算术运算时，操作数的类型如果不同，就会发生转换。数据类型一般朝着浮点精度更高、长度更长的方向转换，整型数如果转换为signed不会丢失信息，就转换为signed，否则转换为unsigned**。
-
-整型提升的意义在于：表达式的整型运算要在 CPU 的相应运算器件内执行，CPU 内整型运算器(ALU)的操作数的字节长度一般就是 int 的字节长度，同时也是 CPU 的通用寄存器的长度。因此，即使两个 char 类型的相加，在 CPU 执行时实际上也要先转换为 CPU 内整型操作数的标准长度。通用 CPU（general-purpose CPU）是难以直接实现两个8比特字节直接相加运算（虽然机器指令中可能有这种字节相加指令）。所以，表达式中各种长度可能小于 int 长度的整型值，都必须先转换为 int 或 unsigned int，然后才能送入 CPU 去执行运算。
-
-例如：对精度低于int类型的无符号整数进行**位运算**时，编译器会进行整数提升，再对提升后的整数进行位运算，因此要特别注意对于这类无符号整数的位运算，避免出现非预期的结果。
-
-## 2. 命名空间
-
-命名空间(namespace)为防止名字冲突提供了更加可控的机制。命名空间分割了全局命名空间，其中每个命名空间是一个作用域。通过在某个命名空间中定义库的名字，库的作者以及用户可以避免全局名字固有的限制。
-
-命名空间定义：一个命名空间的定义包含两部分：首先是关键字 namespace，随后是命名空间的名字。在命名空间名字后面是一系列由花括号括起来的声明和定义。**只要能出现在全局作用域中的声明就能置于命名空间内**，主要包括：**类、变量(及其初始化操作)、函数(及其定义)、模板和其它命名空间**。命名空间结束后无须分号，这一点与块类似。和其它名字一样，**命名空间的名字也必须在定义它的作用域内保持唯一**。**命名空间既可以定义在全局作用域内，也可以定义在其它命名空间中，但是不能定义在函数或类的内部**。命名空间作用域后面无须分号。
-
-* **每个命名空间都是一个作用域**：命名空间中的每个名字都必须表示该空间内的唯一实体。定义在某个命名空间中的名字可以被该命名**空间内的其它成员直接访问**，也可以被这些成员**内嵌作用域中的任何单位访问**。位于该**命名空间之外**的代码则必须**明确指出**所用的名字属于哪个命名空间。
-* **命名空间可以是不连续的**：直观理解是：同一个命名空间出现在多个文件中，但他们仍组成一个命名空间。命名空间可以定义在几个不同的部分，这一点与其它作用域不太一样。命名空间的定义可以不连续的特性使得我们可以**将几个独立的接口和实现文件组成一个命名空间**。此时，命名空间的组织方式类似于我们管理自定义类及函数的方式：命名空间的一部分成员的作用是定义类，以及声明作为类接口的函数及对象，则这些成员应该置于头文件中，这些头文件将被包含在使用了这些成员的文件中。命名空间成员的定义部分则置于另外的源文件中。
-
-* **内联命名空间**：C++11新标准引入了一种新的嵌套命名空间，称为内联命名空间(inline namespace)。和普通的嵌套命名空间不同，**内联命名空间中的名字可以被外层命名空间直接使用**。也就是说，我们无须在内联命名空间的名字前添加表示该命名空间的前缀，通过外层命名空间的名字就可以直接访问它。定义内联命名空间的方式是在关键字namespace前添加关键字inline。关键字inline必须出现在命名空间第一次定义的地方，后续再打开命名空间的时候可以写inline，也可以不写。当应用程序的代码在一次发布和另一次发布之间发生了改变时，常常会用到内联命名空间。
-* **未命名的命名空间**(unnamed namespace)：是指关键字namespace后紧跟花括号括起来的一系列声明语句。未命名的命名空间中定义的变量拥有静态生命周期：它们在第一次使用前创建，并且直到程序结束才销毁。
-* **using声明**：一条using声明(usingdeclaration)语句一次只引入命名空间的一个成员。它使得我们可以清楚地知道程序中所用的到底是哪个名字。
-* **using指示**(usingdirective)：和using声明类似的地方是，我们可以使用命名空间名字的简写形式；和using声明不同的地方是，我们无法控制哪些名字是可见的，因为所有名字都是可见的。using指示以关键字using开始，后面是关键字namespace以及命名空间的名字。
-* **避免using指示**：using指示一次性注入某个命名空间的所有名字，这种用法看似简单实则充满了风险：只使用一条语句就突然将命名空间中所有成员的名字变得可见了。如果应用程序使用了多个不同的库，而这些库中的名字通过using指示变得可见，则全局命名空间污染的问题将重新出现。
-
-> [C++/C++11中命名空间(namespace)的使用](https://www.huaweicloud.com/articles/12620834.html) 
-
-## 3. 初始化方式
-
-#### 就地初始化
-
-在 C++11 之前，只能对**结构体或类的静态常量成员**进行就地初始化，其他的不行。
-
-```c++
-class C {
-private:
-	static const int a=10;	// yes
-	int a=10;				// no
-}
-```
-
-在 C++11 中，**结构体或类的数据成员**在声明时**可以直接赋予一个默认值**，初始化的方式有两种：“等号=” 和 “大括号列表初始化”。
-
-```c++
-class C {
-private:  
-    int a=7; 	// C++11 only
-    int b{7};	// or int b={7}; C++11 only
-    int c(7);	// error，小括号初始化方式不能用于就地初始化。
+### 用途2
+
+用在旧的C的代码中（具体多旧没有查），声明struct新对象时，必须要带上struct，即形式为： `struct 结构名 对象名`，使用 typedef 可以少写一个 struct。如：
+
+```C++
+struct tagPOINT1  
+{  
+    int x;  
+    int y;  
 };  
+struct tagPOINT1 p1; 
+
+typedef struct tagPOINT  
+{  
+    int x;  
+    int y;  
+}POINT;  
+POINT p1; // 这样就比原来的方式少写了一个struct，比较省事，尤其在大量使用的时候 
 ```
 
-#### 就地初始化与初始化列表的先后顺序
+而在C++中，在C++中，typedef的这种用途二不是很大，因为 C++ 中可以直接写：`结构名 对象名`，即：
 
-C++11 支持了就地初始化非静态数据成员的同时，初始化列表的方式也被保留下来，也就是说既可以使用就地初始化，也可以使用初始化列表来完成数据成员的初始化工作。当二者同时使用时并不冲突，**初始化列表发生在就地初始化之后**，即最终的初始化结果以初始化列表为准。
+```c++
+tagPOINT1 p1;
+```
 
+### 用途3
 
+用typedef来定义与平台无关的类型。当跨平台时，只要改下 typedef 本身就行，不用对其他源码做任何修改。标准库就广泛使用了这个技巧，比如size_t。
 
-在C++11中，对象初始化拥有多种语法选择：圆括号，等号，花括号：
+```c++
+// 比如定义一个叫 REAL 的浮点类型，在目标平台一上，让它表示最高精度的类型为：
+typedef long double REAL;
+
+// 在不支持 long double 的平台二上，改为：
+typedef double REAL;
+
+// 在连 double 都不支持的平台三上，改为：
+typedef float REAL;
+```
+
+### 用途4
+
+为复杂的声明定义一个新的简单的别名。方法是：在原来的声明里逐步用别名替换一部分复杂声明，如此循环，把带变量名的部分留到最后替换，得到的就是原声明的最简化版。举例：
+
+1. 复杂声明1：
+
+```c++
+void (*b[10]) (void (*)()); // 数组，数组内存放函数指针
+// 首先*b[10]为指针数组，它里面的十个元素全是指针。到底是什么指针呢，是一个返回类型为空，形参为空的函数指针。
+
+// 用typedef进行简化： 
+typedef void (pFunParam *)(); // 1：首先声明后面的函数指针
+typedef void (*pFunx)(pFunParam); // 2：接着声明前面的指针数组
+
+// 原声明的最简化版：
+typedef void (*pFun[10]) (void (*)());
+pFun b[10];
+```
+
+2. 复杂声明2：
+
+```c++
+double(*(*pa)[9])(); // 指针，指向数组，数组内存放函数指针
+// pa是一个指向9维数组的指针，数组内为函数指针，该函数指针形参为空，返回类型为double。
+
+// 用typedef进行简化： 
+typedef double(*pFunParam)(); //1：首先声明一个函数指针 
+typedef pFunParam (*pFun)[9]; //2：接着声明一个新类型 
+
+// 原声明的最简化版：
+typedef double(*(*pa)[9])();
+pa x;
+```
+
+网络博客typedef用法中提到一个复杂的声明：
 
 ```C++
-int x(0);	//用圆括号初始化
-int y = 0;	//用"="初始化
-int z{0};	//用花括号初始化
-int z = { 0 }; 	//用"="和花括号初始化，C++通常把它和“只使用花括号”的情况同样对待。
+doube()() (e)[9]; // 这个声明在gcc下编译时不通过的。按照作者的本意，应该这样声明：double(*(*pa)[9])();
 ```
 
-C++ 中指定初始化值的三种方式中，只有花括号能用在每个地方。
-
-花括号初始化有一个新奇的特性，它**阻止在built-in类型中的隐式收缩转换**（narrowing conversation）。如果表达式的值不能保证被初始化对象表现出来，代码将无法通过编译。用圆括号和”=“初始化不会检查收缩转换（narrowing conversation）。
+例子：
 
 ```c++
-double x, y, z;
-...
-int sum1{ x + y + z };	//编译错误！double 的和不能表现为 int
-int sum2(x + y + z);	//可以（表达式的值被截断为 int）
-int sum3 = x + y + z;	//同上
+typedef double (*pFun)();//定义函数指针pFun
+typedef double (*(*e)[2])();
+
+double Fun1()
+{
+	cout<<"Fun1"<<endl;
+	return 1;
+};
+
+double Fun2()
+{
+	cout<<"Fun2"<<endl;
+	return 2;
+};
+
+int main()
+{	
+	pFun array[2]= {Fun1, Fun2};
+	array[0]();//执行Fun1
+	array[1]();//执行Fun2
+
+	e MyE = &array;//将array的首地址赋给MyE
+	cout<<sizeof(MyE)<<endl;//既然是指针，长度自然为4（32位机上）
+	cout<<sizeof(*MyE)<<endl;//（两个指针）长度为8（32位机上）
+	
+	(*MyE[0])();//执行Fun1，注意优先级，其实就是 (*(MyE[0]))();
+
+	(*MyE)[0]();//执行Fun1
+	(*MyE)[1]();//执行Fun2
+
+	return 0;
+}
 ```
 
-花括号初始化的另外一个值得一谈的特性是它能避免C++最令人恼火的解析。
 
 
-初始化经常使用括号，或者是使用大括号，或者是复赋值操作。因为这个原因，c++11提出了统一初始化，意味着使用这初始化列表，
+> ==理解复杂声明可用的“右左法则”==：
+>
+> 从变量名看起，先往右，再往左，碰到一个圆括号就调转阅读的方向；括号内分析完就跳出括号，还是按先右后左的顺序，如此循环，直到整个声明分析完。举例：
+>
+> ```c++
+> int (*func)(int *p);
+> ```
+>
+> 首先找到变量名func，外面有一对圆括号，而且左边是一个*号，这说明func是一个指针；然后跳出这个圆括号，先看右边，又遇到圆括号，这说明 (*func)是一个函数，所以func是一个指向这类函数的指针，即函数指针，这类函数具有int*类型的形参，返回值类型是int。
+>
+> ```c++
+> int (*func[5])(int *);
+> ```
+>
+> func 右边是一个[]运算符，说明func是具有5个元素的数组；func的左边有一个*，说明func的元素是指针（注意这里的*不是修饰func，而是修饰 func[5]的，原因是[]运算符优先级比*高，func先跟[]结合）。跳出这个括号，看右边，又遇到圆括号，说明func数组的元素是函数类型的指 针，它指向的函数具有int*类型的形参，返回值类型为int。
+>
+> 也可以记住2个模式：
+>
+> ```c++
+> type (*)(....)函数指针 
+> type (*)[]数组指针
+> ```
 
-一个初始化列表强制使用赋值操作， 也就是意味着每个变量都是一个默认的初始化值，被初始化为0（NULL 或者是 nullptr）。如下：
+
+
+## 类 class
+
+**根据类型兼容原则，在指针和引用语义下，子类同时也可被视作是父类**。
+
+
+
+
+
+## 二叉数组
+
+找节点的子节点和父节点可以利用简单的算术计算它们在数组中的索引值
+
+设某个节点索引值为index,则节点的左子节点索引为:
+
+2*index+1
+
+右子节点索引为:
+
+2*index+2
+
+父节点索引为:
+
+(index-1)/2
+
+
+
+## inline关键字
+
+关键字inline **必须与函数定义体放在一起才能使函数成为内联，仅将inline 放在函数声明前面不起任何作用**。 所以说，inline 是一种“用于实现的关键字”，而不是一种“用于声明的关键字”。 一般地，用户可以阅读函数的声明，但是看不到函数的定义。
+
+> [[9] 内联函数](https://www.sunistudio.com/cppfaq/inline-functions.html)
+
+
+
+# Vscode
+
+### 查看反汇编代码
+
+运行程序后，在监视变量中添加：
+
+```bash
+-exec disassemble /m main
+# 或
+-exec disassemble /m
+```
+
+然后在**<font color=red>调试控制台</font>**就可以看到汇编代码了。
+
+
+
+
+
+# 模板编程
+
+## 代码案例
+
+app/l3/ceusm/include/common/ccb/ceusml_tblmng.h:46
+
+index 类
+
+## 用户数收编
+
+CEUSML_PrepareRrmData：app/l3/ceusm/src/ue_procedure/ue_data_allocator/ceusml_ue_ccb_manager.cpp
+
+app/l3/ceusm/include/ue_procedure/comm/counter/ceusml_counter_mng.h
+
+
+
+## 结构体写法
+
+  NrduCeusmReducedMimoCfg reducedMimoCfg = {
+
+​    .reducedUeMimoLayersFr1Dl = UINT8_MAX,
+
+​    .reducedUeMimoLayersFr1Ul = UINT8_MAX,
+
+  };
+
+
+
+## 多重继承，多态怎么回事
+
+class CeusmlL1PoolResPucchMng : public Wsf::EzTimerHandler, public CeusmlL1PoolResMngBase {
+
+app/l3/ceusm/include/l1_cap_mng/l1_res_pool_spec_mng/ceusml_l1_pool_res_pucch_mng.h
+
+
+
+## 表链接函数、注册函数
+
+该组函数有未使用参数的原因有3：
+1. 函数回调，由于函数指针类型的限制，导致有些回调函数的入参可能不会被用到
+2. 表驱动函数调用，原因同上
+3. 成员函数的删除（func（）=delete）的情况下，工具误报
+
+允许表链接函数、注册函数这两类为了拉齐统一接口存在函数接口未使用场景，无业务影响，建议屏蔽。
 
 ```c++
-int i; //这是一个未定义的行为
-int i{}； //i调用默认的构造函数为i赋值为0
-int *p； //这是一个未定义的行为
-int *p{} ;// p被初始化为一个nullptr
+static bool CEUSML_IsNeedReAllocAckResForPreemptFeature(const CeusmlGlobalUeInfoData &globalUeInfo,
+
+  const CeusmlCellData &cellData, const CeusmlAckResReqPara &ackResReqPara,
+
+  const CeusmlPucchAckCellRes &cellPucchAckRes)
+
+constexpr CeusmlAckInheritRule g_ceusmlAckInheritRule[CEUSML_ACK_RES_RECONFIG_CAUSE_BUTT] = {
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_NEW_RES, CEUSML_IsNeedAllocUePucchAckRes },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_LNR_OLD_RB, CEUSML_IsNeedReAllocAckResForAgingPrbIndex },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_RB_REDUCED, CEUSML_IsNeedReAllocAckResForRbReduced },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_NARROW_BWP2, CEUSML_IsNeedReAllocAckResForNarrowBwp2 },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_CA_OR_DL_BIG_PACKET, CEUSML_IsNeedReAllocAckResForPreemptFeature },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_PRIOR_SHORT_DELAY, CEUSML_IsNeedReAllocAckResForShortDelayUser },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_SU, CEUSML_IsNeedReAllocPucchAckResForSu },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_FDD, CEUSML_IsNeedReAllocAckForFdd },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_HYPER_SSB, CEUSML_IsNeedReAllocAckForHyperSsbUe },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_SRS_SWITCH, CEUSML_IsNeedReAllocAckForSrsSwitchUser },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_FORMAT2_RB_CHANGE, CEUSML_IsNeedReAllocAckForFormat2RbChange },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_MIDDLE_POINT_USER, CEUSML_IsNeedReAllocAckForMiddlePointUser },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_FREQ_RES_ADAPTIVE, CEUSML_IsNeedReAllocAckResForFreqResAdaptive },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_SR_SYMBOL_CHANGE, CEUSML_IsNeedReAllocAckResForSrSymbolChange },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_PREEMPT_ENHANCE, CEUSML_IsNeedReAllocAckResForPucchPreemptEnhance },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_SCS_CA_SU_SWITCH, CEUSML_IsNeedReAllocAckForScsCaSuChange },
+    { CEUSML_ACK_RES_RECONFIG_CAUSE_REDCAP_BWP_CHANGE, CEUSML_IsNeedReAllocAckForRedCapBwpChange }
+};
+  
 ```
 
-
-
-#### 缩窄转换
-
-C++11 中的列表初始化禁止缩窄转换，关于缩窄转换的规则如下：
-
-```c++
-1. 从浮点数转换为整数
-vector<int> tmp1 {1.0, 2, 3}; // 从 "double" 到 "int" 进行收缩转换无效
-
-2. 从取值范围大的浮点数转换为取值范围小的浮点数（在编译期可以计算并且不会溢出的表达式除外）
-double a = 1.0;
-vector<float> tmp2 {1.0f, a, 5}; // 从 "double" 到 "float" 进行收缩转换无效
-
-3. 从整数转换为浮点数（在编译期可以计算并且转换之后值不变的表达式除外）
-int b = 1;
-vector<float> tmp3 {1.0f, b, 5}; // 从 "int" 到 "float" 进行收缩转换无效
-
-4. 从取值范围大的整数转换为取值范围小的整数（在编译期可以计算并且不会溢出的表达式除外）
-int c = 1;
-vector<short> tmp3 {1, c, 5}; // 从 "int" 到 "short" 进行收缩转换无效
-```
-
-> 如在列表初始化中出现缩窄转换，编译无法通过。
-
-****
-
-
-
-## 4. 顶层const 和 底层 const 理解
-
-首先，const是一个限定符，被它修饰的变量的值不能改变。
-
-对于**一般的变量**来说，其实**没有**顶层const和底层const的区别，而只有像**指针**这类复合类型的基本变量，才有这样的区别。
-
-1. 顶层const：指的是 const 修饰的**变量本身**是一个常量，无法修改，指的是指针，就是 * 号的右边
-
-2. 底层const：指的是 const 修饰的变量**所指向的对象**是一个常量，指的是所指变量，就是 * 号的左边
-
-```c++
-int a = 10;
-int* const b1 = &a;	// 顶层 const，b1 本身是一个常量
-const int* b2 = &a;	// 底层 const，b2 本身可变，所指向的对象是常量
-const int b3 = 20;	// 顶层 const，b3 是常量不可变
-const int* const b4 = &a;	// 前一个 const 为底层，后一个为顶层，b4 不可变
-const int& b5 = a;	// 用于声明引用变量，都是底层 const
-```
-
-区分作用：
-
-1. 执行对象拷贝时有限制，常量的底层 const 不能赋值给非常量的底层 const
-
-2. 使用命名的强制类型转换函数 const_cast 时，只能改变运算对象的底层 const
-
-
-
-const 成员函数本质上是修饰 this 指针，成员变量引用会被看成常量指针的。
-
-
-
-## 5. 左值引用和右值引用
-
-右值引用完成两个功能：
-
-1. 实现 move 语义
-2. 完美转发
-
-
-
-
-
-
-
-## 6. new 方法
-
-stl_placement_new
-
-
-
-## 7. 类型转换
-
-[C++标准转换运算符reinterpret_cast](https://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html)
-
-reinterpret_cast运算符是用来处理无关类型之间的转换；它会产生一个新的值，这个值会有与原始参数（expressoin）有完全相同的比特位。
-
-所以总结来说：reinterpret_cast用在任意指针（或引用）类型之间的转换；以及指针与足够大的整数类型之间的转换；从整数类型（包括枚举类型）到指针类型，无视大小。
-
-（所谓"足够大的整数类型",取决于操作系统的参数，如果是32位的操作系统，就需要整形（int）以上的；如果是64位的操作系统，则至少需要长整形（long）。具体大小可以通过sizeof运算符来查看）。
-
-
-
-## 8.C++ 说明符和限定符
-
-> [C++ 说明符和限定符](https://zhuanlan.zhihu.com/p/645909785)
-
-在C++中，说明符（Specifier）和限定符（Qualifier）用于修饰数据类型、函数、变量等，以改变其行为或提供额外的信息。它们是编程语言中的关键字或关键字组合。下面是一些常见的C++说明符和限定符：
-
-1. 数据类型说明符：
-
-- int: 整数类型，用于声明整数变量。
-- double: 双精度浮点数类型，用于声明带有小数点的浮点数变量。
-- float: 单精度浮点数类型，类似于double但存储空间较小。
-- char: 字符类型，用于声明单个字符变量。
-- bool: 布尔类型，用于声明布尔值（true或false）变量。
-- void: 空类型，用于表示没有返回值的函数或空指针。
-
-存储类说明符：
-
-- auto: 自动类型推断，编译器根据初始化表达式自动推断变量的类型。
-- static: 静态存储类，使得局部变量在程序生命周期内保持其值，且只初始化一次。
-- extern: 外部存储类，用于声明全局变量，并表示该变量在其他文件中定义。
-- register: 寄存器存储类，用于请求将变量存储在寄存器中，以便更快地访问。
-- mutable: 用于修饰类的成员变量，允许在const成员函数中修改这些变量。
-
-限定符：
-
-- const: 用于声明常量，表示该变量的值在初始化后不能被修改。
-
-- volatile: 用于声明易变的变量，告诉编译器不要进行优化，因为变量的值可能会在意料之外的情况下改变（如中断）。
-
-- restrict（C99标准新增）：用于告知编译器，该指针是访问对象的唯一且初始的方式，从而进行优化。
-
-  在保证多个指针所指向的区域无交叠的前提下，可以将这些指针加上restrict限定符，用于指导编译器做出更激进的优化。
-
-访问限定符：
-
-- public: 在类中指定公共成员，可以在类的内部和外部访问。
-- private: 在类中指定私有成员，只能在类的内部访问。
-- protected: 在类中指定受保护成员，可以在类的内部和派生类中访问。
-
-这些说明符和限定符提供了更多的灵活性和控制，帮助开发者在C++中编写更有效、安全和可维护的代码。
-
-
-
-在C++11中引入了 thread_local 关键字，它是一个存储类说明符，用于声明线程局部存储的变量。这使得变量的值在每个线程中都有一份独立的副本，而不是像普通变量那样在所有线程之间共享。
