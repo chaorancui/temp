@@ -1,3 +1,12 @@
+
+### Vim 上下移动一行或多行的按键序列
+https://zhuanlan.zhihu.com/p/588627413
+
+### vim 使用技巧
+https://pengfeixc.com/blogs/developer-handbook/vim-shortcuts
+
+
+
 Vim中切换窗口（在文件之间切换）
 切换窗口：Ctrl + w + (h/j/k/l) 。
 即h左、j下、k上、l右，表示窗口切换的方向。
