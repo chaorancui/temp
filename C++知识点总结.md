@@ -28,6 +28,10 @@
 
 5. 拷贝构造、拷贝赋值：不应该抛出异常???
 
+   > [C++ 构造函数抛出异常注意事项](https://blog.csdn.net/K346K346/article/details/50144947)
+
+   从语法上来说，构造函数可以抛出异常。但从逻辑上和风险控制上，构造函数中尽量不要抛出异常。万不得已，一定要注意防止内存泄露。
+
 6. 移动构造、移动赋值：不应该抛出异常
 
    搞清楚为什么需要noexcept能帮助我们深入理解标准库是如何与我们自定义的类型交互的。我们需要指出一个移动操作不抛出异常，这是因为两个相互关联的事实：**首先，虽然移动操作通常不抛出异常， 但抛出异常也是允许的**；**其次， 标准库容器能对异常发生时其自身的行为提供保陷**。例如，vector保证， 如果我们调用push_back时发生异常，vector自身不会发生改变。
@@ -1001,6 +1005,100 @@ step1(step2)
 
 
 
+## 空struct指针的用途C++
+
+在C++中，空的结构体指针可以用于以下情况：
+
+* 占位符
+  在一些代码中，我们可能需要一个占位符来表示某个变量或参数的位置，但是这个变量或参数当前并没有被定义或赋值。这时候，我们可以使用一个空的结构体指针来代替该变量或参数的位置，以便于后续代码的编写。
+
+  例如，下面的代码中，我们定义了一个空的结构体Dummy，并将其用作一个函数的参数占位符:
+
+  ```c++
+  struct Dummy {};
+  void myFunction(Dummy* param1, int param2) {
+    // ...
+  }
+  
+  int main() {
+    myFunction(nullptr, 42);
+    return 0;
+  }
+  ```
+
+
+
+* 作为泛型指针
+  在C++中，有时候我们需要定义一个通用的指针类型，以便于在不同的上下文中使用。这时候，我们可以使用空的结构体指针来定义这个通用的指针类型。
+
+  例如，下面的代码中，我们定义了一个名为GenericPointer的类型，该类型是一个空的结构体指针：
+
+  ```c++
+  struct GenericPointer {};
+  using MyPointer = GenericPointer*;
+  ```
+
+  在这个例子中，我们使用了GenericPointer来定义了一个别名MyPointer，这个别名可以在不同的上下文中使用，以表示一个通用的指针类型。
+
+
+
+* 作为哨兵值
+  有时候，我们需要定义一个特殊的值来表示某种状态或条件。在这种情况下，我们可以使用空的结构体指针来作为哨兵值。
+
+  例如，下面的代码中，我们定义了一个名为EndOfList的哨兵值，用于表示一个链表的末尾：
+
+  ```c++
+  struct EndOfList {};
+  struct ListNode {
+    int value;
+    ListNode* next;
+  };
+  
+  int main() {
+    ListNode* head = new ListNode{1, new ListNode{2, new ListNode{3, new EndOfList}}};
+    // ...
+    return 0;
+  }
+  ```
+
+  在这个例子中，我们使用了一个空的结构体指针EndOfList来表示链表的末尾。由于EndOfList是一个空的结构体指针，它不会占用任何内存空间，因此可以作为一个轻量级的哨兵值来使用。
+
+
+
+## 为什么使用空类
+
+> [[C/C++中，空数组、空类、类中空数组的解析及其作用](https://www.cnblogs.com/Allen-rg/p/7307116.html)](https://www.cnblogs.com/Allen-rg/p/7307116.html)
+
+空类在“泛型编程”中，空类（空结构）的用处非常广：
+
+我们利用类型（通常是空类），来区别对待不同类对象的属性。
+
+通过使用函数重载的方法，在参数中加入一个空类来作为区分不同的函数的方法，编译的时候直接选择，而不是在运行的时候选择，是非常提高效率的。
+
+要知道，不同的空类，是不同的。他们代表着不同的类型(虽然他们结构一样）。在STL中，使用空类区分不同类型的标志，从而在编译的时候来对不同的类进行有针对性的优化是非常常见的。
+
+```c++
+template<typename A>
+void fun(A a) {
+    typedef typename trait<A>::type T;
+    _fun(A a, *(new T()));
+}
+
+template<typename A>
+void _fun(A a, int) {
+    // ......
+}
+
+template<typename A>
+void _fun(A b, float) {
+    // ......
+}
+```
+
+当然，空类应该还有其他的用处。我们所有知道和理解的就是：空类是C++中一个有用的机制，不同名称的空类代表着不同的类型。
+
+<font color=red>空类在编译的时候会被编译器自动的加入一个char成员，不为别的，只是为了，让它被实例后的对象占有空间，从而可以区分。</font>
+
 
 
 ## 小整理
@@ -1057,6 +1155,7 @@ https://www.cnblogs.com/lifexy/p/14098103.html
 
 
 ## 《重构 改善既有代码的设计第二版》中文版
+
 https://github.com/MwumLi/book-refactoring2
 
 
@@ -1066,62 +1165,7 @@ https://juejin.cn/s/c%2B%2B%20enum%20class%20compare
 ## 不能delete void指针
 释放指针void*那里有问题，正确的做法应该做一个强制转换
 
-## 空struct指针的用途C++
-在C++中，空的结构体指针可以用于以下情况：
 
-占位符
-在一些代码中，我们可能需要一个占位符来表示某个变量或参数的位置，但是这个变量或参数当前并没有被定义或赋值。这时候，我们可以使用一个空的结构体指针来代替该变量或参数的位置，以便于后续代码的编写。
-
-例如，下面的代码中，我们定义了一个空的结构体Dummy，并将其用作一个函数的参数占位符：
-
-c++
-Copy code
-struct Dummy {};
-void myFunction(Dummy* param1, int param2) {
-  // ...
-}
-
-int main() {
-  myFunction(nullptr, 42);
-  return 0;
-}
-作为泛型指针
-在C++中，有时候我们需要定义一个通用的指针类型，以便于在不同的上下文中使用。这时候，我们可以使用空的结构体指针来定义这个通用的指针类型。
-
-例如，下面的代码中，我们定义了一个名为GenericPointer的类型，该类型是一个空的结构体指针：
-
-c++
-Copy code
-struct GenericPointer {};
-using MyPointer = GenericPointer*;
-在这个例子中，我们使用了GenericPointer来定义了一个别名MyPointer，这个别名可以在不同的上下文中使用，以表示一个通用的指针类型。
-
-作为哨兵值
-有时候，我们需要定义一个特殊的值来表示某种状态或条件。在这种情况下，我们可以使用空的结构体指针来作为哨兵值。
-
-例如，下面的代码中，我们定义了一个名为EndOfList的哨兵值，用于表示一个链表的末尾：
-
-c++
-Copy code
-struct EndOfList {};
-struct ListNode {
-  int value;
-  ListNode* next;
-};
-
-int main() {
-  ListNode* head = new ListNode{1, new ListNode{2, new ListNode{3, new EndOfList}}};
-  // ...
-  return 0;
-}
-在这个例子中，我们使用了一个空的结构体指针EndOfList来表示链表的末尾。由于EndOfList是一个空的结构体指针，它不会占用任何内存空间，因此可以作为一个轻量级的哨兵值来使用。
-
-
-## 为什么使用空类
-空类在“泛型编程”中，空类（空结构）的用处非常广：
-我们利用类型（通常是空类），来区别对待不同类对象的属性。
-通过使用函数重载的方法，在参数中加入一个空类来作为区分不同的函数的方法，编译的时候直接选择，而不是在运行的时候选择，是非常提高效率的。
-https://www.cnblogs.com/Allen-rg/p/7307116.html
 
 
 ## C++11
