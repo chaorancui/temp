@@ -1251,30 +1251,9 @@ app/l3/ceusm/include/l1_cap_mng/l1_res_pool_spec_mng/ceusml_l1_pool_res_pucch_mn
 允许表链接函数、注册函数这两类为了拉齐统一接口存在函数接口未使用场景，无业务影响，建议屏蔽。
 
 ```c++
-static bool CEUSML_IsNeedReAllocAckResForPreemptFeature(const CeusmlGlobalUeInfoData &globalUeInfo,
 
-  const CeusmlCellData &cellData, const CeusmlAckResReqPara &ackResReqPara,
-
-  const CeusmlPucchAckCellRes &cellPucchAckRes)
-
-constexpr CeusmlAckInheritRule g_ceusmlAckInheritRule[CEUSML_ACK_RES_RECONFIG_CAUSE_BUTT] = {
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_NEW_RES, CEUSML_IsNeedAllocUePucchAckRes },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_LNR_OLD_RB, CEUSML_IsNeedReAllocAckResForAgingPrbIndex },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_RB_REDUCED, CEUSML_IsNeedReAllocAckResForRbReduced },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_NARROW_BWP2, CEUSML_IsNeedReAllocAckResForNarrowBwp2 },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_CA_OR_DL_BIG_PACKET, CEUSML_IsNeedReAllocAckResForPreemptFeature },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_PRIOR_SHORT_DELAY, CEUSML_IsNeedReAllocAckResForShortDelayUser },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_SU, CEUSML_IsNeedReAllocPucchAckResForSu },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_FDD, CEUSML_IsNeedReAllocAckForFdd },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_HYPER_SSB, CEUSML_IsNeedReAllocAckForHyperSsbUe },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_SRS_SWITCH, CEUSML_IsNeedReAllocAckForSrsSwitchUser },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_FORMAT2_RB_CHANGE, CEUSML_IsNeedReAllocAckForFormat2RbChange },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_MIDDLE_POINT_USER, CEUSML_IsNeedReAllocAckForMiddlePointUser },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_FREQ_RES_ADAPTIVE, CEUSML_IsNeedReAllocAckResForFreqResAdaptive },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_SR_SYMBOL_CHANGE, CEUSML_IsNeedReAllocAckResForSrSymbolChange },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_PREEMPT_ENHANCE, CEUSML_IsNeedReAllocAckResForPucchPreemptEnhance },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_SCS_CA_SU_SWITCH, CEUSML_IsNeedReAllocAckForScsCaSuChange },
-    { CEUSML_ACK_RES_RECONFIG_CAUSE_REDCAP_BWP_CHANGE, CEUSML_IsNeedReAllocAckForRedCapBwpChange }
+constexpr Rule g_Rule[10] = {
+    { NEW_RES, Func1 },
 };
   
 ```
