@@ -606,11 +606,22 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 
 
 
+## c++ 标准库头文件
 
+> [C++ 标准库](https://zh.cppreference.com/w/cpp/standard_library)
+>
+> [C++ 标准库头文件](https://c-cpp.com/cpp/header.html)
 
+### [<type_traits>](https://zh.cppreference.com/w/cpp/header/type_traits) C++11
 
-
-
+* [underlying_type](https://zh.cppreference.com/w/cpp/types/underlying_type)(C++11)：获取给定枚举类型的底层整数类型
+* 1
+* 1
+* 1
+* 1
+* 1
+* 1
+* 
 
 
 
