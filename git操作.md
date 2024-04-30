@@ -942,80 +942,11 @@ git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉
 
 
 
-### git  优雅地解决冲突：使用ours和theirs
-
-> [Git-优雅地解决冲突：使用ours和theirs]https://blog.csdn.net/qq_41603165/article/details/104922336
-
-对于merge和rebase来说，ours 和 theirs 对应的分支正好是相反的。
-
-假设当前指向的分支为`branch_a`，
-
-在使用 merge 时 `git merge branch_b`，ours 指的是当前分支，即branch_a，theirs 指的是要被合并的分支，即branch_b。
-
-而在使用 rebase 时 `git rebase branch_b`，theirs 指的是当前分支，即branch_a，ours 指向修改参考分支，即branch_b。
-
-
-
-git merge会抽取两个分支上新增的提交，并将其合并在一起，产生一个新的提交D，生成的D节点有两个父节点。其中在合并的过程中可能会发生冲突。
-
-git rebase会以branch_a为参照，提取branch_b分支上的提交，将这些修改作用在branch_a分支上，最终结果不会产生新的提交节点。其中在将提取的修改作用在branch_a的过程中可能会发生冲突。
-
-通常而言，在开发过程中很少应用git merge合并代码，更常用的是git rebase。此外在开发过程中，经常使用git rebase命令获取master主分支的最新提交代码，在完成个人的开发任务之后，也需要rebase master分支上的代码才能申请 Pull Request，自动合并。
-
-
-
 ### git 仓库忽略大小写
 
 ```bash
 git config core.ignorecase true
 ```
-
-
-
-### Git commit 规范
-
-https://zhuanlan.zhihu.com/p/182553920
-
-**commit message格式**
-
-```text
-<type>(<scope>): <subject>
-```
-
-**type(必须)**
-
-用于说明git commit的类别，只允许使用下面的标识。
-
-feat：新功能（feature）。
-
-fix/to：修复bug，可以是QA发现的BUG，也可以是研发自己发现的BUG。
-
-* fix：产生diff并自动修复此问题。适合于一次提交直接修复问题
-* to：只产生diff不自动修复此问题。适合于多次提交。最终修复问题提交时使用fix
-
-docs：文档（documentation）。
-
-style：格式（不影响代码运行的变动）。
-
-refactor：重构（即不是新增功能，也不是修改bug的代码变动）。
-
-perf：优化相关，比如提升性能、体验。
-
-test：增加测试。
-
-chore：构建过程或辅助工具的变动。
-
-revert：回滚到上一个版本。
-
-merge：代码合并。
-
-sync：同步主线或分支的Bug。
-
-**scope(可选)**
-
-scope用于说明 commit 影响的范围，比如数据层、控制层、视图层等等，视项目不同而不同。
-
-
 
 
 
@@ -1360,6 +1291,63 @@ git项目,VSCode显示不同颜色块的含义:https://www.cnblogs.com/soyxiaobi
 
 
 
+
+
+## Git commit 规范
+
+### Git commit 规范
+
+https://zhuanlan.zhihu.com/p/182553920
+
+**commit message格式**
+
+```text
+<type>(<scope>): <subject>
+```
+
+**type(必须)**
+
+用于说明git commit的类别，只允许使用下面的标识。
+
+feat：新功能（feature）。
+
+fix/to：修复bug，可以是QA发现的BUG，也可以是研发自己发现的BUG。
+
+* fix：产生diff并自动修复此问题。适合于一次提交直接修复问题
+* to：只产生diff不自动修复此问题。适合于多次提交。最终修复问题提交时使用fix
+
+docs：文档（documentation）。
+
+style：格式（不影响代码运行的变动）。
+
+refactor：重构（即不是新增功能，也不是修改bug的代码变动）。
+
+perf：优化相关，比如提升性能、体验。
+
+test：增加测试。
+
+chore：构建过程或辅助工具的变动。
+
+revert：回滚到上一个版本。
+
+merge：代码合并。
+
+sync：同步主线或分支的Bug。
+
+**scope(可选)**
+
+scope用于说明 commit 影响的范围，比如数据层、控制层、视图层等等，视项目不同而不同。
+
+
+
+### Git-cz 工具
+
+
+
+
+
+
+
 ## 代码对比工具
 
 ### diff命令
@@ -1615,7 +1603,29 @@ git merge --strategy-option theirs
 
 
 
-### 在 Git 中设置默认 Diff 工具
+### git 使用ours和theirs
+
+> [Git-优雅地解决冲突：使用ours和theirs]https://blog.csdn.net/qq_41603165/article/details/104922336
+
+对于merge和rebase来说，ours 和 theirs 对应的分支正好是相反的。
+
+假设当前指向的分支为`branch_a`，
+
+在使用 merge 时 `git merge branch_b`，ours 指的是当前分支，即branch_a，theirs 指的是要被合并的分支，即branch_b。
+
+而在使用 rebase 时 `git rebase branch_b`，theirs 指的是当前分支，即branch_a，ours 指向修改参考分支，即branch_b。
+
+
+
+git merge会抽取两个分支上新增的提交，并将其合并在一起，产生一个新的提交D，生成的D节点有两个父节点。其中在合并的过程中可能会发生冲突。
+
+git rebase会以branch_a为参照，提取branch_b分支上的提交，将这些修改作用在branch_a分支上，最终结果不会产生新的提交节点。其中在将提取的修改作用在branch_a的过程中可能会发生冲突。
+
+通常而言，在开发过程中很少应用git merge合并代码，更常用的是git rebase。此外在开发过程中，经常使用git rebase命令获取master主分支的最新提交代码，在完成个人的开发任务之后，也需要rebase master分支上的代码才能申请 Pull Request，自动合并。
+
+
+
+### Git 设置默认 Diff 工具
 
 [Git中的合并冲突如何解决](https://www.lsbin.com/tag/git中的合并冲突如何解决/)？为 设置默认差异工具**`git mergetool`**：
 
