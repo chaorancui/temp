@@ -751,7 +751,165 @@ void f(){}              // 注意：这里没有"模板实参"
 
 
 
-## 1. 整形提升和寻常算数转换
+### C++ 中让人头晕的 typedef & typename
+
+> [C++ 中让人头晕的 typedef & typename](https://www.luozhiyun.com/archives/742)
+
+用过 C++ 的同学对 typename 和 typedef 相信并不是很陌生，但是当我看到下面这段代码的时候仍然无法理解：
+
+```c++
+typedef typename std::vector<T>::size_type size_type;
+```
+
+按理来说 typedef 一般不是用来定义一种类型的别名，如下：
+
+```
+typedef int SpeedType;
+```
+
+定义了一个 int 的别名是 SpeedType，那么我就可以这样用：
+
+```c++
+int main(void)
+{
+    SpeedType s = 10;
+    printf("speed is %d m/s",s);
+    return 0;
+}
+```
+
+但是 typedef 后面接 typename 表示什么意思呢？typename 不是用来定义模板参数的吗？下面我们分别归纳一下 typedef & typename 的用法。
+
+#### typedef
+
+为特定含义的类型取别名，而不只是简单的宏替换，有编译时类型检查。
+
+* 用作同时声明指针型的多个对象
+
+```c++
+// pa、pb两个变量都声明为字符串，但是这样只能成功声明了一个
+char* pa, pb;  
+cout << typeid(pa).name() << endl; //Pc
+cout << typeid(pb).name() << endl; //c
+
+// 成功声明两个字符串指针
+typedef char* PCHAR; 
+PCHAR pa, pb; // 可行
+cout << typeid(pa).name() << endl; //Pc
+cout << typeid(pb).name() << endl; //Pc
+```
+
+* 为结构体取别名
+
+```c++
+// 在声明变量的时候，需要带上struct，即像下面这样使用：
+typedef struct info
+{
+    char name[128];
+    int length;
+}Info;
+
+Info var;
+```
+
+* 用来定义与平台无关的类型
+
+```c++
+// 比如定义一个叫 REAL 的浮点类型，在目标平台一上，让它表示最高精度的类型为：
+typedef long double REAL;
+// 在不支持 long double 的平台二上，改为：
+typedef double REAL;
+```
+
+当跨平台时，只要改下 typedef 本身就行，不用对其他源码做任何修改。
+
+#### typename
+
+typename关键字用于引入一个模板参数，这个关键字用于指出模板声明（或定义）中的非独立名称（dependent names）**是类型名，而非变量名**：
+
+```c++
+template <typename T>
+const T& max(const T& x, const T& y)
+{
+  if (y < x) {
+    return x;
+  }
+  return y;
+}
+```
+
+typename 在这里的意思表明 T 是一个类型。如果没有它的话，在某些情况下会出现模棱两可的情况，比如下面这种情况：
+
+```c++
+template <class T>
+void foo() {
+    T::iterator * iter;
+    // ...
+}
+```
+
+作者想定义一个指针`iter`，它指向的类型是包含在类作用域`T`中的`iterator`。可能存在这样一个包含`iterator`类型的结构：
+
+```c++
+struct ContainsAType {
+    struct iterator { /*...*/ }; 
+};
+```
+
+那么 `foo<ContainsAType>();` 这样用的是时候确实可以知道 `iter`是一个`ContainsAType::iterator`类型的指针。但是`T::iterator`实际上可以是以下三种中的任何一种类型：
+
+- 静态数据成员
+- 静态成员函数
+- 嵌套类型
+
+所以如果是下面这样的情况：
+
+```c++
+struct ContainsAnotherType {
+    static int iterator;
+    // ... 
+};
+```
+
+那 `T::iterator * iter;`被编译器实例化为`ContainsAnotherType::iterator * iter;`，变成了一个静态数据成员乘以 iter ，这样编译器会找不到另一个变量 `iter` 的定义 。所以为了避免这样的歧义，我们加上 typename，表示 `T::iterator` 一定要是个类型才行。
+
+```c++
+template <class T>
+void foo() {
+    typename T::iterator * iter;
+    // ... 
+}
+```
+
+我们回到一开始的例子，对于 `vector::size_type`，我们可以知道：
+
+```c++
+template <class T,class Alloc=alloc>
+class vector{
+public:
+    //...
+    typedef size_t size_type;
+    //...
+};
+```
+
+`vector::size_type`是`vector`的嵌套类型定义，其实际等价于 `size_t`类型。
+
+```
+typedef typename std::vector<T>::size_type size_type;
+```
+
+那么这个例子的真是面目是，`typedef`创建了存在类型的别名，而`typename`告诉编译器`std::vector<T>::size_type`是一个类型而不是一个成员。
+
+
+
+
+
+
+
+
+
+## 整形提升和寻常算数转换
 
 **整型提升**：
 
@@ -773,7 +931,7 @@ void f(){}              // 注意：这里没有"模板实参"
 
 例如：对精度低于int类型的无符号整数进行**位运算**时，编译器会进行整数提升，再对提升后的整数进行位运算，因此要特别注意对于这类无符号整数的位运算，避免出现非预期的结果。
 
-## 2. 命名空间
+## 命名空间
 
 命名空间(namespace)为防止名字冲突提供了更加可控的机制。命名空间分割了全局命名空间，其中每个命名空间是一个作用域。通过在某个命名空间中定义库的名字，库的作者以及用户可以避免全局名字固有的限制。
 
@@ -790,9 +948,9 @@ void f(){}              // 注意：这里没有"模板实参"
 
 > [C++/C++11中命名空间(namespace)的使用](https://www.huaweicloud.com/articles/12620834.html) 
 
-## 3. 初始化方式
+## 初始化方式
 
-#### 就地初始化
+### 就地初始化
 
 在 C++11 之前，只能对**结构体或类的静态常量成员**进行就地初始化，其他的不行。
 
@@ -815,7 +973,7 @@ private:
 };  
 ```
 
-#### 就地初始化与初始化列表的先后顺序
+### 就地初始化与初始化列表的先后顺序
 
 C++11 支持了就地初始化非静态数据成员的同时，初始化列表的方式也被保留下来，也就是说既可以使用就地初始化，也可以使用初始化列表来完成数据成员的初始化工作。当二者同时使用时并不冲突，**初始化列表发生在就地初始化之后**，即最终的初始化结果以初始化列表为准。
 
@@ -858,7 +1016,7 @@ int *p{} ;// p被初始化为一个nullptr
 
 
 
-#### 缩窄转换
+### 缩窄转换
 
 C++11 中的列表初始化禁止缩窄转换，关于缩窄转换的规则如下：
 
@@ -885,7 +1043,7 @@ vector<short> tmp3 {1, c, 5}; // 从 "int" 到 "short" 进行收缩转换无效
 
 
 
-## 4. 顶层const 和 底层 const 理解
+## 顶层const 和 底层 const 理解
 
 首先，const是一个限定符，被它修饰的变量的值不能改变。
 
@@ -916,7 +1074,7 @@ const 成员函数本质上是修饰 this 指针，成员变量引用会被看�
 
 
 
-## 5. 左值引用和右值引用
+## 左值引用和右值引用
 
 右值引用完成两个功能：
 
@@ -929,13 +1087,13 @@ const 成员函数本质上是修饰 this 指针，成员变量引用会被看�
 
 
 
-## 6. new 方法
+## new 方法
 
 stl_placement_new
 
 
 
-## 7. 类型转换
+## 类型转换
 
 [C++标准转换运算符reinterpret_cast](https://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html)
 
@@ -947,7 +1105,7 @@ reinterpret_cast运算符是用来处理无关类型之间的转换；它会产�
 
 
 
-## 8.C++ 说明符和限定符
+## C++ 说明符和限定符
 
 > [C++ 说明符和限定符](https://zhuanlan.zhihu.com/p/645909785)
 
