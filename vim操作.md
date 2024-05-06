@@ -305,3 +305,5 @@ https://linux265.com/course/vim-cut-copy-paste.html
 /def  从上往下搜索字符串def，即向后搜索。
 
 ?def  从下往上搜索字符串def，即向前搜索。
+
+> 注：输入/或？后，可以按Ctrl + R 进入寄存选择
