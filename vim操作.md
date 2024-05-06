@@ -227,6 +227,7 @@ https://juejin.cn/post/7072621434605928462
 https://linux265.com/course/vim-cut-copy-paste.html
 
 ### Vim复制粘贴与寄存器
+> [Vim复制粘贴与寄存器](https://blog.csdn.net/halazi100/article/details/47807033)
 在Vim中的复制，删除，替换等操作的临时内容，都会存储在寄存器中
 
 
