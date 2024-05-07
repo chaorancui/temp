@@ -1059,12 +1059,29 @@ const int& b5 = a;	// 用于声明引用变量，都是底层 const
 区分作用：
 
 1. 执行对象拷贝时有限制，常量的底层 const 不能赋值给非常量的底层 const
-
 2. 使用命名的强制类型转换函数 const_cast 时，只能改变运算对象的底层 const
 
 
 
-const 成员函数本质上是修饰 this 指针，成员变量引用会被看成常量指针的。
+Tips:
+
+1. 用于声明引用的 const 都是**底层 const**。
+
+2. const 成员函数本质上是修饰 this 指针，成员变量引用会被看成常量指针的。
+
+3. **const的引用(reference to const)**对于引用对象本身是否是一个常量没有做出限定，因此对象也可能是个非常量，允许通过其他途径改变它的值。
+
+4. **指向常量的指针**也没有规定其所指的对象必须是一个常量，所谓指向常量**仅仅要求不能通过该指针修改所指向对象的值**，而**没有规定所指对象的值不能通过其他途径改变**。
+
+5. 可以定义**指向指针的引用**：
+
+   ```c++
+   int *&x;
+   ```
+
+   作用：指针的引用就是指针的别名，可以用这个别名全局地修改指针，类比变量的引用。否则就需要用指针的指针。
+
+
 
 > [Difference between const int*, const int * const, and int const *](https://www.geeksforgeeks.org/difference-between-const-int-const-int-const-and-int-const/)
 >
