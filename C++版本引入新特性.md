@@ -1066,6 +1066,10 @@ const int& b5 = a;	// 用于声明引用变量，都是底层 const
 
 const 成员函数本质上是修饰 this 指针，成员变量引用会被看成常量指针的。
 
+> [Difference between const int*, const int * const, and int const *](https://www.geeksforgeeks.org/difference-between-const-int-const-int-const-and-int-const/)
+>
+> ![](https://media.geeksforgeeks.org/wp-content/cdn-uploads/PointersWithConstants-1024x535.png)
+
 
 
 ## 左值引用和右值引用
