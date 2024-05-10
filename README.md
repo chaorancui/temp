@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### Xenomai (学习笔记)
+https://blog.csdn.net/pwl999/article/details/109412539
+
 ### 什么是实时操作系统（RTOS）
 https://zhuanlan.zhihu.com/p/86861756
 
