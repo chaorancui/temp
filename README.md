@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### 什么是实时操作系统（RTOS）
+https://zhuanlan.zhihu.com/p/86861756
+
 ### 继承与多态public private
 https://shaofengjiang.cn/programming-course/lec9-inheritance.pdf
 
