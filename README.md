@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### Guitar Pro 中文官网 
+https://www.guitarpro.cc/xinwen/gp-rgfyh.html
+
 ### Xenomai (学习笔记)
 https://blog.csdn.net/pwl999/article/details/109412539
 
