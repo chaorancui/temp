@@ -1,4 +1,7 @@
 # 无卵用的记录
+https://github.com/chaorancui/temp/blob/main/README.md
+### chrome 黑暗模式插件
+Night Eye
 
 ### Guitar Pro 中文官网 
 https://www.guitarpro.cc/xinwen/gp-rgfyh.html
