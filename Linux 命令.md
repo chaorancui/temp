@@ -129,11 +129,19 @@ uname（unix name 的意思） 是一个打印系统信息的工具，包括内�
 - **建议阅读：** [6种查看系统 Linux 内核的方法](https://www.2daygeek.com/check-find-determine-running-installed-linux-kernel-version/)
 
 ```bash
-# uname -aLinux
-localhost.localdomain 4.12.14-300.fc26.x86_64 #1 SMP Wed Sep 20 16:28:07 UTC 2017 x86_64 x86_64 x86_64 GNU/Linux
+# uname -a
+Linux 2grhel8node 4.18.0-477.13.1.el8_8.x86_64 #1 SMP Thu May 18 10:27:05 EDT 2023 x86_64 x86_64 x86_64 GNU/Linux
 ```
 
-以上运行结果说明使用的操作系统版本是 Fedora 26。
+解释如下:
+* Linux – Kernel name. The name of the kernel running on your system.
+* 2grhel8node – Hostname
+* 4.18.0-477.13.1.el8_8.x86_64 – Kernel release
+* 1 SMP Thu May 18 10:27:05 EDT 2023 – Kernel version and last compiled date and time.
+* x86_64 – Machine architecture
+* x86_64 – Processor architecture
+* x86_64 – Operating system architecture
+* GNU/Linux – Operating system
 
 ### 方法 4： /proc/version 文件
 
