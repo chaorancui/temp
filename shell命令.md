@@ -72,6 +72,8 @@ https://blog.csdn.net/dgwxligg/article/details/138875027
 > [regular-expressions.info](https://www.regular-expressions.info/) --> 关于正则表达式的首要网站
 >
 > [RegexBuddy 的正则表达式详细教程](https://www.regexbuddy.com/tutorial.html) --> 擦，工具要付费
+>
+> [RegexBuddy.pdf](https://www.balsas-nahuatl.org/mixtec/Programas/JGsoft/RegexBuddy/)
 
 * 基本正则表达式
 
