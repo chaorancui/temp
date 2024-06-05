@@ -1,3 +1,5 @@
+[toc]
+
 # Docker 学习
 
 > [什么是Docker？看这一篇干货文章就够了！](https://zhuanlan.zhihu.com/p/187505981)
@@ -167,6 +169,10 @@ Docker 是一个应用打包、分发、部署的工具
 
 
 
+> tip:
+>
+> 下面的命令，也不是很全，需要更全命令的时候再另行寻找。
+
 ## 服务相关命令
 
 ```shell
@@ -189,6 +195,16 @@ systemctl enable docker
 
 
 ## 镜像相关命令
+
+目前 Docker 官方维护了一个公共仓库 [Docker Hub](https://hub.docker.com/)，其中已经包括了数量超过 [2,650,000](https://hub.docker.com/search/?type=image) 的镜像。大部分需求都可以通过在 Docker Hub 中直接下载镜像来实现。
+
+可以在 https://hub.docker.com 免费注册一个 Docker 账号。
+
+可以通过执行 `docker login` 命令交互式的输入用户名及密码来完成在命令行界面登录 Docker Hub。
+
+可以通过 `docker logout` 退出登录。
+
+
 
 **搜索镜像**
 
@@ -325,6 +341,28 @@ CMD ["node", "./server/index.js"]
 
 
 
+**docker image命令**
+
+```shell
+docker image COMMAND
+
+Commands:
+  build       Build an image from a Dockerfile
+  history     Show the history of an image
+  import      Import the contents from a tarball to create a filesystem image
+  inspect     Display detailed information on one or more images
+  load        Load an image from a tar archive or STDIN
+  ls          List images
+  prune       Remove unused images
+  pull        Pull an image or a repository from a registry
+  push        Push an image or a repository to a registry
+  rm          Remove one or more images
+  save        Save one or more images to a tar archive (streamed to STDOUT by default)
+  tag         Create a tag TARGET_IMAGE that refers to SOURCE_IMAGE
+```
+
+
+
 **查看本地镜像**
 
 ```shell
@@ -430,6 +468,7 @@ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 --link=[]: 添加链接到另一个容器；
 --expose=[]: 开放一个端口或一组端口；
 --volume , -v: 绑定一个卷，格式为：主机(宿主)卷:容器卷
+--privileged：默认情况下容器中的root用户只是host主机的一个普通用户，但如果docker run --privileged=true 就真正的给这个普通用户赋予了和host主机root用户的特权。
 
 # 例：
 # 使用docker镜像nginx:latest以后台模式启动一个容器,并将容器命名为mynginx。
@@ -450,6 +489,18 @@ docker run -it nginx:latest /bin/bash
 
 > tip:
 > 使用交互模式运行容器时, 会直接进入容器内部, 退出交互模式后, 该容器自动停止运行
+>
+> **注：** 容器是否会长久运行，是和 `docker run` 指定的命令有关，和 `-d` 参数无关。----啥意思?
+
+> 当利用 `docker run` 来创建容器时，Docker 在后台运行的标准操作包括：
+>
+> - 检查本地是否存在指定的镜像，不存在就从 [registry](https://yeasy.gitbook.io/docker_practice/repository) 下载
+> - 利用镜像创建并启动一个容器
+> - 分配一个文件系统，并在只读的镜像层外面挂载一层可读写层
+> - 从宿主主机配置的网桥接口中桥接一个虚拟接口到容器中去
+> - 从地址池配置一个 ip 地址给容器
+> - 执行用户指定的应用程序
+> - 执行完毕后容器被终止
 
 
 
@@ -544,6 +595,17 @@ docker exec -it container_id /bin/bash # 使用容器ID
 
 
 
+**退出容器**
+
+```shell
+# 退出container
+exit
+# 或者按键：
+<Ctrl + C>
+```
+
+
+
 **查看容器信息**
 
 ```bash
@@ -589,4 +651,215 @@ docker cp /mnt/dist container_id:/app/html
 # 将宿主机 /mnt/dist/index1.html 文件拷贝到容器的 /app/html/ 中重命名为 index.html
 docker cp /mnt/dist/index1.html container_id:/app/html/index.html
 ```
+
+
+
+
+
+## 镜像相关命令补充
+
+`docker commit` 的语法格式为：
+
+```shell
+docker commit [选项] <容器ID或容器名> [<仓库名>[:<标签>]]
+
+我们可以用下面的命令将容器保存为镜像：
+```
+
+要知道，当我们运行一个容器的时候（如果不使用卷的话），我们做的任何文件修改都会被记录于容器存储层里。而 Docker 提供了一个 `docker commit` 命令，可以将容器的存储层保存下来成为镜像。换句话说，就是在原有镜像的基础上，再叠加上容器的存储层，并构成新的镜像。以后我们运行这个新镜像的时候，就会拥有原有容器最后的文件变化。
+
+> 慎用 `docker commit`
+>
+> 使用 `docker commit` 命令虽然可以比较直观的帮助理解镜像分层存储的概念，但是实际环境中并不会这样使用。
+
+
+
+
+
+`docker container ls -a` 命令查看容器的状态。
+
+`docker container stop` 命令来终止一个运行中的容器。
+
+`docker container start` 命令来重新启动处于终止状态的容器。
+
+`docker container restart` 命令会将一个运行态的容器终止，然后再重新启动它。
+
+
+
+
+
+## 数据管理
+
+在容器中管理数据主要有两种方式：
+
+- 数据卷（Volumes）
+- 挂载主机目录 (Bind mounts)
+
+![img](https://yeasy.gitbook.io/~gitbook/image?url=https%3A%2F%2F1881212762-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252F-M5xTVjmK7ax94c8ZQcm%252Fuploads%252Fgit-blob-5950036bba1c30c0b1ab52a73a94b59bbdd5f57c%252Ftypes-of-mounts.png%3Falt%3Dmedia&width=768&dpr=4&quality=100&sign=fb819ed99aeae8422fcffe6597d87acda98625f3220b4187d11feb58447ab739)
+
+
+
+`数据卷` 是一个可供一个或多个容器使用的特殊目录，它绕过 UnionFS，可以提供很多有用的特性：
+
+- `数据卷` 可以在容器之间共享和重用
+- 对 `数据卷` 的修改会立马生效
+- 对 `数据卷` 的更新，不会影响镜像
+- `数据卷` 默认会一直存在，即使容器被删除
+
+> 注意：`数据卷` 的使用，类似于 Linux 下对目录或文件进行 mount，镜像中的被指定为挂载点的目录中的文件会复制到数据卷中（仅数据卷为空时会复制）。
+
+
+
+```shell
+docker volume --help
+
+Commands:
+  create      创建一个数据卷
+  inspect     打印一个或多个数据卷的详细信息
+  ls          列出所有数据卷
+  prune       删除所有未使用的数据卷
+  rm          删除一个或多个数据卷
+
+# 例：
+# 创建一个数据卷
+docker volume create my-vol
+
+# 查看所有的 数据卷
+docker volume ls
+
+# 在宿主机里查看指定 数据卷 的信息
+docker volume inspect my-vol
+
+# 删除数据卷
+docker volume rm my-vol
+
+# 挂载数据卷的容器：
+# 在用 docker run 命令的时候，使用 --mount 标记来将 数据卷 挂载到容器里。
+# 下面创建一个名为 web 的容器，并加载一个 数据卷 到容器的 /usr/share/nginx/html 目录
+docker run -d -P \
+    --name web \
+    # -v my-vol:/usr/share/nginx/html \
+    --mount source=my-vol,target=/usr/share/nginx/html \
+    nginx:alpine
+
+# 挂载一个主机目录作为数据卷
+# 使用 --mount，加载主机的 /src/webapp 目录到容器的 /usr/share/nginx/html目录
+docker run -d -P \
+    --name web \
+    # -v /src/webapp:/usr/share/nginx/html \
+    --mount type=bind,source=/src/webapp,target=/usr/share/nginx/html \
+    nginx:alpine
+```
+
+> tip:
+>
+> ```shell
+> # 在宿主机里查看指定 数据卷 的信息
+> docker volume inspect my-vol
+> 
+> [
+>     {
+>         "Driver": "local",
+>         "Labels": {},
+>         "Mountpoint": "/var/lib/docker/volumes/my-vol/_data",
+>         "Name": "my-vol",
+>         "Options": {},
+>         "Scope": "local"
+>     }
+> ]
+> ```
+>
+> 注：每创建一个volume，docker会在 `/var/lib/docker/volumes/` 下创建一个子目录，默认情况下目录名是一串UUID。如果指定了名称，则目录名是volume名称（例如上面的my-vol）。volume里的数据都存储在这个子目录的`_data`目录下。==**这个路径可以修改，遇到过不在 /var/lib/docker/volumes/ 下面的。**==
+>
+> **MountPoint** 宿主机上的路径为/var/lib/docker/volumes/wmy-vol/_data，数据卷的名称为my-vol。
+
+> tip:
+>
+> ```shell
+> # 删除数据卷
+> docker volume rm my-vol
+> ```
+>
+> `数据卷` 是被设计用来持久化数据的，它的生命周期独立于容器，Docker 不会在容器被删除后自动删除 `数据卷`，并且也不存在垃圾回收这样的机制来处理没有任何容器引用的 `数据卷`。
+>
+> 如果需要在删除容器的同时移除数据卷。可以在删除容器的时候使用 `docker rm -v` 这个命令。
+
+> tip:
+>
+> ```shell
+> # 在用 docker run 命令的时候，使用 --mount 标记来将 数据卷 挂载到容器里。
+> # 下面创建一个名为 web 的容器，并加载一个 数据卷 到容器的 /usr/share/nginx/html 目录
+> docker run -d -P \
+>     --name web \
+>     # -v my-vol:/usr/share/nginx/html \
+>     --mount source=my-vol,target=/usr/share/nginx/html \
+>     nginx:alpine
+> 
+> # 挂载一个主机目录作为数据卷
+> # 使用 --mount，加载主机的 /src/webapp 目录到容器的 /usr/share/nginx/html目录
+> docker run -d -P \
+>     --name web \
+>     # -v /src/webapp:/usr/share/nginx/html \
+>     --mount type=bind,source=/src/webapp,target=/usr/share/nginx/html \
+>     nginx:alpine
+> ```
+>
+> 挂载数据卷相关总结：
+>
+> > [Docker 基础知识 - 使用绑定挂载(bind mounts)管理应用程序数据](https://ittranslator.cn/backend/docker/2020/07/13/docker-storage-bind-mounts.html)
+> >
+> > [Docker数据管理-volume/bind mount/tmpfs mount](https://blog.zhimma.com/2019/04/10/Docker%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86-volume-bind-mount-tmpfs-mount/)
+>
+> 1. 选择 `-v` 或者 `--mount` 标记
+>
+>    最初，`-v` 或 `--volume` 标记用于独立容器，`--mount` 标记用于集群服务。但是，从 Docker 17.06 开始，您也可以将 `--mount` 用于独立容器。
+>
+>    通常，`--mount` 标记表达更加明确和冗长。最大的区别是 `-v` 语法将所有选项组合在一个字段中，而 `--mount` 语法将选项分离。下面是每个标记的语法比较。
+>
+>    > 提示：新用户推荐使用 `--mount` 语法，有经验的用户可能更熟悉 `-v` or `--volume` 语法，但是更鼓励使用 `--mount` 语法，因为研究表明它更易于使用。
+>
+>    - `-v` 或 `--volume` : 由三个字段组成，以冒号(:)分隔。如`<卷名>:<容器路径>:<选项列表>`。字段必须按照正确的顺序排列，且每个字段的含义不够直观明显。
+>      - 对于绑定挂载（bind mounts）, 第一个字段是主机上文件或目录的路径。
+>      - 第二个字段是容器中文件或目录挂载的路径。
+>      - 第三个字段是可选的，是一个逗号分隔的选项列表，比如 `ro`、`consistent`、 `delegated`、 `cached`、 `z` 和 `Z`。这些选项会在本文下面讨论。
+>    - `--mount` ：由多个键-值对组成，以逗号分隔，每个键-值对由一个 `<key>=<value>` 元组组成。`--mount` 语法比 `-v` 或 `--volume` 更冗长，但是键的顺序并不重要，标记的值也更容易理解。
+>      - 挂载的类型（`type`），可以是 `bind`、`volume` 或者 `tmpfs`。本主题讨论绑定挂载（bind mounts），因此类型（`type`）始终为绑定挂载（`bind`）。
+>      - 挂载的源（`source`），对于绑定挂载，这是 Docker 守护进程主机上的文件或目录的路径。可以用 `source` 或者 `src` 来指定。
+>      - 目标（`destination`），将容器中文件或目录挂载的路径作为其值。可以用 `destination`、`dst` 或者 `target` 来指定。
+>      - `readonly` 选项（如果存在），则会将绑定挂载以[只读形式挂载到容器](https://ittranslator.cn/backend/docker/2020/07/13/docker-storage-bind-mounts.html#use-a-read-only-bind-mount)中。
+>      - `bind-propagation` 选项（如果存在），则更改[绑定传播](https://ittranslator.cn/backend/docker/2020/07/13/docker-storage-bind-mounts.html#configure-bind-propagation)。 可能的值是 `rprivate`、 `private`、 `rshared`、 `shared`、 `rslave` 或 `slave` 之一。
+>      - [`consistency`](https://ittranslator.cn/backend/docker/2020/07/13/docker-storage-bind-mounts.html#configure-mount-consistency-for-macos) 选项（如果存在）， 可能的值是 `consistent`、 `delegated` 或 `cached` 之一。 这个设置只适用于 Docker Desktop for Mac，在其他平台上被忽略。
+>      - `--mount` 标记不支持用于修改 selinux 标签的 `z` 或 `Z`选项。
+>
+> 2.  `-v` 和 `--mount` 行为之间的差异
+>
+>    由于 `-v` 和 `-volume` 标记长期以来一直是 Docker 的一部分，它们的行为无法改变。这意味着 `-v` 和 `-mount` 之间有一个不同的行为。
+>
+>    如果您使用 `-v` 或 `-volume` 来绑定挂载 Docker 主机上还不存在的文件或目录，则 `-v` 将为您创建它。它总是作为目录创建的。
+>
+>    如果使用 `--mount` 绑定挂载 Docker 主机上还不存在的文件或目录，Docker 不会自动为您创建它，而是产生一个错误。
+>
+> 3. Docker挂载方式
+>
+>    Docker提供了3种方法将数据从Docker宿主机挂载（mount）到容器：`volumes`，`bind mounts`和`tmpfs mounts`。一般来说，`volumes`总是最好的选择。
+>
+>    不管你选择哪种挂载方式，从容器中看都是一样的。数据在容器的文件系统中被展示为一个目录或者一个单独的文件。
+>
+>    一个简单区分`volumes`，`bind mounts`和`tmpfs mounts`不同点的方法是：**思考数据在宿主机上是如何存在的。**
+>
+>    - **Volumes**由Docker管理，存储在宿主机的某个地方（在linux上是`/var/lib/docker/volumes/`）。非Docker应用程序不能改动这一位置的数据。Volumes是Docker最好的数据持久化方法。
+>    - **Bind mounts**的数据可以存放在宿主机的任何地方。数据甚至可以是重要的系统文件或目录。非Docker应用程序可以改变这些数据。
+>    - **tmpfs mounts**的数据只存储在宿主机的内存中，不会写入到宿主机的文件系统。
+
+
+
+
+
+
+
+
+
+
+
+
 
