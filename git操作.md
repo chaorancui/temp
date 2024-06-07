@@ -596,7 +596,11 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
 ### git chekcout
 
-原来是 git 中的 checkout 命令承载了分支操作和文件恢复的部分功能，有点复杂，并且难以使用和学习，所以社区解决将这两部分功能拆分开，在 git 2.23.0 中引入了两个新的命令 switch 和 restore 用来取代 checkout。
+git checkout 这个命令承担了太多职责，既被用来切换分支，又被用来恢复工作区文件，对用户造成了很大的认知负担。
+
+Git社区发布了Git的新版本2.23。在该版本中，有一个特性非常引人瞩目，就是新版本的Git引入了两个新命令 git switch 和 git restore，用以替代现在的 git checkout。换言之，git checkout 将逐渐退出历史舞台。
+
+Git社区决定这样做，是因为目前 git checkout 命令承载了太多的功能，这让新手们感到困惑。git checkout 的核心功能包括两个方面，一个是分支的管理，一个是文件的恢复。这两个核心功能，未来将由 git switch 和 git restore 分别负责。
 
 1. 切换与创建分支
 
@@ -618,6 +622,8 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
 
 
+> [工具系列 | git checkout 可替换命令 git switch 和 git restore](https://www.cnblogs.com/tinywan/p/12344267.html)
+>
 > https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
 
 
