@@ -1,5 +1,8 @@
 # windows玩机
 
+## Typora_Unlocker
+https://github.com/743859910/Typora_Unlocker
+
 ### win10互换Ctrl 和Caps键位
 https://www.cnblogs.com/CoolMark-blog/p/12317492.html
 https://gist.github.com/joshschmelzle/5e88dabc71014d7427ff01bca3fed33d
