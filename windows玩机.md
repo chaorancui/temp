@@ -1,5 +1,8 @@
 # windows玩机
 
+### win10互换Ctrl 和Caps键位
+https://www.cnblogs.com/CoolMark-blog/p/12317492.html
+
 ### 快速清理 Windows 大文件，它比「老牌」更好用：WizTree | App +1
 https://sspai.com/post/64363
 
