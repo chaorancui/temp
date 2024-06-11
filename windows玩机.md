@@ -2,6 +2,7 @@
 
 ## Typora_Unlocker
 https://github.com/743859910/Typora_Unlocker
+https://www.ghxi.com/typora.html
 
 ### win10互换Ctrl 和Caps键位
 https://www.cnblogs.com/CoolMark-blog/p/12317492.html
