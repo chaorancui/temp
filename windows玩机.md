@@ -1,6 +1,9 @@
 # windows玩机
 
-## Typora_Unlocker
+### WSL 安装与使用
+https://docs.eesast.com/docs/tools/wsl
+
+### Typora_Unlocker
 https://github.com/743859910/Typora_Unlocker
 https://www.ghxi.com/typora.html
 
