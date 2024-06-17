@@ -5,6 +5,10 @@ https://docs.eesast.com/docs/tools/wsl
 
 https://juejin.cn/post/7024498662935904269
 
+###开始通过适用于 Linux 的 Windows 子系统使用 Visual Studio Code
+https://learn.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-vscode
+
+
 ### Typora_Unlocker
 https://github.com/743859910/Typora_Unlocker
 
