@@ -165,4 +165,13 @@ F11这是全屏操作
 
 
 
+### 【linux 命令】ll 命令不管用的问题
+vim ~/.bashrc
+
+alias ll=’ls -l’ #加入此行
+
+ps:加入后肯能无法当场起作用,执行该句: 
+source ~/.bashrc
+
+
 
