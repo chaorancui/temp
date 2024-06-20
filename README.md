@@ -1,4 +1,8 @@
 # 无卵用的记录
+
+### shell 学习
+https://shellscript.readthedocs.io/zh-cn/latest/1-syntax/2-datatype/index.html
+
 https://github.com/chaorancui/temp/blob/main/README.md
 ### chrome 黑暗模式插件
 Night Eye
