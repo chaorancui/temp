@@ -93,10 +93,69 @@ git config --global user.email zhangsan@qq.com
 ```
 这个配置信息会在 Git 仓库中提交的修改信息中体现，但和 Git 服务器认证使用的密码或者公钥密码无关。
 
-### 文本换行符配置
+### git 行尾转换
+
+> [8.1 自定义 Git - 配置 Git](https://git-scm.com/book/zh/v2/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-%E9%85%8D%E7%BD%AE-Git)
+>
+> [GitHub 第一坑：换行符自动转换](https://github.com/cssmagic/blog/issues/22)
+
+`core.autocrlf`
+
+假如你正在 Windows 上写程序，而你的同伴用的是其他系统（或相反），你可能会遇到 CRLF 问题。 这是因为 Windows 使用回车（CR）和换行（LF）两个字符来结束一行，而 macOS 和 Linux 只使用换行（LF）一个字符。 虽然这是小问题，但它会极大地扰乱跨平台协作。许多 Windows 上的编辑器会悄悄把行尾的换行字符转换成回车和换行， 或在用户按下 Enter 键时，插入回车和换行两个字符。
+
+Git 可以在你提交时自动地把回车和换行转换成换行，而在检出代码时把换行转换成回车和换行。 你可以用 `core.autocrlf` 来打开此项功能。 如果是在 Windows 系统上，把它设置成 `true`，这样在检出代码时，换行会被转换成回车和换行：
+
+```console
+$ git config --global core.autocrlf true
+```
+
+如果使用以换行作为行结束符的 Linux 或 macOS，你不需要 Git 在检出文件时进行自动的转换； 然而当一个以回车加换行作为行结束符的文件不小心被引入时，你肯定想让 Git 修正。 你可以把 `core.autocrlf` 设置成 input 来告诉 Git 在提交时把回车和换行转换成换行，检出时不转换：
+
+```console
+$ git config --global core.autocrlf input
+```
+
+这样在 Windows 上的检出文件中会保留回车和换行，而在 macOS 和 Linux 上，以及版本库中会保留换行。
+
+如果你是 Windows 程序员，且正在开发仅运行在 Windows 上的项目，可以设置 `false` 取消此功能，把回车保留在版本库中：
+
+```console
+$ git config --global core.autocrlf false
+```
+
+关掉了 Git 的“换行符自动转换”功能就万事大吉了吗？失去了它的“保护”，你心里会有点不踏实。你可能会问：如果我不小心在文件中混入了几个 Windows 回车该怎么办？这种意外可以防范吗？
+
+事实上 Git 还真能帮你阻止这种失误。它提供了一个换行符检查功能（`core.safecrlf`），可以在提交时检查文件是否混用了不同风格的换行符。这个功能的选项如下：
+
+- `false` - 不做任何检查
+- `warn` - 在提交时检查并警告
+- `true` - 在提交时检查，如果发现混用则拒绝提交
+
+我建议使用最严格的 `true` 选项。
+
+**行尾批量转换**
+
+借助 git 的 core.autocrlf 可以进行批量转换
+
+1. 新建空白文件夹，复制需要转换的文件到此文件夹
+2. 初始化此文件夹为git仓库并提交
+3. 删掉全部文件，然后还原，新文件现在全部是lf换行
+4. 用新文件覆盖原来的
+
+```shell
+cd temp
+git init
+git config core.autocrlf true
+git add .
+git commit -m "init"
+rm -rf *
+git reset --hard HEAD
+```
+
 
 
 ### 与服务器认证的配置
+
 常见的两种协议认证的方式
 * http/https 协议认证
   设置口令缓存，可以不用每次都输入用户名和密码：
