@@ -4,6 +4,10 @@
 https://shellscript.readthedocs.io/zh-cn/latest/1-syntax/2-datatype/index.html
 
 https://github.com/chaorancui/temp/blob/main/README.md
+
+https://linuxstory.gitbook.io/advanced-bash-scripting-guide-in-chinese
+
+
 ### chrome 黑暗模式插件
 Night Eye
 
