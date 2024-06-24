@@ -91,7 +91,7 @@ Linux 安装时可能要修改的配置文件：
 
 
 
-## 交互式_非交互式_登录式_非登录式 shell
+## 交互式非交互式 登录式非登录式 shell
 
 > [Linux-命令-交互式_非交互式_登录式_非登录式.md](https://wetts.github.io/2020/03/14/%E7%B3%BB%E7%BB%9F%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8/%E7%B3%BB%E7%BB%9F/Linux/Linux-%E5%91%BD%E4%BB%A4-%E4%BA%A4%E4%BA%92%E5%BC%8F_%E9%9D%9E%E4%BA%A4%E4%BA%92%E5%BC%8F_%E7%99%BB%E5%BD%95%E5%BC%8F_%E9%9D%9E%E7%99%BB%E5%BD%95%E5%BC%8F/)
 
@@ -226,6 +226,246 @@ exit
 登录shell（包括交互式登录shell和使用“–login”选项的非交互shell），它会首先读取和执行 ` /etc/profile`全局配置文件中的命令，然后依次查找`~/.bash_profile`、`~/.bash_login` 和 `~/.profile` 这三个配置文件，读取和执行这三个中的第一个存在且可读的文件中命令。除非被“–noprofile”选项禁止了。
 
 在非登录shell里，只读取 `~/.bashrc` （和 `/etc/bash.bashrc`、`/etc/bashrc` ）文件，不同的发行版里面可能有所不同，如RHEL6.3中非登录shell仅执行了“~/.bashrc”文件（没有执行/etc/bashrc），而KUbuntu10.04中却依次执行了/etc/bash.bashrc 和 ~/.bashrc 文件。
+
+
+
+## 用户无法自动加载 .bashrc的问题
+
+今天遇到一个问题，linux下某用户登陆后无法加在其自身的 `.bashrc`，通过 `source .bashrc` 发现 `.bashrc` 是没有问题的，文件的权限也是没有问题的。
+
+后来发现是因为该用户下的 `.bash_profile` 被删除（`~/.bash_profile`，`~/.bash_login`，`~/.profile` 按优先级执行高的一个）。
+
+其实加在顺序不是首先加载 `.bashrc`，而是先加载 `.bash_profile` （优先级3选1）。
+
+将 `.bash_profile` （3选1）文件补一下就好了，可以找个存在这个文件的系统，下面是 ubuntu22.04中的 `.profile`，可作为参考：
+
+```shell
+# ~/.profile: executed by the command interpreter for login shells.
+# This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
+# exists.
+# see /usr/share/doc/bash/examples/startup-files for examples.
+# the files are located in the bash-doc package.
+
+# the default umask is set in /etc/profile; for setting the umask
+# for ssh logins, install and configure the libpam-umask package.
+#umask 022
+
+# if running bash
+if [ -n "$BASH_VERSION" ]; then
+    # include .bashrc if it exists
+    if [ -f "$HOME/.bashrc" ]; then
+	. "$HOME/.bashrc"
+    fi
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/bin" ] ; then
+    PATH="$HOME/bin:$PATH"
+fi
+
+# set PATH so it includes user's private bin if it exists
+if [ -d "$HOME/.local/bin" ] ; then
+    PATH="$HOME/.local/bin:$PATH"
+fi
+```
+
+
+
+## shell 脚本执行方式
+
+> [Shell的多种执行方式](https://blog.csdn.net/swadian2008/article/details/122310011)
+>
+> [理解$0和BASH_SOURCE](https://www.junmajinlong.com/shell/bash_source/)
+
+Shell本身是一个用C语言编写的程序，它是用户使用Unix/Linux的桥梁，用户的大部分工作都是通过Shell完成的。**Shell既是一种命令语言，又是一种程序设计语言**。作为命令语言，它交互式地解释和执行用户输入的命令；作为程序设计语言，它定义了各种变量和参数，并提供了许多在高级语言中才具有的控制结构，包括循环和分支。
+
+**Shell有两种执行命令的方式：**
+
+- 交互式（Interactive）：解释执行用户的命令，用户输入一条命令，Shell就解释执行一条。
+- 批处理（Batch）：用户事先写一个Shell脚本(Script)，其中有很多条命令，让Shell一次把这些命令执行完，而不必一条一条地敲命令。
+
+
+Shell脚本和编程语言很相似，也有变量和流程控制语句，但Shell脚本是解释执行的，不需要编译，Shell程序从脚本中一行一行读取并执行这些命令，相当于一个用户把脚本中的命令一行一行敲到Shell提示符下执行。
+
+
+
+**运行 Shell 脚本有两种方法：**
+
+一种在新进程中运行，一种是在当前 Shell 进程中运行。
+
+### 一、在新进程中运行 Shell 脚本(bash)
+
+在新进程中运行 Shell 脚本有多种方法。
+
+#### 1) 将 Shell 脚本作为程序运行
+
+Shell 脚本也是一种解释执行的程序，可以在终端直接调用（需要使用 chmod 命令给 Shell 脚本**加上执行权限**），如下所示：
+
+```shell
+# 给脚本增加执行权限
+chmod +x test.sh 
+
+# 执行脚本
+./test.sh 
+```
+
+> Note：
+>
+> * `./`表示当前目录，整条命令的意思是执行当前目录下的 test.sh 脚本。如果不写`./`，Linux 会到系统路径（由 PATH 环境变量指定）下查找 test.sh，而系统路径下显然不存在这个脚本，所以会执行失败。
+> * 通过这种方式运行脚本，脚本文件第一行的`#!/bin/bash`一定要写对，好让系统查找到正确的[解释器](https://so.csdn.net/so/search?q=解释器&spm=1001.2101.3001.7020)。
+
+#### 2) 将 Shell 脚本作为参数传递给 Bash 解释器
+
+你也可以直接运行 Bash 解释器，将脚本文件的名字作为参数传递给 Bash，如下所示：
+
+```shell
+/bin/bash test.sh
+# 或
+bash test.sh	# 写法更简洁
+```
+
+> Note:
+>
+> * 通过这种方式运行脚本，不需要在脚本文件的第一行指定解释器信息，写了也没用。
+> * /bin/bash 和 bash 写法本质是一样的，第一种写法给出了绝对路径，会直接运行 Bash 解释器；第二种写法通过 bash 命令找到 Bash 解释器所在的目录，然后再运行，只不过多了一个查找的过程而已。
+
+**检测是否开启了新进程**
+
+Linux 中的每一个进程都有一个唯一的 ID，称为 PID，使用**`$$`**变量就可以获取当前进程的 PID。
+
+首先编写如下的脚本文件，并命名为 check.sh：
+
+```bash
+#!/bin/bash
+echo $$ 
+```
+
+然后使用以上两种方式来运行 check.sh：
+
+```crystal
+[root123@localhost addon]$ ./check.sh 
+27579  # 新进程
+[root123@localhost addon]$ bash check.sh
+27623  # 新进程
+[root123@localhost addon]$ echo $$
+23797  # 当前进程
+```
+
+你看，进程的 PID 都不一样，当然就是不同进程了。
+
+### 二、在当前进程中运行 Shell 脚本(source)
+
+这里需要引入一个新的命令——source 命令。source 是 [Shell 内置命令](http://c.biancheng.net/view/1136.html)的一种，它会读取脚本文件中的代码，并依次执行所有语句。你也可以理解为，source 命令会强制执行脚本文件中的全部命令，而忽略脚本文件的权限。
+
+source 命令的用法为：
+
+```bash
+source filename
+# 也可以简写为：
+. filename		# 两种写法的效果相同。注意点号`.`和文件名中间有一个空格。
+```
+
+使用 source 命令不用给脚本增加执行权限，并且写不写`./`都行，是不是很方便呢？
+
+**检测是否在当前 Shell 进程中**
+
+我们仍然借助**`$$`**变量来输出进程的 PID，如下所示：
+
+```crystal
+[root123@localhost addon]$ echo $$
+23797
+[root123@localhost addon]$ . check.sh 
+23797
+```
+
+你看，进程的 PID 都是一样的，当然是同一个进程了。
+
+
+
+### 理解$0和BASH_SOURCE
+
+如上所述，一个shell(bash)脚本有两种执行方式：
+
+- 直接执行，新起进程执行，类似于执行二进制程序
+- source执行，当前进程从文件读取和执行命令，类似于加载库文件
+
+`$0`保存了被执行脚本的程序名称。注意，它保存的是以二进制方式执行的脚本名而非以source方式加载的脚本名称。
+
+例如，执行a.sh时，a.sh中的`$0`的值是a.sh，如果a.sh执行b.sh，b.sh中的`$0`的值是b.sh，如果a.sh中source b.sh，则b.sh中的`$0`的值为a.sh。
+
+除了`$0`，bash还提供了一个数组变量`BASH_SOURCE`，该数组保存了bash的SOURCE调用层次。这个层次是怎么体现的，参考下面的示例。
+
+执行shell脚本a.sh时，shell脚本的程序名`a.sh`将被添加到`BASH_SOURCE`数组的第一个元素中，即`${BASH_SOURCE[0]}`的值为`a.sh`，这时`${BASH_SOURCE[0]}`等价于`$0`。
+
+当在a.sh中执行b.sh时：
+
+```shell
+# a.sh中的$0和BASH_SOURCE
+$0 --> "a.sh"
+${BASH_SOURCE[0]} -> "a.sh"
+
+# b.sh中的$0和BASH_SOURCE
+$0 --> "b.sh"
+${BASH_SOURCE[0]} -> "b.sh"
+```
+
+当在a.sh中source b.sh时：
+
+```shell
+# a.sh中的$0和BASH_SOURCE
+$0 --> "a.sh"
+${BASH_SOURCE[0]} -> "a.sh"
+
+# b.sh中的$0和BASH_SOURCE
+$0 --> "a.sh"
+${BASH_SOURCE[0]} -> "b.sh"
+${BASH_SOURCE[1]} -> "a.sh"
+```
+
+当在a.sh中source b.sh时，如果b.sh中还执行了source c.sh，那么：
+
+```shell
+# a.sh中的$0和BASH_SOURCE
+$0 --> "a.sh"
+${BASH_SOURCE[0]} -> "a.sh"
+
+# b.sh中的$0和BASH_SOURCE
+$0 --> "a.sh"
+${BASH_SOURCE[0]} -> "b.sh"
+${BASH_SOURCE[1]} -> "a.sh"
+
+# c.sh中的$0和BASH_SOURCE
+$0 --> "a.sh"
+${BASH_SOURCE[0]} -> "c.sh"
+${BASH_SOURCE[1]} -> "b.sh"
+${BASH_SOURCE[2]} -> "a.sh"
+```
+
+使用脚本来验证一下`BASH_SOURCE`和`$0`。在x.sh中source y.sh，在y.sh中source z.sh：
+
+```shell
+# x.sh
+source y.sh
+echo "x.sh: ${BASH_SOURCE[@]}"
+
+# y.sh
+source z.sh
+echo "y.sh: ${BASH_SOURCE[@]}"
+
+# z.sh
+echo "z.sh: ${BASH_SOURCE[@]}"
+```
+
+执行x.sh输出结果：
+
+```shell
+$ bash x.sh
+z.sh: z.sh y.sh x.sh
+y.sh: y.sh x.sh
+x.sh: x.sh
+```
+
+
 
 
 
@@ -614,6 +854,79 @@ ssh -p 22 my@127.0.0.1
 回车输入密码即可登录
 
 > [设置SSH通过秘钥登录](https://www.runoob.com/w3cnote/set-ssh-login-key.html)
+>
+> [ssh免密登录配置方法及配置](https://blog.csdn.net/weixin_44966641/article/details/123955997)
+>
+> [VSCode——SSH免密登录](https://blog.csdn.net/qq_45779334/article/details/129308235?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4)
+>
+> 1. 生成秘钥对
+>
+>    在本地机器上生成公钥、私钥：（一路回车默认即可）
+>
+>    ```shell
+>    # 自行查阅命令参数，-t 秘钥类型；-C 注释；-f 生成文件名；
+>    # 最好先进入 `~/.ssh` 目录，这样文件直接生成在这个目录下。
+>    ssh-keygen -t rsa -C "user@host" -f "path/id_rsa_user@host"
+>    ```
+>
+>    可以在 `~/.ssh` 目录下看到两个秘钥文件，即我们刚生成的私钥 `id_rsa_user@host` 和公钥 `id_rsa_user@host.pub`（具体名称取决于你的命名）。
+>
+> 2. 上传公钥到服务器
+>
+>    在本地机器上生成秘钥对之后，需要将公钥 `id_rsa_user@host.pub` 中的内容放到对应服务器上的 `~/.ssh/authorized_keys` 文件中，此步有2中方式：
+>
+>    ```shell
+>    # 1.通过 ssh-copy-id 命令，命令有点类似 scp，需要输入密码
+>    ssh-copy-id -i /path/id_rsa_user@host.pub user@host
+>    
+>    # 2.手动将直接将公钥文件内容拷贝到服务器的 ~/.ssh/authorized_keys 文件中
+>    ```
+>
+> 3. 配置 config 文件
+>
+>    配置本地机器的 `~/.ssh/config` 文件，在对应 ip 下增加下面内容即可：
+>
+>    ```shell
+>    Host 10.143.123.230
+>      HostName 10.143.123.230
+>      Port 22
+>      User c00619335
+>      PreferredAuthentications publickey
+>      IdentityFile ~/.ssh/id_rsa_c00619335@10.143.123.230
+>    ```
+>
+>    同时要确保服务器上允许使用公钥链接
+>
+>    ```shell
+>    # /etc/ssh/sshd_config 文件中，把 PubkeyAuthentication 前的 # 号去掉（默认在39行附近），这样公钥验证才生效。
+>    ```
+>
+> 4. 测试免密登录
+
+
+
+### ssh-keygen
+
+> [ssh-keygen](http://linux.51yip.com/search/ssh-keygen)
+
+ssh-keygen 用于为 ssh(1)生成、管理和转换认证密钥，包括 RSA 和 DSA 两种密钥。**密钥类型可以用 -t 选项指定**。如果没有指定则默认生成用于SSH-2的RSA密钥。
+
+通常，这个程序产生一个密钥对，并要求**指定一个文件存放私钥**，同时将公钥存放在附加了".pub"后缀的同名文件中。
+
+程序同时要求输入一个密语字符串(passphrase)，空表示没有密语(主机密钥的密语必须为空)。
+
+密语和口令(password)非常相似，但是密语可以是一句话，里面有单词、标点符号、数字、空格或任何你想要的字符。好的密语要30个以上的字符，难以猜出，由大小写字母、数字、非字母混合组成。密语可以用 -p 选项修改。丢失的密语不可恢复。如果丢失或忘记了密语，用户必须产生新的密钥，然后把相应的公钥分发到其他机器上去。
+
+ RSA1的密钥文件中有一个**"注释"字段**，可以方便用户标识这个密钥，指出密钥的用途或其他有用的信息。创建密钥的时候，注释域初始化为"user@host"，以后可以用 -c 选项修改。
+
+```shell
+ -C comment	提供一个新注释
+ -f filename	指定密钥文件名。(要输入完整路劲，否则在当前路径下生成)
+-P passphrase	提供(旧)密语。
+-t type		指定要创建的密钥类型。可以使用："rsa1"(SSH-1) "rsa"(SSH-2) "dsa"(SSH-2)
+
+ssh-keygen -t rsa -C "user@host" -f "id_rsa_user@host"
+```
 
 
 
@@ -700,6 +1013,26 @@ cat -b textfile1 textfile2 >> textfile3	# 把 textfile1 和 textfile2 的文档�
 cat /dev/null > /etc/test.txt	# 清空 /etc/test.txt 文档内容：
 ```
 
+```shell
+# 要创建一个新文件并将内容写入它，你可以使用重定向操作符>或者cat命令本身。
+# 1.使用重定向操作符>：你可以输入你想要写入文件的内容。按下 Ctrl + D 来保存并退出。
+cat > new_file.txt
+# 2.使用cat命令：在<< EOF和EOF之间的文本是你要写入文件的内容。按下Enter后，然后按下Ctrl + D来保存并退出。
+cat > new_file.txt << EOF
+这是新文件的内容。
+它可以有多行。
+EOF
+
+# 要向现有文件追加内容，可以使用重定向操作符>>或者cat命令。
+# 1.使用重定向操作符>>：你可以输入你想要写入文件的内容。按下 Ctrl + D 来保存并退出。
+cat >> existing_file.txt
+# 2.使用cat命令：在<< EOF和EOF之间的文本是你要写入文件的内容。按下Enter后，然后按下Ctrl + D来保存并退出。
+cat >> existing_file.txt << EOF
+这是要追加到文件的内容。
+它可以有多行。
+EOF
+```
+
 
 
 head 命令可用于查看文件的开头部分的内容，有一个常用的参数 **-n** 用于显示行数，默认为 10，即显示 10 行的内容。
@@ -769,7 +1102,26 @@ cat [filename] | head -n 3000 | tail -n +1000
 
 
 
+# bash 补全忽略大小写
 
+> [配置bash补全忽略大小写](https://tinychen.com/20191023-bash-completion-ignore-case/)
+
+一般在centos和ubuntu中使用bash的时候，都会使用`bash-completion`来进行自动补全命令，在默认情况下，补全是区分大小写的，关闭区分大小写功能只需要在`inputrc`文件中修改一下即可。
+
+如果是最小化安装，可能没有安装这个补全工具。
+
+```shell
+# 在centos中使用yum安装
+yum install bash-completion -y
+
+# 在/etc/inputrc中添加使全局所有用户生效
+echo 'set completion-ignore-case on' >> /etc/inputrc
+
+# 对于个别用户，则可以在用户home目录下添加
+echo 'set completion-ignore-case on' >> ~/.inputrc
+```
+
+添加完成之后我们重新启动bash命令行或者是重新登录一下就可以生效了。
 
 
 
