@@ -468,7 +468,26 @@ docker run [OPTIONS] IMAGE [COMMAND] [ARG...]
 --link=[]: 添加链接到另一个容器；
 --expose=[]: 开放一个端口或一组端口；
 --volume , -v: 绑定一个卷，格式为：主机(宿主)卷:容器卷
+--user：指定用户登录docker，默认的登陆用户为 root，--user $(id -u):$(id -g)可以用宿主机中当前uid和gid的用户登录docker
 --privileged：默认情况下容器中的root用户只是host主机的一个普通用户，但如果docker run --privileged=true 就真正的给这个普通用户赋予了和host主机root用户的特权。
+--network：在Docker中，默认情况下容器与容器、容器与外部宿主机的网络是隔离开来的。当你安装Docker的时候，docker会创建一个桥接器docker0，通过它才让容器与容器之间、与宿主机之间通信。Docker安装的时候默认会创建三个不同的网络。你可以通过docker network ls命令查看这些网络。网络模式为none的，即不为Docker Container创建任何的网络环境。如果你在创建容器的时候使用--network=host选项，那么容器会使用宿主机的网络，容器与宿主机的网络并没有隔离。桥接网络--network=bridge是默认的网络类型。
+
+Dcoker容器在使用的过程中，默认的docker run时都是以普通方式启动的，有的时候是需要使用在容器中使用iptables进行启动的，这时候就需要开启权限，只需要在docker run时增加参数。
+--cap-add list                   Add Linux capabilities # 添加某些权限
+--cap-drop list                  Drop Linux capabilities # 关闭权限
+--privileged                     Give extended privileges to this container # default false 
+privileged，权限全开，不利于宿主机安全。
+cap-add/cap-drop，细粒度权限设置，需要什么开什么
+
+--restart：可以设置容器的重启策略，以决定在容器退出时Docker守护进程是否重启刚刚退出的容器。
+Docker容器的重启策略如下：
+- no，默认策略，在容器退出时不重启容器
+- on-failure，在容器非正常退出时（退出状态非0），才会重启容器
+- on-failure:3，在容器非正常退出时重启容器，最多重启3次
+- always，在容器退出时总是重启容器
+- unless-stopped，在容器退出时总是重启容器，但是不考虑在Docker守护进程启动时就已经停止了的容器
+在docker ps查看容器时，对于使用了--restart选项的容器，其可能的状态只有Up或Restarting两种状态。
+
 
 # 例：
 # 使用docker镜像nginx:latest以后台模式启动一个容器,并将容器命名为mynginx。
@@ -501,6 +520,32 @@ docker run -it nginx:latest /bin/bash
 > - 从地址池配置一个 ip 地址给容器
 > - 执行用户指定的应用程序
 > - 执行完毕后容器被终止
+
+> [Docker run 命令参数及使用](https://www.jianshu.com/p/ea4a00c6c21c)
+>
+> [Docker Network入门用法](https://loocode.com/post/docker-network-ru-men-yong-fa)
+>
+> [docker 容器的权限设置](https://blog.csdn.net/myli92/article/details/127479212)
+>
+> [Docker容器的重启策略及docker run的--restart选项详解](https://blog.csdn.net/taiyangdao/article/details/73076019)
+>
+> [Docker Volume - 目录挂载以及文件共享](https://kebingzao.com/2019/02/25/docker-volume/)
+
+```shell
+docker run -d \
+    -it \
+    --privileged \
+    -h <hostname> '便于区分docker主机名和宿主机主机名' \
+    --restart always '总是启动容器' \
+    --network bridge 'bridge可以改端口映射，host使用主机端口'\
+    -p <port> '指定端口映射，格式为：主机(宿主)端口:容器端口' \
+    --name ascendc_c00619335 \
+    -v /data/c00619335:/data \
+    IMAGE \
+    /bin/bash ' [COMMAND]'
+
+docker exec -it ascendc_c00619335 bash
+```
 
 
 
@@ -853,13 +898,48 @@ docker run -d -P \
 
 
 
+# docker 知识碎片
+
+## debconf: unable to initialize frontend: Dialog
+
+> [debconf: unable to initialize frontend: Dialog问题解决](https://blog.csdn.net/weixin_44413445/article/details/137875391?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EYuanLiJiHua%7EPosition-3-137875391-blog-111039589.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EYuanLiJiHua%7EPosition-3-137875391-blog-111039589.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4)
+>
+> 
+
+文章讲述了在使用debconf时遇到初始化前端问题（Dialog和Readline不支持）的解决方案，包括通过命令行设置非交互式模式和在Dockerfile中修改环境变量DEBIAN_FRONTEND。还提到了在CI/CD流程中的应用实例。
+
+法一：
+
+```shell
+echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+sudo apt-get install -y -q
+```
+
+由于用的cicd，选择在sh文件中加上述内容解决问题
+
+法二：
+修改Dockerfile，添加DEBIAN_FRONTEND=noninteractive
+
+参考
+https://github.com/moby/moby/issues/27988
+
+## Docker：如何关闭以--restart=always启动的容器
+
+```shell
+docker update --restart=no <container-id>
+docker stop <container-id>
+```
 
 
 
+## Error response from daemon: No such image
 
+> [Docker删除镜像失败](https://blog.csdn.net/maple0102/article/details/82690215)
+>
+> [docker tag Error response from daemon: No such image: lhzx-gateway:latest](https://blog.51cto.com/u_16175504/6945027)
 
-
-
+1. 删除所有镜像、容器、网络和卷的方法：`docker system prune -a`
+2. 可能是由于Docker守护进程出现了错误。在这种情况下，可以尝试重启Docker服务。`sudo systemctl restart docker`
 
 
 
