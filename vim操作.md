@@ -350,7 +350,7 @@ set linebreak					" 设定文本过长折叠时以一个word为基本unit，而�
 set showmode					" 设定显示当前所处模式（默认开启）。使用"set noshowmode"来关闭，但是不建议关闭。
 set showcmd						" 设定显示当前命令（默认开启）。使用"set noshowcmd"来关闭，但是不建议关闭。
 set nolist						" 设定显示换行等默认隐藏的信息。使用"set nolist"来关闭。建议保持关闭。
-" set encoding=utf-8
+set encoding=utf-8
 " set autoindent
 
 " search
