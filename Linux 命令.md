@@ -1,3 +1,5 @@
+
+
 [toc]
 
 
@@ -676,6 +678,19 @@ zypper rl usbutils
 
 ## 常用命令
 
+### 长命令换行及注释的处理
+
+```shell
+xxxx \
+a `# 注释` \
+b \
+c \
+`# d` \
+e \
+f \
+g
+```
+
 ### curl 命令
 
 > [curl 的用法指南](https://www.ruanyifeng.com/blog/2019/09/curl-reference.html)
@@ -807,6 +822,31 @@ zypper rl usbutils
 
 
 
+### ssh-keygen
+
+> [ssh-keygen](http://linux.51yip.com/search/ssh-keygen)
+
+ssh-keygen 用于为 ssh(1)生成、管理和转换认证密钥，包括 RSA 和 DSA 两种密钥。**密钥类型可以用 -t 选项指定**。如果没有指定则默认生成用于SSH-2的RSA密钥。
+
+通常，这个程序产生一个密钥对，并要求**指定一个文件存放私钥**，同时将公钥存放在附加了".pub"后缀的同名文件中。
+
+程序同时要求输入一个密语字符串(passphrase)，空表示没有密语(主机密钥的密语必须为空)。
+
+密语和口令(password)非常相似，但是密语可以是一句话，里面有单词、标点符号、数字、空格或任何你想要的字符。好的密语要30个以上的字符，难以猜出，由大小写字母、数字、非字母混合组成。密语可以用 -p 选项修改。丢失的密语不可恢复。如果丢失或忘记了密语，用户必须产生新的密钥，然后把相应的公钥分发到其他机器上去。
+
+ RSA1的密钥文件中有一个**"注释"字段**，可以方便用户标识这个密钥，指出密钥的用途或其他有用的信息。创建密钥的时候，注释域初始化为"user@host"，以后可以用 -c 选项修改。
+
+```shell
+ -C comment	提供一个新注释
+ -f filename	指定密钥文件名。(要输入完整路劲，否则在当前路径下生成)
+-P passphrase	提供(旧)密语。
+-t type		指定要创建的密钥类型。可以使用："rsa1"(SSH-1) "rsa"(SSH-2) "dsa"(SSH-2)
+
+ssh-keygen -t rsa -C "user@host" -f "id_rsa_user@host"
+```
+
+
+
 ### ssh 登录命令
 
 > 参考：
@@ -853,79 +893,157 @@ ssh -p 22 my@127.0.0.1
 
 回车输入密码即可登录
 
+
+
+#### ssh 免密登录
+
 > [设置SSH通过秘钥登录](https://www.runoob.com/w3cnote/set-ssh-login-key.html)
 >
-> [ssh免密登录配置方法及配置](https://blog.csdn.net/weixin_44966641/article/details/123955997)
+> [ssh免密登录配置方法及配置](https://blog.csdn.net/weixin_44966641/article/details/123955997) ----主要
 >
-> [VSCode——SSH免密登录](https://blog.csdn.net/qq_45779334/article/details/129308235?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4)
+> [VSCode——SSH免密登录](https://blog.csdn.net/qq_45779334/article/details/129308235?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4) ----主要
 >
-> 1. 生成秘钥对
->
->    在本地机器上生成公钥、私钥：（一路回车默认即可）
->
->    ```shell
->    # 自行查阅命令参数，-t 秘钥类型；-C 注释；-f 生成文件名；
->    # 最好先进入 `~/.ssh` 目录，这样文件直接生成在这个目录下。
->    ssh-keygen -t rsa -C "user@host" -f "path/id_rsa_user@host"
->    ```
->
->    可以在 `~/.ssh` 目录下看到两个秘钥文件，即我们刚生成的私钥 `id_rsa_user@host` 和公钥 `id_rsa_user@host.pub`（具体名称取决于你的命名）。
->
-> 2. 上传公钥到服务器
->
->    在本地机器上生成秘钥对之后，需要将公钥 `id_rsa_user@host.pub` 中的内容放到对应服务器上的 `~/.ssh/authorized_keys` 文件中，此步有2中方式：
->
->    ```shell
->    # 1.通过 ssh-copy-id 命令，命令有点类似 scp，需要输入密码
->    ssh-copy-id -i /path/id_rsa_user@host.pub user@host
->    
->    # 2.手动将直接将公钥文件内容拷贝到服务器的 ~/.ssh/authorized_keys 文件中
->    ```
->
-> 3. 配置 config 文件
->
->    配置本地机器的 `~/.ssh/config` 文件，在对应 ip 下增加下面内容即可：
->
->    ```shell
->    Host 10.143.123.230
->      HostName 10.143.123.230
->      Port 22
->      User c00619335
->      PreferredAuthentications publickey
->      IdentityFile ~/.ssh/id_rsa_c00619335@10.143.123.230
->    ```
->
->    同时要确保服务器上允许使用公钥链接
->
->    ```shell
->    # /etc/ssh/sshd_config 文件中，把 PubkeyAuthentication 前的 # 号去掉（默认在39行附近），这样公钥验证才生效。
->    ```
->
-> 4. 测试免密登录
+> [git/ssh捋不清的几个问题](https://www.barretlee.com/blog/2014/03/11/cb-problems-in-git-when-ssh/)
+
+1. 生成秘钥对
+
+   在本地机器上生成公钥、私钥：（一路回车默认即可）
+
+   ```shell
+   # 自行查阅命令参数，-t 秘钥类型；-C 注释；-f 生成文件名；
+   # 最好先进入 `~/.ssh` 目录，这样文件直接生成在这个目录下。
+   ssh-keygen -t rsa -C "user@host" -f "path/id_rsa_user@host"
+   ```
+
+   可以在 `~/.ssh` 目录下看到两个秘钥文件，即我们刚生成的私钥 `id_rsa_user@host` 和公钥 `id_rsa_user@host.pub`（具体名称取决于你的命名）。
+
+2. 上传公钥到服务器
+
+   在本地机器上生成秘钥对之后，需要将公钥 `id_rsa_user@host.pub` 中的内容放到对应服务器上的 `~/.ssh/authorized_keys` 文件中，此步有2中方式：
+
+   ```shell
+   # 1.通过 ssh-copy-id 命令，命令有点类似 scp，需要输入密码
+   ssh-copy-id -i /path/id_rsa_user@host.pub user@host
+   
+   # 2.手动将直接将公钥文件内容拷贝到服务器的 ~/.ssh/authorized_keys 文件中，没有文件则创建文件
+   ```
+
+   > NOTE ：
+   >
+   > :warning:设置ssh路径下的权限（重要！）---- 本人未设置
+   > 远程服务器～/.ssh/authorized_keys文件设置好后，一定要修改路径下的权限，否则ssh密钥认证会失效！！
+   >
+   > 由于 authorized_keys这个文件我们自己创建的，而 ssh 处于安全性考虑，对.ssh目录下的文件权限内容有着严格的权限要求，如果权限设置不对，在配对秘钥的时候会无法打开authorized_keys文件从而导致秘钥配对失败。而ssh此时没有放弃连接，依然会尝试询问用户密码。最终产生的结果就是用户配置了公钥却仍然需要输入密码的问题。很多教程都没有说明这一点，导致我也是费了很大功夫才找到问题
+   >
+   > [vscode在remote SSH免密远程登录](https://blog.csdn.net/weixin_42907822/article/details/125237307)
+
+3. 配置 config 文件
+
+   配置本地机器的 `~/.ssh/config` 文件，在对应 ip 下增加下面内容即可：
+
+   ```shell
+   Host 10.143.123.230
+     HostName 10.143.123.230
+     Port 22
+     User c00619335
+     IdentityFile ~/.ssh/id_rsa_c00619335@10.143.123.230
+   ```
+
+   > * ssh config配置文件的基本格式
+   >
+   >   ```shell
+   >   Host   			# hostName的别名
+   >     HostName		# 是目标主机的主机名，也就是平时我们使用ssh后面跟的地址名称。
+   >     Port			# 指定的端口号。
+   >     User			# 指定的登陆用户名。
+   >     IdentifyFile	# 指定的私钥地址。
+   >   ```
+   >
+   > * 不要加  PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。
+   >
+   >   <font color=red>**被坑死了 -__-!!!**</font>
+
+   同时要确保服务器上允许使用公钥链接
+
+   ```shell
+   # /etc/ssh/sshd_config 文件中
+   PubkeyAuthentication yes	# 把#号去掉（默认在39行附近），这样公钥验证才生效。
+   ```
+
+   重启远程服务器的 ssh 服务
+
+   ```shell
+   service ssh start
+   ```
+
+4. 测试免密登录
 
 
 
-### ssh-keygen
+#### ssh 远程连接 docker
 
-> [ssh-keygen](http://linux.51yip.com/search/ssh-keygen)
-
-ssh-keygen 用于为 ssh(1)生成、管理和转换认证密钥，包括 RSA 和 DSA 两种密钥。**密钥类型可以用 -t 选项指定**。如果没有指定则默认生成用于SSH-2的RSA密钥。
-
-通常，这个程序产生一个密钥对，并要求**指定一个文件存放私钥**，同时将公钥存放在附加了".pub"后缀的同名文件中。
-
-程序同时要求输入一个密语字符串(passphrase)，空表示没有密语(主机密钥的密语必须为空)。
-
-密语和口令(password)非常相似，但是密语可以是一句话，里面有单词、标点符号、数字、空格或任何你想要的字符。好的密语要30个以上的字符，难以猜出，由大小写字母、数字、非字母混合组成。密语可以用 -p 选项修改。丢失的密语不可恢复。如果丢失或忘记了密语，用户必须产生新的密钥，然后把相应的公钥分发到其他机器上去。
-
- RSA1的密钥文件中有一个**"注释"字段**，可以方便用户标识这个密钥，指出密钥的用途或其他有用的信息。创建密钥的时候，注释域初始化为"user@host"，以后可以用 -c 选项修改。
+> [设置SSH远程连接docker容器](https://www.cnblogs.com/luochunxi/p/16699704.html)
+>
+> 
 
 ```shell
- -C comment	提供一个新注释
- -f filename	指定密钥文件名。(要输入完整路劲，否则在当前路径下生成)
--P passphrase	提供(旧)密语。
--t type		指定要创建的密钥类型。可以使用："rsa1"(SSH-1) "rsa"(SSH-2) "dsa"(SSH-2)
+# 1.创建容器，默认是root用户，需自定义<>中内容
+docker run -d \
+    -it \
+    -h <hostname> '便于区分docker主机名和宿主机主机名' \
+    -p <host_port>:<container_port> \
+    --name <docker_name> \
+    -v <HOST-DIR>:<CONTAINER-DIR> \
+    <IMAGE>
+    /bin/bash
 
-ssh-keygen -t rsa -C "user@host" -f "id_rsa_user@host"
+# 2.进入容器
+docker exec -it <docker_name> bash
+
+# 3.设置密码，修改容器的root密码
+passwd
+密码设置为：123456
+
+# 4.安装 ssh 
+apt-get update
+apt-get install openssh-server
+
+# 5.查看 ssh 是否启动
+ps -e | grep ssh	# 有sshd,说明ssh服务已经启动。如果没有启动，输入`service ssh start`启动服务
+
+# 6.修改配置，
+# 打开配置文件`/etc/ssh/sshd_config`
+PermitRootLogin yes		# 原文件为`PermitRootLogin without-password`，需要改成左边
+Port 22		# 原文件为`#Port 22`（不放开注释默认22），如果上面docker run命令中-p <host_port>:<container_port>的<container_port>为22，此处`Port 22`；若<container_port>为其他值如10086，则此处需要改成`Port 10086`。放开多个端口需同时添加多条`Port xxx`。
+
+# 7.启动 ssh，重启用`service ssh restart`
+service ssh start
+
+# 8.ssh远程登录上述创建的容器
+# 注意这里要用 root 用户登录
+ssh root@xx.xx.xx.xx -p <port>
+```
+
+> NOTE：
+>
+> 一定要检查 `~/.ssh/config` 文件，不要添加  PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。
+>
+> <font color=red>被坑死了 -__-!!!</font>
+>
+> ```shell
+> # 上面步骤修改配置文件`/etc/ssh/sshd_config`时，部分 wiki 说要放开下面配置，实测未放开也可以，未深究
+> PasswordAuthentication yes
+> ```
+
+
+
+#### ssh 启动报错 Badly formatted port number
+
+`/etc/ssh/sshd_config` 中端口号有问题，改正默认值22即可。如
+
+```shell
+# 打开文件 /etc/ssh/sshd_config，将 Port 改成22
+Port 22
 ```
 
 
@@ -959,8 +1077,6 @@ scp -r c://user/code/demo/dist root@192.168.9.25:/home/root/demo/fe/
 //-r代表上传的是文件夹以及文件夹里所有的东西
 scp -r dist root@192.168.9.25:/home/root/demo/fe/ 
 ```
-
-
 
 
 
