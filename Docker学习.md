@@ -549,6 +549,36 @@ docker exec -it ascendc_c00619335 bash
 
 
 
+**更新容器配置**
+
+```shell
+# 更新容器，动态更新容器的资源限制、重启策略等配置
+docker update [OPTIONS] CONTAINER [CONTAINER...]
+
+--blkio-weight		块 IO（相对权重），介于 10 到 1000 之间，或 0 禁用（默认 0）
+--cpu-period		限制CPU CFS（完全公平调度程序）周期
+--cpu-quota		限制CPU CFS（完全公平调度程序）配额
+--cpu-rt-period		限制CPU实时周期（以微秒为单位）
+--cpu-rt-runtime		将CPU实时运行时间限制在微秒级
+--cpu-shares,-c		CPU 份额（相对权重）
+--cpus		CPU数量
+--cpuset-cpus		允许执行的 CPU (0-3, 0,1)
+--cpuset-mems		允许执行的 MEM (0-3, 0,1)
+--memory,-m		内存限制
+--memory-reservation		内存软限制
+--memory-swap		交换限制等于内存加交换：-1 启用无限制交换
+--pids-limit		API 1.40+ 调整容器 pid 限制（设置 -1 表示无限制）
+--restart		容器退出时应用的重新启动策略
+
+# 例
+# 更新容器重启策略
+docker update --restart=on-failure:3 <container_name/id>
+```
+
+> [docker update 命令_docker update -p-CSDN博客](https://blog.csdn.net/agonie201218/article/details/132420832)
+
+
+
 **查看容器列表**
 
 ```shell
