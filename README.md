@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### python
+https://pythonhowto.readthedocs.io/zh-cn/latest/module.html
+
 ### shell 学习
 https://shellscript.readthedocs.io/zh-cn/latest/1-syntax/2-datatype/index.html
 
