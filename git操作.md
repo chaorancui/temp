@@ -8,9 +8,7 @@
 >
 > 推荐博文
 > [玩转Git三剑客笔记](https://www.cnblogs.com/xiaochenNN/p/17234617.html)
-> [三年 Git 使用心得 & 常见问题整理](https://segmentfault.com/a/1190000023734704)
-
-
+> [三年 Git 使用心得 &amp; 常见问题整理](https://segmentfault.com/a/1190000023734704)
 
 在Git管理下，大家实际操作的目录被称为工作树，也就是工作区域
 
@@ -26,13 +24,11 @@ git config --global alias.ci commit
 git config --global alias.st status
 ```
 
-
-
 ### git SSH 秘钥生成
 
 秘钥路径：
 
-```	bash
+```bash
 cd ~/.ssh
 ================>>
 authorized_keys2  id_dsa       known_hosts
@@ -49,7 +45,7 @@ ssh-keygen -t rsa -C "915422643@qq.com"
 
 拷贝 SSH 秘钥后要修改权限，原因是拷贝过来的密钥权限会变宽报错permissions are too open，一般修改为600就好：
 
-```bash 
+```bash
 一般拷贝后文件权限会改变，
 chmod 700 id_rsa id_rsa.pub
 # 或者
@@ -64,33 +60,42 @@ Windows下秘钥默认权限：-rw-r--r--
 >
 > [服务器上的 Git - 生成 SSH 公钥](https://git-scm.com/book/zh/v2/%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E7%9A%84-Git-%E7%94%9F%E6%88%90-SSH-%E5%85%AC%E9%92%A5)
 
-
 ### git 配置
+
 git 有三种配置
+
 * 系统配置（对所有用户都适用）
   存放在 git 的安装目录下：%Git%/etc/gitconfig；若使用 git config 时使用 --system 选项，读写的就是这个文件：
+
   ```bash
   git config --system core.autocrlf
   ```
+
 * 用户配置（只适用于改用户）
   存放在用户目录下。例如 Linux 存放在：~/.gitconfig；若使用 git config 时使用 --global 选项，读写的就是这个文件：
+
   ```bash
   git config --global user.name
   ```
+
 * 仓库配置（只对当前项目有效）
   当前仓库的配置文件（也就是工作目录中的 .git/config文件）；若使用 git config 时使用 --local 选项，读写的就是这个文件：
+
   ```bash
   git config --local remote.origin.url
   ```
+
   注：每一个级别的配置都会覆盖上层的相同配置，例如 .git/config 里的配置会覆盖 %Git$/etc/gitconfig 中的同名变量。
 
 ### 配置个人身份
 
 首次的 Git 设定（设定身份，自己做主）
+
 ```bash
 git config --global user.name "Zhang San"
 git config --global user.email zhangsan@qq.com
 ```
+
 这个配置信息会在 Git 仓库中提交的修改信息中体现，但和 Git 服务器认证使用的密码或者公钥密码无关。
 
 ### git 行尾转换
@@ -105,31 +110,33 @@ git config --global user.email zhangsan@qq.com
 
 Git 可以在你提交时自动地把回车和换行转换成换行，而在检出代码时把换行转换成回车和换行。 你可以用 `core.autocrlf` 来打开此项功能。 如果是在 Windows 系统上，把它设置成 `true`，这样在检出代码时，换行会被转换成回车和换行：
 
-```console
-$ git config --global core.autocrlf true
+```shell
+git config --global core.autocrlf true
 ```
 
 如果使用以换行作为行结束符的 Linux 或 macOS，你不需要 Git 在检出文件时进行自动的转换； 然而当一个以回车加换行作为行结束符的文件不小心被引入时，你肯定想让 Git 修正。 你可以把 `core.autocrlf` 设置成 input 来告诉 Git 在提交时把回车和换行转换成换行，检出时不转换：
 
-```console
-$ git config --global core.autocrlf input
+```shell
+git config --global core.autocrlf input
 ```
 
 这样在 Windows 上的检出文件中会保留回车和换行，而在 macOS 和 Linux 上，以及版本库中会保留换行。
 
 如果你是 Windows 程序员，且正在开发仅运行在 Windows 上的项目，可以设置 `false` 取消此功能，把回车保留在版本库中：
 
-```console
-$ git config --global core.autocrlf false
+```shell
+git config --global core.autocrlf false
 ```
 
 关掉了 Git 的“换行符自动转换”功能就万事大吉了吗？失去了它的“保护”，你心里会有点不踏实。你可能会问：如果我不小心在文件中混入了几个 Windows 回车该怎么办？这种意外可以防范吗？
 
 事实上 Git 还真能帮你阻止这种失误。它提供了一个换行符检查功能（`core.safecrlf`），可以在提交时检查文件是否混用了不同风格的换行符。这个功能的选项如下：
 
-- `false` - 不做任何检查
-- `warn` - 在提交时检查并警告
-- `true` - 在提交时检查，如果发现混用则拒绝提交
+* `false` - 不做任何检查
+
+* `warn` - 在提交时检查并警告
+
+* `true` - 在提交时检查，如果发现混用则拒绝提交
 
 我建议使用最严格的 `true` 选项。
 
@@ -152,21 +159,23 @@ rm -rf *
 git reset --hard HEAD
 ```
 
-
-
 ### 与服务器认证的配置
 
 常见的两种协议认证的方式
+
 * http/https 协议认证
   设置口令缓存，可以不用每次都输入用户名和密码：
-  
+
   ```bash
   git config --global credential.helper store
   ```
+
   设置HTTPS证书信任：
+
   ```bash
   git config http.sslverfy false
   ```
+
 * ssh 协议认证
   SSH 协议是一种非常常用的 Git 仓库访问协议，使用公钥认证、无需输入密码，加密传输，操作便利又保证安全。
 
@@ -182,10 +191,10 @@ git config --global credential.helper wincred
 
 然后使用 http 协议操作仓库时输入一次用户名密码就会被缓存起来，后面就不需要重复输入了。
 
-
-
 ### 创建 git 仓库
+
 创建 git 仓库:
+
 ```bash
 mkdir git-test
 cd git-test
@@ -196,13 +205,14 @@ git commit -m "first commit"
 git remote add origin https://gitee.com/cuichaoran/git-test.git
 git push -u origin "master"
 ```
+
 已有仓库?
+
 ```bash
 cd existing_git_repo
 git remote add origin https://gitee.com/cuichaoran/git-test.git
 git push -u origin "master"
 ```
-
 
 ### git remote
 
@@ -219,7 +229,6 @@ git push -u origin "master"
   ```
 
   其中，`name` 表示你要给这个远程库起的名字，`url` 表示这个库的地址
-
 * 取消本地目录下关联的远程库
 
   ```bash
@@ -227,7 +236,6 @@ git push -u origin "master"
   ```
 
   其中，`name` 表示你要给这个远程库起的名字
-
 * 命修改远程主机名
 
   ```bash
@@ -235,37 +243,35 @@ git push -u origin "master"
   ```
 
   其中，`name` 表示你要给这个远程库起的名字
-  
 
-------
+---
 
 补充：
 推送到远程库上面已经说了。删除远程分支比较麻烦。一种方式是，可以直接在 github 网页上操作，另一种方式是：
+
 ```shell
 git push <remote> --delete <branch>
 或
 git push <remote> :<branch>   #（注意冒号前的空格）
 ```
 
-
 ### git clone
 
 git clone 只能 clone 远程库的 master 分支，无法 clone 所有分支。
 
 * 从远程主机克隆一个版本库，未指定本地目录名则与远程主机的版本库同名。
+
 ```bash
 git clone <版本库的网址>
 git clone <版本库的网址> <本地目录名>
 ```
-
-
-
 
 ### git fetch
 
 git fetch 命令命令用于从远程获取代码库。
 
 * 将某个远程主机的所有分支的更新，全部取回本地。如果只想取回特定分支的更新，可以指定分支名。
+
 ```bash
 git fetch <远程主机名>
 git fetch <远程主机名> <分支名>
@@ -275,19 +281,19 @@ git fetch <远程主机名> <分支名>
 > 比如origin主机的master，就要用origin/master读取。
 
 * 取回远程主机的更新以后，可以在它的基础上，使用git switch/checkout命令创建一个新的分支。
+
 ```bash
 # 在本地创建和远程分支对应的分支，本地和远程分支的名称一致
 git checkout -b <branch_name> origin/<branch_name>
 ```
 
 * 此外，也可以使用 git merge 命令或者 git rebase 命令，在本地分支上合并远程分支。
+
 ```bash
 git merge origin/master
 # 或者
 git rebase origin/master
 ```
-
- 
 
 ### git pull
 
@@ -297,17 +303,16 @@ git rebase origin/master
 
   ```bash
   git pull <仓库关联命名> <远程分支名>:<本地分支名>
-  
+
   # 取回origin主机的next分支，与本地的master分支合并
   git pull origin next:master
   ```
-
 
 * 将远程指定分支拉取且合并到本地**当前**分支上：
 
   ```bash
   git pull <仓库关联命名> <远程分支名>
-  
+
   # 取回origin/master分支，与当前分支合并
   git pull origin master
   ```
@@ -316,7 +321,7 @@ git rebase origin/master
 
   ```bash
   git pull
-  
+
   // 将本地分支与远程同名分支相关联
   git push --set-upstream origin <本地分支名>
   // 简写方式：
@@ -325,7 +330,6 @@ git rebase origin/master
 
   在克隆远程项目的时候，本地分支会自动与远程仓库建立追踪关系，可以使用默认的origin来替代远程仓库名，
   所以，我常用的命令就是 git pull origin <远程仓库名>，操作简单，安全可控。
-
 * 将远程指定分支拉取到本地**指定**分支上（本地不存在的分支）:
 
   ```bash
@@ -343,14 +347,9 @@ git rebase origin/master
   git reset --hard origin/<远程分支名>
   ```
 
-
 > **git fetch**：这将更新 git remote 中所有的远程仓库所包含分支的最新commit-id, 将其记录到.git/FETCH_HEAD文件中
 >
-> 
->
 > 所以**可以认为git pull是git fetch和git merge两个步骤的结合**。
-
-
 
 ### git push
 
@@ -370,7 +369,7 @@ git rebase origin/master
 
   ```bash
   git push
-  
+
   // 将本地分支与远程同名分支相关联
   git push --set-upstream origin <本地分支名>
   // 简写方式：
@@ -381,11 +380,11 @@ git rebase origin/master
 
 > 注意：pull是远程在前本地在后，push相反
 
-
-
 ### git merge
+
 将指定分支合并到当前分支
-  ```bash
+
+```bash
   git merge <branch>
   
   # 如果当前是 master 分支，那么下面代码就是将 dev 分支合并到 master 分支
@@ -393,12 +392,7 @@ git rebase origin/master
 
   # 将源分支合并到目的分支
   git merge <source_branch> <dest_branch>
-  ```
-
-
-
-
-
+```
 
 ### git add
 
@@ -406,13 +400,11 @@ git rebase origin/master
 
 怎么办？总不可能将就一下，直接把一些乱七八糟的修改放在一个commit里吧？
 
-这个时候git add的`-p, --patch`参数就派上大用场了。
+这个时候git add的 `-p, --patch`参数就派上大用场了。
 
+这个 `(1/1) Stage this hunk [y,n,q,a,d,s,e,?]?` 提示是什么意思？
 
-
-这个`(1/1) Stage this hunk [y,n,q,a,d,s,e,?]? `提示是什么意思？
-
-执行`git add --help`然后跳到`INTERACTIVE MODE` 下的 `patch`部分，有详细的解释
+执行 `git add --help` 然后跳到 `INTERACTIVE MODE` 下的 `patch` 部分，有详细的解释
 
 默认是按下上述键后还需要按下回车确认的，如果想要直接单键确认，可以修改配置 `interactive.singleKey = true`
 
@@ -446,13 +438,11 @@ Update>> 1,2
 > [7.2 Git 工具 - 交互式暂存](https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E4%BA%A4%E4%BA%92%E5%BC%8F%E6%9A%82%E5%AD%98)
 > [Git tips – 同一个文件修改了多处如何分作多个提交](https://ttys3.dev/blog/git-how-to-commit-only-parts-of-a-file)
 
-
-
 ### git commit
 
 `git commit`命令用于将暂存区中的变化提交到仓库区。
 
-`-m`参数用于指定 commit 信息，是必需的。如果省略`-m`参数，`git commit`会自动打开文本编辑器，要求输入。
+`-m`参数用于指定 commit 信息，是必需的。如果省略 `-m`参数，`git commit`会自动打开文本编辑器，要求输入。
 
 ```shell
 git commit -m "message"
@@ -466,17 +456,13 @@ git commit <filename>  -m "message"
 
 上面命令会将工作区中指定文件的变化，先添加到暂存区，然后再将暂存区提交到仓库区。
 
-
-
 -a
 
-`-a`参数用于先将所有工作区的变动文件，提交到暂存区，再运行`git commit`。用了`-a`参数，就不用执行`git add .`命令了。
+`-a`参数用于先将所有工作区的变动文件，提交到暂存区，再运行 `git commit`。用了 `-a`参数，就不用执行 `git add .`命令了。
 
 ```shell
 git commit -am "message"
 ```
-
-
 
 --amend
 
@@ -494,8 +480,6 @@ git commit --amend
 
 > 参考网址：[7.6 Git 工具 - 重写历史](https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E9%87%8D%E5%86%99%E5%8E%86%E5%8F%B2)
 > [git-cz 讓你的 Git Commit 訊息更美一點！](https://israynotarray.com/git/20221115/721294310/)
-
-
 
 ### git stash
 
@@ -521,8 +505,6 @@ git stash pop
 git stash drop stash@{0}
 ```
 
-
-
 ### git log
 
 `git log`命令用于显示提交日志信息。
@@ -545,8 +527,8 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   git log commit1_id..commit2_id 	 #同上，但是不包括commit1
   ```
 
-  > 其中，commit_id可以是提交哈希值的简写模式，也可以使用HEAD代替。HEAD代表最后一次提交，`HEAD^`为最后一个提交的父提交，等同于`HEAD～1`，`HEAD～2`代表倒数第二次提交
-
+  > 其中，commit_id可以是提交哈希值的简写模式，也可以使用HEAD代替。HEAD代表最后一次提交，`HEAD^`为最后一个提交的父提交，等同于 `HEAD～1`，`HEAD～2`代表倒数第二次提交
+  >
 * `--pretty`按指定格式显示日志信息,可选项有：oneline,short,medium,full,fuller,email,raw以及format:,默认为medium，可以通过修改配置文件来指定默认的方式。
 
   ```shell
@@ -559,11 +541,6 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   git log --oneline --decorate --graph --all
   ```
 
-
-
-
-
-
 ### git branch
 
 * 查看分支
@@ -571,10 +548,10 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   ```bash
   # 查看本地分支
   git branch
-  
+
   # 查看远端分支
   git branch -r
-  
+
   # 查看所有分支（本地和远端，标红的是远端）
   git branch -a
   ```
@@ -583,7 +560,7 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
   ```bash
   git branch -v
-  
+
   # 指定两次 v，会打印工作树（如果有）和上游分支名
   git branch -vv
   # 如：
@@ -601,7 +578,7 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
 关联目的是在执行git pull, git push操作时就不需要指定对应的远程分支，你只要没有显示指定，git pull的时候，就会提示你。
 
-  ```bash
+```bash
   # 本地当前分支关联远程分支
   git branch -u origin/<remote_branch>
   git branch --set-upstream-to=origin/<remote_branch>
@@ -609,15 +586,14 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   # 本地指定分支关联远程分支
   git branch -u origin/<remote_branch> <local_branch>
   git branch --set-upstream-to=origin/<remote_branch> <local_branch>
-  ```
-
+```
 
 * 本地分支重命名（还没有推送到远程）
 
   ```shell
   # 如果对于分支不是当前分支，可以使用下面代码：
   git branch -m <原分支名> <新分支名>
-  
+
   # 如果是当前分支，那么可以使用加上新名字：
   git branch -m <新分支名>
   ```
@@ -649,25 +625,20 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   git branch --set-upstream-to=23B/master 23bmaster
   ```
 
-* 
-
-
-
 ### git chekcout
 
 原来是 git 中的 checkout 命令承载了分支操作和文件恢复的部分功能，有点复杂，并且难以使用和学习，所以社区解决将这两部分功能拆分开，在 git 2.23.0 中引入了两个新的命令 switch 和 restore 用来取代 checkout。
 
 1. 切换与创建分支
 
-    ```shell
-    git checkout <branch_name > 切换分支
-    #git switch <branch_name> 切换分支
-    git checkout -b <branch_name> 创建并切换至分支
-    # git switch -c <branch_name> 创建并切换至分支
-    ```
+   ```shell
+   git checkout <branch_name > 切换分支
+   #git switch <branch_name> 切换分支
+   git checkout -b <branch_name> 创建并切换至分支
+   # git switch -c <branch_name> 创建并切换至分支
+   ```
 
-​	**git checkout -b** <branch_name>**origin/**<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
-
+   **git checkout -b** <branch_name>**origin/**<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
 2. 还原工作区（文件内容）
    git checkout – <file_name> 丢弃工作区的修改，并用最近一次的commit内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
 
@@ -675,11 +646,7 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
    git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
 
-
-
-> https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
-
-
+> <https://blog.csdn.net/Sweet_19BaBa/article/details/111950384>
 
 ### git switch
 
@@ -692,7 +659,7 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   ```
 
   > 远程有而本地没有的分支，而如果要从远程分支建一个同名的本地分支，并且关联远程分支。可以理解为拉取远程分支到本地，并建立远程分支和本地分支的关联关系
-
+  >
 * 切换到上一个切换的分支
 
   ```bash
@@ -718,12 +685,9 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   显示 commit id 而不是分支名的情况：
 
   1. 在本地 A 仓库拉取 B 仓库 master 分支，checkout 到 B/master 后，是只有最新 commit id 而没有分支名称的。
-
   2. cherry-pick 后的代码没有分支名，只有最新的 commit id，同样需要为最新的 commit id 创建一个分支，用于推送远程仓库时
 
 > 切换分支时，如果有未提交的修改，会把修改带到切换后的分支。如果想保证切换后的分支干净，需要在切换前 commit 或 stash 修改。
-
-
 
 ### git store
 
@@ -734,11 +698,11 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 ```shell
 # 「工作区修改撤销」将 <file> 恢复到最新的提交状态，丢弃所有未提交的更改。对于撤销不需要的更改非常有用
 git restore <file>
-git restore .		# 全部文件，工作区修改撤销
+git restore .  # 全部文件，工作区修改撤销
 
 # 「暂存区重新放回工作区」如果你已经使用 git add 将文件添加到暂存区，但希望重新放回工作区
 git restore --staged <file>
-git restore --staged .		# 全部文件，暂存区重新放回工作区
+git restore --staged .  # 全部文件，暂存区重新放回工作区
 
 # 「还原文件到指定提交的状态」将文件 <file> 恢复到特定提交 <commit> 的状态，但分支已有提交节点不会变化，且回退的差异会保存在工作区。将文件还原到历史版本时非常有用
 git restore --source=<commit> <file>
@@ -747,21 +711,19 @@ git restore --source=<commit> <file>
 git restore -i
 ```
 
-
-
 ### git reset
 
 git reset 命令用于回退版本，可以指定退回某一次提交的版本。
 
-```
+```shell
 git reset [--soft | --mixed | --hard] [HEAD]
 ```
 
---mixed(默认)：将指定 commit id 撤回之后所有内容`全部放进工作区`中。
+--mixed(默认)：将指定 commit id 撤回之后所有内容 `全部放进工作区`中。
 
---soft：将指定 commit id 撤回之后所有内容`全部放进暂存区`。
+--soft：将指定 commit id 撤回之后所有内容 `全部放进暂存区`。
 
---hard：将指定 commit id 撤回并`清空工作目录及暂存区`所有修改。
+--hard：将指定 commit id 撤回并 `清空工作目录及暂存区`所有修改。
 
 ```bash
 HEAD 说明：
@@ -778,11 +740,6 @@ HEAD^2 上上一个版本
 HEAD^3 上上上一个版本
 以此类推...
 ```
-
-
-
-
-
 
 ### git diff
 
@@ -811,11 +768,6 @@ git diff <branch_name1> <branch_name2> <file_name>
 git diff <commit_hash> <commit_hash> <file_name>
 ```
 
-
-
-
-
-
 ### git rebase
 
 rebase的作用简要概括为：可以对某一段线性提交历史进行编辑、删除、复制、粘贴；因此，合理使用rebase命令可以使我们的提交历史干净、简洁！
@@ -828,8 +780,7 @@ rebase的作用简要概括为：可以对某一段线性提交历史进行编�
   git rebase -i  [startpoint]  [endpoint]
   ```
 
-  其中 `-i` 的意思是 `--interactive`，即弹出交互式的界面让用户编辑完成合并操作，`[startpoint] [endpoint]`则指定了一个编辑区间，如果不指定`[endpoint]`，则该区间的终点默认是当前分支 HEAD 所指向的 commit （注：该区间指定的是一个前开后闭的区间，`[startpoint]` **本身不参与合并**，可以把它当做一个坐标）。
-
+  其中 `-i` 的意思是 `--interactive`，即弹出交互式的界面让用户编辑完成合并操作，`[startpoint] [endpoint]`则指定了一个编辑区间，如果不指定 `[endpoint]`，则该区间的终点默认是当前分支 HEAD 所指向的 commit （注：该区间指定的是一个前开后闭的区间，`[startpoint]` **本身不参与合并**，可以把它当做一个坐标）。
 * 方法2：从HEAD版本开始往过去数3个版本
 
   ```bash
@@ -853,15 +804,12 @@ rebase的作用简要概括为：可以对某一段线性提交历史进行编�
   > exec：执行shell命令（缩写:x）
   >
   > drop：我要丢弃该commit（缩写:d）
-
-
+  >
 
 ```shell
 # 重新打开vim窗口
 git rebase --edit-todo
 ```
-
-
 
 ### git revert
 
@@ -873,11 +821,10 @@ git revert -n commit-id
 git revert -n commit-idA..commit-idB
 ```
 
-
-
 ### git reflog
 
 git reflog 命令是用来恢复本地错误操作很重要的一个命令，可处理代码丢失、恢复代码。
+
 > reflog 是 Git 操作的一道安全保障，它能够记录几乎所有本地仓库的改变。包括所有分支 commit 提交，已经删除（其实并未被实际删除）commit 都会被记录。总结而言，只要 HEAD 发生变化，就可以通过 reflog 查看到。
 
 ```bash
@@ -887,8 +834,6 @@ git reflog
 # 查看对应的版本号,就可以恢复到任意版本:
 git reset --hard <commit-id>
 ```
-
-
 
 ### git cherry-pick
 
@@ -910,12 +855,12 @@ git reset --hard <commit-id>
   ```
 
   > 连续多个提交，它们必须按照正确的顺序放置：提交 A 必须早于提交 B，否则命令将失败，但不会报错。
-
+  >
 * 合并节点转移
 
   如果原始提交是一个合并节点，来自于两个分支的合并，那么 Cherry pick 默认将失败，因为它不知道应该采用哪个分支的代码变动。
 
-  `-m`配置项告诉 Git，应该采用哪个分支的变动。它的参数`parent-number`是一个从`1`开始的整数，代表原始提交的父分支编号。
+  `-m`配置项告诉 Git，应该采用哪个分支的变动。它的参数 `parent-number`是一个从 `1`开始的整数，代表原始提交的父分支编号。
 
   ```bash
   # 采用提交commitHash来自编号1的父分支的变动。
@@ -923,7 +868,7 @@ git reset --hard <commit-id>
   ```
 
   > 一般来说，1号父分支是接受变动的分支（the branch being merged into），2号父分支是作为变动来源的分支（the branch being merged from）。
-
+  >
 * 代码冲突
 
   ```bash
@@ -934,8 +879,6 @@ git reset --hard <commit-id>
   # 终止 cherry-pick（这种情况下当前分支中未冲突的内容状态将为modified）
   git cherry-pick --quit
   ```
-
-
 
 ### git rm
 
@@ -949,7 +892,7 @@ git rm 删除文件有以下几种形式：
 
    ```shell
    git rm <file>
-   
+
    # 如果删除之前修改过并且已经放到暂存区域的话，则必须要用强制删除选项 -f。
    git rm -f <file>
    ```
@@ -960,37 +903,102 @@ git rm 删除文件有以下几种形式：
    git rm --cached <file>
    ```
 
+### git 跟踪二进制文件
 
+由于 Git 是一个版本控制系统，设计初衷是为了处理文本文件，对于二进制文件的处理会有一些限制。为了解决Git对二进制文件的限制，Git LFS（Large File Storage）应运而生。Git LFS 是一个开源的 Git 大文件版本控制的解决方案和工具集，工具自身是基于Golang进行实现，并 **在Github上开源** 。
+
+1. 安装 Git LFS
+   > [Installation](https://github.com/git-lfs/git-lfs/wiki/Installation)
+
+   ```shell
+   # Windows
+   # 从 [Git LFS 官网](https://git-lfs.com/)下载安装包，并安装到电脑
+   git lfs install    # Git LFS 初始化
+
+   # Linux
+   # 添加GIT LFS第三方软件安装源:
+   curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+   sudo apt-get update
+   sudo apt-get install git-lfs
+   git lfs install  # Git LFS 初始化
+   ```
+
+   每个账户只需要运行一次初始化。
+
+2. 使用 Git LFS 管理二进制文件
+   添加要管理的二进制文件，如要管理所有 `software.rar`：
+
+   ```shell
+   git lfs track "software.rar"
+   # 或用通配符
+   git lfs track "*.rar"
+   ```
+
+   会在工程目录下生成一个 `.gitattributes` 文件，要确保此文件也被跟踪
+
+   ```shell
+   git add .gitattributes
+   ```
+
+   > 注：`git lfs track` 命令实际上是修改了仓库中的 `.gitattributes` 文件，也可手动直接修改。
+
+3. 提交并推送二进制文件
+
+   ```shell
+   git add .
+   git commit -m "Add file"
+   git push origin master -f
+   ```
+
+4. 进阶知识：
+   `git lfs untrack "software.rar"` 取消使用 Git LFS 管理文件
+   `git lfs uninstall` 即可取消 LFS 的全局配置
+   `git lfs ls-files` 可以随时查看正在被 LFS 追踪的文件
+
+5. Q&A
+   Q：报错不让上传超过100M的文件
+   A：先清除大文件缓存后，再重新提交（提交前确保已用 Git LFS 跟踪）
+
+   ```shell
+   # 清除缓存命令
+
+   git rm --cached <file_name>
+   # 对于文件夹
+   git rm --cached -r <file_path>
+   ```
+
+   Q：已经上传的大文件文件，github 下载 ZIP 时并不存在大文件
+   A：有可能是发生在刚完成 git push 时，大文件上传需要时间，稍等一会儿再下载就有了。
 
 ### git clean
 
 `git clean` 命令用来从你的工作目录中删除所有没有 tracked 过的文件。
 
-`git clean` 经常和 `git reset --hard` 一起结合使用。reset 只影响被 track 过的文件, 所以需要 clean 来删除没有 track 过的文件。结合使用这两个命令能让你的工作目录完全回到一个指定的 <commit> 的状态
+`git clean` 经常和 `git reset --hard` 一起结合使用。reset 只影响被 track 过的文件, 所以需要 clean 来删除没有 track 过的文件。结合使用这两个命令能让你的工作目录完全回到一个指定的 `<commit>` 的状态
 
 * 用法
 
   ```bash
   # 列出哪些文件会被删除，但不会真正的删除文件，只是一个提醒
   git clean -n
-  
+
   # 删除当前目录下所有没有track过的文件。不会删除.gitignore文件里面指定的文件夹和文件, 不管这些文件有没有被track过
   git clean -f
-  
+
   # 删除指定路径下的没有被track过的文件
   git clean -f <path>
-  
+
   # 删除当前目录下没有被track过的文件和文件夹 ---- 常用
   git clean -df
-  
+
   # 删除当前目录下所有没有track过的文件. 不管是否为.gitignore文件里面指定的文件夹和文件
   git clean -xf
-  
+
   ```
 
-git reset --hard 和 git clean -f 是一对好基友，结合使用他们能让你的工作目录完全回退到最近一次 <commit> 的时候。
+git reset --hard 和 git clean -f 是一对好基友，结合使用他们能让你的工作目录完全回退到最近一次 `<commit>` 的时候。
 
-下面的例子要删除所有工作目录下面的修改, 包括新添加的文件. 假设你已经提交了一些快照了, 而且做了一些新的开发运行后, 工作目录和缓存区回到最近一次 <commit> 时候一摸一样的状态，git status 会告诉你这是一个干净的工作目录, 又是一个新的开始了！
+下面的例子要删除所有工作目录下面的修改, 包括新添加的文件. 假设你已经提交了一些快照了, 而且做了一些新的开发运行后, 工作目录和缓存区回到最近一次 `<commit>` 时候一摸一样的状态，git status 会告诉你这是一个干净的工作目录, 又是一个新的开始了！
 
 ```bash
 git reset --hard
@@ -999,15 +1007,11 @@ git clean -df
 
 git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉编译后生成的.o和.exe等文件. 这个在打包要发布一个release的时候非常有用
 
-
-
 ### git 仓库忽略大小写
 
 ```bash
 git config core.ignorecase true
 ```
-
-
 
 ### git rebase调整commit之间顺序
 
@@ -1017,9 +1021,7 @@ git config core.ignorecase true
    git rebase -i <after-this-commit>	# 不含本次commit id
    git rebase -i HEAD~3 
    ```
-
-2. vim 命令模式（Command mode），调整 commit id 的`行的顺序`。dd剪切，p粘贴（后），P粘贴（前）。
-
+2. vim 命令模式（Command mode），调整 commit id 的 `行的顺序`。dd剪切，p粘贴（后），P粘贴（前）。
 3. 编辑完成之后，:wq退出编辑模式，即可完成commit顺序的调整。
 
 > 注：若这个提交有先后依赖关系，则不会成功。
@@ -1027,8 +1029,6 @@ git config core.ignorecase true
 > 参考网址：[7.6 Git 工具 - 重写历史](https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E9%87%8D%E5%86%99%E5%8E%86%E5%8F%B2)
 >
 > [git rebase调整commit之间顺序](https://blog.csdn.net/allanGold/article/details/92836941)
-
-
 
 ### Git 修改已提交 commit 的信息
 
@@ -1051,8 +1051,8 @@ git commit --amend --author="jiangliheng <jiang_liheng@163.com>"
 
 - `git rebase -i` 列出 commit 列表
 - 找到需要修改的 commit 记录，把 `pick` 修改为 `edit` 或 `e`，`:wq` 保存退出
-- 修改 commit 的具体信息`git commit --amend`，保存并继续下一条`git rebase --continue`，直到全部完成
-- 中间也可跳过或退出`git rebase (--skip | --abort)`
+- 修改 commit 的具体信息 `git commit --amend`，保存并继续下一条 `git rebase --continue`，直到全部完成
+- 中间也可跳过或退出 `git rebase (--skip | --abort)`
 
 ```shell
 # 列出 rebase 的 commit 列表，不包含 <commit id>
@@ -1074,10 +1074,6 @@ git rebase --abort
 
 > 参考网址：[7.6 Git 工具 - 重写历史](https://git-scm.com/book/zh/v2/Git-%E5%B7%A5%E5%85%B7-%E9%87%8D%E5%86%99%E5%8E%86%E5%8F%B2)
 
-
-
-
-
 ### git 修改.gitignore后重新生效
 
 ```shell
@@ -1089,8 +1085,6 @@ git push origin master #可选，如果需要同步到remote上的话
 
 会在已有的提交上新增一个提交，并且刷新 `.gitignore` 文件。
 
-
-
 配置语法:
 
 以斜杠“/”开头表示目录；
@@ -1099,11 +1093,8 @@ git push origin master #可选，如果需要同步到remote上的话
 以方括号“[]”包含单个字符的匹配列表；
 以叹号“!”表示不忽略(跟踪)匹配到的文件或目录；
 
-
-
-
-
 ### 利用git bisec二分法查找定位bug问题
+
 如果出现bug，很容易想到的是回滚git记录查找bug出现的提交，通常可以手动回滚记录进行定位，找到引入bug的提交进行修复。git提供了一种二分查找的方式帮助开发者快速定位bug引入的提交。很久没用做个记录。
 
 步骤：
@@ -1143,42 +1134,35 @@ bash复制代码da5207dec2(这里是你的git记录) is the first bad commit
 步骤8：结束git二分查找
 git bisec reset
 
-
-
-
 ### git 对象在一个项目里面具体的运作方式
+
 Git文件版本管理依赖于核心四对象及相互之间指向关系：标签(tag)->提交(commit)->目录树(tree) )->块(blob).
 Git为了降低对象文件的存储、传输成本，提供了GC机制，将松散对象等文件收纳到包文件。
 
+git cat-file -t `<commit-id>`
 
-git cat-file -t <commit-id>
+git cat-file commit `<commit-id>`
 
-git cat-file commit <commit-id>
+git cat-file tree `<tree-id>`
+git ls-tree `<tree-id>`
 
-git cat-file tree <tree-id>
-git ls-tree <tree-id>
-
-git cat-file blob <blob-id>
-
+git cat-file blob `<blob-id>`
 
 ### git 钩子机制
+
 和其它版本控制系统一样，Git能在特定的动作发生时触发执行用户自定义脚本，这便是钩子机制。
 Git可以在客户端部署和触发钩子，也能在服务器端部署和触发钩子。
 
 * 客户端钩子
-对于非裸版本库，客户端钩子在本地工程。git/hooks目录下，可以在提交、合并、推送等操作时候触发用户自定义脚本。
-
+  对于非裸版本库，客户端钩子在本地工程。git/hooks目录下，可以在提交、合并、推送等操作时候触发用户自定义脚本。
 * 服务端钩子
-服务器端的钩子是项目管理人员用来给项目执行强制管理策略的，可以在接收到推送、拉取请求时候触发用户自定义脚本。
-1.Git的钩子样例均以。sample结尾，表示不生效，如需生效钩子，请删除该后缀
-2.Git的钩子脚本并无类型限制shell、python等均可，但勿直接设置二进制执行件为钩子
-3.部分Git钩子是支持逃逸的，在执行相应git命令时候增加--no-verify选项即可跳过钩子调用
-4.多数钩子分pre和post，也就是指定在git命令操作前还是后进行调用，注意钩子是阻塞性的
+  服务器端的钩子是项目管理人员用来给项目执行强制管理策略的，可以在接收到推送、拉取请求时候触发用户自定义脚本。
+  1.Git的钩子样例均以。sample结尾，表示不生效，如需生效钩子，请删除该后缀
+  2.Git的钩子脚本并无类型限制shell、python等均可，但勿直接设置二进制执行件为钩子
+  3.部分Git钩子是支持逃逸的，在执行相应git命令时候增加--no-verify选项即可跳过钩子调用
+  4.多数钩子分pre和post，也就是指定在git命令操作前还是后进行调用，注意钩子是阻塞性的
 
 Git钩子机制分为客户端钩子与服务器端钩子：客户端钩子可用于开发人员前置的门禁检查等，服务器端钩子可用于项目管理员对项目执行自动化的远端管理操作。
-
-
-
 
 ### git 报错：SSL certificate
 
@@ -1203,8 +1187,6 @@ git config --global http.sslVerify false
 ```
 
 执行以上git命令，关闭ssl验证。
-
-
 
 ### git 报错：Received HTTP code 504
 
@@ -1250,10 +1232,6 @@ git config --global https.proxy http://proxyaddress:port
 
 *注意环境变量的大写。某些操作系统版本可能需要小写字母或默认定义了小写字母变量。*
 
-
-
-
-
 ### git 报错：port 443 : Timed out
 
 ```shell
@@ -1269,12 +1247,11 @@ git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
 
-
 ### GIT 自动补全命令,分支名 以及 高亮显示当前分支
 
 【注】`~/.bashrc` 是 Linux 的，对应到 Mac 是 `~/.bash_profile` ，看网上的教程要注意区分和替换
 
-##### 1、执行以下命令，克隆官方git库，然后在`git/contrib/completion`找到两个关键文件
+##### 1、执行以下命令，克隆官方git库，然后在 `git/contrib/completion`找到两个关键文件
 
 ```shell
 git clone https://github.com/git/git.git
@@ -1301,7 +1278,7 @@ GIT_PS1_SHOWDIRTYSTATE=true
 GIT_PS1_SHOWCOLORHINTS=true
 GIT_PS1_SHOWSTASHSTATE=true
 GIT_PS1_SHOWUNTRACKEDFILES=true
-#GIT_PS1_SHOWUPSTREAM=auto           
+#GIT_PS1_SHOWUPSTREAM=auto       
 if [ -f ~/.git-completion.bash ]; then
   source ~/.git-prompt.sh
   PROMPT_COMMAND='__git_ps1 "[\t][\u@\h:\w]" "\\\$ "'
@@ -1313,7 +1290,6 @@ fi
 ```
 source ~/.bash_profile
 ```
-
 
 ### 解决git命令会将结果输出到单独窗口必须按q才能退出的问题
 
@@ -1342,8 +1318,6 @@ git config --global pager.branch true # git branch 分页
 
 > [解决git命令会将结果输出到单独窗口必须按q才能退出的问题](https://blog.csdn.net/albertsh/article/details/114806994)
 
-
-
 ### vscode git 不显示修改颜色标记  Gutter Indicators
 
 搜了半天，发现这玩意叫做Gutter Indicators。作用是在一个git仓库中，如果对某个文件做了修改，编辑器会在行号旁边用不同颜色标志该文件的修改情况。
@@ -1355,10 +1329,6 @@ git config --global pager.branch true # git branch 分页
 https://www.jianshu.com/p/2d70f26e4229
 
 git项目,VSCode显示不同颜色块的含义:https://www.cnblogs.com/soyxiaobi/p/9708518.html
-
-
-
-
 
 ## Git commit 规范
 
@@ -1405,15 +1375,7 @@ sync：同步主线或分支的Bug。
 
 scope用于说明 commit 影响的范围，比如数据层、控制层、视图层等等，视项目不同而不同。
 
-
-
 ### Git-cz 工具
-
-
-
-
-
-
 
 ## 代码对比工具
 
@@ -1535,10 +1497,6 @@ Ctrl+W+h/j/k/l          # 移动鼠标到不同窗口
 :syn off                # remove colors
 ```
 
-
-
-
-
 ### 3.Kompare
 
 `Kompare` 是基于 diff 的一个 GUI 工具，使用者可以很方便看到文件之间的差异，并且支持合并这些差异。
@@ -1564,19 +1522,11 @@ Kompare 的特性有如下：
 - 逐个文件地比较两个或三个目录，显示新文件，缺失文件和更改文件
 - 支持许多版本控制系统，包括 Git，Mercurial，Bazaar 和 SVN 等。
 
-
-
 ![img](https://pic2.zhimg.com/80/v2-aefe344aacb4f560ac927b068a044555_720w.webp)
-
-
 
 它的官网为：[http://meldmerge.org/](https://link.zhihu.com/?target=http%3A//meldmerge.org/)
 
-
-
 > [推荐9款代码对比工具](https://zhuanlan.zhihu.com/p/336414874)
-
-
 
 ## [如何解决Git中的合并冲突？详细操作步骤指南](https://www.lsbin.com/9410.html)
 
@@ -1595,11 +1545,9 @@ borrow his motorbike. He said ok but told
 her she had to be back by 11pm.
 ```
 
-这其中`<<<<<<< HEAD`与`=======`之间的部分表示当前所在分支（也就是HEAD）的内容，而`=======`与`>>>>>>> feature_branch`之间的部分则是 feature_branch 分支的内容。看到这个冲突就头大，因为我们无法确定要留哪一行删哪一行。
+这其中 `<<<<<<< HEAD`与 `=======`之间的部分表示当前所在分支（也就是HEAD）的内容，而 `=======`与 `>>>>>>> feature_branch`之间的部分则是 feature_branch 分支的内容。看到这个冲突就头大，因为我们无法确定要留哪一行删哪一行。
 
-
-
-如果我们执行`git config --global merge.conflictstyle diff3`将`conflictstyle`设成`diff3`，则结果会变成
+如果我们执行 `git config --global merge.conflictstyle diff3`将 `conflictstyle`设成 `diff3`，则结果会变成
 
 ```shell
 <<<<<<< HEAD
@@ -1615,19 +1563,15 @@ borrow his motorbike. He said ok but told
 her she had to be back by 11pm.
 ```
 
-大家注意多出来的`||||||| merged common ancestors`到`=======`之间的部分。git 在合并分支的时候用的是**三路合并**(3-way merge)。三路合并的关键就是找到两个分支的最新公共提交版本。在这个例子中，公共提交版本的内容就保存到了`||||||| merged common ancestors`和`=======`之间。
+大家注意多出来的 `||||||| merged common ancestors`到 `=======`之间的部分。git 在合并分支的时候用的是**三路合并**(3-way merge)。三路合并的关键就是找到两个分支的最新公共提交版本。在这个例子中，公共提交版本的内容就保存到了 `||||||| merged common ancestors`和 `=======`之间。
 
-很显然，master 分支将`Alice asked her father if she could`改成了`Alice asked her parents if she could`，也就是 Alice 现在要向她的父母借车；而 feature_branch 分支则将 `borrow his car...`改成了`borrow his motorbike...`，也就是不借车了，要借摩托。两者合并，最终结果应该是：
+很显然，master 分支将 `Alice asked her father if she could`改成了 `Alice asked her parents if she could`，也就是 Alice 现在要向她的父母借车；而 feature_branch 分支则将 `borrow his car...`改成了 `borrow his motorbike...`，也就是不借车了，要借摩托。两者合并，最终结果应该是：
 
 ```shell
 Alice asked her parents if she could
 borrow their motorbike. They said ok but told
 her she had to be back by 11pm.
 ```
-
-
-
-
 
 ### Git 合并冲突的类型
 
@@ -1668,29 +1612,23 @@ git merge --strategy-option theirs
 
 最终，选择保留哪些代码部分以及不保留哪些部分取决于开发人员对当前项目的决定。
 
-
-
 ### git 使用ours和theirs
 
 > [Git-优雅地解决冲突：使用ours和theirs]https://blog.csdn.net/qq_41603165/article/details/104922336
 
 对于merge和rebase来说，ours 和 theirs 对应的分支正好是相反的。
 
-假设当前指向的分支为`branch_a`，
+假设当前指向的分支为 `branch_a`，
 
 在使用 merge 时 `git merge branch_b`，ours 指的是当前分支，即branch_a，theirs 指的是要被合并的分支，即branch_b。
 
 而在使用 rebase 时 `git rebase branch_b`，theirs 指的是当前分支，即branch_a，ours 指向修改参考分支，即branch_b。
-
-
 
 git merge会抽取两个分支上新增的提交，并将其合并在一起，产生一个新的提交D，生成的D节点有两个父节点。其中在合并的过程中可能会发生冲突。
 
 git rebase会以branch_a为参照，提取branch_b分支上的提交，将这些修改作用在branch_a分支上，最终结果不会产生新的提交节点。其中在将提取的修改作用在branch_a的过程中可能会发生冲突。
 
 通常而言，在开发过程中很少应用git merge合并代码，更常用的是git rebase。此外在开发过程中，经常使用git rebase命令获取master主分支的最新提交代码，在完成个人的开发任务之后，也需要rebase master分支上的代码才能申请 Pull Request，自动合并。
-
-
 
 ### Git 设置默认 Diff 工具
 
@@ -1748,8 +1686,6 @@ git config mergetool.prompt false
 
 Git 的 diff 工具设置已完成。
 
-
-
 ### Mergetool 查看差异解决合并冲突
 
 如何解决Git中的合并冲突？要使用**`mergetool `**并查看差异，请运行：
@@ -1772,8 +1708,6 @@ git mergetool <filename>
 `REMOTE` - 要合并到你当前分支的**外部分支**上的文件；
 
 `MERGED` - **合并结果**，将会保存到本地存储库的内容。
-
-
 
 假设我们希望**`保留来自REMOTE`**。为此，为此，移动到 `MERGED` 文件上（Ctrl + w, j），**移动光标到一个合并冲突的区域**，然后：
 
@@ -1800,7 +1734,7 @@ git mergetool <filename>
 > ```shell
 > let mapleader=','
 > let g:mapleader=','
-> 
+>
 > if &diff
 >  map <leader>1 :diffget LOCAL<CR>
 >  map <leader>2 :diffget BASE<CR>
@@ -1819,56 +1753,32 @@ git mergetool <filename>
 > # 对于高级导航，可通过命令获取信息:help window-moving。
 > ```
 >
-> 
->
 > [关于vim：使用vimdiff时加载不同的颜色](https://www.codenong.com/2019281/)
-
-
 
 ### vim 中用于解决冲突的相关命令
 
 作为编辑器之神, vim 自然早早就考虑到了很多人会使用其进行冲突合并, 因此也内置了很多非常高效有用的操作命令, 我挑选了比较有用的列在下面:
 
 - `:diffget LOCAL`: 选择 LCOAL 作为本行最终结果
-
 - `:diffget REMOTE`: 选择 REMOTE 作为本行最终结果
-
 - `:diffget BASE`: 选择 BASE 作为本行最终结果
-
 - `:diffput [num]`: 放置结果到缓冲区上, `num` 为缓冲区编号
-
 - `:diffg LO`: 这里 vim 为我们做了简略命令, 同样可用于 `REMTOE` 与 `BASE` 上 === **重要**
-
 - `:diffget //2`: `//2` 将被替换为左侧文件名
-
 - `:diffget //3`: `//3` 将被替换为右侧文件名
-
 - `:%diffget LO`: 将所有变更使用 local 的结果
-
 - `:'<'>diffget LO`: 将当前选中范围的使用 local 的结果
-
 - `dp/do`: 如果只有两个文件则可以使用 `dp/do` 来替代 `:diffput/:diffget`
-
 - `:diffoff`: 关闭 diff mode
-
 - `:diffthis`: 开启 diff mode
-
 - `:ls!`: 显示当前所有缓冲区的号码kkkjk
-
 - `[c`: conflict, 移动到上一个冲突处
-
 - `]c`: conflict, 移动到下一个冲突处
-
 - `:diffsplit filename`: 已经在 vim 中时, 使用此命令与别的文件进行对比
-
 - `:vert diffsplit filename`: 同上
-
 - `vimidff file1 file2`: 对比 `file1` 与 `file2` 的差别
-
 - `vim -d file1 file2`: 同上 🐷
-
 - `:wqa`: 冲突修复完成保存退出, 如果仍然有文件冲突则进入下一个冲突
-
 - `:cq`: 放弃修复, 终止流程(在 merge conflict 时很有用, 否则使用了 `qa` 的话，
 
   想再次进入 mergetool 就必须使用 `git checkout --conflict=diff3 {file}` 了)
@@ -1885,8 +1795,6 @@ git mergetool <filename>
 - `git merge --abort`: 放弃之前的 `merge` 操作
 - `git checkout --conflict=diff3 test.txt`: 将文件重置回冲突状态, 适用于 merge 时发生冲突后没有完全解决时被一些其他工具将文件标记为了解决
 
-
-
 ### 提交和清理
 
 Git合并冲突的解决方法：最后一步是提交和清理额外的文件。通过运行提交更新的版本：
@@ -1902,8 +1810,6 @@ git clean -f
 ```
 
 ![如何解决Git中的合并冲突？详细操作步骤指南](https://www.lsbin.com/wp-content/uploads/2021/11/git-clean-output.png)
-
-
 
 vimdiff命令
 
@@ -1933,11 +1839,9 @@ vimdiff命令
 
     :qa! （force to quit all）
 
-
-
 如何防止 git vimdiff 以只读方式打开文件？
 
-    [difftool "vimdiff"] 
+    [difftool "vimdiff"]
             cmd = vimdiff "$LOCAL" "$REMOTE"
 
 配置 Git 以使用 Vimdiff
@@ -1947,10 +1851,6 @@ vimdiff命令
     :set noro
 
 要使其成为默认值，请编辑您的$HOME/.vimrc配置，添加以下内容（您可能需要创建它）：
-
-
-
-
 
 # gerrit
 
@@ -1979,21 +1879,13 @@ Github，GitLab这类代码仓则是基于git的代码托管平台，它们支�
 
 Gerrit 则是**专业的代码审查系统**，它可以在 Git / GitHub / GitLab 的基础上增加更强大和灵活的代码审查功能。比如使用 Change-Id 来跟踪和管理变更的版本和状态，使用特殊的分支模型来上传和合并变更，使用强大的权限控制机制来设置谁可以提交、审查、合并代码，以及使用**丰富的插件系统**来扩展和定制 Gerrit 的功能和界面。
 
-
-
-
-
 # repo
 
-> 
->
 > [Repo README](https://source.android.com/docs/setup/create/repo?hl=zh-cn)
 >
 > [Repo 命令参考资料](https://source.android.com/docs/setup/create/repo?hl=zh-cn)
 >
 > [Repo 工具使用介绍](https://help.gitee.com/enterprise/code-manage/%E9%9B%86%E6%88%90%E4%B8%8E%E7%94%9F%E6%80%81/Repo%20%E5%B7%A5%E5%85%B7%E4%BD%BF%E7%94%A8%E4%BB%8B%E7%BB%8D)
->
-> 
 >
 > [repo入门和基本用法](https://blog.csdn.net/Jason_Lee155/article/details/123427571)
 >
@@ -2003,14 +1895,11 @@ Gerrit 则是**专业的代码审查系统**，它可以在 Git / GitHub / GitLa
 
 Repo 是基于 Git 构建的工具。Repo 可帮助管理许多 Git 存储库、将代码上传到修订控制系统以及自动化部分开发工作流程。Repo 并非旨在取代 Git，而只是让使用 Git 变得更加容易。repo 命令是一个可执行 Python 脚本，您可以将其放在路径中的任何位置。
 
-
-
 ### Repo的安装：
 
 1.Repo 是一个由 Google 开发的多仓库管理工具，通常用于管理 Android 项目。以下是Repo的安装步骤：
 
 * 确保您已经安装了Git，因为Repo是建立在Git之上的工具。
-
 * 打开命令行终端，并在系统可执行路径中创建一个名为 ‘repo’的可执行文件。例如，在Linux或[macOS](https://so.csdn.net/so/search?q=macOS&spm=1001.2101.3001.7020)上，可以使用以下命令：
 
   ```shell
@@ -2019,18 +1908,14 @@ Repo 是基于 Git 构建的工具。Repo 可帮助管理许多 Git 存储库、
   ```
 
   在Windows上，可以从 Git 官方仓库（https://gerrit.googlesource.com/git-repo/）下载 repo 工具，并将其放置在 Git 的bin 目录下。
-
 * 确保您的 'PATH’环境变量中包含了包含 ‘repo’ 可执行文件的目录，这样就可以在任何位置使用 ‘repo’ 命令。
-
 * 在您的项目根目录中创建一个名为 'manifest.xml’的清单文件，其中定义了您的多仓库结构和依赖关系。
-
 * 使用以下命令初始化仓库并同步代码：
 
   ```shell
   repo init -u <清单文件URL> #这里一些外网资源可能会报错
   repo sync
   ```
-
 * Repo 将根据清单文件中的配置将各个仓库的代码下载到本地。
 
 请注意，上述安装步骤仅提供了基本指导，具体步骤可能因操作系统、软件版本和个人需求而有所不同。在安装过程中，建议参考各个工具的官方文档和安装指南，以确保正确的安装和配置。
@@ -2041,14 +1926,12 @@ Repo 是一个由 Google 开发的多仓库管理工具，通常用于管理 And
 
 #### 1.安装 Repo 工具：
 
-*   确保您已经安装了 Git。
-
-*   打开命令行终端，并在系统可执行路径中创建一个名为 `repo` 的可执行文件。具体安装步骤请参考前面的回答中的介绍。
+* 确保您已经安装了 Git。
+* 打开命令行终端，并在系统可执行路径中创建一个名为 `repo` 的可执行文件。具体安装步骤请参考前面的回答中的介绍。
 
 #### 2.初始化 Repo 仓库：
 
 * 在您希望存放项目的目录中打开命令行终端。
-
 * 使用以下命令初始化 Repo 仓库：
 
   ```
@@ -2056,7 +1939,6 @@ Repo 是一个由 Google 开发的多仓库管理工具，通常用于管理 And
   ```
 
   这里的 `<清单文件URL>` 是包含仓库信息的清单文件的 URL，可以是本地文件系统上的路径或远程服务器上的 URL。
-
 * Repo 将会下载清单文件，并根据清单文件中的配置初始化多个代码仓库。
 
 #### 3.同步代码：
@@ -2066,7 +1948,6 @@ Repo 是一个由 Google 开发的多仓库管理工具，通常用于管理 And
   ```
   repo sync
   ```
-
 * Repo 将会根据清单文件中的配置，将各个代码仓库的代码下载到本地。
 
 #### 4.创建和切换分支：
@@ -2078,7 +1959,6 @@ Repo 是一个由 Google 开发的多仓库管理工具，通常用于管理 And
   ```
 
   这将在所有代码仓库中创建一个名为 `<分支名称>` 的新分支。
-
 * 使用以下命令切换到已存在的分支：
 
   ```
@@ -2103,7 +1983,6 @@ Repo 是一个由 Google 开发的多仓库管理工具，通常用于管理 And
   ```
   repo upload
   ```
-
 * Repo 会检测您在各个代码仓库中的更改，并将其打包为一个合并请求（change）推送到远程服务器。
 
 除了上述基本操作之外，Repo 还提供了其他一些常用命令和选项，例如查看状态、切换到特定的提交版本、查看和管理合并请求等。您可以通过运行 ‘repo --help’ 命令或查阅 Repo 的官方文档来了解更多详细信息和用法示例。
