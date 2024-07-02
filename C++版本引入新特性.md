@@ -432,6 +432,166 @@ unique_ptr<int> uptr = make_unique<int>();	// 改为使用此代码
 
 
 
+### std::enable_if_t
+
+> [C++ SFINAE简介和std::enable_if_t的简单使用](https://blog.csdn.net/wangx_x/article/details/122867422)
+>
+> [c++模板元编程std::enable_if详解](https://blog.csdn.net/SWX230162/article/details/124587261?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-3-124587261-blog-84667071.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-3-124587261-blog-84667071.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4)
+
+先引入一个很重要的概念：`SFINAE`，这是英文Substitution failure is not an error的缩写，意思是**匹配失败不是错误**。这句话的意思是：我们使用模板函数时编译器会根据传入的参数来推导适配最合适的模板函数，在某些情况下，推导过程会发现某一个或者某几个模板函数推导起来其实是无法编译通过的，但只要有一个可以正确推导并编译出来，则那些推导得到的可能产生编译错误的模板函数就并不会引发编译错误，即匹配失败不是错误。
+
+现在开始描述下 `std::enable_if` 的使用方式吧，`std::enable_if` 顾名思义，满足条件时类型有效。作为选择类型的小工具，其广泛的应用在 C++ 的模板元编程（meta programming）中。基本实现方式大约为：
+
+```cpp
+template<bool B, class T = void>
+struct enable_if {};
+
+template<class T>
+struct enable_if<true, T> { typedef T type; };
+```
+
+一个是**普通版本的模板类定义**，一个**偏特化版本的模板类定义**。
+主要在于第一个参数是否为true，当第一个**模板参数为false的时候并不会定义type**，只有在第一模板参数为true的时候才会定义type。
+
+```cpp
+typename std::enable_if<true, int>::type t; // 正确，type等同于int
+typename std::enable_if<true>::type; // 可以通过编译，没有实际用处，推导的模板是偏特化版本，第一模板参数是true，第二模板参数是通常版本中定义的默认类型即void，但是一般也用不上它。
+typename std::enable_if<false>::type; // 无法通过编译，type类型没有定义
+typename std::enable_if<false, int>::type t2; // 同上
+```
+
+网上扒过来了一个用于偏特化的小例子：
+
+```cpp
+template <typename T>
+typename std::enable_if<std::is_trivial<T>::value>::type SFINAE_test(T value)
+{
+    std::cout<<"T is trival"<<std::endl;
+}
+
+template <typename T>
+typename std::enable_if<!std::is_trivial<T>::value>::type SFINAE_test(T value)
+{
+    std::cout<<"T is none trival"<<std::endl;
+}
+```
+
+下面是一个用于校验函数模板参数类型的小例子：
+
+```cpp
+template <typename T>
+typename std::enable_if<std::is_integral<T>::value, bool>::type
+is_odd(T t) {
+  return bool(t%2);
+}
+ 
+template <typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
+bool is_even(T t) {
+  return !is_odd(t); 
+}
+```
+
+到这里对于 `enable_if_t` 就更通俗易懂了：
+
+```cpp
+template <bool _Test, class _Ty = void>
+using enable_if_t = typename enable_if<_Test, _Ty>::type;
+```
+
+**使用场景**
+**类型偏特化**
+在使用模板编程的时候，可以使用enbale_if的特性根据模板参数的不同特性进行不同的类型选择。
+
+```cpp
+template<class T, class Enable = void>
+class Test {
+public:
+	Test() { 
+		std::cout << "normal template" << std::endl; 
+	}
+}; 
+
+template<class T>
+class Test<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {
+public:
+	Test() { 
+		std::cout << "is_floating_point" << std::endl; 
+	}
+};
+int main() {
+	auto a1 = std::make_shared<Test<int>>();
+  	auto a2 = std::make_shared<Test<float>>();
+  	return 0;
+}
+```
+
+执行结果：
+
+```shell
+normal template
+is_floating_point
+```
+
+**控制函数返回值**
+通过函数的返回值，在不同的条件下，选择不同的模板。
+
+```cpp
+template <typename T>
+typename std::enable_if<std::is_integral<T>::value,bool>::type
+GetValue (T i) { 
+	cout << "is integral" << endl;
+	return i>0;  
+}
+template <typename T>
+typename std::enable_if<!std::is_integral<T>::value,bool>::type
+GetValue (T i) { 
+	cout << "is not integral" << endl;
+	return i>0; 
+}
+
+int main() 
+	int i = 1;    
+	float f = 2.0;
+	std::cout << i << " GetValue : " << GetValue(i) << std::endl;
+	std::cout << f << " GetValue : " << GetValue(f) << std::endl;
+	return 0;
+}
+```
+
+执行结果：
+
+```shell
+1 GetValue : is integral
+1
+2 GetValue : is not integral
+```
+
+函数参数场景
+通过函数的参数，在不同的条件下，选择不同的模板。
+
+```cpp
+template <typename T,
+          typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
+void TestFunc(T msg) {
+	std::cout << "is integral" << std::endl; 
+}
+
+template <typename T,
+          typename std::enable_if<!std::is_integral<T>::value, int>::type = 0>
+void TestFunc(T msg) {
+	std::cout << "is not integral" << std::endl; 
+}
+```
+
+执行结果：
+
+```shell
+is integral
+is not integral
+```
+
+另外这块的详细使用场景也可以看下百度apollo cyber代码中message部分的封装，也是大量使用了std::enable_if。
+
 
 
 ## `C++ 17`
@@ -1184,3 +1344,124 @@ virtual void Fun(); // 符合：virtual 放在 void 左边
 > * inline
 > * constexpr
 > * explicit 说明符
+
+
+
+## restrict关键字
+
+restrict 关键字是 C 语言中的一种类型限定符（Type Qualifiers），只用于限定指针，该关键字用于告诉编译器，所有修改该指针指向内容的操作，**全部是基于该指针的，即不存在其他修改操作的途径**，消除pointer aliasing（指针别名），从而帮助编译器**生成更优的机器码**。在保证多个指针所指向的区域无交叠的前提下，可以将这些指针加上restrict限定符，用于指导编译器做出更激进的优化。
+
+需要特别**注意**的是，如果指针指向同一块区域而错误的加上了restrict限定符，则结果是未定义的。
+
+这个指针有两个作用，一个是告诉编译器，编译器一旦获得了这个信息，那么就可以放心大胆地对这个进行优化。另一个作用是告诉程序员，这段内存只能通过这个指针访问。
+
+* 作用一： 告诉编译器，编译器可以根据这个大胆做优化
+
+```cpp
+int add(int *a, int *b){
+  *a = 10;
+  *b = 12;
+  return *a + *b;
+}
+```
+
+在这个函数中，有的同学就说了，直接返回22不就好了，这么想的同学就**忽略了a==b的可能**，如果a和b指向同一个地址，那么这个函数将返回24。实际上，编译器就是这个想要把额外操作去掉的“同学”，如果我们能清晰的告诉他，a和b在本函数中不管怎么移动都永远不可能指向相同的地址，那么，处理这个函数时，*a + *b 可以直接使用两立即数相加，不需要再从地址中读取值，就能优化代码执行的效率。**因此，在没有指明a不可能等于b的情况下，编译器能做到的最大优化就是，b指向地址的值一定是12，但a的值必须从地址中读取**。
+
+```cpp
+int add(int __restrict *a, int __restrict *b){
+  *a = 10;
+  *b = 12;
+  return *a + *b;
+}
+```
+
+* 作用二：告诉程序员，这段内存需要满足restrict规则
+
+C库中有两个函数可以从一个位置把字节复制到另一个位置。在C99标准下，它们的原型如下：
+
+```cpp
+void * memcpy（void * restrict s1, const void * restrict s2, size_t n);
+void * memmove(void * s1, const void * s2, size_t n);
+```
+
+这两个函数均从 s2 指向的位置复制 n 字节数据到 s1 指向的位置，且均返回 s1 的值。两者之间的差别由关键字 restrict 造成，即 **memcpy 函数内部可以假定两个内存区域没有重叠，但是需要使用者来保证**，如果没有按照规则，则内部的实现如果没有考虑重叠的情况，就可能出问题。**memmove() 函数则不做这个假定**，因此，复制过程类似于首先将所有字节复制到一个临时缓冲区，然后再复制到最终目的地。同样，编译器并不会对这个做检测，你告诉编译器什么，编译器就相信什么了。
+
+```cpp
+void test()
+{
+    char *ptr = (char*)malloc(10);
+    char *tmp = ptr + 3;
+    memset(ptr, '\0', 10);
+    snprintf(ptr, 10, "%s", "HelloWorld");
+    memcpy(tmp, ptr, 5);
+}
+```
+
+
+如上面的代码，tmp 初始指向字符 "I"，按照本意，我们是想把从 ptr 开始的5个字符 "Hello" 复制到从 tmp 开始的地址上。那么如果memcpy 没有考虑地址重叠的话，它会从 ptr 开始把字符一个一个拷贝到 tmp 地址上。那么你就会发现，当把第一个字符 "H" 拷贝到tmp指向 "I" 的位置的时候，被拷贝的5个字符已经变成“HelHo"了，也就是改 dst 的同时，也改到了 src 了。那这样起来肯定会违背我们的本意，但是这个不是 memcpy 的锅，人家已经通过 restrict 告诉你s2这块地址只有限定在只能通过 s2 指针来访问才能保证没问题，是你自己没按照函数规则来。
+
+这也告诉我们，**在设计memcpy的时候，需要考虑内存重叠的情况**。解决办法如下，当修改dst也有可能改到src的情况下，可以把src和dst均加上要拷贝的size，然后从尾巴开始逐一字符拷贝，这样就不会有重叠了。
+
+
+
+## trivial 
+
+> [普通类型（Trivial Type)和标准布局类型(Standard-layout Type)以及POD类型](https://www.cnblogs.com/kwdeblog/p/13928396.html)
+>
+> [C++11 POD 类型]([C++11 POD 类型_pod类型是c++11才有吗-CSDN博客](https://blog.csdn.net/K346K346/article/details/81534100))
+>
+> 
+
+trivial 意思是无意义，这个 trivial 和 non-trivial 是对类的四种函数来说的：
+
+- 构造函数(ctor)
+- 复制构造函数(copy)
+- 赋值函数(assignment)
+- 析构函数(dtor)
+
+如果至少满足下面3条里的一条：
+
+1. 显式(explict)定义了这四种函数。
+2. 类里有非静态非POD的数据成员。
+3. 有基类。
+
+那么上面的四种函数是 non-trivial 函数，比如叫 non-trivial ctor、non-trivial copy…，也就是说有意义的函数，里面有一下必要的操作，比如类成员的初始化，释放内存等。
+
+那个POD意思是Plain Old Data，也就是C++的内建类型或传统的C结构体类型。POD类型必然有trivial ctor/dtor/copy/assignment四种函数。
+
+```cpp
+//整个T是POD类型
+class T
+{
+    //没有显式定义ctor/dtor/copy/assignemt所以都是trivial
+    int a; //POD类型
+};
+ 
+//整个T1是非POD类型
+class T1
+{
+    T1() //显式定义了构造函数，所以是non-trivial ctor
+    {}
+    //没有显式定义ctor/dtor/copy/assignemt所以都是trivial
+    int a;//POD类型
+    std::string b; //非POD类型
+};
+```
+
+那这有什么用处呢？
+
+如果这个类都是trivial ctor/dtor/copy/assignment函数，我们对这个类进行构造、析构、拷贝和赋值时可以采用最有效率的方法，不调用无所事事正真的那些ctor/dtor等，而直接采用内存操作如malloc()、memcpy()等提高性能，这也是SGI STL内部干的事情。
+
+
+
+## c++ 给无名形参提供默认值
+
+> <https://blog.csdn.net/zhangzhangkeji/article/details/132005953>
+
+如上图，若函数的形参不在函数体里使用，可以不提供形参名，而且可以给此形参提供默认值。也能编译通过。
+在看vs2019上的源码时，也出现了这种写法。应用SFINAE（substitute false is not an error）原则，若没推断出形参类型，也不报错，若推断出形参类型，则为其提供默认值。
+
+google：c++模板  无名参数默认赋值
+
+[C++模板 匿名类型参数](https://www.jianshu.com/p/3deec1ac6430)
+
