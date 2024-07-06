@@ -1,5 +1,127 @@
 # 无卵用的记录
 
+```python
+import struct
+import operator
+import numpy as np
+
+''' 
+BlockReduceMax：对每个block内所有元素求最大值。
+BlockReduceMin：对每个block内所有元素求最小值。
+BlockReduceSum：对每个block内所有元素求和。
+
+构造样例：
+BlockReduceMax 数据类型：fp16
+BlockReduceMax 输入数据大小： 16 个 block
+则BlockReduceMax 输出数据大小： 16
+参数：
+    分2次取完 = 16个block / 矢量计算单元每次读取连续的8个block
+    src_size: 16 * 32 / sizeof(fp16) = 16 * 16 = 256
+    dst_size: 16
+    repeat: 2
+    mask: 256 / sizeof(fp16) = 128，连续模式，单词迭代所有元素参与计算
+    dstRepStride: 1，迭代间block连续写
+    srcBlkStride: 1，单次迭代内block连续
+    srcRepStride: 8，迭代间相同block地址步长8
+'''
+
+
+
+ONE_BLOCK_SIZE = 32 # 硬件每个 block 32B，固定的
+RANDOM_SEED = 12306 # 随机种子的随机数组（为了确保结果的可重复性）
+
+
+# 给定输入数据大小： 16 个 block， float16
+# 则输出数据大小： 16
+input_block_num = 16
+element_byte_num = int(np.dtype(np.float16).itemsize)  # float16 数据类型占用的字节数，其余数据类型也按需修改
+element_num_in_each_block = int(ONE_BLOCK_SIZE / element_byte_num)  # 每个 block 有多少个数据
+
+src_size = int(input_block_num * element_num_in_each_block)
+dst_size = int(input_block_num)
+
+
+# 生成输入数据，，float16
+np.random.seed(RANDOM_SEED)
+srcData = np.random.random(src_size)
+srcData = srcData.astype(np.float16)
+
+
+# 一维数组中转换为二位数组，一维数组中每个block转换为二维数组中的一行
+srcDataReshape = srcData.reshape(-1, element_num_in_each_block)
+
+
+# 对每行（axis=1）数据进行计算，即求每个 block 内所有元素的函数计算结果
+# ================ 多选一 BlockReducexxx ================
+dstData = np.max(srcDataReshape, axis=1) # BlockReduceMax 输出结果
+# dstData = np.min(srcDataReshape, axis=1) # BlockReducemin 输出结果
+# dstData = np.sum(srcDataReshape, axis=1) # BlockReducesum 输出结果
+# ================================
+
+
+# 数据写入文件
+srcData.tofile("input_data.bin")
+dstData.tofile("golden_data.bin")
+
+
+# 打印相关数据
+print("\n================ float16 ================")
+print("ONE_BLOCK_SIZE = 32B")
+print("element_byte_num = ", element_byte_num)
+print("element_num_in_each_block = ", element_num_in_each_block)
+
+print("\n================ 输入输出维度 ================")
+print("src_size = ", src_size, ", src_block_num = ", srcDataReshape.shape[0])
+print("dst_size = ", dst_size)
+
+print("\n================ 实际数据 ================")
+print("srcData.shape = ", srcData.shape)
+print("srcDataReshape.shape = ", srcDataReshape.shape)
+print("dstData.shape = ", dstData.shape)
+print("\n====src")
+print(srcDataReshape)
+print("\n====dst")
+print(dstData)
+
+
+def main():
+    if len(sys.argv) < 2:
+        print("params error! pelese input 1 param at least: conf_file")
+        return -1
+
+    conf_file = sys.argv[1]
+    if not os.path.exists(conf_file):
+        print("conf_file: %s not exist!!" % conf_file)
+        exit(-1)
+
+    print("conf_file: %s!" % conf_file)
+
+    runner_type = "camodel"
+    mode = "run"
+    soc_version = soc_cfg.SocVersion.CharlottePro
+    for i in range(2, len(sys.argv)):
+        if "--runner_type=" in sys.argv[i]:
+            runner_type = sys.argv[i].split("=")[-1]
+        elif "--mode=" in sys.argv[i]:
+            mode = sys.argv[i].split("=")[-1]
+        elif "--soc_version=" in sys.argv[i]:
+            soc_version = sys.argv[i].split("=")[-1]
+
+    run_tick_by_yaml(conf_file, runner_type, mode, soc_version)
+    exit(0)
+
+
+if __name__ == '__main__':
+    main()
+
+
+mask参数使用逐bit模式，该模式的具体介绍请参考参数说明中的mask参数说明：
+template <typename T, bool isSetMask = true> __aicore__ inline void BlockReduceMax(const LocalTensor<T>& dstLocal, const LocalTensor<T>& srcLocal,const int32_t repeat, const uint64_t mask[2], const int32_t dstRepStride, const int32_t srcBlkStride,const int32_t srcRepStride)
+
+mask参数使用连续模式，该模式的具体介绍请参考参数说明中的mask参数说明：
+template <typename T, bool isSetMask = true> __aicore__ inline void BlockReduceMax(const LocalTensor<T>& dstLocal, const LocalTensor<T>& srcLocal,const int32_t repeat, const int32_t maskCount, const int32_t dstRepStride, const int32_t srcBlkStride,const int32_t srcRepStride)
+```
+
 ### python
 https://pythonhowto.readthedocs.io/zh-cn/latest/module.html
 
