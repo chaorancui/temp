@@ -469,6 +469,31 @@ x.sh: x.sh
 
 
 
+## 取消 tab 补全报警声
+
+*  Linux 发行版 Terminal
+
+  在 `/etc/inputrc` 中添加 `set bell-style none`
+  这是一个通用的禁止 DEL 字符提示音的方法。不只适用于 Windows Terminal ，还适用于所有 Linux 发行版的 Terminal。
+
+* Windows Terminal 
+
+  设置打开 settings.json，在 profiles.defaults 下增加 "bellStyle": "none"，如下：
+
+  ```shell
+      "profiles": 
+      {
+          "defaults": 
+          {
+              "opacity": 85,
+              "bellStyle": "none"
+          },
+          ...
+      }
+  ```
+
+  
+
 
 
 
@@ -1018,6 +1043,8 @@ Port 22		# 原文件为`#Port 22`（不放开注释默认22），如果上面doc
 
 # 7.启动 ssh，重启用`service ssh restart`
 service ssh start
+# 开机自动启动ssh命令
+sudo systemctl enable ssh
 
 # 8.ssh远程登录上述创建的容器
 # 注意这里要用 root 用户登录
@@ -1215,6 +1242,32 @@ cat [filename] | head -n 3000 | tail -n +1000
 ```
 
 
+
+## 系统命令
+
+### 服务开机自启动
+
+以 ssh 服务为例：
+
+```shell
+# 开机自动启动ssh命令
+sudo systemctl enable ssh
+ 
+# 关闭ssh开机自动启动命令
+sudo systemctl disable ssh
+ 
+# 单次开启ssh
+sudo systemctl start ssh
+ 
+# 单次关闭ssh
+sudo systemctl stop ssh
+ 
+# 设置好后重启系统
+reboot
+ 
+#查看ssh是否启动，看到Active: active (running)即表示成功
+sudo systemctl status ssh
+```
 
 
 
