@@ -1,8 +1,76 @@
 # C++ 泛型
 
-## 模板
+## 模板零碎知识
 
-### C++模板的偏特化与全特化
+1. 在类代码内简化模板类名的使用
+
+   > C++ Primer 第五版 ch16.1.2
+
+   当我们使用一个类模板类型时必须提供模板实参，但这一规则有一个例外。在**类模板自己的作用域中**，我们可以直接使用模板名而不提供实参。
+
+   ```cpp
+   template <typename T> 
+   class BlobPtr {
+   public:
+       BlobPtr(): curr(0) {}
+       BlobPtr(Blob<T> &a, size_t sz = O):wptr(a.data), curr(sz) {}
+       T& operator*() const {
+           auto p = check(curr, "dereference past end");
+           return（*p）[curr];//（*p)为本对象指向的 vector
+       }
+       // 递增和递减
+       BlobPtr& operator++();// 前置运算符
+       BlobPtr& operator--();
+   private:
+       //若检查成功，check 返回一个指向 vector 的 shared_ptr
+       std::shared_ptr<std::vector<T>>
+           check(std::si.ze_t, const std::string&) const;
+       //保存一个 weak_ptr，表示底层vector 可能被销毁
+       std::weak_ptr<std::vector<T>> wptr;
+       std::size_tcurr；//数组中的当前位置
+   };
+   ```
+
+   BlobPtr 的前置递增和递减成员返回 BlobPtr&，而不是BlobPtr<T>&。
+
+   当我们处于一个类模板的作用域中时，编译器处理模板自身引用时就好像我们已经提供了与模板参数匹配的实参一样。即，就好像我们这样编写代码一样：
+
+   ```cpp
+   BlobPtr<T>& operator++();
+   BlobPtr<T>& operator--();
+   ```
+
+   在C++中，类内部确实可以省略模板形参。这是因为类内部的成员和类型定义可以隐式地引用外层模板参数。**在模板类内部使用该类本身的名称时，编译器会隐式地将其解释为当前模板实例**。
+
+2. 模板类型别名
+
+   > C++ Primer 第五版 ch16.1.2
+
+   ```cpp
+   template<typename T> using twin = pair<T, T>;
+   twin<string> authors;// authors 是一个pair<string,String>
+   ```
+
+   在这段代码中，我们将twin 定义为成员类型相同的 pair 的别名。这样，twin 的用户只需指定一次类型。
+
+   当我们定义一个模板类型别名时，可以固定一个或多个模板参数：
+
+   ```cpp
+   template <typename T> using partNo = pair<T, unsigned>;
+   partNo<string> books;// books是一个pair<string，unsigned>
+   partNo<Vehicle> cars;// cars 是一个pair<Vehicle，unsigned>
+   partNo<Student> kids;// kids 是-个 pair<Student， unsigned>
+   ```
+
+   这段代码中我们将 partNo 定义为一族类型的别名，这族类型是 second 成员为unsigned 的pair。partNo 的川户需要指出 pair的 first成员的类型，但不能指定second成员的类型。
+
+3. xx
+
+
+
+
+
+## C++模板的偏特化与全特化
 
 > [C++模板的偏特化与全特化](https://harttle.land/2015/10/03/cpp-template.html)
 
@@ -80,7 +148,7 @@ void f<int>(){ int d; }
 
 #### 偏特化
 
-类似于全特化，偏特化也是为了给自定义一个参数集合的模板，但偏特化后的模板需要进一步的实例化才能形成确定的签名。 值得注意的是函数模板不允许偏特化，这一点在[Effective C++: Item 25](https://harttle.land/2015/08/23/effective-cpp-25.html)中有更详细的讨论。 偏特化也是以`template`来声明的，需要给出剩余的"模板形参"和必要的"模板实参"。例如：
+类似于全特化，偏特化也是为了给自定义一个参数集合的模板，但偏特化后的模板需要进一步的实例化才能形成确定的签名。 **值得注意的是函数模板不允许偏特化**，这一点在[Effective C++: Item 25](https://harttle.land/2015/08/23/effective-cpp-25.html)中有更详细的讨论。 偏特化也是以`template`来声明的，需要给出剩余的"模板形参"和必要的"模板实参"。例如：
 
 ```c++
 template <class T2>
@@ -110,7 +178,7 @@ void f(){}              // 注意：这里没有"模板实参"
 
 
 
-### C++ 中让人头晕的 typedef & typename
+## C++ 中让人头晕的 typedef & typename
 
 > [C++ 中让人头晕的 typedef & typename](https://www.luozhiyun.com/archives/742)
 
@@ -264,7 +332,138 @@ typedef typename std::vector<T>::size_type size_type;
 
 
 
- 
+# 示例解析
+
+## integral_constant
+
+> [integral_constant ](https://zh.cppreference.com/w/cpp/types/integral_constant)
+
+### 逐行解析
+
+```cpp
+template< class T, T v >
+struct integral_constant {
+    static constexpr T value = v;
+    typedef T value_type;
+    typedef integral_constant type; 
+    constexpr operator value_type() const noexcept { return value; }
+    constexpr value_type operator()() const noexcept { return value; }
+};
+```
+
+1. **模板参数**
+
+    ```cpp
+    template< class T, T v >
+    ```
+
+    - `class T`：这是一个类型模板参数。`T` 可以是任何类型，如 `int`, `bool`, `char`, `double` 等。
+    - `T v`：这是一个非类型模板参数，它的类型是上面定义的 `T`，`v` 是一个常量值。
+
+2. **静态常量成员**
+
+    ```cpp
+    static constexpr T value = v;
+    ```
+
+    - `static`：这是一个静态成员变量，意味着所有 `integral_constant` 的实例共享同一个 `value`。
+    - `constexpr`：这确保 `value` 是一个常量表达式，并且可以在编译时计算。
+    - `T value`：类型为 `T` 的静态常量成员变量。
+    - `= v`：初始化为模板参数 `v`。
+
+3. **类型定义**
+
+    ```cpp
+    typedef T value_type;
+    ```
+
+    - `typedef T value_type`：定义一个别名 `value_type`，其实际类型为 `T`。这在某些模板元编程上下文中会用到。
+
+    ```cpp
+    typedef integral_constant type;
+    ```
+
+    - `typedef integral_constant type`：定义一个别名 `type`，其实际类型为 `integral_constant<T, v>`。这允许在模板元编程中递归定义和处理类型。
+
+4. **转换运算符**
+
+    ```cpp
+    constexpr operator value_type() const noexcept { return value; }
+    ```
+
+    - `constexpr`：声明该函数是一个常量表达式函数，可以在编译时求值。
+    - `operator value_type() const`：定义一个类型转换运算符，使得 `integral_constant` 可以隐式转换为 `value_type`，即 `T` 类型。
+    - `noexcept`：表示此函数不会抛出异常。
+    - `{ return value; }`：返回静态常量 `value` 的值。
+
+    这个运算符使得 `integral_constant` 的实例可以像 `T` 类型的值一样使用。例如：
+
+    ```cpp
+    integral_constant<int, 5> five;
+    int x = five;  // 隐式转换，x 的值为 5
+    ```
+
+5. **函数调用运算符**
+
+    ```cpp
+    constexpr value_type operator()() const noexcept { return value; }
+    ```
+
+    - `constexpr`：声明该函数是一个常量表达式函数，可以在编译时求值。
+    - `value_type operator()() const`：定义一个函数调用运算符，使得 `integral_constant` 的实例可以像函数一样被调用，返回 `value_type`，即 `T` 类型。
+    - `noexcept`：表示此函数不会抛出异常。
+    - `{ return value; }`：返回静态常量 `value` 的值。
+
+    这个运算符使得 `integral_constant` 的实例可以像一个返回 `T` 类型值的无参函数一样被调用。例如：
+
+    ```cpp
+    integral_constant<int, 5> five;
+    int y = five();  // 调用函数运算符，y 的值为 5
+    ```
+
+### 用途
+
+1. **标准库中的应用**
+
+    在C++标准库中，`integral_constant` 常用于定义类型常量和进行模板元编程。例如，`std::true_type` 和 `std::false_type` 是 `integral_constant` 的特例：
+
+    ```cpp
+    typedef integral_constant<bool, true> true_type;
+    typedef integral_constant<bool, false> false_type;
+    ```
+
+    - `true_type` 和 `false_type` 分别表示布尔常量 `true` 和 `false`。
+
+2. **类型特性检测**
+
+    `integral_constant` 常用于类型特性检测，例如 `std::is_same`：
+
+    ```cpp
+    template <typename T, typename U>
+    struct is_same : false_type {};
+    
+    template <typename T>
+    struct is_same<T, T> : true_type {};
+    ```
+
+    - 如果 `T` 和 `U` 不同，`is_same<T, U>` 继承自 `false_type`，即 `value` 为 `false`。
+    - 如果 `T` 和 `U` 相同，`is_same<T, T>` 继承自 `true_type`，即 `value` 为 `true`。
+
+### 总结
+
+- `integral_constant` 是一个模板类，用于封装一个常量值和其类型。
+- 它定义了静态常量成员 `value`，类型别名 `value_type` 和 `type`，以及两个运算符（类型转换运算符和函数调用运算符），使得其实例可以像常量值或函数一样使用。
+- `integral_constant` 在模板元编程中非常有用，广泛用于定义类型常量和进行类型特性检测。
+
+ > 注：`typedef integral_constant type` 与 `typedef integral_constant<T, v> type` 是等价的
+ >
+ > `typedef integral_constant type` 这条语句定义了一个名为 `type` 的类型别名，表示的是 `integral_constant` 本身。由于它在 `integral_constant` 结构体内部，并且是一个模板类，所以 `integral_constant` 实际上是 `integral_constant<T, v>`。
+
+
+
+
+
+
 
 # C++ 元模版编程
 
