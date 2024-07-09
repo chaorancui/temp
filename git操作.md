@@ -287,7 +287,11 @@ git merge origin/master
 git rebase origin/master
 ```
 
-> **`FETCH_HEAD` 指的是某个分支在远程仓库上最新的状态。**每一个执行过 `git fetch` 操作的本地仓库都会存在一个 `FETCH_HEAD` 列表，这个列表保存在 `.git/FETCH_HEAD` 文件中。`FETCH_HEAD` 文件中的每一行对应着远程仓库的一个分支。当前本地分支指向的 `FETCH_HEAD` 就是该文件中的「第一行」对应的分支。
+> 在Git中，`FETCH_HEAD` 是一个特殊的引用（ref），它指向**最近一次`git fetch`或`git pull`操作从远程仓库获取的最新提交**。每当执行`fetch`或`pull`命令时，Git都会更新`FETCH_HEAD`，使其指向此次操作所获取的最新提交。
+>
+> 此外，`FETCH_HEAD`也可以指向一个特定的远程分支，具体取决于`fetch`或`pull`操作时的设置。例如，如果你只从`origin/main`拉取，那么`FETCH_HEAD`将指向`origin/main`的最新提交。如果想从多个远程分支拉取，可以使用`git fetch --all`来更新所有远程分支的信息，此时`FETCH_HEAD`仍然只会指向最后一个被拉取的提交。
+>
+> 你可以通过`git show FETCH_HEAD`或`git log FETCH_HEAD`来查看最近一次从远程仓库拉取的提交信息。
 
 
 
@@ -2079,5 +2083,6 @@ vimdiff命令
     :set noro
 
 要使其成为默认值，请编辑您的$HOME/.vimrc配置，添加以下内容（您可能需要创建它）：
+
 
 
