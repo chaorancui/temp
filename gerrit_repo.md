@@ -45,6 +45,123 @@ git fetch REMOTE refs/changes/24/2464/4 \ && git checkout FETCH_HEAD
 
 
 
+## gerrit 推送代码
+
+推送代码到 Gerrit 通常需要遵循特定的步骤和命名约定。以下是一个详细的步骤指南，展示如何推送代码到 Gerrit 进行代码审查。
+
+**前提条件**
+
+1. **安装 Git**：确保你已经安装并配置好 Git。
+2. **Gerrit 访问权限**：你需要有访问 Gerrit 的权限，并且你的 SSH 密钥已经被添加到 Gerrit 账号中。
+3. **Git 仓库配置**：确保你的 Git 仓库已经配置为从 Gerrit 获取和推送代码。
+
+**配置 Git 仓库**
+
+首先，克隆 Gerrit 上的项目：
+
+```bash
+git clone ssh://<username>@<gerrit-server>:<port>/<project>
+cd <project>
+```
+
+**创建并切换到一个新的分支**
+
+在 Gerrit 中，代码审查通常在一个新的分支上进行。
+
+```bash
+git checkout -b <new-branch>
+```
+
+**进行代码更改**
+
+在本地进行代码更改，并提交更改。
+
+```bash
+# 编辑文件
+vim <file>
+
+# 添加更改到暂存区
+git add <file>
+
+# 提交更改
+git commit -m "描述你的更改"
+```
+
+**推送到 Gerrit**
+
+推送代码到 Gerrit 进行代码审查需要使用特定的推送命令。通常，Gerrit 的 refs/for/ 命名空间用于此目的。
+
+```bash
+git push origin HEAD:refs/for/<branch>
+
+# 其中 `<branch>` 是你要提交代码审查的目标分支。例如，如果你在 master 分支上进行代码审查：
+git push origin HEAD:refs/for/master
+```
+
+**添加额外信息（可选）**
+
+你可以在推送命令中添加更多的信息，比如更改主题或提交给特定的用户审查。
+
+```bash
+git push origin HEAD:refs/for/master%topic=<topic>,r=<reviewer1>,r=<reviewer2>
+```
+
+- `topic=<topic>`：指定更改的主题。
+- `r=<reviewer>`：指定审查者。
+
+**确认代码推送**
+
+一旦你推送了代码，更改会在 Gerrit 上创建一个新的变更（change）。你可以在 Gerrit 的 Web 界面上查看和管理这个变更。审查者会收到通知，并可以开始代码审查。
+
+**处理审查反馈**
+
+在 Gerrit 上，审查者会给出反馈意见，你可能需要根据反馈修改代码并重新提交。
+
+```bash
+# 进行必要的修改
+vim <file>
+
+# 添加更改到暂存区
+git add <file>
+
+# 提交更改
+git commit --amend
+
+# 重新推送到 Gerrit
+git push origin HEAD:refs/for/master
+```
+
+使用 `--amend` 选项可以在不创建新的提交的情况下更新现有的提交。
+
+**示例完整流程**
+
+以下是一个完整的示例流程：
+
+```
+# 克隆项目
+git clone ssh://<username>@<gerrit-server>:<port>/<project>
+cd <project>
+
+# 创建并切换到新分支
+git checkout -b feature/my-feature
+
+# 进行代码更改
+vim <file>
+git add <file>
+git commit -m "Add new feature"
+
+# 推送到 Gerrit
+git push origin HEAD:refs/for/master
+
+# 处理审查反馈
+vim <file>
+git add <file>
+git commit --amend
+git push origin HEAD:refs/for/master
+```
+
+
+
 ## change-id 与 patch-id 与 commit-id
 
 在版本控制系统（如 Git）和代码评审工具（如 Gerrit）中，`change-id`、`patch-id` 和 `commit-id` 是重要的标识符，用于管理和追踪代码更改。以下是对它们的详细解释和用途：
