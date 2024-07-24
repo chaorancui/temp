@@ -287,6 +287,12 @@ git merge origin/master
 git rebase origin/master
 ```
 
+* 也可以把当前分支reset --hard到远程分支
+
+```shell
+git rebase --hard origin/master
+```
+
 > 在Git中，`FETCH_HEAD` 是一个特殊的引用（ref），它指向**最近一次`git fetch`或`git pull`操作从远程仓库获取的最新提交**。每当执行`fetch`或`pull`命令时，Git都会更新`FETCH_HEAD`，使其指向此次操作所获取的最新提交。
 >
 > 此外，`FETCH_HEAD`也可以指向一个特定的远程分支，具体取决于`fetch`或`pull`操作时的设置。例如，如果你只从`origin/main`拉取，那么`FETCH_HEAD`将指向`origin/main`的最新提交。如果想从多个远程分支拉取，可以使用`git fetch --all`来更新所有远程分支的信息，此时`FETCH_HEAD`仍然只会指向最后一个被拉取的提交。
