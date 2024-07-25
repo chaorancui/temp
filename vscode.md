@@ -45,6 +45,112 @@ exit
 
 
 
+## vscode-server
+
+当你使用 Visual Studio Code (VS Code) 的 Remote-SSH 扩展连接到远程服务器时，VS Code 会自动在远程服务器上安装一个名为 "VS Code Server" 的组件，以便在远程环境中运行代码编辑功能。首次 SSH 到远程服务器时下载，所以首次可能会比较慢。
+
+> VSCode Server 的版本要和 VSCode 的版本对应，当 VSCode 更新时，下次 SSH 登陆远程服务器，VSCode Server 会重新下载安装更新后的版本。二者对应用的是<commit_id>，可以在 【VSCode 菜单栏】-->【Help】->【About】下查看【Commit】的值 。
+
+### 自动安装 VS Code Server
+
+1. **安装 Remote-SSH 扩展**：
+   - 在 VS Code 中，打开扩展市场（快捷键：`Ctrl+Shift+X`）。
+   - 搜索并安装 `Remote - SSH` 扩展。
+2. **配置 SSH 连接**：
+   - 打开命令面板（快捷键：`Ctrl+Shift+P`）。
+   - 输入并选择 `Remote-SSH: Connect to Host...`。
+   - 如果这是你第一次设置连接，你需要配置 SSH 主机。在弹出的对话框中，输入远程主机的 SSH 地址（如 `user@hostname`）。
+   - 如果 SSH 主机已经配置好，选择你要连接的主机。
+3. **连接到远程主机**：
+   - 选择要连接的远程主机后，VS Code 将使用配置的 SSH 密钥或密码进行连接。
+   - 连接成功后，VS Code 会自动在远程主机上安装所需的 VS Code Server。这通常包括下载并解压必要的文件。
+4. **安装过程**：
+   - 在连接的过程中，你可能会看到 VS Code 的输出窗口显示安装进度。
+   - 一旦安装完成，你将在 VS Code 的左下角看到一个绿色的远程连接图标，表示你已经连接到远程主机。
+
+### 手动安装或解决安装问题
+
+在某些情况下，自动安装可能失败或你可能需要手动干预（远程服务器无法访问外网或网络不稳定一直安装失败）。这种情况下，你可以通过以下步骤手动安装或调试：
+
+1. **查看日志**：
+   - 打开输出窗口（`View` -> `Output`）。
+   - 从下拉菜单中选择 `Remote - SSH` 查看连接和安装过程的日志。
+2. **手动安装 VS Code Server**：
+   - 从日志中找到 VS Code Server 的下载 URL。
+   - 在远程主机上使用 `wget` 或 `curl` 下载该文件。
+   - 解压下载的文件并确保正确的权限设置。
+3. **检查权限**：
+   - 确保你的用户对安装目录有写权限。
+   - 如果需要，尝试使用 `sudo` 权限进行安装（注意安全性和权限管理）。
+
+总结
+
+### 手动下载和安装 VS Code Server
+
+1. **下载 VS Code Server**：
+
+   - 使用 `wget` 或 `curl`
+
+      从能联网的机器上运行下述命令下载 VS Code Server。例如：
+
+     ```shell
+     wget https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<architecture>/stable -O vscode-server.tar.gz
+     # 这个 URL 包含了具体的 `commit_id`、`platform` 和 `architecture` 信息。
+     
+     # 例子：
+     wget https://update.code.visualstudio.com/commit:f1e16e1e6214d7c44d078b1f0607b2388f29d729/server-linux-x64/stable -O vscode-server.tar.gz
+     ```
+
+     下载完成之后，把软件包拷贝到不能联网的远程服务器。可以使用scp命令或者winscp等ftp工具。
+
+2. **解压下载的文件**：
+
+   - 解压下载的 tar 文件：
+
+     ```shell
+     tar -xzf vscode-server.tar.gz -C ~/.vscode-server/bin/<commit_id>
+     ```
+
+   - 创建解压目录（如果它不存在的话）：
+
+     ```shell
+     mkdir -p ~/.vscode-server/bin/<commit_id>
+     ```
+
+3. **设置权限**：
+
+   - 确保文件和目录具有正确的权限，以便 VS Code 可以运行：
+
+     ```shell
+     chmod -R 755 ~/.vscode-server/bin/<commit_id>
+     ```
+
+4. **重启 VS Code 并重新连接**：
+
+   - 断开远程连接，然后重新连接。VS Code 应该检测到 VS Code Server 已经安装，并直接使用它。
+
+### 需要注意的事项
+
+- **下载 URL 的结构**：
+  - `commit_id` 是 VS Code 的特定版本标识。
+  - `platform` 是操作系统，例如 `linux`。
+  - `architecture` 是系统架构，例如 `x64`。
+- **确保网络连接**：
+  - 你的远程服务器需要能够访问互联网，以便下载 VS Code Server。
+  - 如果你的服务器在防火墙后面或没有互联网访问权限，可能需要通过其他方式将文件传输到服务器上。
+
+通过这些步骤，你可以手动下载和安装 VS Code Server，在需要时进行故障排除或确保安装顺利。
+
+自动安装要求远程服务器可以访问`VS Code Server 下载 URL` ：
+
+```shell
+https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<architecture>/stable
+```
+
+这个 URL 包含了具体的 `commit_id`、`platform` 和 `architecture` 信息。
+
+
+
 ## 插件
 
 ### 系统安装
@@ -357,3 +463,38 @@ Specifies the current working directory for the debugger, which is the base fold
 
 选中文本，Ctrl+Shift+f7：高亮显示所有该文本，按ESC高亮消失（类似Ctrl+Shift+F）
 
+
+
+
+
+# Nodejs
+
+```
+registry=https://registry.npm.taobao.org/
+strict-ssl=false
+proxy=http://user:password@proxy.huawei.com:8080/
+https-proxy=http://user:password@proxy.huawei.com:8080/
+```
+
+> **密码中特殊字符的处理**
+> 如果密码中有@等特殊字符，会出错，此时要对其中的特殊符号进行处理，使用百分比编码(Percent-encoding)对特殊字符进行转换，转换列表如下：
+> ! --> %21  # --> %23  $ --> %24  & --> %26  ' --> %27
+> ( --> %28  ) --> %29  * --> %2A  + --> %2B  , --> %2C
+> / --> %2F  : --> %3A  ; --> %3B  = --> %3D  ? --> %3F
+> @ --> %40  [ --> %5B  ] --> %5D
+>
+> 例如：密码是12#，转义之后就是12%23
+
+## 离线安装
+
+1. 下载 linux 版本的 node.js
+
+   下载网址：<https://nodejs.org/zh-cn/download/package-manager>
+
+   Linux 选择【预构建二进制文件】-->【Linux】-->【x64】-->【v20.16.0(LTS)】-->下载，会得到如 `node-v20.16.0-linux-x64.tar.xz` 的文件。
+
+   
+
+   
+
+   
