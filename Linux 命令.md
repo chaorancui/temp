@@ -1294,38 +1294,335 @@ echo 'set completion-ignore-case on' >> ~/.inputrc
 
 
 
-# oh-my-zsh on Windows
+# oh-my-zsh
 
-The function will not be run in future, but you can run
-it yourself as follows:
-  autoload -Uz zsh-newuser-install
-  zsh-newuser-install -f
+**先决条件**
 
-The code added to ~/.zshrc is marked by the lines
+- [应该安装Zsh](https://www.zsh.org/)（v4.3.9 或更新版本也可以，但我们更喜欢 5.0.8 及更新版本）。如果没有预安装（运行`zsh --version`以确认），请查看以下 wiki 说明：[安装 ZSH](https://github.com/ohmyzsh/ohmyzsh/wiki/Installing-ZSH)
+- `curl`或者`wget`应该安装
+- `git`应该安装（建议使用 v2.4.11 或更高版本）
 
- Lines configured by zsh-newuser-install
+## 在线安装
 
- End of lines configured by zsh-newuser-install
+1. 安装 zsh
 
-You should not edit anything between these lines if you intend to
-run zsh-newuser-install again.  You may, however, edit any other part
-of the file.
+   * Linux 直接使用 apt 命令：`sudo apt install zsh`
+   * Windows 需要以 Git Bash 为基础，参考 <https://juejin.cn/post/7229507721795993661>
+
+2. 安装 oh-my-zsh
+
+   在命令行输入命令并按回车执行：
+
+   ```sh
+   sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+   ```
+
+   > curl 命令报错：curl: (60) SSL certificate problem: unable to get local issuer certificate:
+   >
+   > 用 [curl](https://so.csdn.net/so/search?q=curl&spm=1001.2101.3001.7020) 请求的时候，出现 SSL certificate problem，现在不懂证书什么怎么装，总之加上一个 -k 的参数可以解燃眉之急。
+   >
+   > ```shell
+   > sh -c "$(curl -fsSLk https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+   > ```
+   >
 
 
 
-curl 命令报错：curl: (60) SSL certificate problem: unable to get local issuer certificate:
+## 离线安装
 
-用 [curl](https://so.csdn.net/so/search?q=curl&spm=1001.2101.3001.7020) 请求的时候，出现 SSL certificate problem，现在不懂证书什么怎么装，总之加上一个 -k 的参数可以解燃眉之急。
+### 离线安装 zsh
 
-```shell
-curl -k https://baidu.com
+如果你没有 `root` 权限，并且需要离线安装 `zsh`，可以通过下载 `zsh` 的源代码进行本地编译和安装。
+
+> 基本思路是使用 `exec <zsh-path>` 把当前 shell 替换为 zsh。通常，您可以在登录文件（例如 `.profile`（如果您的 shell 是 sh 或 ksh）或 `.login`（如果是 csh））中执行此操作。
+
+以下是详细的步骤：
+
+1. 下载 `zsh` 源代码
+
+    首先，在有互联网连接的计算机上，下载 `zsh` 的源代码压缩包。
+
+    1. 访问 `zsh` 官方网站或 GitHub 仓库：
+       - 官方网站: https://www.zsh.org/
+       - GitHub 仓库: https://github.com/zsh-users/zsh
+    2. 在 GitHub 上，进入 `Releases` 页面，找到最新版本并下载源代码压缩包（例如 `zsh-5.8.tar.xz`）。
+
+2. 传输源代码
+
+    将下载的压缩包传输到目标机器上，例如通过 USB 驱动器或其他方式。
+
+3. 解压缩源代码
+
+    在目标机器上，解压缩下载的 `zsh` 源代码压缩包：
+
+    ```shell
+    tar -xf zsh-5.8.tar.xz
+    ```
+
+4. 编译并安装 `zsh`
+
+    进入解压缩后的目录，配置、编译并安装 `zsh` 到你的用户目录：
+
+    ```sh
+    cd zsh-5.8
+
+    # 配置安装目录
+    ./configure --prefix=$HOME/zsh
+
+    # 编译 zsh
+    make
+
+    # 安装 zsh 到指定目录
+    make install
+    ```
+
+5. 配置 `zsh`
+
+    为了使用新安装的 `zsh`，需要更新你的 `PATH` 环境变量，并将 `zsh` 设置为默认的 shell。
+
+    * 更新 `PATH`
+
+    在你的 shell 配置文件中（例如 `~/.profile` (优先) 或 `~/.bashrc` ），添加以下行：
+
+    ```sh
+    export PATH=$HOME/zsh/bin:$PATH
+    ```
+
+    然后重新加载配置文件：
+
+    ```sh
+    source ~/.profile  # 或者 source ~/.bashrc
+    ```
+
+    * 设置 `zsh` 为默认 shell
+
+    在你的 shell 配置文件中，添加以下行：
+
+    ```sh
+    export SHELL=$HOME/zsh/bin/zsh
+    [ -f $HOME/bin/zsh/bin/zsh ] && exec $HOME/bin/zsh/bin/zsh -l
+    ```
+
+    这将使你的 shell 会话在启动时自动切换到 `zsh`。
+
+6. 验证安装
+
+    ```sh
+    zsh --version
+    ```
+    
+    如果显示 `zsh` 的版本信息，则说明安装成功。
+
+
+
+### 离线安装oh-my-zsh
+
+1. 克隆存储库
+
+    ```sh
+    git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
+    ```
+
+2. *可选*，备份现有`~/.zshrc`文件
+
+   ```sh
+   cp ~/.zshrc ~/.zshrc.orig
+   ```
+
+3. 创建一个新的 Zsh 配置文件
+
+    您可以通过复制我们为您提供的模板来创建一个新的 zsh 配置文件。
+
+    ```sh
+    cp ~/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc
+    ```
+
+4. source zsh 的配置文件
+
+    * 将默认终端切换成 zsh，
+
+        ```sh
+        # 有root权限
+        chsh -s $(which zsh)
+        # 无root权限
+        # 参见 zsh 离线安装
+        ```
+        
+    * 执行：
+
+        ```sh
+        source ~/.zshrc
+        ```
+
+## 更改 oh-my-zsh 配置
+
+* 主题：官方文档 | <https://github.com/ohmyzsh/ohmyzsh/wiki/Themes>
+
+  修改 `~/.zshrc`
+
+  ```sh
+  # ZSH_THEME="robbyrussell"
+  ZSH_THEME="ys"
+  # ZSH_THEME="ys_simple"
+  ```
+
+  `ys_simple` 详见下面文件。
+
+* 插件：
+
+  * zsh-autosuggestions官方文档：[zsh-autosuggestions官方文档](https://link.juejin.cn/?target=https%3A%2F%2Fgithub.com%2Fzsh-users%2Fzsh-autosuggestions%23suggestion-highlight-style)
+
+    安装：
+
+    ```sh
+    cd ~/.oh-my-zsh/custom/plugins
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    ```
+
+    修改 `vim ~/.zshrc`
+
+    ```sh
+    # plugins=(git)
+    plugins=(git zsh-autosuggestions)
+    ```
+
+    
+
+## PROMPT语法
+
+PROMPT 语法是 Zsh 用来定义命令行提示符的一种特殊格式。它使用各种转义序列和占位符来显示信息。以下是 PROMPT 语法的主要元素：
+
+1. 基本语法：
+   PROMPT 变量使用单引号或双引号包围，如：
+
+   ```zsh
+   PROMPT='your prompt here'
+   ```
+
+2. 常用占位符：
+
+   - `%n`: 当前用户名
+   - `%m`: 主机名（短）
+   - `%M`: 完整主机名
+   - `%~`: 当前工作目录（相对于家目录）
+   - `%/`: 当前工作目录（完整路径）
+   - `%c` 或 `%.`: 当前目录名
+   - `%D`: 当前日期
+   - `%T`: 当前时间（24小时制）
+   - `%*`: 当前时间（带毫秒）
+   - `%#`: 如果是超级用户显示 #，否则显示 %
+
+3. 颜色和格式：
+
+   - `%F{color}`: 开始指定颜色的文本
+   - `%f`: 结束颜色设置
+   - `%B`: 开始粗体文本
+   - `%b`: 结束粗体文本
+   - `%U`: 开始下划线文本
+   - `%u`: 结束下划线文本
+
+   颜色可以是名称（如 red, blue）或数字（0-255）
+
+4. 条件表达式：
+
+   - `%(x.true-text.false-text)`: 条件表达式，x 是条件
+
+5. 转义字符：
+
+   - `%`: 显示 % 字符本身
+   - `''`: 在单引号字符串中表示单引号本身
+
+6. 特殊字符：
+
+   - `$`: 通常用于提示符结尾
+   - `>`: 常用于多行提示符
+
+示例：
+
+```zsh
+PROMPT='%F{green}%n@%m%f:%F{blue}%~%f$ '
 ```
 
-Windows 系统中配置终端 Oh-My-Zsh 教程:https://dreamhomes.top/posts/202201092010/
+这会创建一个绿色的用户名和主机名，后跟蓝色的当前目录，最后是一个 $ 符号。
 
-Git-Zsh on Windows安装与配置:https://amagi.yukisaki.io/article/96e5adc4-1212-4260-8399-4dfd3964dc3b/
+```zsh
+PROMPT='[%*] %F{yellow}%~%f %(?.%F{green}√.%F{red}?%?)%f $ '
+```
 
-Zsh / Oh-my-zsh on Windows Git Bash:https://gist.github.com/fworks/af4c896c9de47d827d4caa6fd7154b6b
+这个例子显示当前时间，黄色的当前目录，如果上一个命令成功则显示绿色的 √，否则显示红色的 ? 和错误代码。
+
+PROMPT 语法非常灵活，允许您创建高度自定义的提示符。您可以组合这些元素来创建符合您需求的提示符。如果您想尝试特定的 PROMPT 设计，我可以帮您构建语法。
+
+示例：
+
+`ys_simple.zsh-theme` 主题：与 ys 主题相同，但是只显示当前路径
+
+```zsh
+# Clean, simple, compatible and meaningful.
+# Tested on Linux, Unix and Windows under ANSI colors.
+# It is recommended to use with a dark background.
+# Colors: black, red, green, yellow, *blue, magenta, cyan, and white.
+#
+# Author: Yad Smood (Modified)
+
+# VCS
+YS_VCS_PROMPT_PREFIX1=" %{$fg[white]%}on%{$reset_color%} "
+YS_VCS_PROMPT_PREFIX2=":%{$fg[cyan]%}"
+YS_VCS_PROMPT_SUFFIX="%{$reset_color%}"
+YS_VCS_PROMPT_DIRTY=" %{$fg[red]%}x"
+YS_VCS_PROMPT_CLEAN=" %{$fg[green]%}o"
+
+# Git info
+local git_info='$(git_prompt_info)'
+ZSH_THEME_GIT_PROMPT_PREFIX="${YS_VCS_PROMPT_PREFIX1}git${YS_VCS_PROMPT_PREFIX2}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="$YS_VCS_PROMPT_SUFFIX"
+ZSH_THEME_GIT_PROMPT_DIRTY="$YS_VCS_PROMPT_DIRTY"
+ZSH_THEME_GIT_PROMPT_CLEAN="$YS_VCS_PROMPT_CLEAN"
+
+# HG info
+local hg_info='$(ys_hg_prompt_info)'
+ys_hg_prompt_info() {
+    # make sure this is a hg dir
+    if [ -d '.hg' ]; then
+        echo -n "${YS_VCS_PROMPT_PREFIX1}hg${YS_VCS_PROMPT_PREFIX2}"
+        echo -n $(hg branch 2>/dev/null)
+        if [ -n "$(hg status 2>/dev/null)" ]; then
+            echo -n "$YS_VCS_PROMPT_DIRTY"
+        else
+            echo -n "$YS_VCS_PROMPT_CLEAN"
+        fi
+        echo -n "$YS_VCS_PROMPT_SUFFIX"
+    fi
+}
+
+local exit_code="%(?,,C:%{$fg[red]%}%?%{$reset_color%})"
+
+# Prompt format:
+#
+# PRIVILEGES USER @ MACHINE in DIRECTORY on git:BRANCH STATE [TIME] C:LAST_EXIT_CODE
+# $ COMMAND
+#
+# For example:
+#
+# % ys @ ys-mbp in ~/.oh-my-zsh on git:master x [21:47:42] C:0
+# $
+PROMPT="
+%{$terminfo[bold]$fg[blue]%}#%{$reset_color%} \
+%{$fg[cyan]%}%c%{$reset_color%}\
+${hg_info}\
+${git_info}\
+ \
+%{$fg[white]%}[%*]%{$reset_color%} \
+$exit_code
+%{$terminfo[bold]$fg[red]%}$ %{$reset_color%}"
+```
+
+
+
+
+## Windows 安装 zsh 终端
+
+Windows安装Zsh终端：<https://juejin.cn/post/7229507721795993661>
 
 
 
