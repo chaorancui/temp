@@ -129,25 +129,7 @@ exit
 
    - 断开远程连接，然后重新连接。VS Code 应该检测到 VS Code Server 已经安装，并直接使用它。
 
-### 需要注意的事项
 
-- **下载 URL 的结构**：
-  - `commit_id` 是 VS Code 的特定版本标识。
-  - `platform` 是操作系统，例如 `linux`。
-  - `architecture` 是系统架构，例如 `x64`。
-- **确保网络连接**：
-  - 你的远程服务器需要能够访问互联网，以便下载 VS Code Server。
-  - 如果你的服务器在防火墙后面或没有互联网访问权限，可能需要通过其他方式将文件传输到服务器上。
-
-通过这些步骤，你可以手动下载和安装 VS Code Server，在需要时进行故障排除或确保安装顺利。
-
-自动安装要求远程服务器可以访问`VS Code Server 下载 URL` ：
-
-```shell
-https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<architecture>/stable
-```
-
-这个 URL 包含了具体的 `commit_id`、`platform` 和 `architecture` 信息。
 
 
 
@@ -278,7 +260,35 @@ https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<archi
 
 
 
+### 显示错误和告警
 
+1. 使用内置的 "Problems" 面板：
+
+    VS Code 默认会在 "Problems" 面板中显示错误和警告。虽然这不是直接显示在代码末尾，但它提供了一个集中的错误查看位置。
+
+2. 安装 **Error Lens** 扩展：
+
+    * 在扩展市场中搜索 `Error Lens` 并安装。
+
+    * `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
+
+    * 安装后，可以**根据需要**进行配置。打开设置文件（`settings.json`），添加或修改以下配置项：
+
+      ```json
+      "errorLens.enabled": true,
+      "errorLens.fontWeight": "normal",
+      "errorLens.fontStyle": "normal",
+      "errorLens.italic": false,
+      "errorLens.fontSize": "12px",
+      "errorLens.messageBackgroundMode": "message",
+      "errorLens.messageBackgroundColor": "rgba(255,255,255,0.1)",
+      "errorLens.errorForeground": "#ff0000",
+      "errorLens.warningForeground": "#ffa500",
+      "errorLens.infoForeground": "#0000ff",
+      "errorLens.hintForeground": "#008000",
+      ```
+
+      
 
 
 
@@ -452,6 +462,181 @@ Specifies the current working directory for the debugger, which is the base fold
     ]
 }
 ```
+
+
+
+## c++ intellisense 排除某些文件
+
+在 Visual Studio Code (VS Code) 中配置 C++ IntelliSense 时，有时你可能需要排除某些文件或目录，以避免它们影响 IntelliSense 功能。以下是如何在 `c_cpp_properties.json` 文件中配置排除文件或目录的详细步骤。
+
+### 1. 使用 `c_cpp_properties.json` 配置排除路径
+
+`c_cpp_properties.json` 文件主要用于配置 IntelliSense 的包含路径、编译器路径等。然而，它本身不支持直接排除文件。你可以通过以下几种间接方法来实现：
+
+#### 1.1. 通过修改 `includePath`
+
+虽然 `c_cpp_properties.json` 没有提供直接的排除选项，但你可以控制 `includePath` 的设置，间接影响哪些文件被包含在 IntelliSense 中。
+
+1. 打开或创建 `c_cpp_properties.json` 文件：
+
+   - 按 `Ctrl` + `Shift` + `P` 打开命令面板。
+   - 输入 `C/C++: Edit Configurations (UI)` 或 `C/C++: Edit Configurations (JSON)` 并选择。
+
+2. 配置 `includePath`，仅包括你需要的路径。例如，如果你有某些目录不想包含在 IntelliSense 中，不将这些目录添加到 `includePath` 中：
+
+   ```json
+   {
+       "configurations": [
+           {
+               "name": "Win32",
+               "includePath": [
+                   "${workspaceFolder}/src",   // 仅包含 src 目录
+                   "${workspaceFolder}/include" // 仅包含 include 目录
+               ],
+               "defines": [],
+               "compilerPath": "C:/path/to/your/compiler",
+               "cStandard": "c11",
+               "cppStandard": "c++17",
+               "intelliSenseMode": "gcc-x64"
+           }
+       ],
+       "version": 4
+   }
+   ```
+
+   通过仅包括你需要的路径，实际上排除了其他目录的影响。
+
+### 2. 使用 `.vscode/settings.json` 排除文件和目录
+
+另一个方法是通过 VS Code 的工作区设置排除文件或目录，这样可以影响到 IntelliSense 的显示效果。
+
+1. 打开 `.vscode/settings.json` 文件：
+
+   - 进入工作区文件夹，找到 `.vscode` 文件夹。
+   - 创建或编辑 `settings.json` 文件。
+
+2. 配置 `files.exclude` 和 `search.exclude`，排除特定的文件或目录。例如：
+
+   ```json
+   {
+       "files.exclude": {
+           "**/test/**": true,        // 排除所有 test 目录
+           "**/*.tmp": true           // 排除所有 .tmp 文件
+       },
+       "search.exclude": {
+           "**/test/**": true,        // 在搜索时排除 test 目录
+           "**/*.tmp": true           // 在搜索时排除 .tmp 文件
+       }
+   }
+   ```
+
+   这些设置**主要影响文件浏览器和搜索功能**，但也会间接影响 IntelliSense，因为这些文件不会被索引。
+
+3. 使用 `C_Cpp.files.exclude` 设置
+
+   这个设置专门用于 C/C++ 扩展，可以控制哪些文件和目录被排除在 IntelliSense 引擎的处理之外，从而影响代码跳转、自动完成等功能。
+
+   打开 `.vscode/settings.json` 文件，添加或修改 `C_Cpp.files.exclude` 设置
+
+   ```json
+   {
+       "C_Cpp.files.exclude": {
+           "**/build/**": true,
+           "**/third_party/**": true,
+           "**/test/**": true,
+           "**/CMakeFiles/**": true
+       }
+   }
+   ```
+
+   这个配置会排除：
+
+   - `build` 目录及其所有子目录
+   - `third_party` 目录及其所有子目录
+   - `test` 目录及其所有子目录
+   - `CMakeFiles` 目录及其所有子目录
+
+   > 与 `files.exclude` 的区别：
+   > `C_Cpp.files.exclude` **只影响 C/C++ 扩展**的行为，不会影响文件在 VS Code 文件浏览器中的可见性。
+
+### 3. 过滤符号
+
+如果某些符号或文件仍然被 IntelliSense 识别，可以考虑使用 `c_cpp_properties.json` 中的 `browse` 配置来进一步限制哪些文件被解析：
+
+1. 打开 `c_cpp_properties.json` 文件。
+
+2. 添加 `browse.path` 配置项，用于指定符号解析的路径：
+
+   ```json
+   {
+       "configurations": [
+           {
+               "name": "Win32",
+               "includePath": [
+                   "${workspaceFolder}/src",
+                   "${workspaceFolder}/include"
+               ],
+               "browse": {
+                   "path": [
+                       "${workspaceFolder}/src",
+                       "${workspaceFolder}/include"
+                   ],
+                   "limitSymbolsToIncludedHeaders": true
+               },
+               "defines": [],
+               "compilerPath": "C:/path/to/your/compiler",
+               "cStandard": "c11",
+               "cppStandard": "c++17",
+               "intelliSenseMode": "gcc-x64"
+           }
+       ],
+       "version": 4
+   }
+   ```
+
+   在 `browse.path` 中指定你希望被解析的路径，并设置 `limitSymbolsToIncludedHeaders` 为 `true`，将**符号解析限制在 `includePath` 和 `browse.path` 中指定的文件和路径中**。
+
+## c_cpp_properties.json reference
+
+1. 官方文档：
+   您应该查阅的主要文档是 VS Code 官方网站上的 C/C++ 扩展文档：
+   <https://code.visualstudio.com/docs/cpp/c-cpp-properties-schema-reference>
+2. 主要属性：
+   `c_cpp_properties.json` 文件中可以设置的一些重要属性包括：
+   - `configurations`: 一个数组，包含不同的配置选项。
+   - `name`: 配置的名称。
+   - `includePath`: 指定额外的包含目录。
+   - `defines`: 预处理器定义。
+   - `compilerPath`: 编译器的路径。
+   - `cStandard`: C 语言标准。
+   - `cppStandard`: C++ 语言标准。
+   - `intelliSenseMode`: IntelliSense 模式。
+   - `browse`: 配置符号数据库。
+     - `path`: 浏览路径。
+     - `limitSymbolsToIncludedHeaders`: 是否限制符号到包含的头文件。
+     - `databaseFilename`: 数据库文件名。
+   - `compileCommands`: compile_commands.json 文件的路径。
+   - `forcedInclude`: 强制包含的文件。
+   - `configurationProvider`: 配置提供者。
+3. JSON 模式：
+   VS Code 使用 JSON 模式来验证 `c_cpp_properties.json` 文件。您可以在以下链接中查看完整的模式定义：
+   https://github.com/microsoft/vscode-cpptools/blob/main/Extension/c_cpp_properties.schema.json
+4. 配置示例：
+   文档中通常会提供一些配置示例，这些可以作为很好的起点：
+   https://code.visualstudio.com/docs/cpp/config-linux
+   https://code.visualstudio.com/docs/cpp/config-msvc
+   https://code.visualstudio.com/docs/cpp/config-clang-mac
+5. 扩展命令：
+   在 VS Code 中，您可以使用 "C/C++: Edit Configurations (UI)" 命令来通过图形界面编辑这些设置，这可能会更直观一些。
+6. 更新和变化：
+   C/C++ 扩展经常更新，所以建议定期查看最新的文档，了解新的功能和变化。
+7. 特定设置：
+   对于一些特定的设置，如排除文件和目录，实际上是在 VS Code 的 `settings.json` 文件中配置的，而不是在 `c_cpp_properties.json` 中。这些包括：
+   - `files.exclude`
+   - `files.watcherExclude`
+   - `C_Cpp.files.exclude`
+
+通过仔细阅读这些文档和资源，您应该能够全面了解 `c_cpp_properties.json` 文件的配置选项，以及如何根据您的项目需求进行最佳设置。如果您在配置过程中遇到任何具体问题，欢迎随时询问。
 
 
 
