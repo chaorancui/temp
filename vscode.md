@@ -153,7 +153,10 @@ exit
 * LeetCode with labuladong: 帮助 labuladong 的读者高效刷题
 * 
 
-
+> 参考网址：
+>
+> * vs-code“实用插件”：<https://hailangya.com/articles/2021/03/15/vs-code-plugins/>
+> * 10 款 VS Code 插件神器，第 7 款超级实用！：<https://cloud.tencent.com/developer/article/1889258>
 
 ## 配置
 
@@ -462,6 +465,22 @@ Specifies the current working directory for the debugger, which is the base fold
     ]
 }
 ```
+
+
+
+### 查看反汇编代码
+
+运行程序后，在监视变量中添加：
+
+```bash
+-exec disassemble /m main
+# 或
+-exec disassemble /m
+```
+
+然后在**<font color=red>调试控制台</font>**就可以看到汇编代码了。
+
+
 
 
 
