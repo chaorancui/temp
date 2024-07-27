@@ -2,6 +2,8 @@
 
 # C++ 知识点总结
 
+> [C语言的各种标准](https://shaoguangleo.github.io/2013/05/06/c-standard/)
+
 > [*C++ FAQ LITE* — Frequently Asked Questions](https://www.sunistudio.com/cppfaq/index.html)
 
 ## 类的拷贝控制
@@ -502,48 +504,6 @@ struct InitMember test = {
     four：0.25
 };
 ```
-
-## __builtin_expect 说明
-
-### 引言
-
-> 这个指令是 gcc 引入的，作用是**允许程序员将最有可能执行的分支告诉编译器**。这个指令的写法为：`__builtin_expect(EXP, N)`。
-> 意思是：EXP==N 的概率很大。
-
-一般的使用方法是将`__builtin_expect`指令封装为`likely`和`unlikely`宏。这两个宏的写法如下.
-
-```c++
-#define likely(x) __builtin_expect(!!(x), 1) //x很可能为真       
-#define unlikely(x) __builtin_expect(!!(x), 0) //x很可能为假
-```
-
-`!!(x)` 的作用是把(x)转变成"布尔值"：无论(x)的值是多少，`!(x)` 得到的是 `true` 或 `false`, `!!(x)` 就得到了原值的"布尔值"。
-
-### 内核中的 likely() 与 unlikely()
-
-首先要明确：
-
-```c++
-if(likely(value))  //等价于 if(value)
-if(unlikely(value))  //也等价于 if(value)
-```
-
-`__builtin_expect()` 是 GCC (version >= 2.96）提供给程序员使用的，目的是将“分支转移”的信息提供给编译器，这样编译器可以对代码进行优化，以减少指令跳转带来的性能下降。
- `__builtin_expect((x),1)` 表示 x 的值为真的可能性更大；
- `__builtin_expect((x),0)` 表示 x 的值为假的可能性更大。
- 也就是说，使用`likely()`，执行 if 后面的语句的机会更大，使用 `unlikely()`，执行 else 后面的语句的机会更大。通过这种方式，编译器在编译过程中，会将可能性更大的代码紧跟着起面的代码，从而减少指令跳转带来的性能上的下降。
-
-### 例子
-
-```c++
-int x, y;
- if(unlikely(x > 0))
-    y = 1; 
-else 
-    y = -1;
-```
-
-上面的代码中 gcc 编译的指令会预先读取 y = -1 这条指令，这适合 x 的值大于 0 的概率比较小的情况。如果 x 的值在大部分情况下是大于 0 的，就应该用 likely(x > 0)，这样编译出的指令是预先读取 y = 1 这条指令了。这样系统在运行时就会减少重新取指了。
 
 
 
@@ -1177,34 +1137,163 @@ C++11特性之default/delete
 　只需在函数声明后加上=default;，就可将该函数声明为 defaulted 函数，编译器将为显式声明的 defaulted 函数自动生成函数体，以获得更高的执行效率。
 　有些时候，我们需要禁用某些函数(=delete不仅可以禁用类内的特殊成员函数，也可以禁用一般函数)，此时就需要在该函数后面增加=delete；，则该函数将变的不可调用，比如不可复制等。
 
-
 ## extern声明变量或函数
+
 https://blog.csdn.net/weixin_38145317/article/details/86496041
 
 
 
+## 整形存储指针
 
+用整形存储指针是一种不常见但有特定用途的技术，这种技术通常用于低级编程、系统编程和性能优化的场景。**使用指针时 `reinterpret_cast` 转换成对应类型指针**，以下是一些常见的场景和原因：
 
+### 1. **位操作和标志位**
 
+在某些情况下，程序需要在指针的基础上存储额外的信息。例如，使用指针的低位来存储标志位。这在内存对齐的系统中特别有用，因为指针的低位通常是零，可以用来存储其他信息，而不会影响指针的实际地址。
 
-# Vscode
-
-### 查看反汇编代码
-
-运行程序后，在监视变量中添加：
-
-```bash
--exec disassemble /m main
-# 或
--exec disassemble /m
+```
+cpp
+复制代码
+uintptr_t ptr_with_flags = reinterpret_cast<uintptr_t>(ptr) | flag;
 ```
 
-然后在**<font color=red>调试控制台</font>**就可以看到汇编代码了。
+### 2. **内存管理和垃圾回收**
+
+垃圾回收器和内存管理系统有时会使用整形操作来操作和管理内存块。将指针转换为整数可以方便地进行地址计算、内存对齐和其他低级操作。
+
+```
+cpp
+复制代码
+uintptr_t addr = reinterpret_cast<uintptr_t>(ptr);
+```
+
+### 3. **序列化和反序列化**
+
+在某些情况下，需要将指针序列化（如保存到文件或发送到网络）。由于指针是地址，在不同的程序运行期间可能会变化，所以通常将指针转换为整形来序列化，然后在反序列化时恢复。
+
+```
+cpp复制代码uintptr_t serialized_ptr = reinterpret_cast<uintptr_t>(ptr);
+// 序列化后的数据
+```
+
+### 4. **性能优化**
+
+某些高性能计算或嵌入式系统中，为了减少存储和计算开销，开发者可能会选择将指针转换为整形来进行特定的优化操作。这种方法可以绕过某些语言和硬件的限制。
+
+```
+cpp
+复制代码
+uintptr_t int_ptr = reinterpret_cast<uintptr_t>(ptr);
+```
+
+### 5. **调试和日志记录**
+
+在调试和日志记录过程中，开发者可能需要记录指针的值。将指针转换为整形可以更容易地进行比较、打印和分析。
+
+```
+cpp复制代码uintptr_t int_ptr = reinterpret_cast<uintptr_t>(ptr);
+std::cout << "Pointer value: " << int_ptr << std::endl;
+```
+
+### 6. **跨语言接口**
+
+在与某些低级语言（如 C 和汇编）进行接口编程时，可能需要将指针转换为整形，以便在不同语言之间传递数据。
+
+```
+cpp复制代码uintptr_t addr = reinterpret_cast<uintptr_t>(ptr);
+// 传递到其他语言的接口
+```
+
+### 安全性和注意事项
+
+使用整形存储指针时需要非常小心，因为不正确的操作可能导致严重的错误和安全漏洞。常见的注意事项包括：
+
+1. **类型安全**：避免无意的类型转换和错误使用。
+2. **地址对齐**：确保指针的地址对齐要求，以避免未定义行为。
+3. **平台依赖性**：指针大小和整形大小在不同平台上可能不同，注意可移植性问题。
+
+总结来说，用整形存储指针是一种强大的技术，但应谨慎使用，并确保代码的可维护性和安全性。
+
+
+
+# 标准库/编译器函数
+
+根据ANSI-C标准，在标识符中，**两个下划线 `__` 保留给编译器内部使用，单个下划线 `_` 通常用于标准库函数的名称**（例如“ _main”和“ _exit”）。
+
+
+
+## __builtin_expect 说明
+
+### 引言
+
+> 这个指令是 gcc 引入的，作用是**允许程序员将最有可能执行的分支告诉编译器**。这个指令的写法为：`__builtin_expect(EXP, N)`。
+> 意思是：EXP==N 的概率很大。
+
+一般的使用方法是将`__builtin_expect`指令封装为`likely`和`unlikely`宏。这两个宏的写法如下.
+
+```c++
+#define likely(x) __builtin_expect(!!(x), 1) //x很可能为真       
+#define unlikely(x) __builtin_expect(!!(x), 0) //x很可能为假
+```
+
+`!!(x)` 的作用是把(x)转变成"布尔值"：无论(x)的值是多少，`!(x)` 得到的是 `true` 或 `false`, `!!(x)` 就得到了原值的"布尔值"。
+
+### 内核中的 likely() 与 unlikely()
+
+首先要明确：
+
+```c++
+if(likely(value))  //等价于 if(value)
+if(unlikely(value))  //也等价于 if(value)
+```
+
+`__builtin_expect()` 是 GCC (version >= 2.96）提供给程序员使用的，目的是将“分支转移”的信息提供给编译器，这样编译器可以对代码进行优化，以减少指令跳转带来的性能下降。
+ `__builtin_expect((x),1)` 表示 x 的值为真的可能性更大；
+ `__builtin_expect((x),0)` 表示 x 的值为假的可能性更大。
+ 也就是说，使用`likely()`，执行 if 后面的语句的机会更大，使用 `unlikely()`，执行 else 后面的语句的机会更大。通过这种方式，编译器在编译过程中，会将可能性更大的代码紧跟着起面的代码，从而减少指令跳转带来的性能上的下降。
+
+### 例子
+
+```c++
+int x, y;
+ if(unlikely(x > 0))
+    y = 1; 
+else 
+    y = -1;
+```
+
+上面的代码中 gcc 编译的指令会预先读取 y = -1 这条指令，这适合 x 的值大于 0 的概率比较小的情况。如果 x 的值在大部分情况下是大于 0 的，就应该用 likely(x > 0)，这样编译出的指令是预先读取 y = 1 这条指令了。这样系统在运行时就会减少重新取指了。
+
+
+
+## __declspec(dllexport)
+
+## __declspec(dllimport)
+
+> NOTE：为 Windows 平台下机制。
+>
+> [使用 __declspec(dllexport) 从 DLL 导出](https://learn.microsoft.com/zh-cn/cpp/build/exporting-from-a-dll-using-declspec-dllexport?view=msvc-170)
+
+首先要知道，头文件是 C++ 的接口文件，不仅本工程需要使用头文件来进行编译，给**其他工程提供 dll 的时候也要提供此 dll 的头文件**才能让其他人通过编程的方式来使用 dll。记住：<font color=red>头文件要给自己用还要给别人用</font>。
+
+头文件中声明的方法，
+
+* 在提供者那里，方法应该被声明为 `__declspec(dllexport)`
+* 在使用者那里，方法应该被声明为 `__declspec(dllimport)`
+
+一般有两种方式：一是在声明该函数的声明函数前面加上导出符号__declspec(dllexport)；二是在.def文件中写上导出函数。
 
 
 
 
 
-# 模板编程
+
+
+
+
+
+
+
+
 
 
