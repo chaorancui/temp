@@ -386,7 +386,7 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
 
 `std::enable_if` 是 C++ 模板元编程中一个非常有用的工具，主要用于在**编译时根据条件选择性地启用或禁用函数模板或类模板的特化**。
 
-### <type_traits> 定义
+### `<type_traits>` 定义
 
 ```cpp
 template< bool B, class T = void >
@@ -631,6 +631,57 @@ struct enable_if<true, T> { typedef T type; };
 4. C++17 和 C++20 的替代方案：在较新的 C++ 标准中，一些 `std::enable_if` 的用例可以被 `if constexpr` 或概念（Concepts）替代，这些新特性通常能提供更清晰和更易于理解的代码。
 
 总的来说，`std::enable_if` 是一个强大的工具，可以在编译时基于类型特性进行函数重载和模板特化。但它应该谨慎使用，并在可能的情况下考虑更现代的 C++ 特性。
+
+## std::declval 和 decltype
+
+### std::declval
+
+> cppreference: [std::declval](https://zh.cppreference.com/w/cpp/utility/declval)
+
+#### `<utility>` 定义
+
+```cpp
+template< class T >
+typename std::add_rvalue_reference<T>::type declval() noexcept;
+// (C++11 起)
+```
+
+将**任意类型 T 转换成引用类型**，使得在 decltype 说明符的操作数中不必经过构造函数就能使用成员函数。
+通常在模板中使用 std::declval，模板接受的模板实参通常可能无构造函数，但有**均返回所需类型的同一成员函数**。
+
+注意，std::declval 只能用于不求值语境，且不要求有定义；求值包含此函数的表达式是错误的。正式的说法是，ODR 式使用此函数的程序非良构。
+此函数不能被调用，因此不会返回值。**返回类型是 T&&，除非 T 是（可有 cv 限定的）void，此时返回类型是 T**。
+
+可能的实现
+
+```cpp
+template<typename T>
+typename std::add_rvalue_reference<T>::type declval() noexcept
+{
+    static_assert(false, "declval 不允许出现于求值语境");
+}
+```
+
+#### 常见用法
+
+`std::declval` 是 C++ 标准库中的一个工具函数模板（具体来说，在 `<utility>` 头文件中），用于在**未求值的上下文中获取类型 T 的值**。
+
+- 目的：`std::declval` 允许你在不实际构造 T 类型对象的情况下创建 T 类型的右值。这在模板元编程和 SFINAE（Substitution Failure Is Not An Error）上下文中特别有用，因为你**需要在不要求类型完全定义或可构造的情况下检查类型或表达式的属性**。
+- 语法：`std::declval<T>()` 返回类型 T&& 的右值引用。
+
+### decltype
+
+decltype 是 C++11 中的一个关键字，它在不求值表达式的情况下返回表达式的类型。
+
+<!-- - 目的：它用于在编译时确定表达式的类型。这对于编写类型安全的代码、推断返回类型和模板元编程非常有用。 -->
+- 语法：decltype(expression) 给出 expression 的类型。
+
+### `decltype(std::declval<T>())`
+
+当你使用 `decltype(std::declval<T>())` 时，你将这两个工具结合起来以确定 `std::declval<T>()` 的类型。
+
+- 这个表达式的作用是推导类型T的对象的类型。
+- 它不会实际创建T类型的对象,而是在编译时推导出如果有一个T类型的对象,它会是什么类型。
 
 ## 模板零碎知识
 
