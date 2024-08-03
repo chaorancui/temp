@@ -1294,6 +1294,44 @@ echo 'set completion-ignore-case on' >> ~/.inputrc
 
 
 
+## bash 和 zsh
+
+在 `zsh` 中，`BASH_SOURCE` 是不可用的，因为它是 `bash` 特有的变量。`zsh` 有自己的方式来处理脚本路径和调用栈的访问。
+
+### 在 `zsh` 中的等效方法
+
+尽管 `zsh` 没有直接等价的 `BASH_SOURCE`，你可以通过以下方法来获取类似的信息：
+
+1. **使用 `0` 特殊参数**： `0` 是 `zsh` 中的特殊参数，表示当前脚本的文件名。
+
+   ```
+   echo "Current script name: $0"
+   ```
+
+   然而，`$0` 在某些情况下可能返回的是执行脚本的命令名，而不是文件路径。
+
+2. **使用 `funcfiletrace` 和 `funcstack`**： `zsh` 提供了 `funcfiletrace` 和 `funcstack`，可以获取调用栈和脚本文件路径。
+
+   - `funcstack`：包含当前调用堆栈中函数的名称。
+   - `funcfiletrace`：包含当前调用堆栈中函数的文件和行号。
+
+   ```
+   function show_source {
+       echo "Current script file: ${funcfiletrace[1]%:*}"
+   }
+   
+   show_source
+   ```
+
+   在这个例子中，`funcfiletrace[1]` 获取的是当前函数所在的文件和行号，通过去掉行号部分可以得到文件路径。
+
+3. **直接使用 `$0` 和 `dirname`**： 如果你只是想获取脚本的目录路径，可以结合 `$0` 和 `dirname` 来实现：
+
+   ```shell
+   script_dir=$(dirname "$0")
+   echo "Script directory: $script_dir"
+   ```
+
 # oh-my-zsh
 
 **先决条件**
@@ -1486,7 +1524,18 @@ echo 'set completion-ignore-case on' >> ~/.inputrc
     plugins=(git zsh-autosuggestions)
     ```
 
-    
+* ls 别名
+
+  打开 `zsh` 配置文件（通常是 `vim ~/.zshrc`）进行编辑，在文件尾添加：
+
+  ```sh
+  # some more ls aliases
+  alias ll='ls -alF'
+  alias la='ls -A'
+  alias l='ls -CF'
+  ```
+
+  
 
 ## PROMPT语法
 
