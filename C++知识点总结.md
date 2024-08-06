@@ -618,6 +618,8 @@ int main()
 
 ## struct 和 union 内存对齐
 
+> [`union` 与 `struct` 内存分配](https://jiehust.github.io/c/c++/2015/01/21/Struct-and-Union/)
+
 计算规则
 
 首先需要介绍**有效对齐值**：每个平台上的编译器都有默认对齐系数 n,可以通过 `#pragma pack(n)` 来指定。有效对齐值就等与该对齐系数和结构体中最长的数据类型的长度两者最小的那一个值，即 `min(有效对齐值, 结构体中最长的数据类型的长度)` 比如对齐系数是8,而结构体中最长的是int,4个字节,那么有效对齐值为4。
@@ -1061,7 +1063,7 @@ void _fun(A b, float) {
 
 
 
-## 小整理
+# 小整理
 
 
 
@@ -1266,32 +1268,54 @@ else
 
 
 
-## __declspec(dllexport)
+## 导入导出库
 
-## __declspec(dllimport)
+### windows
 
-> NOTE：为 Windows 平台下机制。
->
-> [使用 __declspec(dllexport) 从 DLL 导出](https://learn.microsoft.com/zh-cn/cpp/build/exporting-from-a-dll-using-declspec-dllexport?view=msvc-170)
+可以使用两种方法将公共符号导入应用程序或从 DLL 导出函数：
 
-首先要知道，头文件是 C++ 的接口文件，不仅本工程需要使用头文件来进行编译，给**其他工程提供 dll 的时候也要提供此 dll 的头文件**才能让其他人通过编程的方式来使用 dll。记住：<font color=red>头文件要给自己用还要给别人用</font>。
+- 生成 DLL 时使用模块定义 (.def) 文件
+- 在主应用程序的函数定义中使用关键字 **`__declspec(dllimport)`** 或 **`__declspec(dllexport)`**
 
-头文件中声明的方法，
+1. **使用 .def 文件**
 
-* 在提供者那里，方法应该被声明为 `__declspec(dllexport)`
-* 在使用者那里，方法应该被声明为 `__declspec(dllimport)`
+   模块定义 (.def) 文件是文本文件，其中包含一个或多个描述 DLL 的各种特性的模块语句。 如果没有使用 **`__declspec(dllimport)`** 或 **`__declspec(dllexport)`** 来导出 DLL 的函数，则 DLL 需要 .def 文件。
 
-一般有两种方式：一是在声明该函数的声明函数前面加上导出符号__declspec(dllexport)；二是在.def文件中写上导出函数。
+   可以使用 .def 文件[导入到应用程序中](https://learn.microsoft.com/zh-cn/cpp/build/importing-using-def-files?view=msvc-170)或[从 DLL 导出](https://learn.microsoft.com/zh-cn/cpp/build/exporting-from-a-dll-using-def-files?view=msvc-170)。
 
+2. **使用 __declspec**
 
+    **Microsoft 专用**
 
+    **`dllexport`** 和 **`dllimport`** 存储类特性是 C 和 C++ 语言的 **Microsoft 专用扩展**。 可以使用它们从 DLL 中导出或向其中导入数据、函数、类或类成员函数。
 
+    > **`__declspec( dllimport )`** *`declarator`*
+    > **`__declspec( dllexport )`** *`declarator`*
 
+    > [使用 __declspec(dllexport) 从 DLL 导出](https://learn.microsoft.com/zh-cn/cpp/build/exporting-from-a-dll-using-declspec-dllexport?view=msvc-170)
 
+### Unix/Linux
 
+`__attribute__((visibility("default")))` 是 GCC（GNU Compiler Collection）和 Clang 编译器支持的属性，主要用于控制符号的可见性在共享库（shared libraries）中的行为。它在 Unix-like 系统（如 Linux、macOS）上使用，类似于 Windows 平台上的 __declspec(dllexport)。
+在没有特殊指定的情况下，现代编译器通常默认将所有符号设置为隐藏（hidden）。这意味着这些符号只在库内部可见，不能被外部代码直接访问。
 
+**使用 visibility("default") 可以覆盖默认的隐藏行为，使得被标记的符号可以被外部代码访问**。这等同于将符号导出。
 
+除了 "default"，还有其他可见性选项如 "hidden"（隐藏）、"internal"（内部）等。
 
+## 跨平台解决方案
+
+为了编写跨平台代码，开发者通常会定义类似这样的宏：
+
+```cpp
+#if defined(_WIN32) || defined(_WIN64)
+    #define EXPORT __declspec(dllexport)
+#else
+    #define EXPORT __attribute__((visibility("default")))
+#endif
+```
+
+这样，可以在代码中统一使用 EXPORT 关键字，在不同平台上编译时会自动选择合适的导出方法。
 
 
 
