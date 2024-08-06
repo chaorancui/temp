@@ -189,6 +189,12 @@ C++11 引入了语法为 `enum class` 的强类型枚举。 它们与整数类�
 
 ### 5. for_each
 
+```cpp
+int testA[] = {1,2,3,4,5};
+for_each(testA,testA + sizeof(testA)/sizeof(testA[0]),[](int &e){  cout << e << endl;});
+
+```
+
 
 
 
@@ -350,7 +356,7 @@ int main()
 
 
 
-### 9. alignof alignas 说明符
+### 9. alignof & alignas 说明符
 
 > [alignof 运算符(C++11 起)](https://zh.cppreference.com/w/cpp/language/alignof)
 
@@ -372,12 +378,6 @@ alignof(类型标识)
 
 
 
-### 10.tuple
-
-
-
-
-
 > [alignas 说明符 (C++11 起)](https://www.apiref.com/cpp-zh/cpp/language/alignas.html)
 >
 > [alignas用法](https://juejin.cn/s/alignas%E7%94%A8%E6%B3%95)
@@ -387,8 +387,7 @@ alignof(类型标识)
 `alignas` 的使用方法如下：
 
 ```scss
-scss
-复制代码alignas(n) type variable;
+alignas(n) type variable;
 ```
 
 其中，`n` 是对齐要求的字节数，必须是 2 的幂次方，`type` 是变量的数据类型，`variable` 是变量名。
@@ -396,7 +395,7 @@ scss
 `alignas` 的作用是让变量在内存中按照指定的对齐方式分配内存。例如：
 
 ```scss
-scss复制代码alignas(16) int a; // 按照 16 字节对齐
+alignas(16) int a; // 按照 16 字节对齐
 alignas(32) char b; // 按照 32 字节对齐
 ```
 
@@ -405,7 +404,7 @@ alignas(32) char b; // 按照 32 字节对齐
 需要注意的是，如果指定的对齐值比默认对齐值更小，则指定的对齐值会被忽略。例如：
 
 ```c
-c复制代码struct alignas(4) A {
+struct alignas(4) A {
   char c;
   int i;
 };
@@ -416,6 +415,10 @@ sizeof(A) // 结果为 8，而不是 6
 在这个例子中，`A` 结构体的对齐方式为 4 字节，但是由于默认对齐值是 8 字节，所以实际上 `A` 结构体的大小是 8 字节。
 
 总之，`alignas` 可以用来控制数据的内存对齐方式，以优化内存访问速度。但是需要注意，如果指定的对齐值比默认对齐值更小，则指定的对齐值会被忽略。
+
+### 10.tuple
+
+
 
 
 
@@ -795,272 +798,6 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 
 # 零碎知识
 
-## 模板
-
-### C++模板的偏特化与全特化
-
-> [C++模板的偏特化与全特化](https://harttle.land/2015/10/03/cpp-template.html)
-
-模板机制为C++提供了泛型编程的方式，在减少代码冗余的同时仍然可以提供类型安全。 特化必须在同一命名空间下进行，可以特化类模板也可以特化函数模板，**但类模板可以偏特化和全特化，而函数模板只能全特化**。 模板实例化时会优先匹配"模板参数"最相符的那个特化版本。
-
-> C++的模板机制被证明是图灵完备的，即可以通过[模板元编程（template meta programming）](https://harttle.land/2015/09/16/effective-cpp-48.html)的方式在编译期做任何计算。
-
-#### 模板的声明
-
-类模板和函数模板的声明方式是一样的，在类定义/模板定义之前声明模板参数列表。例如：
-
-```c++
-// 类模板
-template <class T1, class T2>
-class A{
-    T1 data1;
-    T2 data2;
-};
-
-// 函数模板
-template <class T>
-T max(const T lhs, const T rhs){   
-    return lhs > rhs ? lhs : rhs;
-}
-```
-
-#### 全特化
-
-通过[全特化](http://en.cppreference.com/w/cpp/language/template_specialization)一个模板，可以对一个特定参数集合自定义当前模板，类模板和函数模板都可以全特化。 **全特化的模板参数列表应当是空的，并且应当给出"模板实参"列表**：
-
-```c++
-// 全特化类模板
-template <>
-class A<int, double>{
-    int data1;
-    double data2;
-};
-
-// 函数模板
-template <>
-int max(const int lhs, const int rhs){   
-    return lhs > rhs ? lhs : rhs;
-}
-```
-
-注意类模板的全特化时在类名后给出了"模板实参"，但函数模板的函数名后没有给出"模板实参"。 这是因为编译器根据`int max(const int, const int)`的函数签名可以推导出来它是`T max(const T, const T)`的特化。
-
-#### 特化的歧义
-
-上述函数模板不需指定"模板实参"是因为编译器可以通过函数签名来推导，但有时这一过程是有歧义的：
-
-```c++
-template <class T>
-void f(){ T d; }
-
-template <>
-void f(){ int d; }
-```
-
-此时编译器不知道`f()`是从`f<T>()`特化来的，编译时会有错误：
-
-```
-error: no function template matches function template specialization 'f'
-```
-
-这时我们便需要显式指定"模板实参"：
-
-```c++
-template <class T>
-void f(){ T d; }
-
-template <>
-void f<int>(){ int d; }
-```
-
-#### 偏特化
-
-类似于全特化，偏特化也是为了给自定义一个参数集合的模板，但偏特化后的模板需要进一步的实例化才能形成确定的签名。 值得注意的是函数模板不允许偏特化，这一点在[Effective C++: Item 25](https://harttle.land/2015/08/23/effective-cpp-25.html)中有更详细的讨论。 偏特化也是以`template`来声明的，需要给出剩余的"模板形参"和必要的"模板实参"。例如：
-
-```c++
-template <class T2>
-class A<int, T2>{
-    ...
-};
-```
-
-函数模板是不允许偏特化的，下面的声明会编译错：
-
-```c++
-template <class T1, class T2>
-void f(){}
-
-template <class T2>
-void f<int, T2>(){}
-```
-
-但函数允许重载，声明另一个函数模板即可替代偏特化的需要：
-
-```c++
-template <class T2>
-void f(){}              // 注意：这里没有"模板实参"
-```
-
-多数情况下函数模板重载就可以完成函数偏特化的需要，一个例外便是`std`命名空间。 `std`是一个特殊的命名空间，用户可以特化其中的模板，但不允许添加模板（**其实任何内容都是禁止添加的**）。 因此在`std`中添加重载函数是不允许的，在[Effective C++: Item 25](https://harttle.land/2015/08/23/effective-cpp-25.html)中给出了一个更详细的案例。
-
-
-
-### C++ 中让人头晕的 typedef & typename
-
-> [C++ 中让人头晕的 typedef & typename](https://www.luozhiyun.com/archives/742)
-
-用过 C++ 的同学对 typename 和 typedef 相信并不是很陌生，但是当我看到下面这段代码的时候仍然无法理解：
-
-```c++
-typedef typename std::vector<T>::size_type size_type;
-```
-
-按理来说 typedef 一般不是用来定义一种类型的别名，如下：
-
-```
-typedef int SpeedType;
-```
-
-定义了一个 int 的别名是 SpeedType，那么我就可以这样用：
-
-```c++
-int main(void)
-{
-    SpeedType s = 10;
-    printf("speed is %d m/s",s);
-    return 0;
-}
-```
-
-但是 typedef 后面接 typename 表示什么意思呢？typename 不是用来定义模板参数的吗？下面我们分别归纳一下 typedef & typename 的用法。
-
-#### typedef
-
-为特定含义的类型取别名，而不只是简单的宏替换，有编译时类型检查。
-
-* 用作同时声明指针型的多个对象
-
-```c++
-// pa、pb两个变量都声明为字符串，但是这样只能成功声明了一个
-char* pa, pb;  
-cout << typeid(pa).name() << endl; //Pc
-cout << typeid(pb).name() << endl; //c
-
-// 成功声明两个字符串指针
-typedef char* PCHAR; 
-PCHAR pa, pb; // 可行
-cout << typeid(pa).name() << endl; //Pc
-cout << typeid(pb).name() << endl; //Pc
-```
-
-* 为结构体取别名
-
-```c++
-// 在声明变量的时候，需要带上struct，即像下面这样使用：
-typedef struct info
-{
-    char name[128];
-    int length;
-}Info;
-
-Info var;
-```
-
-* 用来定义与平台无关的类型
-
-```c++
-// 比如定义一个叫 REAL 的浮点类型，在目标平台一上，让它表示最高精度的类型为：
-typedef long double REAL;
-// 在不支持 long double 的平台二上，改为：
-typedef double REAL;
-```
-
-当跨平台时，只要改下 typedef 本身就行，不用对其他源码做任何修改。
-
-#### typename
-
-typename关键字用于引入一个模板参数，这个关键字用于指出模板声明（或定义）中的非独立名称（dependent names）**是类型名，而非变量名**：
-
-```c++
-template <typename T>
-const T& max(const T& x, const T& y)
-{
-  if (y < x) {
-    return x;
-  }
-  return y;
-}
-```
-
-typename 在这里的意思表明 T 是一个类型。如果没有它的话，在某些情况下会出现模棱两可的情况，比如下面这种情况：
-
-```c++
-template <class T>
-void foo() {
-    T::iterator * iter;
-    // ...
-}
-```
-
-作者想定义一个指针`iter`，它指向的类型是包含在类作用域`T`中的`iterator`。可能存在这样一个包含`iterator`类型的结构：
-
-```c++
-struct ContainsAType {
-    struct iterator { /*...*/ }; 
-};
-```
-
-那么 `foo<ContainsAType>();` 这样用的是时候确实可以知道 `iter`是一个`ContainsAType::iterator`类型的指针。但是`T::iterator`实际上可以是以下三种中的任何一种类型：
-
-- 静态数据成员
-- 静态成员函数
-- 嵌套类型
-
-所以如果是下面这样的情况：
-
-```c++
-struct ContainsAnotherType {
-    static int iterator;
-    // ... 
-};
-```
-
-那 `T::iterator * iter;`被编译器实例化为`ContainsAnotherType::iterator * iter;`，变成了一个静态数据成员乘以 iter ，这样编译器会找不到另一个变量 `iter` 的定义 。所以为了避免这样的歧义，我们加上 typename，表示 `T::iterator` 一定要是个类型才行。
-
-```c++
-template <class T>
-void foo() {
-    typename T::iterator * iter;
-    // ... 
-}
-```
-
-我们回到一开始的例子，对于 `vector::size_type`，我们可以知道：
-
-```c++
-template <class T,class Alloc=alloc>
-class vector{
-public:
-    //...
-    typedef size_t size_type;
-    //...
-};
-```
-
-`vector::size_type`是`vector`的嵌套类型定义，其实际等价于 `size_t`类型。
-
-```
-typedef typename std::vector<T>::size_type size_type;
-```
-
-那么这个例子的真是面目是，`typedef`创建了存在类型的别名，而`typename`告诉编译器`std::vector<T>::size_type`是一个类型而不是一个成员。
-
-
-
-
-
-
-
 
 
 ## 整形提升和寻常算数转换
@@ -1402,55 +1139,278 @@ void test()
 
 这也告诉我们，**在设计memcpy的时候，需要考虑内存重叠的情况**。解决办法如下，当修改dst也有可能改到src的情况下，可以把src和dst均加上要拷贝的size，然后从尾巴开始逐一字符拷贝，这样就不会有重叠了。
 
+## POD 数据类型
+
+> [**对POD定义的修正**](https://zh.wikipedia.org/wiki/C%2B%2B11)
+
+在**C++03**中，一个类（class）或结构（struct）要想被作为[POD](https://zh.wikipedia.org/wiki/POD_(程序设计))，必须遵守几条规则。符合这种定义的类别**能够产生与C兼容的对象内存布局（object layout），而且可以被静态初始化**。但C++03标准严格限制了何种类型与C兼容或可以被静态初始化的，尽管并不存在技术原因导致编译器无法处理。如果创建一个C++03 POD类型，然后为其添加一个非虚成员函数，这个类型就不再是POD类型了，从而无法被静态初始化，也不再与C兼容，尽管其内存布局并没有发生变化。
+
+**C++11**通过把POD概念划分成两个概念：***平凡的（trivial）***和**标准布局*（standard-layout）***，**放宽**了关于POD的定义。
+
+### 平凡的（trivial）
+
+一个平凡的类型可以被静态初始化，意味着使用`memcpy`来复制数据是合法的，而无须使用复制构造函数。平凡的类型对象的生命周期开始于其存储空间被分配时，而不是其构造函数完成时。使用**模版类 `std::is_trivial<T>::value` 来判断数据类型是否为平凡类型**。
+
+一个平凡的类别或结构符合以下定义：
+
+1. 平凡的默认构造函数。这可以使用[默认构造函数语法](https://zh.wikipedia.org/wiki/C%2B%2B11#使用或禁用物件的預設函式)，例如`SomeConstructor() = default;`
+
+   （即没有用户定义的默认构造函数，或者默认构造函数没有做任何工作）
+
+2. 平凡的拷贝构造函数和move构造函数，可使用默认语法（default syntax）
+
+   （没有用户定义的拷贝构造函数，或者拷贝构造函数是编译器生成的，并且它直接进行成员的逐位复制）
+
+3. 平凡的赋值运算符和move赋值操作符，可使用默认语法（default syntax）
+
+   （同上）
+
+4. 平凡的析构函数，不可以是虚函数（virtual）
+
+   （没有用户定义的析构函数，或者析构函数没有做任何工作）
+
+5. 类没有虚基类和虚成员函数
+
+6. 拷贝构造函数和赋值操作符还额外要求所有非静态数据成员都是平凡的。
+
+如果一个类或结构体满足上述所有条件，那么它就是一个平凡的类型。**平凡类型可以通过简单的内存复制操作来创建或销毁**（例如，通过 `memcpy` 或 `memset`），这在某些情况下能提高性能。
+
+### 标准布局（standard-layout）
+
+一个符合标准布局的类封装成员的方式与C兼容。使用**模版类 `std::is_standard_layout<A>::value` 来判断类型是否是一个标准布局类型**。一个标准布局（standard-layout）的类别或结构符合以下定义：
+
+1. 所有non-static成员有相同的访问控制（public，private，protected）
+
+   （即要么全都是 `public`，要么全都是 `protected`，要么全都是 `private`）
+
+2. 没有虚函数
+
+3. 没有虚基类
+
+4. 所有基类符合标准布局
+
+5. 所有非静态的（non-static）数据成员属于符合标准布局
+
+6. 类中第一个非静态类别与基类不是同一个类别。例如：struct A:B{ B b; int c;}不符合要求
+
+7. 两种情况必局其一：或者所有基类都没有non-static成员；或者最派生类别没有non-static资料成员且至多一个带有non-static成员的基类。基本上，在该类别的继承体系中只会有一个类别带有non-static成员。
 
 
-## trivial 
 
-> [普通类型（Trivial Type)和标准布局类型(Standard-layout Type)以及POD类型](https://www.cnblogs.com/kwdeblog/p/13928396.html)
->
-> [C++11 POD 类型]([C++11 POD 类型_pod类型是c++11才有吗-CSDN博客](https://blog.csdn.net/K346K346/article/details/81534100))
->
-> 
+### Trivial 类型
 
-trivial 意思是无意义，这个 trivial 和 non-trivial 是对类的四种函数来说的：
+根据C++标准，一个类型T是Trivial的，如果它满足以下所有条件：
 
-- 构造函数(ctor)
-- 复制构造函数(copy)
-- 赋值函数(assignment)
-- 析构函数(dtor)
+a) 是一个标量类型（scalar type），或
+b) 是一个trivial类，满足：
 
-如果至少满足下面3条里的一条：
+- 有一个trivial默认构造函数
+- 有trivial复制构造函数和移动构造函数
+- 有trivial复制赋值运算符和移动赋值运算符
+- 有一个trivial析构函数
+- 所有非静态数据成员都是trivial类型
 
-1. 显式(explict)定义了这四种函数。
-2. 类里有非静态非POD的数据成员。
-3. 有基类。
+其中：
 
-那么上面的四种函数是 non-trivial 函数，比如叫 non-trivial ctor、non-trivial copy…，也就是说有意义的函数，里面有一下必要的操作，比如类成员的初始化，释放内存等。
+- Trivial默认构造函数：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的（使用 = default，或者空函数体什么都不做）
+- Trivial复制/移动构造函数：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的
+- Trivial复制/移动赋值运算符：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的
+- Trivial析构函数：非虚的，并且基类的析构函数也是trivial的
 
-那个POD意思是Plain Old Data，也就是C++的内建类型或传统的C结构体类型。POD类型必然有trivial ctor/dtor/copy/assignment四种函数。
+如果一个类或结构体满足上述所有条件，那么它就是一个平凡的类型。**平凡类型可以通过简单的内存复制操作来创建或销毁**（例如，通过 `memcpy` 或 `memset`），这在某些情况下能提高性能。
+
+### Standard-layout 类型
+
+一个类型T是Standard-layout的，如果它满足以下所有条件：
+
+a) 是一个标量类型，或
+b) 是一个standard-layout类，满足：
+
+- **所有非静态数据成员都具有相同的访问控制（public、protected或private）**
+
+  解释：这确保了所有成员在内存中的连续性，没有因为不同的访问级别而导致的潜在填充或重排。
+
+  ```cpp
+  struct Good {
+      int a;
+      double b;
+      char c;
+  }; // 全部是public，符合条件
+  
+  class Bad {
+  public:
+      int a;
+  private:
+      double b; // 不同的访问说明符，不符合条件
+  };
+  ```
+
+- **没有虚函数和虚基类**
+
+  解释：虚函数和虚基类会引入虚函数表指针（vptr）或虚基类表指针，这会改变对象的内存布局。
+
+  ```cpp
+  struct Good {
+      void foo() {}
+  }; // 没有虚函数，符合条件
+  
+  struct Bad {
+      virtual void foo() {} // 虚函数，不符合条件
+  };
+  ```
+
+- **所有非静态数据成员，包括在其所有基类中的，都是standard-layout类型**
+
+  解释：这确保了整个类的内存布局是可预测的，因为所有成员都遵循standard-layout规则
+
+  ```cpp
+  struct StandardLayoutMember {};
+  
+  struct Good {
+      int a;
+      StandardLayoutMember b;
+  }; // 所有成员都是standard-layout，符合条件
+  
+  struct NonStandardLayoutMember {
+      virtual void foo() {}
+  };
+  
+  struct Bad {
+      int a;
+      NonStandardLayoutMember b; // 成员不是standard-layout，不符合条件
+  };
+  ```
+
+- **类中第一个非静态数据成员的类型与其任何基类的类型都不同**
+
+  解释：这防止了由于基类和第一个成员类型相同可能导致的歧义或复杂性。// 例如：`struct A:B { B b; int c; }`不符合要求
+
+  ```cpp
+  struct Base {};
+  
+  struct Good : Base {
+      int first; // 第一个成员类型与基类不同，符合条件
+  };
+  
+  struct Bad : Base {
+      Base first; // 第一个成员类型与基类相同，不符合条件
+  };
+  ```
+
+- **没有两个基类有<font color=red>相同类型</font>的非静态数据成员**
+
+  解释：这避免了多重继承时可能出现的成员重叠问题。// 例如两个基类都有int类型成员，不符合条件
+
+  ```cpp
+  struct Base1 { int x; };
+  struct Base2 { double y; };
+  
+  struct Good : Base1, Base2 {}; // 基类成员类型不同，符合条件
+  
+  struct Base3 { int z; };
+  struct Bad : Base1, Base3 {}; // 两个基类都有int类型成员，不符合条件
+  ```
+
+- **没有基类与第一个定义非静态数据成员的类共享公共初始序列**
+
+  解释：这避免了因共享初始序列而可能导致的内存布局复杂性。
+
+  ```cpp
+  struct Base { int x; };
+  struct Good : Base { double y; }; // 符合条件
+  
+  struct Derived : Base { int y; }; // 不符合条件，与Base共享初始序列
+  ```
+
+  > 共享公共初始序列（Common Initial Sequence）指的是在继承关系中，基类和派生类**开始部分**的非静态数据成员序列相同的情况。
+  >
+  > 关键点：
+  >
+  > - 只考虑非静态数据成员。
+  > - 成员的顺序和类型必须完全匹配。
+  > - 这个序列从第一个成员开始，直到遇到不同类型的成员或其中一个类型的成员结束
+  >
+  > 这条规则主要影响那些需要精确控制内存布局的场景，比如：**与C语言接口交互**、**序列化和反序列化**、**底层系统编程**、**某些性能敏感的应用**
+
+- **最多只有一个类（包括所有基类）有<font color=red>非静态</font>数据成员**
+
+  解释：这简化了内存布局，确保所有数据成员都在一个连续的内存块中。
+
+  ```cpp
+  struct Base {};
+  struct Good : Base { int x; double y; }; // 只有一个类有非静态成员，符合条件
+  
+  struct Base2 { int z; };
+  struct Bad : Base2 { double w; }; // 基类和派生类都有非静态成员，不符合条件
+  ```
+
+- **一个类不能同时满足以下所有条件：**
+
+  - **继承自一个只有静态成员的类**
+  - **继承自至少一个非空的类**
+  - **自身拥有非静态数据成员**
+
+  解释：这条规则防止了可能导致内存布局复杂化的特殊继承情况。特别是，它防止了在继承层次中混合使用空基类优化（Empty Base Optimization，EBO）和非空基类，同时还添加自己的成员，这可能会导致意外的内存布局。
+
+  ```cpp
+  struct StaticOnly { static int x; };
+  struct Good1 : StaticOnly { int y; }; // 符合条件
+  struct Good2 { int z; };
+  
+  struct Bad : StaticOnly, Good2 { double w; }; // 不符合条件，1继承自只有静态成员的类，2继承自一个非空类，3自身有非静态数据成员
+  ```
+
+### POD (Plain Old Data) 类型
+
+在C++11之前，POD是一个统一的概念。但在C++11及以后，POD的概念被分解为两个独立的概念：trivial和standard-layout。
+
+一个类型是POD，当且仅当它**同时满足以下两个条件**：
+
+- 是一个trivial类型
+- 是一个standard-layout类型
+
+C++标准库提供了type traits来检查这些属性：
 
 ```cpp
-//整个T是POD类型
-class T
-{
-    //没有显式定义ctor/dtor/copy/assignemt所以都是trivial
-    int a; //POD类型
-};
- 
-//整个T1是非POD类型
-class T1
-{
-    T1() //显式定义了构造函数，所以是non-trivial ctor
-    {}
-    //没有显式定义ctor/dtor/copy/assignemt所以都是trivial
-    int a;//POD类型
-    std::string b; //非POD类型
-};
+#include <type_traits>
+
+static_assert(std::is_trivial<TrivialType>::value, "Not trivial");
+static_assert(std::is_standard_layout<StandardLayoutType>::value, "Not standard layout");
+std::is_pod<T>::value  // C++20前
 ```
 
-那这有什么用处呢？
+注意：`std::is_pod` 在C++20中被废弃，因为Trivial和Standard-layout的概念已经足够精确地描述了POD的特性。
 
-如果这个类都是trivial ctor/dtor/copy/assignment函数，我们对这个类进行构造、析构、拷贝和赋值时可以采用最有效率的方法，不调用无所事事正真的那些ctor/dtor等，而直接采用内存操作如malloc()、memcpy()等提高性能，这也是SGI STL内部干的事情。
+### 总结
+
+- **Trivial** 类型强调的是类型行为的简单性和高效性。
+- **Standard-layout** 类型强调的是类型的内存布局与C语言的兼容性。
+
+这两个属性并不是互斥的，一个类型可以同时是Trivial和Standard-layout类型。
+
+
+
+
+
+
+
+## 经典宏用法收集
+
+```cpp
+#define max(a,b)    (((a) > (b)) ? (a) : (b))
+
+#define min(a,b)    (((a) < (b)) ? (a) : (b))
+
+#define ARRAY_SIZE(array) (sizeof(array)/sizeof(array[0]))
+
+#define offset_of(type, member)    ((VOS_UINT32)(&((type *)0)->member))
+
+#define abs(a, b) (((a) > (b))? ((a) - (b)) : ((b) - (a)))
+```
+
+
+
+
 
 
 
