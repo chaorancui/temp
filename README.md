@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### google c++代码规范
+https://pytlab.github.io/assets/files/Google_Cpp_Style_guide_CN.pdf
+
 ### c++ dll文件下载
 https://www.dllme.com/
 
