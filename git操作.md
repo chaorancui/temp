@@ -136,7 +136,7 @@ git config --global credential.helper wincred
     git config --global https.https://gitee.com.proxy http://username:password@proxy.huawei.com:8080
     git config --global http.sslVerify false
     git config --global https.sslVerify false
-
+    
     git config --global https.http://github.com.proxy http://username:password@proxy.huawei.com:8080
     git config --global https.https://github.com.proxy http://username:password@proxy.huawei.com:8080
     ```
@@ -144,6 +144,9 @@ git config --global credential.helper wincred
     备注：取消代理的方法
 
     ```shell
+    git config --global --unset http.https://gitee.com.proxy
+    git config --global --unset https.https://gitee.com.proxy
+    git config --global --unset http.http://github.com.proxy
     git config --global --unset http.https://github.com.proxy
     ```
 
