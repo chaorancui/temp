@@ -93,6 +93,89 @@ git config --global user.email zhangsan@qq.com
 ```
 这个配置信息会在 Git 仓库中提交的修改信息中体现，但和 Git 服务器认证使用的密码或者公钥密码无关。
 
+
+
+### 与服务器认证的配置
+
+常见的两种协议认证的方式
+* http/https 协议认证
+  设置口令缓存，可以不用每次都输入用户名和密码：
+  
+  ```bash
+  git config --global credential.helper store
+  ```
+  设置HTTPS证书信任：
+  ```bash
+  git config http.sslverfy false
+  ```
+* ssh 协议认证
+  SSH 协议是一种非常常用的 Git 仓库访问协议，使用公钥认证、无需输入密码，加密传输，操作便利又保证安全。
+
+### Git 凭证存储
+
+如果大家使用http协议向fetch或push私有库（或push公有库）的话，命令行（或其他git工具）会提示输入用户名和密码，每次这样做都很麻烦，那设置下git证书缓存就好了。
+
+在Git Bash上执行即可：
+
+```shell
+git config --global credential.helper wincred
+```
+
+然后使用 http 协议操作仓库时输入一次用户名密码就会被缓存起来，后面就不需要重复输入了。
+
+### git 设置代理
+
+有时候在电脑挂了梯子的情况下，clone 外网代码需要配置代理，**不用时再取消**：
+
+下载公司内部代码，不需要代理。但下载外网代码，如https://gitee.com和https://github.com，又需要代理。
+
+* 方法一：给指定的域名设置代理，其他不做代理
+
+    ```shell
+    git config --global http.https://gitee.com.proxy http://username:password@proxy.huawei.com:8080
+    git config --global https.https://gitee.com.proxy http://username:password@proxy.huawei.com:8080
+    git config --global http.sslVerify false
+    git config --global https.sslVerify false
+
+    git config --global https.http://github.com.proxy http://username:password@proxy.huawei.com:8080
+    git config --global https.https://github.com.proxy http://username:password@proxy.huawei.com:8080
+    ```
+
+    备注：取消代理的方法
+
+    ```shell
+    git config --global --unset http.https://github.com.proxy
+    ```
+
+    cat ~/.gitconfig 可以查看上面的配置情况。
+
+* 方法二：全局设置代理。然后在下载黄区代码时，取消代理
+
+    ```shell
+    git config --global http.proxy http://username:password@proxy.huawei.com:8080
+    git config --global https.proxy http://username:password@proxy.huawei.com:8080
+    git config --global http.sslVerify false
+    git config --global https.sslVerify false
+    ```
+
+    取消代理
+
+    ```shell
+    git config --global --unset http.proxy
+    git config --global --unset https.proxy
+    ```
+
+> **密码中特殊字符的处理**
+> 如果密码中有@等特殊字符，会出错，此时要对其中的特殊符号进行处理，使用百分比编码(Percent-encoding)对特殊字符进行转换，转换列表如下：
+>
+> | 字符 | 编码 | 字符 | 编码 | 字符 | 编码 | 字符 | 编码 | 字符 | 编码 |
+> | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- | ---- |
+> | !    | %21  | #    | %23  | $    | %24  | &    | %26  | '    | %27  |
+> | (    | %28  | )    | %29  | *    | %2A  | +    | %2B  | ,    | %2C  |
+> | /    | %2F  | :    | %3A  | ;    | %3B  | =    | %3D  | ?    | %3F  |
+> | @    | %40  | [    | %5B  | ]    | %5D  |      |      |      |      |
+>
+> 例如：密码是12#，转义之后就是12%23
 ### git 行尾转换
 
 > [8.1 自定义 Git - 配置 Git](https://git-scm.com/book/zh/v2/%E8%87%AA%E5%AE%9A%E4%B9%89-Git-%E9%85%8D%E7%BD%AE-Git)
@@ -154,37 +237,8 @@ git reset --hard HEAD
 
 
 
-### 与服务器认证的配置
-
-常见的两种协议认证的方式
-* http/https 协议认证
-  设置口令缓存，可以不用每次都输入用户名和密码：
-  
-  ```bash
-  git config --global credential.helper store
-  ```
-  设置HTTPS证书信任：
-  ```bash
-  git config http.sslverfy false
-  ```
-* ssh 协议认证
-  SSH 协议是一种非常常用的 Git 仓库访问协议，使用公钥认证、无需输入密码，加密传输，操作便利又保证安全。
-
-### Git 凭证存储
-
-如果大家使用http协议向fetch或push私有库（或push公有库）的话，命令行（或其他git工具）会提示输入用户名和密码，每次这样做都很麻烦，那设置下git证书缓存就好了。
-
-在Git Bash上执行即可：
-
-```shell
-git config --global credential.helper wincred
-```
-
-然后使用 http 协议操作仓库时输入一次用户名密码就会被缓存起来，后面就不需要重复输入了。
-
-
-
 ### 创建 git 仓库
+
 创建 git 仓库:
 ```bash
 mkdir git-test
