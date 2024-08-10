@@ -125,6 +125,8 @@ git config --global credential.helper wincred
 
 ### git 设置代理
 
+> [git 设置和取消指定域名代理](https://gist.github.com/robinmo/cb14433f5fca77bae95515c63a2908b7)
+
 有时候在电脑挂了梯子的情况下，clone 外网代码需要配置代理，**不用时再取消**：
 
 下载公司内部代码，不需要代理。但下载外网代码，如https://gitee.com和https://github.com，又需要代理。
@@ -137,7 +139,7 @@ git config --global credential.helper wincred
     git config --global http.sslVerify false
     git config --global https.sslVerify false
     
-    git config --global https.http://github.com.proxy http://username:password@proxy.huawei.com:8080
+    git config --global http.https://github.com.proxy http://username:password@proxy.huawei.com:8080
     git config --global https.https://github.com.proxy http://username:password@proxy.huawei.com:8080
     ```
 
@@ -146,8 +148,8 @@ git config --global credential.helper wincred
     ```shell
     git config --global --unset http.https://gitee.com.proxy
     git config --global --unset https.https://gitee.com.proxy
-    git config --global --unset http.http://github.com.proxy
     git config --global --unset http.https://github.com.proxy
+    git config --global --unset https.https://github.com.proxy
     ```
 
     cat ~/.gitconfig 可以查看上面的配置情况。
