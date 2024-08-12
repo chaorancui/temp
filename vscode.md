@@ -151,7 +151,30 @@ exit
 * Vim: Vim emulation for Visual Studio Code
 * LeetCode: Solve LeetCode problems in VS Code
 * LeetCode with labuladong: 帮助 labuladong 的读者高效刷题
-* 
+
+#### icon 图标
+
+* vscode-icons：目录树图标主题，风格硬朗
+* Material Icon Theme：与 vscode-icons 差不多，风格卡通一点
+
+#### 主题
+
+* One Dark Pro：偏灰色的主题，用着不错
+* Atom One Dark Theme：也还行，感觉字体颜色没有上面的多
+
+#### markdown
+
+* Markdown All in One：
+* plantuml：markdown中支持 UML 类图
+* Markdown Table Prettifier：
+
+#### 代码风格规范
+
+* Prettier - Code formatter：主要支持前端语言，JavaScript、[JSX](https://facebook.github.io/jsx/)、[Angular](https://angular.io/)、[Vue](https://vuejs.org/)、[Flow](https://flow.org/)、[TypeScript](https://www.typescriptlang.org/)、CSS, [Less](http://lesscss.org/), and [SCSS](https://sass-lang.com/)、[HTML](https://en.wikipedia.org/wiki/HTML)、[Ember/Handlebars](https://handlebarsjs.com/)、[JSON](https://json.org/)、[GraphQL](https://graphql.org/)、[Markdown](https://commonmark.org/), including [GFM](https://github.github.com/gfm/) and [MDX v1](https://mdxjs.com/)、[YAML](https://yaml.org/)
+* Better Align：无论是否选择**任何语言**，任何字符或单词都可以实现更好的**垂直对齐**。
+* indent-rainbow：用颜色填充缩进，非常直观，如果有缩进错误还会变成红色。对写 `Python` 用处极大。
+
+
 
 > 参考网址：
 >
