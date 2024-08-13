@@ -186,7 +186,7 @@ Vim-plug的获取链接：https://github.com/junegunn/vim-plug
   Plug 'tpope/vim-sensible'
   "
   " 目录树，可以支持在不退出vim的编辑器的前提下，在文件中快速切换，同时能让开发人员快速掌握项目目录结构
-  Plug 'preservim/nerdtree'
+  Plug 'preservim/nerdtree'                                                                                                     "                              
   "
   Plug 'itchyny/lightline.vim'
   
@@ -234,6 +234,7 @@ Vim-plug的获取链接：https://github.com/junegunn/vim-plug
 
 ### vim 插件介绍
 
+> 一个比较好的 vim 插件网站：[vimawesome](https://vimawesome.com/)
 > <font color=red>Note:</font>
 >
 > 下面的安装命令适用于 **vim-plug** 插件管理
@@ -329,8 +330,7 @@ Plug 'tpope/vim-sensible'
 "
 " plugin from https://github.com/preservim/nerdtree
 " 目录树，可以支持在不退出vim的编辑器的前提下，在文件中快速切换，同时能让开发人员快速掌握项目目录结构
-Plug 'preservim/nerdtree'
-"
+Plug 'preservim/nerdtree'                                                                                                     "  "                            
 " plugin from https://github.com/itchyny/lightline.vim
 " 适用于 Vim 的轻量且可配置的状态行/标签行插件
 Plug 'itchyny/lightline.vim'
