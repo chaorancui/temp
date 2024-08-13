@@ -114,7 +114,30 @@ E2=SMALL(A$2:A$11,ROW(A1))数组公式向下向右复制。
 
 
 
-## 其他快捷键
+## 插入行列快捷键
+
+1. 新插入行：
+
+   * 上方插入：选中一行，右击==>插入
+   * 上方插入：选中一行，【Ctrl】+【Shift】+【+】
+   * 上方插入：选中一个单元格，【Alt】【i】【r】
+2. 新插入列：
+
+   * 左侧插入：选中一列，右击==>插入
+   * 左侧插入：选中一列，【Ctrl】+【Shift】+【+】
+   * 左方插入：选中一个单元格，【Alt】【h】【i】【c】
+3. 重复上一步：【F4]
+4. 删除行：
+
+   * 删除当前行：选中一行，【Ctrl】【-】
+   * 删除当前行：选中一个单元格，【Alt】【h】【d】【r】
+5. 删除列：
+   * 删除当前列：选中一列，【Ctrl】【-】
+   * 删除当前列：选中一个单元格，【Alt】【h】【d】【c】
+
+
+
+## 新增sheet快捷键
 
 1. 在 Excel 中添加新 sheet
 
@@ -687,6 +710,8 @@ https://zhuanlan.zhihu.com/p/68901540
 
 6. DAY 函数：DAY(serial_number)
 
+7. TEXT 分离日期和时间：=TEXT(A2,"yyyy/m/dd")，或者=TEXT(A2,"hh:mm:ss")
+
 
 
 > 1、提取时间
@@ -789,9 +814,11 @@ https://zhuanlan.zhihu.com/p/68901540
 
 
 
+### 散点图修改点大小
 
+图案——数据标记——选“自定义”——“大小”调成2磅或更小——确定
 
-
+散点图中，【选中点】-->【右键】【“设置数据系列格式"】，在弹出的对话框中选择”数据标记选项“，把大小后面的数值调整就可以了。
 
 ## 筛选
 
@@ -870,16 +897,16 @@ https://zhuanlan.zhihu.com/p/68901540
 
 
 
+
 ## 宏
 
 > Microsoft文档：[Office VBA 参考](https://learn.microsoft.com/zh-cn/office/vba/api/overview/)
-> 
+>
 > [Excel VBA 编程教程](https://www.w3cschool.cn/excelvba/)
 >
 > [Excel VBA：单元格对象](https://blog.csdn.net/qq_36551226/article/details/106833877?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-106833877-blog-106648689.235^v39^pc_relevant_3m_sort_dl_base4&spm=1001.2101.3001.4242.1&utm_relevant_index=1)
 >
 > [VBA中日期和时间相关的计算](https://blog.51cto.com/alun51cto/2425920)
-
 
 ### 运行宏的方法
 
@@ -1016,6 +1043,7 @@ https://zhuanlan.zhihu.com/p/68901540
    ```
 
    
+
 
 
 
