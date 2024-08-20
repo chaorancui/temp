@@ -8,6 +8,54 @@
 
 ### vscode
 
+插件：
+
+- prettier：
+
+  使用此扩展配置 Prettier 有多种方式。您可以使用[VS Code 设置](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode#prettier-settings)、[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)或`.editorconfig`文件。VS Code 设置旨在用作后备，通常仅用于非项目文件。**建议您始终在项目中包含一个 Prettier 配置文件，指定项目的所有设置。**这将确保无论您如何运行 Prettier（从此扩展、从 CLI 或从另一个带有 Prettier 的 IDE），都将应用相同的设置。
+
+  建议使用[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)来设置格式化选项。选项从正在格式化的文件开始递归搜索，因此如果您想将 Prettier 设置应用于整个项目，只需在根目录中设置配置即可。
+  
+  在项目目录下新增文件 `.prettierrc.json`，内容如下：
+  
+  ```json
+  {
+      "//参考网址": "https://prettier.io/docs/en/options",
+      "//printWidth": "默认 80",
+      "printWidth": 120,
+      "//tabWidth": "默认 2",
+      "tabWidth": 2,
+      "//useTabs": "默认 false", 
+      "useTabs": false,
+      "//semi": "默认 false",
+      "semi": false,
+      "//singleQuote": "默认 false",
+      "singleQuote": false,
+      "//quoteProps": "默认 as-needed",
+      "quoteProps": "as-needed",
+      "//trailingComma": "默认 all",
+      "trailingComma": "es5",
+      "//bracketSpacing": "默认 true",
+      "bracketSpacing": true,
+      "//bracketSameLine": "默认 true",
+      "bracketSameLine": false,
+      "//arrowParens": "默认 always",
+      "arrowParens": "always",
+      "//proseWrap": "默认 preserve",
+      "proseWrap": "preserve",
+      "//endOfLine": "默认 lf",
+      "endOfLine": "lf",
+      "//embeddedLanguageFormatting": "默认 auto",
+      "embeddedLanguageFormatting": "auto"
+  }
+  ```
+  
+  > :warning: 问题：在格式化 markdown 的时候，针对 markdown 中的公式 $ $，会把 `_` 换成 `*`，原因是当成了**斜体的格式化（斜体使用一个 `_` 或 `*`）**，不知道如何避免。如：
+  >
+  > `$$ \mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i $$` 格式化成
+  >
+  > `$$ \mu*B = \frac{1}{m} \sum*{i=1}^{m} x*i $$`
+
 ## markdown 写作
 
 ### 空格
@@ -69,6 +117,19 @@
   :warning:️ 请注意：此操作可能导致数据丢失。code：`:warning:`
 
   :exclamation: 重要提醒：请在继续之前备份您的文件。code：`:exclamation:`
+
+### 强调
+
+| 样式名   | 效果                    | Markdown                                                     |
+| -------- | ----------------------- | :----------------------------------------------------------- |
+| 加粗     | **文本**                | `**文本** 或 __文本__`，用两个`*`或两个`_`包围文本           |
+| 斜体     | _文本_                  | `*文本* 或 _文本_`，用一个`*`或一个`_`包围文本               |
+| 删除线   | ~~文本~~                | `~~文本~~`                                                   |
+| 下划线   | <u>文本</u>             | `<u>文本</u>`，Markdown自身没有实现下划线，但它是HTML的子集，实现了`<u>`标签。<br>一般文本建议不要加下划线，容易误会成链接 |
+| 上标     | 文本^上标^              | `文本^上标^`                                                 |
+| 下标     | 文本~下标~              | `文本~下标~`                                                 |
+| 小号字体 | <small>小号字体</small> | `<small>小号字体</small>`                                    |
+| 大号字体 | <big>大号字体</big>     | `<big>大号字体</big>`                                        |
 
 ### 使用 VSCode 编辑 MarkDown 文件（vditor 所见及所得）
 
@@ -135,10 +196,18 @@ markdownlint 同时也支持在 VSCode 的 user 或 workspace 下的 settings.js
 ```json
 "markdownlint.config": {
     "default": true,
-    "MD025": false,
-    "MD045": false,
-    "no-hard-tabs": false
-}
+    "MD004": {
+        "style": "dash"
+    },
+    "MD007": {
+        "indent": 2
+    },
+    "MD012": false,
+    "MD013": false,  // 禁用行长限制规则
+    "MD033": false,  // 禁用HTML标签内的警告
+    "MD032": false,   // 禁用列表上下有空行
+    "MD041": false, // 禁用首行应该为top-level标题
+},
 ```
 
 该配置就会全局生效
