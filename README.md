@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### C++ Lambda 本质 & 变量捕获
+https://xueshi.io/2022/12/20/Cpp-lambda-capturing/
+
 ### google c++代码规范
 https://zh-google-styleguide.readthedocs.io/en/latest/index.html
 https://pytlab.github.io/assets/files/Google_Cpp_Style_guide_CN.pdf
