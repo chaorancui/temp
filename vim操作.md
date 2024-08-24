@@ -4,13 +4,13 @@
 
 > [Linux vi/vim](https://www.runoob.com/linux/linux-vim.html)
 >
-> [史上最全Vim快捷键键位图（入门到进阶）](https://www.runoob.com/w3cnote/all-vim-cheatsheat.html)
+> [史上最全 Vim 快捷键键位图（入门到进阶）](https://www.runoob.com/w3cnote/all-vim-cheatsheat.html)
 
 Vim 是从 vi 发展出来的一个文本编辑器。代码补全、编译及错误跳转等方便编程的功能特别丰富，在程序员中被广泛使用。
 
 简单的来说， vi 是老式的字处理器，不过功能已经很齐全了，但是还是有可以进步的地方。 vim 则可以说是程序开发者的一项很好用的工具。
 
-连 vim 的官方网站 (https://www.vim.org/) 自己也说 vim 是一个程序开发工具而不是文字处理软件。
+连 vim 的官方网站 (<https://www.vim.org/>) 自己也说 vim 是一个程序开发工具而不是文字处理软件。
 
 ![img](https://www.runoob.com/wp-content/uploads/2015/10/vi-vim-cheat-sheet-sch.gif)
 
@@ -35,7 +35,7 @@ Vim 是从 vi 发展出来的一个文本编辑器。代码补全、编译及错
 - **Ctrl + r** -- 重做上一次撤销的操作。
 - **:w** -- 保存文件。
 - **:q** -- 退出 Vim 编辑器。
-- **:q!** -- 强制退出Vim 编辑器，不保存修改。
+- **:q!** -- 强制退出 Vim 编辑器，不保存修改。
 
 若想要编辑文本，只需要启动 Vim，进入了命令模式，按下 **i** 切换到输入模式即可。
 
@@ -47,7 +47,7 @@ Vim 是从 vi 发展出来的一个文本编辑器。代码补全、编译及错
 
 在输入模式中，可以使用以下按键：
 
-- **字符按键以及Shift组合**，输入字符
+- **字符按键以及 Shift 组合**，输入字符
 - **ENTER**，回车键，换行
 - **BACK SPACE**，退格键，删除光标前一个字符
 - **DEL**，删除键，删除光标后一个字符
@@ -68,7 +68,7 @@ Vim 是从 vi 发展出来的一个文本编辑器。代码补全、编译及错
 - `:w`：保存文件。
 - `:q`：退出 Vim 编辑器。
 - `:wq`：保存文件并退出 Vim 编辑器。
-- `:q!`：强制退出Vim编辑器，不保存修改。
+- `:q!`：强制退出 Vim 编辑器，不保存修改。
 
 按 **ESC** 键可随时退出底线命令模式。
 
@@ -79,15 +79,11 @@ Vim 是从 vi 发展出来的一个文本编辑器。代码补全、编译及错
 > 模式补充：
 >
 > Select Mode
-> 选择模式。用鼠标拖选区域的时候，就进入了选择模式。和可视模式不同的是，在这个模式下，选择完了高亮区域后，敲任何按键就直接输入并替换选择的文本了。和windows下的编辑器选定编辑的效果一致。普通模式下，可以按gh进入。
+> 选择模式。用鼠标拖选区域的时候，就进入了选择模式。和可视模式不同的是，在这个模式下，选择完了高亮区域后，敲任何按键就直接输入并替换选择的文本了。和 windows 下的编辑器选定编辑的效果一致。普通模式下，可以按 gh 进入。
 >
 > Command-Line/Ex Mode
-> 命令行模式和Ex模式。两者略有不同，普通模式下按冒号(:)进入Command-Line模式，可以输入各种命令，
-> 使用vim的各种强大功能。普通模式下按Q进入Ex模式，其实就是多行的Command-Line模式。
-
-
-
-
+> 命令行模式和 Ex 模式。两者略有不同，普通模式下按冒号(:)进入 Command-Line 模式，可以输入各种命令，
+> 使用 vim 的各种强大功能。普通模式下按 Q 进入 Ex 模式，其实就是多行的 Command-Line 模式。
 
 ## vim 插件
 
@@ -95,36 +91,34 @@ Vim 是从 vi 发展出来的一个文本编辑器。代码补全、编译及错
 
 > [6 个最佳 Vim 插件管理器](https://www.linuxmi.com/vim-6-top-plugin-managers.html)
 >
-> [vim有哪些插件管理程序？都有些什么特点？](https://blog.csdn.net/kunkliu/article/details/123577850)
+> [vim 有哪些插件管理程序？都有些什么特点？](https://blog.csdn.net/kunkliu/article/details/123577850)
 >
-> [Vim 插件应用篇 vim-plug：简洁高效的Vim插件管理工具](https://blog.csdn.net/Linux7985/article/details/132745874) --> vim-plug 主要操作介绍
+> [Vim 插件应用篇 vim-plug：简洁高效的 Vim 插件管理工具](https://blog.csdn.net/Linux7985/article/details/132745874) --> vim-plug 主要操作介绍
 
 vim 下的插件管理插件是非常多的，最为有名的要数 vundle(Vim bundle) 和 vim-plug。
 
 对比如下：
 
-* `vundle` 是一款老款的插件管理工具
-* `vim-plug` 相对较新，特点是支持异步加载，相比 vundle 而言
+- `vundle` 是一款老款的插件管理工具
+- `vim-plug` 相对较新，特点是支持异步加载，相比 vundle 而言
 
 vim-plug 优势：
 
-* vim-plug 是一个轻量级且功能强大的插件管理器，**易于设置和使用**。所有配置和插件都列在一个文件中。它只有几个命令，因此您无需记住任何内容即可使用该工具。vim-plug 还支持一次并行安装和更新多个插件。最重要的是，它非常快。
+- vim-plug 是一个轻量级且功能强大的插件管理器，**易于设置和使用**。所有配置和插件都列在一个文件中。它只有几个命令，因此您无需记住任何内容即可使用该工具。vim-plug 还支持一次并行安装和更新多个插件。最重要的是，它非常快。
 
   其他出色的功能包括按需加载、支持查看和回滚更新以及最小化磁盘空间使用。
 
   vim-plug 有**详细的文档**，如果您是 Vim 或插件管理器的新手，它非常适合。大多数 Vim 插件和插件管理器，包括 vim-plug，都有一个 [GitHub 页面](https://github.com/junegunn/vim-plug)来指导您完成安装。
 
-总结： 
+总结：
 
 如果你使用的是 vim8 的话，还是更为推荐 vim-plug，因为他已经支持 vim8 的 async process 特性了。
 
+#### vim-plug
 
+Vim-plug 的获取链接：<https://github.com/junegunn/vim-plug>
 
-####  vim-plug
-
-Vim-plug的获取链接：https://github.com/junegunn/vim-plug
-
-* 目录说明
+- 目录说明
 
   检查用户下是否有 `~/.vim` 文件夹
 
@@ -136,21 +130,21 @@ Vim-plug的获取链接：https://github.com/junegunn/vim-plug
 
   `~/.vim`文件夹下目录介绍
 
-  | 目录               | 说明                                                         |
-  | :----------------- | :----------------------------------------------------------- |
-  | `~/.vim/autoload/` | 它是一个非常重要的目录，尽管听起来比实际复杂。简而言之，它里面放置的是当你真正需要的时候才被自动加载运行的文件，而不是在vim启动时就加载。 |
-  | `~/.vim/colors/`   | 是用来存放vim配色方案的。                                    |
-  | `~/.vim/plugin/`   | 存放的是每次启动`vim`都会被运行一次的插件，也就是说只要你想在vim启动时就运行的插件就放在这个目录下。我们可以放从`vim-plug`官方下载下来的插件.vim |
-  | `~/.vim/syntax/`   | 语法描述脚本。我们放有关文本（比如c语言）语法相关的插件      |
-  | `~/.vim/doc/`      | 为插件放置文档的地方。例如`:help`的时候可以用到。            |
-  | `~/.vim/ftdetect/` | 中的文件同样也会在vim启动时就运行。有些时候可能没有这个目录。ftdetect代表的是“filetype detection（文件类型检测）”。此目录中的文件应该用自动命令（autocommands）来检测和设置文件的类型，除此之外并无其他。也就是说，它们只该有一两行而已。 |
-  | `~/.vim/ftplugin/` | 此目录中的文件有些不同。当`vim`给缓冲区的`filetype`设置一个值时，`vim`将会在`~/.vim/ftplugin/`目录下来查找和`filetype`相同名字的文件。例如你运行`set filetype=derp`这条命令后，vim将查找`~/.vim/ftplugin/derp.vim`此文件，如果存在就运行它。不仅如此，它还会运行`ftplugin`下相同名字的子目录中的所有文件，如`~/.vim/ftplugin/derp/`这个文件夹下的文件都会被运行。每次启用时，应该为不同的文件类型设置局部缓冲选项，如果设置为全局缓冲选项的话，将会覆盖所有打开的缓冲区。 |
-  | `~/.vim/indent/`   | 这里面的文件和`ftplugin`中的很像，它们也是根据它们的名字来加载的。它放置了相关文件类型的缩进。例如`python`应该怎么缩进，`java`应该怎么缩进等等。其实放在`ftplugin`中也可以，但单独列出来只是为了方便文件管理和理解。 |
-  | `~/.vim/compiler/` | 和indent很像，它放的是相应文件类型应该如何编译的选项。       |
-  | `~/.vim/after/`    | 这里面的文件也会在vim每次启动的时候加载，不过是等待`~/.vim/plugin/`加载完成之后才加载`after`里的内容，所以叫做`after`。 |
-  | `~/.vim/spell/`    | 拼写检查脚本。                                               |
+  | 目录               | 说明                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+  | :----------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+  | `~/.vim/autoload/` | 它是一个非常重要的目录，尽管听起来比实际复杂。简而言之，它里面放置的是当你真正需要的时候才被自动加载运行的文件，而不是在 vim 启动时就加载。                                                                                                                                                                                                                                                                                                                                |
+  | `~/.vim/colors/`   | 是用来存放 vim 配色方案的。                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+  | `~/.vim/plugin/`   | 存放的是每次启动`vim`都会被运行一次的插件，也就是说只要你想在 vim 启动时就运行的插件就放在这个目录下。我们可以放从`vim-plug`官方下载下来的插件.vim                                                                                                                                                                                                                                                                                                                         |
+  | `~/.vim/syntax/`   | 语法描述脚本。我们放有关文本（比如 c 语言）语法相关的插件                                                                                                                                                                                                                                                                                                                                                                                                                  |
+  | `~/.vim/doc/`      | 为插件放置文档的地方。例如`:help`的时候可以用到。                                                                                                                                                                                                                                                                                                                                                                                                                          |
+  | `~/.vim/ftdetect/` | 中的文件同样也会在 vim 启动时就运行。有些时候可能没有这个目录。ftdetect 代表的是“filetype detection（文件类型检测）”。此目录中的文件应该用自动命令（autocommands）来检测和设置文件的类型，除此之外并无其他。也就是说，它们只该有一两行而已。                                                                                                                                                                                                                               |
+  | `~/.vim/ftplugin/` | 此目录中的文件有些不同。当`vim`给缓冲区的`filetype`设置一个值时，`vim`将会在`~/.vim/ftplugin/`目录下来查找和`filetype`相同名字的文件。例如你运行`set filetype=derp`这条命令后，vim 将查找`~/.vim/ftplugin/derp.vim`此文件，如果存在就运行它。不仅如此，它还会运行`ftplugin`下相同名字的子目录中的所有文件，如`~/.vim/ftplugin/derp/`这个文件夹下的文件都会被运行。每次启用时，应该为不同的文件类型设置局部缓冲选项，如果设置为全局缓冲选项的话，将会覆盖所有打开的缓冲区。 |
+  | `~/.vim/indent/`   | 这里面的文件和`ftplugin`中的很像，它们也是根据它们的名字来加载的。它放置了相关文件类型的缩进。例如`python`应该怎么缩进，`java`应该怎么缩进等等。其实放在`ftplugin`中也可以，但单独列出来只是为了方便文件管理和理解。                                                                                                                                                                                                                                                       |
+  | `~/.vim/compiler/` | 和 indent 很像，它放的是相应文件类型应该如何编译的选项。                                                                                                                                                                                                                                                                                                                                                                                                                   |
+  | `~/.vim/after/`    | 这里面的文件也会在 vim 每次启动的时候加载，不过是等待`~/.vim/plugin/`加载完成之后才加载`after`里的内容，所以叫做`after`。                                                                                                                                                                                                                                                                                                                                                  |
+  | `~/.vim/spell/`    | 拼写检查脚本。                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 
-* Vim-plug的安装
+- Vim-plug 的安装
 
   ```shell
   curl -fLo ~/.vim/autoload/plug.vim --create-dirs \
@@ -161,20 +155,20 @@ Vim-plug的获取链接：https://github.com/junegunn/vim-plug
   >
   > 可能会遇到报错：`curl: (60) SSL certificate problem: self-signed certificate in certificate chain`
   >
-  > 官网的解释是说因为证书认证缺失，所以可以考虑请求里面关闭ssl证书认证，命令行中加上-k即可
+  > 官网的解释是说因为证书认证缺失，所以可以考虑请求里面关闭 ssl 证书认证，命令行中加上-k 即可
   >
   > ```shell
   > curl -kfLo ~/.vim/autoload/plug.vim --create-dirs \
   >     https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim插件的添加和删除
   > ```
 
-* 插件的添加和删除
+- 插件的添加和删除
 
-  `vim-plug` 支持源码托管在 `GitHub` 的插件，你可以在`"https://github.com/vim-scripts/"`上找到vim官网(`https://www.vim.org`)里所有插件的镜像。也可以安装 Windows 版本的 Git 查看 vim 插件。
+  `vim-plug` 支持源码托管在 `GitHub` 的插件，你可以在`"https://github.com/vim-scripts/"`上找到 vim 官网(`https://www.vim.org`)里所有插件的镜像。也可以安装 Windows 版本的 Git 查看 vim 插件。
 
   要安装插件，你必须如下所示首先在 Vim 配置文件中声明它们。
 
-  一般 Vim 的配置文件是 `~/.vimrc`，Neovim 的配置文件是 `~/.config/nvim/init.vim`。  
+  一般 Vim 的配置文件是 `~/.vimrc`，Neovim 的配置文件是 `~/.config/nvim/init.vim`。
 
   请记住，当你在配置文件中声明插件时，列表应该以 `call plug#begin(PLUGIN_DIRECTORY)` 开始，并以 `plug#end()` 结束。
 
@@ -186,10 +180,10 @@ Vim-plug的获取链接：https://github.com/junegunn/vim-plug
   Plug 'tpope/vim-sensible'
   "
   " 目录树，可以支持在不退出vim的编辑器的前提下，在文件中快速切换，同时能让开发人员快速掌握项目目录结构
-  Plug 'preservim/nerdtree'                                                                                                     "                              
+  Plug 'preservim/nerdtree'                                                                                                     "
   "
   Plug 'itchyny/lightline.vim'
-  
+
   call plug#end()
   ```
 
@@ -206,36 +200,33 @@ Vim-plug的获取链接：https://github.com/junegunn/vim-plug
   # 找到插件 github 网址，追加至 vimrc 配置文件中的 `call plug#begin()` 和 `call plug#end()` 之间，执行下面命令安装所有引用的插件
   :PlugInstall
   # 注：插件网址添加方式如下：
-  # 1.可用完整的地址:	Plug 'https://github.com/用户名/项目名.git'
-  # 2.可用简写形式：		Plug 'github用户/项目名'
-  
+  # 1.可用完整的地址：Plug 'https://github.com/用户名/项目名.git'
+  # 2.可用简写形式：Plug 'github用户/项目名'
+
   # 指定安装特定的插件，可以使用以下命令：
   :PlugInstall gist-vim
-  
-  
+
+
   #### 卸载插件
   # 请先在vimrc配置文件中注释或者删除对应插件的配置信息，然后再执行以下命令：
   :PlugClean
-  
+
   #### 更新 vim-plug 插件自身：
   :PlugUpgrade
-  
+
   #### 查看当前已安装插件的状态信息
   :PlugStatus
   ```
 
   > Note:
   >
-  > 因为每个插件配置均有不同，插件作者会在Git中添加插件配置方法，所以各个插件的配置方法请参考插件作者的使用说明！
+  > 因为每个插件配置均有不同，插件作者会在 Git 中添加插件配置方法，所以各个插件的配置方法请参考插件作者的使用说明！
   >
-  > [VIM插件网站](https://vimawesome.com/)
-
-
+  > [VIM 插件网站](https://vimawesome.com/)
 
 ### vim 插件介绍
 
-> 一个比较好的 vim 插件网站：[vimawesome](https://vimawesome.com/)
-> <font color=red>Note:</font>
+> 一个比较好的 vim 插件网站：[vimawesome](https://vimawesome.com/) > <font color=red>Note:</font>
 >
 > 下面的安装命令适用于 **vim-plug** 插件管理
 
@@ -245,7 +236,7 @@ NERDTree 是 Vim 编辑器的文件系统浏览器。使用此插件，用户可
 
 ![img](https://raw.githubusercontent.com/preservim/nerdtree/master/screenshot.png)
 
-* 安装
+- 安装
 
   使用 vim-plug，`~/.vimrc` 中配置
 
@@ -255,11 +246,9 @@ NERDTree 是 Vim 编辑器的文件系统浏览器。使用此插件，用户可
   call plug#end()
   ```
 
-* 使用
+- 使用
 
   12
-
-
 
 #### lightline |「[github](https://github.com/itchyny/lightline.vim)」
 
@@ -281,37 +270,21 @@ let g:lightline = {
       \ }
 ```
 
-
-
 重新启动 Vim，状态行如下所示：
-
-
 
 #### leaderF
 
-LeaderF现在基本是Vim最好的模糊查找插件. 参考
+LeaderF 现在基本是 Vim 最好的模糊查找插件. 参考
 
-https://github.com/Yggdroot/LeaderF
+<https://github.com/Yggdroot/LeaderF>
 
-https://retzzz.github.io/dc9af5aa/
-
-
-
-
+<https://retzzz.github.io/dc9af5aa/>
 
 #### YouCompleteMe
 
-
-
-
-
-
-
-
-
 ## vim 配置文件
 
-> 参考：[Docs --> 第四章 常见问答 --> Vim配置文件](https://vim80.readthedocs.io/zh/latest/faq/vimrc.html#id1)
+> 参考：[Docs --> 第四章 常见问答 --> Vim 配置文件](https://vim80.readthedocs.io/zh/latest/faq/vimrc.html#id1)
 
 基本配置文件，将上面 WIKI 中的 Vundle 换成了 vim-plug，同时自定义插件配置
 
@@ -330,7 +303,7 @@ Plug 'tpope/vim-sensible'
 "
 " plugin from https://github.com/preservim/nerdtree
 " 目录树，可以支持在不退出vim的编辑器的前提下，在文件中快速切换，同时能让开发人员快速掌握项目目录结构
-Plug 'preservim/nerdtree'                                                                                                     "  "                            
+Plug 'preservim/nerdtree'                                                                                                     "  "
 " plugin from https://github.com/itchyny/lightline.vim
 " 适用于 Vim 的轻量且可配置的状态行/标签行插件
 Plug 'itchyny/lightline.vim'
@@ -342,42 +315,42 @@ call plug#end()
 
 " basic
 set number                      " 设定行号
-set ruler						" 设定尺标以显示行列（经纬）信息
-set clipboard=unnamed       	" 设定操作系统剪切板和vim寄存器互通（默认不通）
-set cursorline					" 设定光标所在行有行下划线
+set ruler      " 设定尺标以显示行列（经纬）信息
+set clipboard=unnamed        " 设定操作系统剪切板和vim寄存器互通（默认不通）
+set cursorline     " 设定光标所在行有行下划线
 " set noswapfile                " 设定不会产生.swp文件
-set wrap						" 设定开启文本过长折叠（默认开启）。使用"set nowrap"来关闭。
-set linebreak					" 设定文本过长折叠时以一个word为基本unit，而不是字母。避免一个单词被分割在两行的情况。
-set showmode					" 设定显示当前所处模式（默认开启）。使用"set noshowmode"来关闭，但是不建议关闭。
-set showcmd						" 设定显示当前命令（默认开启）。使用"set noshowcmd"来关闭，但是不建议关闭。
-set nolist						" 设定显示换行等默认隐藏的信息。使用"set nolist"来关闭。建议保持关闭。
+set wrap      " 设定开启文本过长折叠（默认开启）。使用"set nowrap"来关闭。
+set linebreak     " 设定文本过长折叠时以一个word为基本unit，而不是字母。避免一个单词被分割在两行的情况。
+set showmode     " 设定显示当前所处模式（默认开启）。使用"set noshowmode"来关闭，但是不建议关闭。
+set showcmd      " 设定显示当前命令（默认开启）。使用"set noshowcmd"来关闭，但是不建议关闭。
+set nolist      " 设定显示换行等默认隐藏的信息。使用"set nolist"来关闭。建议保持关闭。
 set encoding=utf-8
 " set autoindent
 
 " search
-set hlsearch					" 设定查找内容高亮
-set ignorecase					" 设定查找时忽略大小写敏感
-set smartcase					" 设定当目标词中存在大写时，暂时忽略ignorecase
-set incsearch					" 设定渐进式查找（随着对目标单词输入时长度的增加，文档中会越来越精确的找到目标单词）
+set hlsearch     " 设定查找内容高亮
+set ignorecase     " 设定查找时忽略大小写敏感
+set smartcase     " 设定当目标词中存在大写时，暂时忽略ignorecase
+set incsearch     " 设定渐进式查找（随着对目标单词输入时长度的增加，文档中会越来越精确的找到目标单词）
 
 " tab and space
-set softtabstop=2				" 设定在insert模式下tab键每次移动距离
-set shiftwidth=2				" 设定在normal模式下">"或"<"键进行缩排调节的距离
-set expandtab					" 设定将一个tab的距离软化成多个space
+set softtabstop=2    " 设定在insert模式下tab键每次移动距离
+set shiftwidth=2    " 设定在normal模式下">"或"<"键进行缩排调节的距离
+set expandtab     " 设定将一个tab的距离软化成多个space
 
 " tab page
-set showtabline=2				" 设定标签页的显示情况（0为永不显示，1为至少存在两个才显示，2为一直显示）
-set splitbelow					" 设定通过":new"水平开新视窗时在原视窗下面（默认为上面）
-set splitright					" 设定通过":vnew"垂直开新视窗时在原视窗右侧（默认为左侧）
+set showtabline=2    " 设定标签页的显示情况（0为永不显示，1为至少存在两个才显示，2为一直显示）
+set splitbelow     " 设定通过":new"水平开新视窗时在原视窗下面（默认为上面）
+set splitright     " 设定通过":vnew"垂直开新视窗时在原视窗右侧（默认为左侧）
 
 " color
-syntax on						" 设定vim打开高亮，根据文件内容渲染颜色
-" colorscheme	darkblue			" 设定vim的主题颜色为darkblue（默认是default）
+syntax on      " 设定vim打开高亮，根据文件内容渲染颜色
+" colorscheme darkblue   " 设定vim的主题颜色为darkblue（默认是default）
 
 " filetype
-filetype on						" 设定filetype功能打开
-filetype indent on				" 设定filetype自动缩排
-filetype plugin on				" 设定filetype基于文件后缀开启对应外挂插件
+filetype on      " 设定filetype功能打开
+filetype indent on    " 设定filetype自动缩排
+filetype plugin on    " 设定filetype基于文件后缀开启对应外挂插件
 
 
 " 按键映射：重新定义窗口跳转快捷键
@@ -398,25 +371,19 @@ let NERDTreeWinPos='left'
 let NERDTreeWinSize=20
 ```
 
-> > [使用上古神器找回逝去的青春（四）：Vim使用方法简介](https://blog.csdn.net/weixin_43394859/article/details/112296900)
+> > [使用上古神器找回逝去的青春（四）：Vim 使用方法简介](https://blog.csdn.net/weixin_43394859/article/details/112296900)
 >
-> 可以在vim中输入":set"来查看当前所有自主设定
+> 可以在 vim 中输入":set"来查看当前所有自主设定
 >
-> 可以在vim中输入":set all"来查看所有的设定内容
+> 可以在 vim 中输入":set all"来查看所有的设定内容
 >
-> 若要罗列出vim所支持的所有主题，则可以使用如下命令实现：
+> 若要罗列出 vim 所支持的所有主题，则可以使用如下命令实现：
 >
 > :colorscheme "Ctrl+d"
-
-
-
-
 
 ## vim 按键映射
 
 > 参考：[vim map](https://vimcdoc.sourceforge.net/doc/map.html#:imap)
-
-
 
 ### 配置按键映射
 
@@ -433,12 +400,12 @@ vim 里最基本的映射配置有 map、noremap、unmap、mapclear 几种。
 
 同 Vim 下的其他命令一样，map 命令的名字往往由好几段组成。在不同的模式下，同一组按键可以被映射到不同的组合上，前缀作为命令本身的修饰符，微调命令的效果。map 有以下几种前缀：
 
-|      |                    |
-| :--- | ------------------ |
-| n:   | 在普通模式下生效   |
-| v:   | 在可视模式下生效   |
-| i:   | 在插入模式下生效   |
-| c:   | 在命令行模式下生效 |
+|     |                    |
+| :-- | ------------------ |
+| n:  | 在普通模式下生效   |
+| v:  | 在可视模式下生效   |
+| i:  | 在插入模式下生效   |
+| c:  | 在命令行模式下生效 |
 
 #### 递归和非递归的映射
 
@@ -487,48 +454,45 @@ nnoremap <C-L> <C-W><C-L>
 
 #### 阅读更多
 
-VIM 键映射 http://vimcdoc.sourceforge.net/doc/map.html#:imap
-
-
-
+VIM 键映射 <http://vimcdoc.sourceforge.net/doc/map.html#:imap>
 
 普通模式的映射命令
 map
 命令格式：
 :map {lhs} {rhs}
-其含义是，在:map作用的模式中把键系列 {lhs} 映射为 {rhs}，{rhs}可进行映射扫描，也就是可递归映射。
+其含义是，在:map 作用的模式中把键系列 {lhs} 映射为 {rhs}，{rhs}可进行映射扫描，也就是可递归映射。
 
 举例：
 :map td :tabnew .<cr>
-含义：在其作用模式（普通、可视、操作符）下，输入td等价于输入 :tabnew . <cr>。而普通模式下输入:tabnew . <cr>就是打开当前目录
-如果再定义绑定 :map ts td，就是指在其作用模式下输入ts等价于td，也就是打开当前目录。不过如果没有特殊需要，一般不建议递归映射。
+含义：在其作用模式（普通、可视、操作符）下，输入 td 等价于输入 :tabnew . <cr>。而普通模式下输入:tabnew . <cr>就是打开当前目录
+如果再定义绑定 :map ts td，就是指在其作用模式下输入 ts 等价于 td，也就是打开当前目录。不过如果没有特殊需要，一般不建议递归映射。
 
 noremap
-:noremap和:map命令相对，作用模式和命令格式都相同，只不过不允许再对{rhs}进行映射扫描，也就是{lhs}定义后的映射就是{rhs}的键序列，不会再对{rhs}键序列重新解释扫描。它一般用于重定义一个命令，当然如果:map不需要递归映射的话，建议使用:noremap
+:noremap 和:map 命令相对，作用模式和命令格式都相同，只不过不允许再对{rhs}进行映射扫描，也就是{lhs}定义后的映射就是{rhs}的键序列，不会再对{rhs}键序列重新解释扫描。它一般用于重定义一个命令，当然如果:map 不需要递归映射的话，建议使用:noremap
 比如：
 :noremap ts td
-它的意思是在其作用模式下，输入ts就是输入td，但是和:map不同的是，此时td再不会做进一步扫描解释。虽然之前已经定义了td，但是不会对td再做扫描。
+它的意思是在其作用模式下，输入 ts 就是输入 td，但是和:map 不同的是，此时 td 再不会做进一步扫描解释。虽然之前已经定义了 td，但是不会对 td 再做扫描。
 
 unmap
-:unmap是对应取消:map绑定的｛lhs｝，作用模式相同，命令格式 :unmap {lhs}。
+:unmap 是对应取消:map 绑定的｛lhs｝，作用模式相同，命令格式 :unmap {lhs}。
 例如：
 :unmap td
-就是取消在其作用模式中td的绑定，比如之前td被绑定为:tabnew .<cr>，此时此绑定消失。
+就是取消在其作用模式中 td 的绑定，比如之前 td 被绑定为:tabnew .<cr>，此时此绑定消失。
 
 mapclear
-:mapclear时对应取消所有:map绑定的，慎用！
+:mapclear 时对应取消所有:map 绑定的，慎用！
 
 只用于普通模式的
 :nmap
-:nmap是:map的普通模式板，也就是说其绑定的键只作用于普通模式。
+:nmap 是:map 的普通模式板，也就是说其绑定的键只作用于普通模式。
 例如：
 :nmap td :tabnew .<cr> 和 :map td :tabnew .<cr> 在普通模式下等效
 :nnoremap
-:nnorempa和:nmap的关系和:noremap和:map的关系一样，只是:nmap的非递归版
+:nnorempa 和:nmap 的关系和:noremap 和:map 的关系一样，只是:nmap 的非递归版
 :nunmap
-:nunmap和:nmap的关系和:unmap和:map的关系一样，取消:nmap的绑定。
+:nunmap 和:nmap 的关系和:unmap 和:map 的关系一样，取消:nmap 的绑定。
 :nmapclear
-:nmapclear是对应取消所有:map绑定的，慎用！
+:nmapclear 是对应取消所有:map 绑定的，慎用！
 
 另外
 {rhs} 之前可能显示一个特殊字符:
@@ -537,21 +501,19 @@ mapclear
   & 表示仅脚本的局部映射可以被重映射
   @ 表示缓冲区的局部映射
 
-到这一步你可以轻松的长吸一口气，因为相关的命令已经都了解了，记不住没关系，可以随时:help map一下。
+到这一步你可以轻松的长吸一口气，因为相关的命令已经都了解了，记不住没关系，可以随时:help map 一下。
 
 键表
 <k0> - <k9> 小键盘 0 到 9
-<S-...> Shift＋键
-<C-...> Control＋键
-<M-...> Alt＋键 或 meta＋键
+<S-...> Shift ＋键
+<C-...> Control ＋键
+<M-...> Alt ＋键 或 meta ＋键
 <A-...> 同 <M-...>
 <Esc> Escape 键
 <Up> 光标上移键
 <Space> 插入空格
-<Tab> 插入Tab
+<Tab> 插入 Tab
 <CR> 等于<Enter>
-
-
 
 特殊参数
 有些特殊参数必须映射命令的后边，在其他任何参数的前面。
@@ -580,47 +542,43 @@ mapclear
 这可以用来检查光标之前的文本并在一定条件下启动全能 (omni) 补全。
 一个例子：
 
-let counter = 0 
-inoremap <expr> <C-L> ListItem() 
-inoremap <expr> <C-R> ListReset() 
+let counter = 0
+inoremap <expr> <C-L> ListItem()
+inoremap <expr> <C-R> ListReset()
 
-func ListItem() 
-let g:counter += 1 
-return g:counter . '. ' 
-endfunc 
+func ListItem()
+let g:counter += 1
+return g:counter . '. '
+endfunc
 
-func ListReset() 
-let g:counter = 0 
-return '' 
-endfunc 
+func ListReset()
+let g:counter = 0
+return ''
+endfunc
 
-在插入模式下，CTRL-L插入顺序的列表编号，并返回；CTRL-R复位列表编号到0，并返回空。
+在插入模式下，CTRL-L 插入顺序的列表编号，并返回；CTRL-R 复位列表编号到 0，并返回空。
 
 <unique>
 <unique>一般用于定义新的键映射或者缩写命令的同时检查是否该键已经被映射，如果该映射或者缩写已经存在，则该命令会失败
 
-<Leader>和mapleader变量
-mapleader变量对所有map映射命令起效，它的作用是将参数<leader>替换成mapleader变量的值，比如：
+<Leader>和 mapleader 变量
+mapleader 变量对所有 map 映射命令起效，它的作用是将参数<leader>替换成 mapleader 变量的值，比如：
 :map <Leader>A oanother line<Esc>
-如果mapleader变量没有设置，则用默认的反斜杠代替，因此这个映射等效于：
+如果 mapleader 变量没有设置，则用默认的反斜杠代替，因此这个映射等效于：
 :map \A oanother line<Esc>
-意思时输入\A键时，在下一行输入another line并返回到普通模式。
-如果设置了mapleader变量，比如：
+意思时输入\A 键时，在下一行输入 another line 并返回到普通模式。
+如果设置了 mapleader 变量，比如：
 let mapleader = ","
 那么就等效于：
 :map ,A oanother line<Esc>
 
-<LocalLeader>和maplocalleader变量
+<LocalLeader>和 maplocalleader 变量
 <LocalLeader>和<Leader>类似，只不过它只作用于缓冲区。
-因此在设置mapleader和maplocalleader时最好区分开，不要出现冲突。
+因此在设置 mapleader 和 maplocalleader 时最好区分开，不要出现冲突。
 
+<https://blog.csdn.net/zzyczzyc/article/details/86529138>
 
-
-https://blog.csdn.net/zzyczzyc/article/details/86529138
-
-【Vim】使用map自定义快捷键：https://blog.csdn.net/JasonDing1354/article/details/45372007
-
-  
+【Vim】使用 map 自定义快捷键：<https://blog.csdn.net/JasonDing1354/article/details/45372007>
 
 vim 编辑模式下移动光标一般是先按 ESC 键，回到 Normal 模式后才去移动光标。
 
@@ -636,7 +594,7 @@ vim 编辑模式下移动光标一般是先按 ESC 键，回到 Normal 模式后
     inoremap <C-l> <Down>
     inoremap <C-q> <PageUp>
     inoremap <C-z> <PageDown>
-    
+
     // 将键绑定放在此文件中以覆盖默认值
     [
         {
@@ -651,41 +609,27 @@ vim 编辑模式下移动光标一般是先按 ESC 键，回到 Normal 模式后
         },
     ]
 
-
-
-
-
 ## vim 脚本
 
 让 vim 自动化。
 
 参见：[Docs --> 第三章 脚本 --> 简介](https://vim80.readthedocs.io/zh/latest/script/one.html)
 
-
-
 ## 常见问答
 
 参见：[Docs --> 第三章 常见问答](https://vim80.readthedocs.io/zh/latest/chapters/04.html)
 
-
-
-
-
-
-
 ## 自整理
-
-
 
 ### vim 打开文件
 
-* vim 还没有启动时
+- vim 还没有启动时
 
   ```shell
   vim file1 file2 ... filen
   ```
 
-* vim 已经启动
+- vim 已经启动
 
   ```shell
   :e ../myFile
@@ -694,8 +638,8 @@ vim 编辑模式下移动光标一般是先按 ESC 键，回到 Normal 模式后
 vim 缓冲区操作：
 
 ```shell
-:n		# 打开下一个文件
-:N		# 打开上一个文件
+:n  # 打开下一个文件
+:N  # 打开上一个文件
 # 如果有任何未保存的更改，Vim将不允许您移动到下一个文件。要将更改保存在当前文件中，请键入：ZZ
 
 # 查看当前打开的buffer（文件），二选一
@@ -703,112 +647,102 @@ vim 缓冲区操作：
 :ls
 
 # 在缓冲区之间切换文件
-:bf		＃转到第一个文件。
-:bl 	＃转到最后一个文件
-:bn 	＃转到下一个文件。
-:bp		＃转到上一个文件。
-:b number	＃转到第n个文件（例如：b 2）
-:bw		＃关闭当前文件。
+:bf  ＃转到第一个文件。
+:bl  ＃转到最后一个文件
+:bn  ＃转到下一个文件。
+:bp  ＃转到上一个文件。
+:b number ＃转到第n个文件（例如：b 2）
+:bw  ＃关闭当前文件。
 ```
 
-> [vim技巧：在不同文件buffer间切换](https://segmentfault.com/a/1190000021070194)
-
-
+> [vim 技巧：在不同文件 buffer 间切换](https://segmentfault.com/a/1190000021070194)
 
 ### Vim 上下移动一行或多行的按键序列
 
-https://zhuanlan.zhihu.com/p/588627413
+<https://zhuanlan.zhihu.com/p/588627413>
 
 ### vim 使用技巧
 
-https://pengfeixc.com/blogs/developer-handbook/vim-shortcuts
+<https://pengfeixc.com/blogs/developer-handbook/vim-shortcuts>
 
-
-
-Vim中切换窗口（在文件之间切换）
+Vim 中切换窗口（在文件之间切换）
 切换窗口：Ctrl + w + (h/j/k/l) 。
-即h左、j下、k上、l右，表示窗口切换的方向。
+即 h 左、j 下、k 上、l 右，表示窗口切换的方向。
 
+### VScode when 子句上下文
 
+<https://juejin.cn/post/7072621434605928462>
 
-### VScode when 子句上下文：
+### VIM 剪切复制粘贴
 
-https://juejin.cn/post/7072621434605928462
-
-### VIM 剪切复制粘贴：
-
-https://linux265.com/course/vim-cut-copy-paste.html
+<https://linux265.com/course/vim-cut-copy-paste.html>
 
 ### Vim 查找与替换
 
-https://linux265.com/course/vim-find-replace.html
+<https://linux265.com/course/vim-find-replace.html>
 
-### Vim复制粘贴与寄存器
+### Vim 复制粘贴与寄存器
 
-> [Vim复制粘贴与寄存器](https://blog.csdn.net/halazi100/article/details/47807033)
-> 在Vim中的复制，删除，替换等操作的临时内容，都会存储在寄存器中
-
+> [Vim 复制粘贴与寄存器](https://blog.csdn.net/halazi100/article/details/47807033)
+> 在 Vim 中的复制，删除，替换等操作的临时内容，都会存储在寄存器中
 
 1.无名寄存器("")
-两个双引号，Vim中叫做无名寄存器。x,s,d,c,y等操作，如果不指定寄存器，都是将临时内容放到这个寄存器中，也就是相当于一个默认寄存器。
+两个双引号，Vim 中叫做无名寄存器。x,s,d,c,y 等操作，如果不指定寄存器，都是将临时内容放到这个寄存器中，也就是相当于一个默认寄存器。
 可以通过 :reg 来查看当前寄存器的值，操作一下，然后查寄存器内容，就明白了。
 例如：
 复制当前行(yy)，并粘贴(p)。
-这里y命令会将当前行内容放入寄存器""，按p时，会到寄存器""中取内容。
+这里 y 命令会将当前行内容放入寄存器""，按 p 时，会到寄存器""中取内容。
 
 2. 复制专用寄存器("0)
-   通过y命令复制的内容，会保存到寄存器0中。
+   通过 y 命令复制的内容，会保存到寄存器 0 中。
    寄存器的使用是通过"后面跟寄存器名字。
    例如：
    复制当前行(yy)，
    又做了几次删除单词操作(dw)
-   但是只想粘贴刚才复制的行，那么就不能用无名寄存器""去粘贴了，不能直接p进行粘贴，需要用"0p，指定使用寄存器0，因为"0里只存放y命令存入的内容。
+   但是只想粘贴刚才复制的行，那么就不能用无名寄存器""去粘贴了，不能直接 p 进行粘贴，需要用"0p，指定使用寄存器 0，因为"0 里只存放 y 命令存入的内容。
 
 3. 删除专用寄存器("1-"9)
-   通过d或c命令，删掉的内容，会保存打"1-"9这9个寄存器中。
-   最新删除的内容，会在"1中，其他顺延。
+   通过 d 或 c 命令，删掉的内容，会保存打"1-"9 这 9 个寄存器中。
+   最新删除的内容，会在"1 中，其他顺延。
    例如：
    删除当前行(yy)
    删除当前行(yy)
    想复制第一次删除的行，"2p
 
 4. 命名寄存器("a-"z)
-   可以将重要内容放到命名寄存器"a-"z中，一共26个。
+   可以将重要内容放到命名寄存器"a-"z 中，一共 26 个。
    例如：
-   把当前行放入寄存器"j里，"jyy
-   复制寄存器"j的内容， "jp
+   把当前行放入寄存器"j 里，"jyy
+   复制寄存器"j 的内容， "jp
 
-5. 黑洞寄存器("_d)
+5. 黑洞寄存器("\_d)
    放到这个寄存器的内容，将不会放到任何其他寄存器中，相当于彻底删除内容。
    例如：
-   彻底删除当前行，不放入任何寄存器，"_dd
+   彻底删除当前行，不放入任何寄存器，"\_dd
 
 6. 系统剪贴板("+)
-   通过"+寄存器可以把内容复制到系统剪贴板，也可以从系统剪贴板粘贴内容但Vim中。
+   通过"+寄存器可以把内容复制到系统剪贴板，也可以从系统剪贴板粘贴内容但 Vim 中。
    例如：
    复制当前行到系统剪贴板中，"+yy
-   复制系统剪贴板到vim中，"+p
+   复制系统剪贴板到 vim 中，"+p
 
 总之，如果要使用一个寄存器，按以下形式
 
        [双引号][寄存器名][命令]
 
-
-
 ### vim 在搜索模式下粘贴
 
 复制：
 
-1) v (或在视觉模式下用鼠标突出显示)
+1. v (或在视觉模式下用鼠标突出显示)
 
-2) y (yank)
+2. y (yank)
 
 粘贴：
 
-1) / (搜索模式)
+1. / (搜索模式)
 
-2) Ctrl + R + 0 (0是寄存器编号)
-
+2. Ctrl + R + 0 (0 是寄存器编号)
 
 ### 单词上下文查找
 
@@ -818,15 +752,15 @@ https://linux265.com/course/vim-find-replace.html
 命令模式下，将光标移动到单词上，按下 Shift + * 两个按键，即可直接进入命令行查找该单词模式。
 
 方法二：搜索模式下查找
-输入/word或者?word查找单词word，如果想接着查找该单词，按n或N。
+输入/word 或者?word 查找单词 word，如果想接着查找该单词，按 n 或 N。
 
-/def  从上往下搜索字符串def，即向后搜索。
+/def 从上往下搜索字符串 def，即向后搜索。
 
-?def  从下往上搜索字符串def，即向前搜索。
+?def 从下往上搜索字符串 def，即向前搜索。
 
-> 注：输入/或？后，可以按Ctrl + R 进入寄存选择
+> 注：输入/或？后，可以按 Ctrl + R 进入寄存选择
 
-### 16进制显示
+### 16 进制显示
 
 `:%!xxd` 是一个用于在 Vim 或 Neovim 编辑器中将文件内容转换为十六进制（hex）显示的命令。
 
@@ -836,3 +770,9 @@ https://linux265.com/course/vim-find-replace.html
 - `xxd` 是一个 Unix/Linux 系统上的工具，用于将二进制文件转换为十六进制格式（hex dump）。
 
 所以，`:%!xxd` 这个命令的作用就是将当前文件的内容通过 `xxd` 转换为十六进制格式，并显示在 Vim/Neovim 中。如果你想把十六进制显示的内容恢复为原来的二进制格式，你可以使用 `:%!xxd -r`。
+
+### 块级删除
+
+常用 di*和 da*，这里的\*表示边界字符，可以是 双引号，小括号，大括号 等；
+
+比如你要删除双引号中的内容："hello world"；你就可以通过 di" 进行删除，如果不仅想删除双引号里的内容，还想把双引号一起删除，就可以使用 da" 来完成；删除完双引号里的内容想立即切换到 插入模式 也可以使用 ci" 来完成；
