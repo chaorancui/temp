@@ -15,41 +15,41 @@
   使用此扩展配置 Prettier 有多种方式。您可以使用[VS Code 设置](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode#prettier-settings)、[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)或`.editorconfig`文件。VS Code 设置旨在用作后备，通常仅用于非项目文件。**建议您始终在项目中包含一个 Prettier 配置文件，指定项目的所有设置。**这将确保无论您如何运行 Prettier（从此扩展、从 CLI 或从另一个带有 Prettier 的 IDE），都将应用相同的设置。
 
   建议使用[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)来设置格式化选项。选项从正在格式化的文件开始递归搜索，因此如果您想将 Prettier 设置应用于整个项目，只需在根目录中设置配置即可。
-  
+
   在项目目录下新增文件 `.prettierrc.json`，内容如下：
-  
+
   ```json
   {
-      "//参考网址": "https://prettier.io/docs/en/options",
-      "//printWidth": "默认 80",
-      "printWidth": 120,
-      "//tabWidth": "默认 2",
-      "tabWidth": 2,
-      "//useTabs": "默认 false", 
-      "useTabs": false,
-      "//semi": "默认 false",
-      "semi": false,
-      "//singleQuote": "默认 false",
-      "singleQuote": false,
-      "//quoteProps": "默认 as-needed",
-      "quoteProps": "as-needed",
-      "//trailingComma": "默认 all",
-      "trailingComma": "es5",
-      "//bracketSpacing": "默认 true",
-      "bracketSpacing": true,
-      "//bracketSameLine": "默认 true",
-      "bracketSameLine": false,
-      "//arrowParens": "默认 always",
-      "arrowParens": "always",
-      "//proseWrap": "默认 preserve",
-      "proseWrap": "preserve",
-      "//endOfLine": "默认 lf",
-      "endOfLine": "lf",
-      "//embeddedLanguageFormatting": "默认 auto",
-      "embeddedLanguageFormatting": "auto"
+    "//参考网址": "https://prettier.io/docs/en/options",
+    "//printWidth": "默认 80",
+    "printWidth": 120,
+    "//tabWidth": "默认 2",
+    "tabWidth": 2,
+    "//useTabs": "默认 false",
+    "useTabs": false,
+    "//semi": "默认 false",
+    "semi": false,
+    "//singleQuote": "默认 false",
+    "singleQuote": false,
+    "//quoteProps": "默认 as-needed",
+    "quoteProps": "as-needed",
+    "//trailingComma": "默认 all",
+    "trailingComma": "es5",
+    "//bracketSpacing": "默认 true",
+    "bracketSpacing": true,
+    "//bracketSameLine": "默认 true",
+    "bracketSameLine": false,
+    "//arrowParens": "默认 always",
+    "arrowParens": "always",
+    "//proseWrap": "默认 preserve",
+    "proseWrap": "preserve",
+    "//endOfLine": "默认 lf",
+    "endOfLine": "lf",
+    "//embeddedLanguageFormatting": "默认 auto",
+    "embeddedLanguageFormatting": "auto"
   }
   ```
-  
+
   > :warning: 问题：在格式化 markdown 的时候，针对 markdown 中的公式 $ $，会把 `_` 换成 `*`，原因是当成了**斜体的格式化（斜体使用一个 `_` 或 `*`）**，不知道如何避免。如：
   >
   > `$$ \mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i $$` 格式化成
@@ -57,6 +57,42 @@
   > `$$ \mu*B = \frac{1}{m} \sum*{i=1}^{m} x*i $$`
 
 ## markdown 写作
+
+### 一些链接
+
+#### markdown 语言指南
+
+- [Markdown 官方教程](https://markdown.com.cn/basic-syntax/)
+  基础知识，简单易懂
+
+- [Markdown 指南中文版](https://www.markdown.xyz/cheat-sheet/)
+
+- [markdown emoji](https://gist.github.com/rxaviers/7360908)
+
+- [PlantUML 一览](https://plantuml.com/zh/)
+  PlantUML 是一个通用性很强的工具，可以快速、直接地创建各种图表。
+
+#### 写作规范
+
+- [Markdown 中文技术文档的写作规范](https://lujianan.com/2017/01/20/markdown-standard/)
+
+- [中文技术文档写作风格指南](https://zh-style-guide.readthedocs.io/zh-cn/latest/index.html)
+  语言风格、文档元素（空白、列表、表格等）、标点符号等
+
+#### LaTeX 数学公式
+
+> 好多 markdown 编辑器仅支持最简单的行内行间公式，不支持复杂的 LaTeX 公式对齐，公式编号等语法。
+
+- [LaTeX 数学公式大全](https://blogbook.eu.org/post/LaTeX%20Mathematical%20formula/)
+
+- [通用 LaTeX 数学公式语法手册](http://www.uinio.com/Math/LaTex/)
+  数学符号及公式（网页加载巨慢 -\_-!）
+
+- [LaTeX mathematical symbols](https://oeis.org/wiki/List_of_LaTeX_mathematical_symbols)
+  LaTex 数学符号，无公式
+
+- [TeXPage 文档中心 - 排版数学公式](https://www.texpage.com/docs/zh/learning/chapter-4/)
+- [latex 入门-简版-刘海洋](https://lrita.github.io/images/wiki/latex%E5%85%A5%E9%97%A8-%E7%AE%80%E7%89%88-%E5%88%98%E6%B5%B7%E6%B4%8B.pdf)
 
 ### 空格
 
@@ -120,16 +156,16 @@
 
 ### 强调
 
-| 样式名   | 效果                    | Markdown                                                     |
-| -------- | ----------------------- | :----------------------------------------------------------- |
-| 加粗     | **文本**                | `**文本** 或 __文本__`，用两个`*`或两个`_`包围文本           |
-| 斜体     | _文本_                  | `*文本* 或 _文本_`，用一个`*`或一个`_`包围文本               |
-| 删除线   | ~~文本~~                | `~~文本~~`                                                   |
-| 下划线   | <u>文本</u>             | `<u>文本</u>`，Markdown自身没有实现下划线，但它是HTML的子集，实现了`<u>`标签。<br>一般文本建议不要加下划线，容易误会成链接 |
-| 上标     | 文本^上标^              | `文本^上标^`                                                 |
-| 下标     | 文本~下标~              | `文本~下标~`                                                 |
-| 小号字体 | <small>小号字体</small> | `<small>小号字体</small>`                                    |
-| 大号字体 | <big>大号字体</big>     | `<big>大号字体</big>`                                        |
+| 样式名   | 效果                    | Markdown                                                                                                                      |
+| -------- | ----------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| 加粗     | **文本**                | `**文本** 或 __文本__`，用两个`*`或两个`_`包围文本                                                                            |
+| 斜体     | _文本_                  | `*文本* 或 _文本_`，用一个`*`或一个`_`包围文本                                                                                |
+| 删除线   | ~~文本~~                | `~~文本~~`                                                                                                                    |
+| 下划线   | <u>文本</u>             | `<u>文本</u>`，Markdown 自身没有实现下划线，但它是 HTML 的子集，实现了`<u>`标签。<br>一般文本建议不要加下划线，容易误会成链接 |
+| 上标     | 文本^上标^              | `文本^上标^`                                                                                                                  |
+| 下标     | 文本~下标~              | `文本~下标~`                                                                                                                  |
+| 小号字体 | <small>小号字体</small> | `<small>小号字体</small>`                                                                                                     |
+| 大号字体 | <big>大号字体</big>     | `<big>大号字体</big>`                                                                                                         |
 
 ### 使用 VSCode 编辑 MarkDown 文件（vditor 所见及所得）
 
