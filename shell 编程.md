@@ -152,6 +152,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 > [Advanced Bash-Scripting Guide](https://tldp.org/LDP/abs/html/) ---- 非常详细，非常易读，大量example，既可以当入门教材，也可以当做工具书查阅
 >
 > [Linux Shell Scripting Tutorial - A Beginner's handbook](http://bash.cyberciti.biz/guide/Main_Page)
+>
 > Note：
 >
 > [ShellScipt：Docs --> 语法基础 --> 数据类型](https://shellscript.readthedocs.io/zh-cn/latest/1-syntax/2-datatype/index.html)
