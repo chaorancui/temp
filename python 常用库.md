@@ -1,6 +1,3 @@
-
-
-
 # python 常用库
 
 ## 使用 `pipdeptree` 检查依赖树
@@ -50,7 +47,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```python
    import os
-   
+
    cwd = os.getcwd()
    print("Current working directory:", cwd)
    ```
@@ -83,7 +80,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```python
    import shutil
-   
+
    shutil.rmtree('/path/to/directory/to/be/removed')
    ```
 
@@ -103,7 +100,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```python
    import shutil
-   
+
    shutil.copyfile('/path/to/source_file', '/path/to/destination_file')
    ```
 
@@ -147,23 +144,23 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      import os
-     
+
      path = os.path.join('/path/to', 'directory', 'file.txt')
      print(path)  # 输出: /path/to/directory/file.txt
      ```
-     
+
      > 特殊情况:
      >
      > 1. 如果任意一个参数是一个绝对路径，那么它之前的所有参数都会被忽略，并从这个绝对路径开始构建：
      >
      >    ```python
      >    import os
-     >    
+     >
      >    # 示例路径片段
      >    path1 = "/home/user"
      >    path2 = "/etc"
      >    path3 = "file.txt"
-     >    
+     >
      >    # 使用 os.path.join 连接路径
      >    full_path = os.path.join(path1, path2, path3)
      >    print(full_path) # /etc/file.txt, 因为 path2 是一个绝对路径，所有之前的路径片段都会被忽略。
@@ -173,19 +170,17 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      >
      >    ```python
      >    import os
-     >                      
+     >
      >    # 示例路径片段
      >    path1 = "/home/user"
      >    path2 = ""
      >    path3 = "documents"
      >    path4 = "file.txt"
-     >                      
+     >
      >    # 使用 os.path.join 连接路径
      >    full_path = os.path.join(path1, path2, path3, path4)
      >    print(full_path) # /home/user/documents/file.txt
      >    ```
-     >
-     >    
 
 2. **获取绝对路径**
 
@@ -202,7 +197,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```python
    import os
-   
+
    # 假设 'symlink_path' 是一个符号链接的路径
    symlink_path = '/path/to/symlink'
    actual_path = os.path.realpath(symlink_path)
@@ -213,7 +208,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```python
    import os
-   
+
    relative_path = './some/relative/path'
    absolute_path = os.path.realpath(relative_path)
    print(absolute_path)
@@ -275,10 +270,10 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      ```python
      path_file = '/path/to/file.txt'
      path_directory = '/path/to/directory'
-     
+
      is_file = os.path.isfile(path_file)
      is_directory = os.path.isdir(path_directory)
-     
+
      print(f"{path_file} is a file:", is_file)
      print(f"{path_directory} is a directory:", is_directory)
      ```
@@ -289,7 +284,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      path = '/path/to/file_or_directory'
-     
+
      if os.path.exists(path):
          print(f"{path} exists!")
      else:
@@ -306,13 +301,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      import time
-     
+
      path = '/path/to/file.txt'
-     
+
      size = os.path.getsize(path)
      last_modified = os.path.getmtime(path)
      creation_time = os.path.getctime(path)
-     
+
      print(f"Size of {path}: {size} bytes")
      print(f"Last modified: {time.ctime(last_modified)}")
      print(f"Created on: {time.ctime(creation_time)}")
@@ -325,10 +320,10 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      ```python
      path_absolute = '/absolute/path/to/file.txt'
      path_relative = 'relative/path/to/file.txt'
-     
+
      is_absolute = os.path.isabs(path_absolute)
      is_relative = os.path.isabs(path_relative)
-     
+
      print(f"{path_absolute} is absolute:", is_absolute)
      print(f"{path_relative} is absolute:", is_relative)
      ```
@@ -347,7 +342,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```python
    import time
-   
+
    timestamp = os.path.getmtime('/path/to/file_or_directory')
    last_modified = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(timestamp))
    ```
@@ -358,49 +353,45 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
    mode = os.stat('/path/to/file_or_directory').st_mode
    ```
 
-1. **判断路径是否为链接文件**
+4. **判断路径是否为链接文件**
 
    - `os.path.islink(path)`: 判断路径是否为符号链接。
 
      ```python
      path_link = '/path/to/symlink'
-     
+
      is_link = os.path.islink(path_link)
-     
+
      print(f"{path_link} is a symbolic link:", is_link)
      ```
 
-2. **规范化路径**
+5. **规范化路径**
 
    - `os.path.normpath(path)`: 规范化路径，解析路径中的符号链接和相对路径，返回规范化的绝对路径。
 
      ```python
      path = '/path/to/../file.txt'
-     
+
      normalized_path = os.path.normpath(path)
-     
+
      print(f"Original path: {path}")
      print(f"Normalized path: {normalized_path}")
      ```
 
-3. **检查路径是否相同**
+6. **检查路径是否相同**
 
    - `os.path.samefile(path1, path2)`: 判断两个路径是否指向同一个文件或目录。
 
      ```python
      path1 = '/path/to/file1.txt'
      path2 = '/path/to/file2.txt'
-     
+
      is_same = os.path.samefile(path1, path2)
-     
+
      print(f"{path1} and {path2} point to the same file:", is_same)
      ```
 
-
-
 ## 打开文件
-
-
 
 ### open() 函数
 
@@ -435,37 +426,37 @@ open(file, mode='r', buffering=-1, encoding=None, errors=None, newline=None, clo
 
 1. 读取文件
 
-    ```python
-    # 以只读模式打开文件
-    with open('example.txt', 'r') as file:
-        content = file.read()
-        print(content)
-    ```
+   ```python
+   # 以只读模式打开文件
+   with open('example.txt', 'r') as file:
+       content = file.read()
+       print(content)
+   ```
 
 2. 写入文件
 
-    ```python
-    # 以写入模式打开文件（如果文件不存在则创建，存在则覆盖）
-    with open('example.txt', 'w') as file:
-        file.write('Hello, World!')
-    ```
+   ```python
+   # 以写入模式打开文件（如果文件不存在则创建，存在则覆盖）
+   with open('example.txt', 'w') as file:
+       file.write('Hello, World!')
+   ```
 
 3. 追加到文件末尾
 
-    ```python
-    # 以追加模式打开文件，将数据追加到文件末尾
-    with open('example.txt', 'a') as file:
-        file.write('\nThis is a new line.')
-    ```
+   ```python
+   # 以追加模式打开文件，将数据追加到文件末尾
+   with open('example.txt', 'a') as file:
+       file.write('\nThis is a new line.')
+   ```
 
 4. 二进制模式读取文件
 
-    ```python
-    # 以二进制模式读取文件
-    with open('image.jpg', 'rb') as file:
-        image_data = file.read()
-        # 对二进制数据进行处理
-    ```
+   ```python
+   # 以二进制模式读取文件
+   with open('image.jpg', 'rb') as file:
+       image_data = file.read()
+       # 对二进制数据进行处理
+   ```
 
 **注意事项**
 
@@ -651,16 +642,16 @@ with os.fdopen(fd, 'r+') as file:
     content = file.read()
     print("Read content:")
     print(content)
-    
+
     # 将文件指针移到文件末尾
     file.seek(0, os.SEEK_END)
-    
+
     # 写入新内容到文件末尾
     file.write('Additional line.\n')
 
     # 将文件指针移到文件开头
     file.seek(0)
-    
+
     # 读取新的文件内容
     new_content = file.read()
     print("New content:")
@@ -981,9 +972,7 @@ shutil.chown('example.txt', user='username', group='groupname')
 
 `shutil` 模块提供了一个简单而强大的接口，用于执行许多常见的文件和目录操作，这使得在 Python 中进行文件管理变得非常方便。
 
-
-
-## subprocess模块
+## subprocess 模块
 
 `subprocess` 模块是 Python 中用于执行外部命令和与之交互的强大工具。以下是 `subprocess` 模块的常见用法及其详细说明。
 
@@ -1172,8 +1161,6 @@ print(stdout)
 
 `subprocess` 模块提供了灵活而强大的方法来执行和管理外部命令。对于简单的命令执行，`subprocess.run` 是最方便的，而对于更复杂的交互需求，可以使用 `subprocess.Popen`。在使用 `shell=True` 时，要特别注意安全问题。通过了解这些用法，可以有效地在 Python 程序中集成外部命令。
 
-
-
 ## stat 模块
 
 Python 中的 `stat` 模块用于在处理文件和目录时访问**文件状态信息**和**文件类型信息**。它提供了许多常量和函数来检查和操作文件的状态信息，这在处理文件系统相关的操作时非常有用。
@@ -1228,8 +1215,6 @@ Python 中的 `stat` 模块用于在处理文件和目录时访问**文件状态
   S_IWOTH = 0o0002  # write by others
   S_IXOTH = 0o0001  # execute by others
   ```
-
-  
 
 ### 常用函数
 
@@ -1312,8 +1297,6 @@ print(f"File mode string: {mode_string}")
 **总结**
 
 `stat` 模块在处理文件和目录的状态信息时非常有用。通过结合使用 `os` 模块和 `stat` 模块，可以方便地获取文件的详细信息并执行各种检查。无论是查看文件权限、确定文件类型还是获取文件的时间戳信息，`stat` 模块都提供了便捷的方法来实现这些操作。
-
-
 
 ## logging 模块
 
@@ -1416,7 +1399,7 @@ logging.critical('This is a critical message')
   console_handler = logging.StreamHandler()
   file_handler = logging.FileHandler('app.log')
   handlers = [console_handler, file_handler]
-  
+
   logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=handlers)
   ```
 
@@ -1427,28 +1410,26 @@ logging.critical('This is a critical message')
   ```python
   logger = logging.getLogger('my_app')
   logger.setLevel(logging.DEBUG)
-  
+
   # 创建一个文件处理程序和一个控制台处理程序
   file_handler = logging.FileHandler('app.log')
   console_handler = logging.StreamHandler()
-  
+
   # 设置日志格式
   formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
   file_handler.setFormatter(formatter)
   console_handler.setFormatter(formatter)
-  
+
   # 添加处理程序到 logger
   logger.addHandler(file_handler)
   logger.addHandler(console_handler)
-  
+
   # 记录日志
   logger.debug('Debug message')
   logger.info('Info message')
   ```
 
 通过这些方法，可以根据具体需求配置和管理日志记录，帮助开发人员更好地理解和调试程序运行过程中的各种情况和问题。
-
-
 
 ## struct 模块
 
@@ -1475,7 +1456,7 @@ Python 中的 `struct` 模块用于在**字节串和 Python 原生数据类型�
 - `d`：double（8 字节）
 - `s`：char[]（字符串）
 - `p`：pascal string
-- `P`：void *（指针）
+- `P`：void \*（指针）
 
 ### 示例
 
@@ -1556,9 +1537,7 @@ print(f'Unpacked Float Data: {unpacked_data[0]}')
 
 `struct` 模块提供了一种高效的方法来处理二进制数据。通过指定格式字符串，你可以灵活地在 Python 值和二进制数据之间进行转换。这在**处理网络协议、文件格式或其他低级别数据处理任务时**非常有用。
 
-
-
-## operator模块
+## operator 模块
 
 Python 中的 `operator` 模块提供了**一系列函数来对应 Python 内置运算符**。这些函数可以用于代替传统的运算符进行操作，尤其**在需要将运算符作为函数传递**的情况下非常有用，比如在 `map()`, `filter()`, `sorted()` 等函数中使用。
 
@@ -1694,39 +1673,35 @@ print(result)  # 输出: [12, 14]
 
 `operator` 模块提供了一组函数来代替内置运算符，使得**在需要将运算符作为函数传递**的情况下更加方便和灵活。这对于函数式编程风格的 Python 代码特别有用。
 
-
-
-
-
 ## numpy 模块
 
-> [ 数据科学和机器学习](https://mlhowto.readthedocs.io/en/latest/index.html)
+> [数据科学和机器学习](https://mlhowto.readthedocs.io/en/latest/index.html)
 
-### NumPy标准数据类型：
+### NumPy 标准数据类型
 
-> | 数据类型   | 描述                                                         |
-> | ---------- | ------------------------------------------------------------ |
-> | bool       | 布尔值 bool_ 别名                                            |
-> | bool_      | 布尔值（真、 True 或假、 False） ， 用一个字节存储           |
-> | int        | int_ 别名                                                    |
-> | int_       | 默认整型（类似于 C 语言中的 long， 通常情况下是 int64 或 int32） |
-> | intc       | 同 C 语言的 int 相同（通常是 int32 或 int64）                |
-> | intp       | 用作索引的整型（和 C 语言的 ssize_t 相同， 通常情况下是 int32 或int64） |
-> | int8       | 字节（byte， 范围从–128 到 127）                             |
-> | int16      | 整型（范围从–32768 到 32767）                                |
-> | int32      | 整型（范围从–2147483648 到 2147483647）                      |
-> | int64      | 整型（范围从–9223372036854775808 到 9223372036854775807）    |
-> | uint8      | 无符号整型（范围从 0 到 255）uint16 无符号整型（范围从 0 到 65535） |
-> | uint32     | 无符号整型（范围从 0 到 4294967295）                         |
-> | uint64     | 无符号整型（范围从 0 到 18446744073709551615）               |
-> | float      | float64 的简化形式                                           |
-> | float_     | float64 的简化形式                                           |
-> | float16    | 半精度浮点型：1 符号位，5 比特位指数(exponent)，10 比特位尾数(mantissa) |
-> | float32    | 单精度浮点型：1 符号位，8 比特位指数，23 比特位尾数          |
-> | float64    | 双精度浮点型：1 符号位，11 比特位指数，52 比特位尾数         |
-> | complex_   | complex128 的简化形式                                        |
-> | complex64  | 复数， 由两个 32 位浮点数表示                                |
-> | complex128 | 复数， 由两个 64 位浮点数表示                                |
+> | 数据类型   | 描述                                                                     |
+> | ---------- | ------------------------------------------------------------------------ |
+> | bool       | 布尔值 bool\_ 别名                                                       |
+> | bool\_     | 布尔值（真、 True 或假、 False） ， 用一个字节存储                       |
+> | int        | int\_ 别名                                                               |
+> | int\_      | 默认整型（类似于 C 语言中的 long， 通常情况下是 int64 或 int32）         |
+> | intc       | 同 C 语言的 int 相同（通常是 int32 或 int64）                            |
+> | intp       | 用作索引的整型（和 C 语言的 ssize_t 相同， 通常情况下是 int32 或 int64） |
+> | int8       | 字节（byte， 范围从–128 到 127）                                         |
+> | int16      | 整型（范围从–32768 到 32767）                                            |
+> | int32      | 整型（范围从–2147483648 到 2147483647）                                  |
+> | int64      | 整型（范围从–9223372036854775808 到 9223372036854775807）                |
+> | uint8      | 无符号整型（范围从 0 到 255）uint16 无符号整型（范围从 0 到 65535）      |
+> | uint32     | 无符号整型（范围从 0 到 4294967295）                                     |
+> | uint64     | 无符号整型（范围从 0 到 18446744073709551615）                           |
+> | float      | float64 的简化形式                                                       |
+> | float\_    | float64 的简化形式                                                       |
+> | float16    | 半精度浮点型：1 符号位，5 比特位指数(exponent)，10 比特位尾数(mantissa)  |
+> | float32    | 单精度浮点型：1 符号位，8 比特位指数，23 比特位尾数                      |
+> | float64    | 双精度浮点型：1 符号位，11 比特位指数，52 比特位尾数                     |
+> | complex\_  | complex128 的简化形式                                                    |
+> | complex64  | 复数， 由两个 32 位浮点数表示                                            |
+> | complex128 | 复数， 由两个 64 位浮点数表示                                            |
 
 ### 数组转换为字符串
 
@@ -1846,10 +1821,10 @@ def reinterpret_int64_to_float1632(input_arr, float_type):
     # 计算字节流包含元素个数，numpy也可以用
     # num_elements = input_arr.size
     num_elements = len(byte_data) // element_size
-    
+
     # 创建一个 NumPy 数组来存储结果
     result = np.array([]).astype(float_type)
-    
+
     if float_type == "float32":
         float_element_size = 4
     else:
@@ -1859,7 +1834,7 @@ def reinterpret_int64_to_float1632(input_arr, float_type):
         start_idx = i * element_size
         end_idx = start_idx + float_element_size
         result = np.append(result, np.frombuffer(byte_data[start_idx:end_idx], dtype=float_type))
-    
+
     return result
 
 arr = np.array([114, 114, 114, 114])
@@ -1878,10 +1853,10 @@ def reinterpret_float1632_to_int64(input_arr, int_type="int64"):
     # 计算字节流包含元素个数，numpy也可以用
     # num_elements = input_arr.size
     num_elements = len(byte_data) // element_size
-    
+
     # 创建一个 NumPy 数组来存储结果
     result = np.array([]).astype(int_type)
-    
+
     if input_arr.dtype == "float32":
         padding_length = 4
     else:
@@ -1892,7 +1867,7 @@ def reinterpret_float1632_to_int64(input_arr, int_type="int64"):
         end_idx = (i + 1) * element_size
         byte_stream_tmp = byte_data[start_idx:end_idx] + b'\x00' * padding_length
         result = np.append(result, np.frombuffer(byte_stream_tmp, dtype=int_type))
-    
+
     return result
 
 arr1 = np.array([6.8e-06, 6.8e-06, 6.8e-06, 6.8e-06]).astype("float16")
@@ -1929,7 +1904,7 @@ def print_binary_representation(input_arr):
         element_byte_stream = byte_data[start_idx:end_idx]
         binary_representation = "".join(f"{byte:08b}" for byte in element_byte_stream)
         result.append(binary_representation)
-    
+
     return result
 
 # 打印二进制表示
@@ -1943,61 +1918,49 @@ binary_representation = print_binary_representation(int_value)
 print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}, 长度：{[len(item) for item in binary_representation]}")
 ```
 
-
-
-
-
-
-
 ## xlrd 和 xlwt
 
 **xlrd**
 
-xlrd是一个从Excel文件读取数据和格式化信息的库，支持.xls以及.xlsx文件。
+xlrd 是一个从 Excel 文件读取数据和格式化信息的库，支持.xls 以及.xlsx 文件。
 
-http://xlrd.readthedocs.io/en/latest/
+<http://xlrd.readthedocs.io/en/latest/>
 
-- xlrd支持.xls，.xlsx文件的读.
-- 通过设置on_demand变量使open_workbook()函数只加载那些需要的sheet，从而节省时间和内存(该方法对.xlsx文件无效)。
-- xlrd.Book对象有一个unload_sheet方法，它将从内存中卸载工作表，由工作表索引或工作表名称指定(该方法对.xlsx文件无效)
+- xlrd 支持.xls，.xlsx 文件的读.
+- 通过设置 on_demand 变量使 open_workbook()函数只加载那些需要的 sheet，从而节省时间和内存(该方法对.xlsx 文件无效)。
+- xlrd.Book 对象有一个 unload_sheet 方法，它将从内存中卸载工作表，由工作表索引或工作表名称指定(该方法对.xlsx 文件无效)
 
 **xlwt**
 
-xlwt是一个用于将数据和格式化信息写入旧Excel文件的库(如.xls)。
+xlwt 是一个用于将数据和格式化信息写入旧 Excel 文件的库(如.xls)。
 
-https://xlwt.readthedocs.io/en/latest/
+<https://xlwt.readthedocs.io/en/latest/>
 
-- xlwt支持.xls文件写。
-
-
-
-
-
-
+- xlwt 支持.xls 文件写。
 
 ## XML
 
-读取xml：
+读取 xml：
 
-     root = ElementTree.parse(r"/Users/..../Documents/111.xml")
-     root = ElementTree.fromstring(text)
+```python
+ root = ElementTree.parse(r"/Users/..../Documents/111.xml")
+ root = ElementTree.fromstring(text)
+```
 
 遍历：
 
 for node in root.iter():
-    print type(node)
+print type(node)
 元素标签名 node.tag
-元素标签属性名称、属性值node.attrib
-获取元素属性对应的值node.attrib.get('id','NULL') # 不存在则取默认值NULL，不指定默认值不存在时报错
-元素属性二元组node.attrib.items()
+元素标签属性名称、属性值 node.attrib
+获取元素属性对应的值 node.attrib.get('id','NULL') # 不存在则取默认值 NULL，不指定默认值不存在时报错
+元素属性二元组 node.attrib.items()
 元素属性列表 node.attrib.keys()
-该结点的所有子节点中选择符合元素名称的第一个子节点node.find('xxx')
-该结点的所有子节点中选择符合元素名称的所有子节点node.findall('xxx')
-所有子节点以列表形式给出node.getchildren()
+该结点的所有子节点中选择符合元素名称的第一个子节点 node.find('xxx')
+该结点的所有子节点中选择符合元素名称的所有子节点 node.findall('xxx')
+所有子节点以列表形式给出 node.getchildren()
 遍历所有子树 node.iter()
-
-
 
 [`xml.etree.ElementTree`](https://docs.python.org/3.6/library/xml.etree.elementtree.html#module-xml.etree.ElementTree)— 元素树 XML API
 
-python ElementTree：https://blog.csdn.net/weixin_43956958/article/details/121986040?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-1-121986040-blog-79852724.pc_relevant_recovery_v2&spm=1001.2101.3001.4242.2&utm_relevant_index=2
+python ElementTree：<https://blog.csdn.net/weixin_43956958/article/details/121986040?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-1-121986040-blog-79852724.pc_relevant_recovery_v2&spm=1001.2101.3001.4242.2&utm_relevant_index=2>
