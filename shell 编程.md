@@ -860,7 +860,9 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
   - 优先级相同的操作按*从左至右*顺序求值
 
   
+### 7、Bash基本功能（多命令顺序执行)
 
+<https://www.cnblogs.com/liuyuelinfighting/p/16082830.html>
 
 
 
