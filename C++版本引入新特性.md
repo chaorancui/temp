@@ -124,7 +124,7 @@ C++11 的一大亮点就是引入了 Lambda 表达式。利用 Lambda 表达式�
 [capture list] {function body} // 省略了参数列表，类似普通函数中的无参函数
 ```
 
-**各项具体含义如下** 
+**各项具体含义如下**
 
 1. capture list：捕获外部变量列表
 2. params list：形参列表
@@ -133,7 +133,7 @@ C++11 的一大亮点就是引入了 Lambda 表达式。利用 Lambda 表达式�
 5. return type：返回类型
 6. function body：函数体
 
-**捕获列表** 
+**捕获列表**
 
 - []：默认**不捕获**任何变量；
 
@@ -157,12 +157,12 @@ C++11 的一大亮点就是引入了 Lambda 表达式。利用 Lambda 表达式�
 
 
 
-**修改捕获变量** 
+**修改捕获变量**
 在Lambda表达式中，如果以传值方式捕获外部变量，则函数体中不能修改该外部变量，否则会引发编译错误。那么有没有办法可以修改值捕获的外部变量呢？这是就需要使用mutable关键字，该关键字用以说明**表达式体内的代码可以修改值捕获的变量**。
 
 
 
-**Lambda 表达式的参数** 
+**Lambda 表达式的参数**
 Lambda 表达式的参数和普通函数的参数类似，但有区别。在 **Lambda 表达式中传递参数限制**如下：
 
 1. 参数列表中不能有默认参数
@@ -183,7 +183,7 @@ Lambda 表达式的参数和普通函数的参数类似，但有区别。在 **L
 
 ### 4. 强类型枚举
 
-C++11 引入了语法为 `enum class` 的强类型枚举。 它们与整数类型不兼容，并且需要显式转换以获取其数值。 C++11 还引入了以 `enum name : type {}` 形式为弱类型枚举指定存储类的功能。 
+C++11 引入了语法为 `enum class` 的强类型枚举。 它们与整数类型不兼容，并且需要显式转换以获取其数值。 C++11 还引入了以 `enum name : type {}` 形式为弱类型枚举指定存储类的功能。
 
 
 
@@ -214,7 +214,7 @@ for (auto x : num) {
 
 这种for语句还可以用于**C型数组**，**初始化列表**，和任何定义了`begin()`和`end()`来回返**首尾迭代器的类型**。
 
-**基于范围for循环使用细节：** 
+**基于范围for循环使用细节：**
 
 ```C++
 /*  1.基于范围的FOR循环的遍历是只读的遍历，除非将变量变量的类型声明为引用类型。 */
@@ -239,8 +239,8 @@ for (auto &n : vec) {
 /* 4.如果冒号后面的表达式是一个函数调用时，函数仅会被调用一次。 */
 set<int> ss = { 1, 2, 3, 4, 5, 6 };
 const set<int>& getSet() {
-	cout << "GetSet" << << ", ";
-	return ss;
+ cout << "GetSet" << << ", ";
+ return ss;
 }
 for (auto &n : getSet()) {
     cout << n << ", ";
@@ -256,19 +256,19 @@ for (auto &n : getSet()) {
 
 C++11 中引入了 `static_assert` 这个关键字，用来做**编译期间的断言**，因此叫做静态断言。
 
-语法： `static_assert(常量表达式，提示字符串)`; 
+语法： `static_assert(常量表达式，提示字符串)`;
 
 如果“常量表达式”的值为真( true 或者非零值)，那么 static_assert 不做任何事情，否则会产生一条编译错误，错误位置就是该 static_assert 语句所在行，错误提示就是“提示字符串”。
 
 static_assert 的特点：
 
-* 使用范围：可以用在全局作用域，命名空间、类或函数的作用域中
+- 使用范围：可以用在全局作用域，命名空间、类或函数的作用域中
 
-* 常量表达式的结果必须是在编译时期可以计算的表达式，即必须是常量表达式
+- 常量表达式的结果必须是在编译时期可以计算的表达式，即必须是常量表达式
 
-* 可检查模板参数
+- 可检查模板参数
 
-* 编译期间断言，不生成目标代码，不会产生任何运行期性能开销
+- 编译期间断言，不生成目标代码，不会产生任何运行期性能开销
 
 对于**常量表达式、模板参数的检查**建议使用静态断言 static_assert 。
 
@@ -297,7 +297,7 @@ void swap(T& a, T& b)
 
 C++11 增加了线程以及线程相关的类, 而之前并没有对并发编程提供语言级别的支持。
 
-`std::thread 类` 
+`std::thread 类`
 
 使用 `std::thread` 类来创建线程, 我们需要提供的只是线程函数, 或者线程对象, 同时提供必要的参数。`std::thread` 表示单个执行的线程, 使用`thread` 类首先会构造一个线程对象, 然后开始执行线程函数。
 
@@ -334,25 +334,25 @@ int main()
 }
 ```
 
-**使用join()** 
+**使用join()**
 我们知道, 上例中如果主线程 (main) 先退出, 那些还未完成任务的线程将得不到执行机会, 因为 main 会在执行完调用 exit(), 然后整个进程就结束了, 那它的"子线程" (我们知道线程是平级的, 这里只是, 形象一点) 自然也就 over 了。
 所以就像上例中, 线程对象调用 join() 函数, **join() 会阻塞当前线程**, 直到线程函数执行结束, 如果线程有返回值, 会被忽略。
 
-**使用 detach()** 
+**使用 detach()**
 对比于 join(), 我们肯定有**不想阻塞当前线程的时候, 这时可以调用 detach(**), 这个函数会分离线程对象和线程函数, 让线程作为后台线程去执行, 当前线程也不会被阻塞了, 但是分离之后, 也不能再和线程发生联系了, 例如不能再调用 get_id() 来获取线程 id 了, 或者调用 join() 都是不行的, 同时也无法控制线程何时结束。程序终止后, 不会等待在后台执行的其余分离线程, 而是将他们挂起, 并且本地对象被破坏。
 
 **警惕作用域**  
 
 `std::thread` 出了作用域之后就会被析构, 这时如果线程函数还没有执行完就会发生错误, 因此, 要注意**保证线程函数的生命周期在线程变量之内**。
 
-**线程不能复制** 
+**线程不能复制**
 
 **`std::thread` 不能复制, 但是可以移动**
 也就是说, 不能对线程进行复制构造, 复制赋值, 但是可以移动构造, 移动赋值
 
 
 
-> 使用C++11进行多线程开发 (std::thread)：https://blog.csdn.net/weixin_36888577/article/details/82891531
+> 使用C++11进行多线程开发 (std::thread)：<https://blog.csdn.net/weixin_36888577/article/details/82891531>
 
 
 
@@ -365,7 +365,7 @@ int main()
 语法：
 
 ```C++
-alignof(类型标识)		
+alignof(类型标识)  
 ```
 
 [返回std::size_t](https://en.cppreference.com/w/cpp/types/size_t)类型的值。
@@ -429,8 +429,8 @@ sizeof(A) // 结果为 8，而不是 6
 从 C++14 开始，有一个库函数 make_unique<T>() 可用于创建 unique_ptr 对象。该函数分配一个类型为 T 的对象，然后返回一个拥有该对象的独占指针。例如，来看下面的代码：
 
 ```c++
-unique_ptr<int> uptr(new int);	// 可以弃用此代码
-unique_ptr<int> uptr = make_unique<int>();	// 改为使用此代码
+unique_ptr<int> uptr(new int); // 可以弃用此代码
+unique_ptr<int> uptr = make_unique<int>(); // 改为使用此代码
 ```
 
 
@@ -509,22 +509,22 @@ using enable_if_t = typename enable_if<_Test, _Ty>::type;
 template<class T, class Enable = void>
 class Test {
 public:
-	Test() { 
-		std::cout << "normal template" << std::endl; 
-	}
+ Test() { 
+  std::cout << "normal template" << std::endl; 
+ }
 }; 
 
 template<class T>
 class Test<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {
 public:
-	Test() { 
-		std::cout << "is_floating_point" << std::endl; 
-	}
+ Test() { 
+  std::cout << "is_floating_point" << std::endl; 
+ }
 };
 int main() {
-	auto a1 = std::make_shared<Test<int>>();
-  	auto a2 = std::make_shared<Test<float>>();
-  	return 0;
+ auto a1 = std::make_shared<Test<int>>();
+   auto a2 = std::make_shared<Test<float>>();
+   return 0;
 }
 ```
 
@@ -542,22 +542,22 @@ is_floating_point
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value,bool>::type
 GetValue (T i) { 
-	cout << "is integral" << endl;
-	return i>0;  
+ cout << "is integral" << endl;
+ return i>0;  
 }
 template <typename T>
 typename std::enable_if<!std::is_integral<T>::value,bool>::type
 GetValue (T i) { 
-	cout << "is not integral" << endl;
-	return i>0; 
+ cout << "is not integral" << endl;
+ return i>0; 
 }
 
 int main() 
-	int i = 1;    
-	float f = 2.0;
-	std::cout << i << " GetValue : " << GetValue(i) << std::endl;
-	std::cout << f << " GetValue : " << GetValue(f) << std::endl;
-	return 0;
+ int i = 1;    
+ float f = 2.0;
+ std::cout << i << " GetValue : " << GetValue(i) << std::endl;
+ std::cout << f << " GetValue : " << GetValue(f) << std::endl;
+ return 0;
 }
 ```
 
@@ -576,13 +576,13 @@ int main()
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
 void TestFunc(T msg) {
-	std::cout << "is integral" << std::endl; 
+ std::cout << "is integral" << std::endl; 
 }
 
 template <typename T,
           typename std::enable_if<!std::is_integral<T>::value, int>::type = 0>
 void TestFunc(T msg) {
-	std::cout << "is not integral" << std::endl; 
+ std::cout << "is not integral" << std::endl; 
 }
 ```
 
@@ -605,7 +605,7 @@ is not integral
 >
 > [C++17之std::optional全方位详解](https://blog.csdn.net/hhdshg/article/details/103433781)
 >
-> 
+>
 
 ### 1. std::optional
 
@@ -707,7 +707,7 @@ int test(int a, int b, [[maybe_unused]] int c) {  // Modified
 
 
 
-> [C++ 17 fallthrough、nodiscard、maybe_unused 屬性](https://zh-blog.logan.tw/2020/07/19/cxx-17-fallthrough-nodiscard-maybe-unused-attribute/) 
+> [C++ 17 fallthrough、nodiscard、maybe_unused 屬性](https://zh-blog.logan.tw/2020/07/19/cxx-17-fallthrough-nodiscard-maybe-unused-attribute/)
 
 
 
@@ -747,6 +747,167 @@ class monotonic_buffer_resource;
 
 
 
+### if constexpr
+
+`constexpr if` 是 C++17 引入的一种**条件编译机制**，使得编译器在编译时根据条件选择执行特定的代码分支，而不生成不必要的代码。这在模板编程中非常有用，因为它允许在编译时根据模板参数的特性来选择不同的代码路径，从而避免运行时开销和错误。
+
+`if constexpr` 是 C++17 引入的一种**条件编译机制**，主要用于模板编程中。它的特点是：**条件判断发生在编译期，而不是运行时**。
+
+如果条件为 `true`，编译器会保留 `if` 分支中的代码并忽略 `else` 分支；如果条件为 `false`，则相反。
+
+未被选中的分支不会被编译，因此即使该分支中有语法错误或调用了不适用于某个模板参数的代码，编译器也不会报错。
+
+**基本语法**
+
+```cpp
+if constexpr (condition) {
+    // 当 condition 为 true 时执行此部分
+} else {
+    // 当 condition 为 false 时执行此部分
+}
+```
+
+- `condition` 必须是一个编译时常量表达式（`constexpr`）。
+
+- 只有 `condition` 为 `true` 时，对应的 `if` 分支代码才会被编译，`else` 分支的代码会被完全忽略，反之亦然。
+- 不满足条件的代码分支完全不会参与编译，因此即使该分支中的代码存在语法错误或其他问题，也不会影响编译。
+
+
+**例子**
+
+以下是一个简单的示例，展示了 `constexpr if` 如何用于根据类型选择不同的操作：
+
+```cpp
+#include <iostream>
+#include <type_traits>
+
+template <typename T>
+void print_type_info(T t) {
+    if constexpr (std::is_integral_v<T>) {
+        std::cout << t << " is an integral type.\n";
+    } else if constexpr (std::is_floating_point_v<T>) {
+        std::cout << t << " is a floating-point type.\n";
+    } else {
+        std::cout << t << " is of some other type.\n";
+    }
+}
+
+int main() {
+    print_type_info(42);          // 输出: 42 is an integral type.
+    print_type_info(3.14);        // 输出: 3.14 is a floating-point type.
+    print_type_info("Hello");     // 输出: Hello is of some other type.
+    return 0;
+}
+```
+
+在上面的例子中：
+
+- `std::is_integral_v<T>` 和 `std::is_floating_point_v<T>` 都是编译时常量表达式，用来判断 `T` 是否为整数类型或浮点类型。
+- 通过 `constexpr if`，编译器根据传入参数的类型选择对应的分支代码进行编译和执行。例如，当传入 `42` 时，编译器会选择第一个分支（整数类型）进行编译，而其他分支则被忽略。
+
+**优势**
+
+- **提高编译时优化**：由于不满足条件的代码分支不会被编译，`constexpr if` 可以大大减少编译时和运行时的开销。
+- **代码安全性**：可以避免因为未使用的代码分支而引入潜在的错误或未定义行为。
+- **提升模板的可读性和可维护性**：通过 `constexpr if`，可以在模板中实现更灵活的类型处理逻辑。
+
+**使用限制**
+
+1. **只能在函数或方法内部使用**
+
+    `if constexpr` 只能出现在函数体内部，包括普通函数、成员函数、lambda 表达式等。这是因为 `if constexpr` 的主要目的是在编译时根据条件选择代码路径，而这些代码路径只能在函数执行期间实际使用。
+
+2. **不能在类的成员变量初始化或全局作用域中使用**
+
+    由于 `if constexpr` 需要在编译时评估，因此它不能直接用于全局作用域，也不能用于类的成员变量初始化表达式中。
+
+    **错误示例：**
+
+    ```cpp
+    class MyClass {
+        int x = if constexpr (true) { return 1; } else { return 2; };  // 错误：不能在类成员变量初始化时使用
+    };
+    ```
+
+3. **不能用于模板参数列表中**
+
+    `if constexpr` 不能直接用于模板参数列表或在模板参数列表中使用。
+
+    **错误示例：**
+
+    ```cpp
+    template <typename T, if constexpr (std::is_integral<T>::value)>  // 错误：不能在模板参数列表中使用
+    void func() {
+        // ...
+    }
+    ```
+
+4. **可以用于函数内部的模板代码**
+
+    `if constexpr` 经常用于模板函数中，以根据模板参数的特性选择不同的代码路径。这是 `if constexpr` 最常见的用途之一。
+
+    **正确示例：**
+
+    ```cpp
+    template <typename T>
+    void process(T value) {
+        if constexpr (std::is_integral_v<T>) {
+            std::cout << value << " is an integral type.\n";
+        } else {
+            std::cout << value << " is not an integral type.\n";
+        }
+    }
+    ```
+
+5. **可以用于 lambda 表达式中**
+
+    `if constexpr` 也可以在 lambda 表达式的主体中使用。
+
+    **正确示例：**
+
+    ```cpp
+    auto lambda = [](auto value) {
+        if constexpr (std::is_integral_v<decltype(value)>) {
+            std::cout << value << " is an integral type.\n";
+        } else {
+            std::cout << value << " is not an integral type.\n";
+        }
+    };
+    ```
+
+6. **不能用于类成员变量的直接初始化**
+
+    由于 `if constexpr` 是编译时条件，因此它不能用于直接初始化类的成员变量，而应当在构造函数或成员函数内使用。
+
+    **错误示例：**
+
+    ```cpp
+    class MyClass {
+        int x = if constexpr (true) { return 1; } else { return 0; };  // 错误
+    };
+    ```
+
+    **正确示例：**
+
+    ```cpp
+    class MyClass {
+        int x;
+    public:
+        MyClass() {
+            if constexpr (true) {
+                x = 1;
+            } else {
+                x = 0;
+            }
+        }
+    };
+    ```
+
+总结
+
+- `if constexpr` 只能用于函数体内部（包括普通函数、成员函数、lambda 表达式）。
+- 不能用于全局作用域或类成员变量的直接初始化。
+- 不能用于模板参数列表中。
 
 
 ## `C++ 20`
@@ -785,14 +946,14 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 
 ### [<type_traits>](https://zh.cppreference.com/w/cpp/header/type_traits) C++11
 
-* [underlying_type](https://zh.cppreference.com/w/cpp/types/underlying_type)(C++11)：获取给定枚举类型的底层整数类型
-* 1
-* 1
-* 1
-* 1
-* 1
-* 1
-* 
+- [underlying_type](https://zh.cppreference.com/w/cpp/types/underlying_type)(C++11)：获取给定枚举类型的底层整数类型
+- 1
+- 1
+- 1
+- 1
+- 1
+- 1
+-
 
 
 
@@ -828,16 +989,16 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 
 命名空间定义：一个命名空间的定义包含两部分：首先是关键字 namespace，随后是命名空间的名字。在命名空间名字后面是一系列由花括号括起来的声明和定义。**只要能出现在全局作用域中的声明就能置于命名空间内**，主要包括：**类、变量(及其初始化操作)、函数(及其定义)、模板和其它命名空间**。命名空间结束后无须分号，这一点与块类似。和其它名字一样，**命名空间的名字也必须在定义它的作用域内保持唯一**。**命名空间既可以定义在全局作用域内，也可以定义在其它命名空间中，但是不能定义在函数或类的内部**。命名空间作用域后面无须分号。
 
-* **每个命名空间都是一个作用域**：命名空间中的每个名字都必须表示该空间内的唯一实体。定义在某个命名空间中的名字可以被该命名**空间内的其它成员直接访问**，也可以被这些成员**内嵌作用域中的任何单位访问**。位于该**命名空间之外**的代码则必须**明确指出**所用的名字属于哪个命名空间。
-* **命名空间可以是不连续的**：直观理解是：同一个命名空间出现在多个文件中，但他们仍组成一个命名空间。命名空间可以定义在几个不同的部分，这一点与其它作用域不太一样。命名空间的定义可以不连续的特性使得我们可以**将几个独立的接口和实现文件组成一个命名空间**。此时，命名空间的组织方式类似于我们管理自定义类及函数的方式：命名空间的一部分成员的作用是定义类，以及声明作为类接口的函数及对象，则这些成员应该置于头文件中，这些头文件将被包含在使用了这些成员的文件中。命名空间成员的定义部分则置于另外的源文件中。
+- **每个命名空间都是一个作用域**：命名空间中的每个名字都必须表示该空间内的唯一实体。定义在某个命名空间中的名字可以被该命名**空间内的其它成员直接访问**，也可以被这些成员**内嵌作用域中的任何单位访问**。位于该**命名空间之外**的代码则必须**明确指出**所用的名字属于哪个命名空间。
+- **命名空间可以是不连续的**：直观理解是：同一个命名空间出现在多个文件中，但他们仍组成一个命名空间。命名空间可以定义在几个不同的部分，这一点与其它作用域不太一样。命名空间的定义可以不连续的特性使得我们可以**将几个独立的接口和实现文件组成一个命名空间**。此时，命名空间的组织方式类似于我们管理自定义类及函数的方式：命名空间的一部分成员的作用是定义类，以及声明作为类接口的函数及对象，则这些成员应该置于头文件中，这些头文件将被包含在使用了这些成员的文件中。命名空间成员的定义部分则置于另外的源文件中。
 
-* **内联命名空间**：C++11新标准引入了一种新的嵌套命名空间，称为内联命名空间(inline namespace)。和普通的嵌套命名空间不同，**内联命名空间中的名字可以被外层命名空间直接使用**。也就是说，我们无须在内联命名空间的名字前添加表示该命名空间的前缀，通过外层命名空间的名字就可以直接访问它。定义内联命名空间的方式是在关键字namespace前添加关键字inline。关键字inline必须出现在命名空间第一次定义的地方，后续再打开命名空间的时候可以写inline，也可以不写。当应用程序的代码在一次发布和另一次发布之间发生了改变时，常常会用到内联命名空间。
-* **未命名的命名空间**(unnamed namespace)：是指关键字namespace后紧跟花括号括起来的一系列声明语句。未命名的命名空间中定义的变量拥有静态生命周期：它们在第一次使用前创建，并且直到程序结束才销毁。
-* **using声明**：一条using声明(usingdeclaration)语句一次只引入命名空间的一个成员。它使得我们可以清楚地知道程序中所用的到底是哪个名字。
-* **using指示**(usingdirective)：和using声明类似的地方是，我们可以使用命名空间名字的简写形式；和using声明不同的地方是，我们无法控制哪些名字是可见的，因为所有名字都是可见的。using指示以关键字using开始，后面是关键字namespace以及命名空间的名字。
-* **避免using指示**：using指示一次性注入某个命名空间的所有名字，这种用法看似简单实则充满了风险：只使用一条语句就突然将命名空间中所有成员的名字变得可见了。如果应用程序使用了多个不同的库，而这些库中的名字通过using指示变得可见，则全局命名空间污染的问题将重新出现。
+- **内联命名空间**：C++11新标准引入了一种新的嵌套命名空间，称为内联命名空间(inline namespace)。和普通的嵌套命名空间不同，**内联命名空间中的名字可以被外层命名空间直接使用**。也就是说，我们无须在内联命名空间的名字前添加表示该命名空间的前缀，通过外层命名空间的名字就可以直接访问它。定义内联命名空间的方式是在关键字namespace前添加关键字inline。关键字inline必须出现在命名空间第一次定义的地方，后续再打开命名空间的时候可以写inline，也可以不写。当应用程序的代码在一次发布和另一次发布之间发生了改变时，常常会用到内联命名空间。
+- **未命名的命名空间**(unnamed namespace)：是指关键字namespace后紧跟花括号括起来的一系列声明语句。未命名的命名空间中定义的变量拥有静态生命周期：它们在第一次使用前创建，并且直到程序结束才销毁。
+- **using声明**：一条using声明(usingdeclaration)语句一次只引入命名空间的一个成员。它使得我们可以清楚地知道程序中所用的到底是哪个名字。
+- **using指示**(usingdirective)：和using声明类似的地方是，我们可以使用命名空间名字的简写形式；和using声明不同的地方是，我们无法控制哪些名字是可见的，因为所有名字都是可见的。using指示以关键字using开始，后面是关键字namespace以及命名空间的名字。
+- **避免using指示**：using指示一次性注入某个命名空间的所有名字，这种用法看似简单实则充满了风险：只使用一条语句就突然将命名空间中所有成员的名字变得可见了。如果应用程序使用了多个不同的库，而这些库中的名字通过using指示变得可见，则全局命名空间污染的问题将重新出现。
 
-> [C++/C++11中命名空间(namespace)的使用](https://www.huaweicloud.com/articles/12620834.html) 
+> [C++/C++11中命名空间(namespace)的使用](https://www.huaweicloud.com/articles/12620834.html)
 
 ## 初始化方式
 
@@ -848,8 +1009,8 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 ```c++
 class C {
 private:
-	static const int a=10;	// yes
-	int a=10;				// no
+ static const int a=10; // yes
+ int a=10;    // no
 }
 ```
 
@@ -858,9 +1019,9 @@ private:
 ```c++
 class C {
 private:  
-    int a=7; 	// C++11 only
-    int b{7};	// or int b={7}; C++11 only
-    int c(7);	// error，小括号初始化方式不能用于就地初始化。
+    int a=7;  // C++11 only
+    int b{7}; // or int b={7}; C++11 only
+    int c(7); // error，小括号初始化方式不能用于就地初始化。
 };  
 ```
 
@@ -873,10 +1034,10 @@ C++11 支持了就地初始化非静态数据成员的同时，初始化列表�
 在C++11中，对象初始化拥有多种语法选择：圆括号，等号，花括号：
 
 ```C++
-int x(0);	//用圆括号初始化
-int y = 0;	//用"="初始化
-int z{0};	//用花括号初始化
-int z = { 0 }; 	//用"="和花括号初始化，C++通常把它和“只使用花括号”的情况同样对待。
+int x(0); //用圆括号初始化
+int y = 0; //用"="初始化
+int z{0}; //用花括号初始化
+int z = { 0 };  //用"="和花括号初始化，C++通常把它和“只使用花括号”的情况同样对待。
 ```
 
 C++ 中指定初始化值的三种方式中，只有花括号能用在每个地方。
@@ -886,9 +1047,9 @@ C++ 中指定初始化值的三种方式中，只有花括号能用在每个地�
 ```c++
 double x, y, z;
 ...
-int sum1{ x + y + z };	//编译错误！double 的和不能表现为 int
-int sum2(x + y + z);	//可以（表达式的值被截断为 int）
-int sum3 = x + y + z;	//同上
+int sum1{ x + y + z }; //编译错误！double 的和不能表现为 int
+int sum2(x + y + z); //可以（表达式的值被截断为 int）
+int sum3 = x + y + z; //同上
 ```
 
 花括号初始化的另外一个值得一谈的特性是它能避免C++最令人恼火的解析。
@@ -946,11 +1107,11 @@ vector<short> tmp3 {1, c, 5}; // 从 "int" 到 "short" 进行收缩转换无效
 
 ```c++
 int a = 10;
-int* const b1 = &a;	// 顶层 const，b1 本身是一个常量
-const int* b2 = &a;	// 底层 const，b2 本身可变，所指向的对象是常量
-const int b3 = 20;	// 顶层 const，b3 是常量不可变
-const int* const b4 = &a;	// 前一个 const 为底层，后一个为顶层，b4 不可变
-const int& b5 = a;	// 用于声明引用变量，都是底层 const
+int* const b1 = &a; // 顶层 const，b1 本身是一个常量
+const int* b2 = &a; // 底层 const，b2 本身可变，所指向的对象是常量
+const int b3 = 20; // 顶层 const，b3 是常量不可变
+const int* const b4 = &a; // 前一个 const 为底层，后一个为顶层，b4 不可变
+const int& b5 = a; // 用于声明引用变量，都是底层 const
 ```
 
 区分作用：
@@ -1076,11 +1237,11 @@ virtual void Fun(); // 符合：virtual 放在 void 左边
 
 > 不限制多个非类型描述符的书写顺序，可参考如下顺序书写：
 >
-> * friend / typedef /存储类型说明符（ static 、extern 、thread_local 、mutable
+> - friend / typedef /存储类型说明符（ static 、extern 、thread_local 、mutable
 >   等）/ virtual
-> * inline
-> * constexpr
-> * explicit 说明符
+> - inline
+> - constexpr
+> - explicit 说明符
 
 
 
@@ -1092,7 +1253,7 @@ restrict 关键字是 C 语言中的一种类型限定符（Type Qualifiers）�
 
 这个指针有两个作用，一个是告诉编译器，编译器一旦获得了这个信息，那么就可以放心大胆地对这个进行优化。另一个作用是告诉程序员，这段内存只能通过这个指针访问。
 
-* 作用一： 告诉编译器，编译器可以根据这个大胆做优化
+- 作用一： 告诉编译器，编译器可以根据这个大胆做优化
 
 ```cpp
 int add(int *a, int *b){
@@ -1102,7 +1263,7 @@ int add(int *a, int *b){
 }
 ```
 
-在这个函数中，有的同学就说了，直接返回22不就好了，这么想的同学就**忽略了a==b的可能**，如果a和b指向同一个地址，那么这个函数将返回24。实际上，编译器就是这个想要把额外操作去掉的“同学”，如果我们能清晰的告诉他，a和b在本函数中不管怎么移动都永远不可能指向相同的地址，那么，处理这个函数时，*a + *b 可以直接使用两立即数相加，不需要再从地址中读取值，就能优化代码执行的效率。**因此，在没有指明a不可能等于b的情况下，编译器能做到的最大优化就是，b指向地址的值一定是12，但a的值必须从地址中读取**。
+在这个函数中，有的同学就说了，直接返回22不就好了，这么想的同学就**忽略了a==b的可能**，如果a和b指向同一个地址，那么这个函数将返回24。实际上，编译器就是这个想要把额外操作去掉的“同学”，如果我们能清晰的告诉他，a和b在本函数中不管怎么移动都永远不可能指向相同的地址，那么，处理这个函数时，*a +*b 可以直接使用两立即数相加，不需要再从地址中读取值，就能优化代码执行的效率。**因此，在没有指明a不可能等于b的情况下，编译器能做到的最大优化就是，b指向地址的值一定是12，但a的值必须从地址中读取**。
 
 ```cpp
 int add(int __restrict *a, int __restrict *b){
@@ -1112,7 +1273,7 @@ int add(int __restrict *a, int __restrict *b){
 }
 ```
 
-* 作用二：告诉程序员，这段内存需要满足restrict规则
+- 作用二：告诉程序员，这段内存需要满足restrict规则
 
 C库中有两个函数可以从一个位置把字节复制到另一个位置。在C99标准下，它们的原型如下：
 
