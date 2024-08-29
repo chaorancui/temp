@@ -864,9 +864,111 @@ except OSError as e:
 
 在这个例子中，`subprocess.run` 尝试执行一个不存在的命令 `non_existent_command`，这会导致 `OSError` 异常被抛出，并显示相应的操作系统错误信息。
 
+## 可变参数
 
+在Python中，可变参数（variadic arguments）允许你编写能够接受可变数量参数的函数。这在编写需要处理不定数量输入的函数时特别有用。Python提供了**两种**主要的可变参数：`*args` 和 `**kwargs`。使 Python 函数具有很高的灵活性和可扩展性。
 
+- `*args` 用于传递不定数量的**非关键字参数**（以元组形式传递）。
+- `**kwargs` 用于传递不定数量的**关键字参数**（以字典形式传递）。
+- 可以在函数定义中同时使用 `*args` 和 `**kwargs` 来处理**所有类型**的输入参数。**使用时 `*args` 必须出现在 `**kwargs` 之前**。
+- 在调用函数时，可以使用 `*` 和 `**` 来解包序列和字典，分别作为非关键字和关键字参数传递。
 
+> :bulb:注意：
+>
+> `*args` 和 `**kwargs` 只是惯用的命名方式，实际上，`*` 或 `**` 后面的名字可以是任何有效的变量名。
+
+### 1. 使用 `*args` 处理任意数量的非关键字参数
+
+- `*args` 用于接收不定数量的非关键字参数，并将它们作为元组传递给函数。
+- 当你在定义函数时使用`*args`，可以传入任意数量的参数。
+
+**示例：**
+
+```python
+def my_function(*args):
+    for arg in args:
+        print(arg)
+
+# 调用函数并传入不同数量的参数
+my_function(1, 2, 3)
+# 输出:
+# 1
+# 2
+# 3
+```
+
+**解释：**
+
+- `*args` 收集所有传入的非关键字参数，并将它们放入一个名为 `args` 的元组中。
+- 在函数内部，你可以**像访问普通元组**那样访问这些参数。
+
+### 2. 使用 `**kwargs` 处理任意数量的关键字参数
+
+- `**kwargs` 用于接收不定数量的关键字参数，并将它们作为字典传递给函数。
+- 当你在定义函数时使用 `**kwargs`，可以传入任意数量的键值对。
+
+**示例：**
+
+```python
+def my_function(**kwargs):
+    for key, value in kwargs.items():
+        print(f"{key} = {value}")
+
+# 调用函数并传入不同数量的关键字参数
+my_function(name="Alice", age=30, city="New York")
+# 输出:
+# name = Alice
+# age = 30
+# city = New York
+```
+
+**解释：**
+
+- `**kwargs` 收集所有传入的关键字参数，并将它们放入一个名为 `kwargs` 的字典中。
+- 在函数内部，你可以**像访问普通字典**那样访问这些参数。
+
+### 3. 同时使用 `*args` 和 `**kwargs`
+
+你可以在同一个函数中同时使用 `*args` 和 `**kwargs`。这使得该函数能够接受任意数量的非关键字参数和关键字参数。
+
+**示例：**
+
+```python
+def my_function(*args, **kwargs):
+    print("Non-keyword arguments:", args)
+    print("Keyword arguments:", kwargs)
+
+# 调用函数并传入非关键字参数和关键字参数
+my_function(1, 2, 3, name="Alice", age=30)
+# 输出:
+# Non-keyword arguments: (1, 2, 3)
+# Keyword arguments: {'name': 'Alice', 'age': 30}
+```
+
+**解释：**
+
+- `*args` 收集所有的非关键字参数并将其作为元组传递。
+- `**kwargs` 收集所有的关键字参数并将其作为字典传递。
+- **在同一个函数中使用这两种参数时，`*args` 必须出现在 `**kwargs` 之前**。
+
+### 4. 使用 `*args` 和 `**kwargs` 在函数调用时解包参数
+
+在调用函数时，你可以使用 `*` 和 `**` 来解包列表、元组或字典中的参数。
+
+**示例：**
+
+```python
+def my_function(a, b, c):
+    print(a, b, c)
+
+# 使用元组解包
+args = (1, 2, 3)
+my_function(*args)  # 输出: 1 2 3
+
+# 使用字典解包
+kwargs = {'a': 10, 'b': 20, 'c': 30}
+my_function(**kwargs)  # 输出: 10 20 30
+```
 
 
 
