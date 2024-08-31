@@ -1918,6 +1918,106 @@ binary_representation = print_binary_representation(int_value)
 print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}, 长度：{[len(item) for item in binary_representation]}")
 ```
 
+### 随机数生成
+
+#### 基本随机数生成
+
+- `numpy.random.rand(d0, d1, ..., dn)`
+  生成指定形状的随机样本，样本值均在 0 到 1 的区间内（均匀分布）。
+
+  ```python
+  import numpy as np
+  random_array = np.random.rand(3, 2)  # 生成3x2的二维数组，值在[0, 1)之间
+  ```
+
+- `numpy.random.randn(d0, d1, ..., dn)`
+  生成指定形状的样本，样本值符合标准正态分布（均值为 0，标准差为 1）。
+
+  ```python
+  random_array = np.random.randn(3, 2)  # 生成3x2的二维数组，值符合标准正态分布
+  ```
+
+- `numpy.random.randint(low, high=None, size=None, dtype=int)`
+  返回随机整数或随机整数数组，范围为[low, high)。如果只给出 low，则返回[0, low)的随机整数。
+
+  ```python
+  random_int = np.random.randint(1, 10, size=5)  # 生成5个1到9之间的随机整数
+  ```
+
+#### 特定分布的随机数生成
+
+- `numpy.random.uniform(low=0.0, high=1.0, size=None)`
+  从均匀分布[low, high)中生成随机数。
+
+  ```python
+  random_uniform = np.random.uniform(1, 10, size=(3, 2))  # 生成3x2的数组，值在[1, 10)之间
+  ```
+
+- `numpy.random.normal(loc=0.0, scale=1.0, size=None)`
+  从正态分布（高斯分布）中生成随机数，loc 为均值，scale 为标准差。
+
+  ```python
+  random_normal = np.random.normal(0, 1, size=5)  # 生成5个均值为0，标准差为1的随机数
+  ```
+
+- `numpy.random.binomial(n, p, size=None)`
+  从二项分布中生成随机数。n 是试验次数，p 是每次试验成功的概率。
+
+  ```python
+  random_binomial = np.random.binomial(10, 0.5, size=5)  # 生成5个二项分布样本，10次试验成功概率0.5
+  ```
+
+- `numpy.random.poisson(lam=1.0, size=None)`
+  从泊松分布中生成随机数，lam 为事件的平均发生次数。
+
+  ```python
+  random_poisson = np.random.poisson(5, size=5)  # 生成5个泊松分布样本，平均事件发生次数为5
+  ```
+
+- `numpy.random.exponential(scale=1.0, size=None)`
+  从指数分布中生成随机数，scale 为 $ \tfrac{1}{\lambda} $，即事件的平均发生间隔。
+
+  ```python
+  random_exponential = np.random.exponential(1, size=5)  # 生成5个指数分布样本，平均间隔为1
+  ```
+
+#### 其他随机数生成函数
+
+- `numpy.random.choice(a, size=None, replace=True, p=None)`
+  从一维数组 a 中随机抽取样本。replace 表示是否有放回地抽样，p 为每个元素被抽取的概率。
+
+  ```python
+  elements = ['a', 'b', 'c', 'd']
+  random_choice = np.random.choice(elements, size=3, replace=False)  # 从elements中不放回抽取3个元素
+  ```
+
+- `numpy.random.shuffle(x)`
+  对序列 x 进行就地随机打乱。
+
+  ```python
+  arr = np.array([1, 2, 3, 4, 5])
+  np.random.shuffle(arr)  # 打乱数组arr
+  ```
+
+- `numpy.random.permutation(x)`
+  返回序列 x 的随机排列，不会修改原序列。
+
+  ```python
+  arr = np.array([1, 2, 3, 4, 5])
+  permuted_arr = np.random.permutation(arr)  # 生成arr的一个随机排列
+  ```
+
+#### 随机数生成器控制
+
+- `numpy.random.seed(seed)`
+  设置随机数生成器的种子，保证每次运行结果一致。
+
+  ```python
+  np.random.seed(42)  # 设置随机种子
+  ```
+
+这些函数使得 NumPy 在数据分析、机器学习等领域中非常方便地进行随机数生成和模拟实验。根据不同的需求，可以选择合适的分布和函数来生成随机数。
+
 ## xlrd 和 xlwt
 
 **xlrd**
