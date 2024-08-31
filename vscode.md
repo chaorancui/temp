@@ -4,15 +4,15 @@
 
 ### 安装版
 
-* 安装过程可以添加右键菜单
-* 插件安装目录默认，需要额外修改
+- 安装过程可以添加右键菜单
+- 插件安装目录默认，需要额外修改
 
 
 
 ### 便携版
 
-* 插件安装位置在便携解压目录
-* 需要自己添加右键菜单
+- 插件安装位置在便携解压目录
+- 需要自己添加右键菜单
 
 官方文档在Portable Mode部分已经说明了，你只需要在解压后的VSCode目录里新建一个名为data的文件夹，那么以后所有的数据文件（包括用户配置、插件等）都会安装到这个data文件夹里。
 
@@ -137,49 +137,49 @@ exit
 
 ### 系统安装
 
-* MinGw
-* Operator Mono 字体
+- MinGw
+- Operator Mono 字体
 
 
 
 ### 软件安装
 
-* vscode-icons: Icons for Visual Studio Code
-* C/C++: C/C++ IntelliSense, debugging, and code browsing.
-* C/C++ Extension Pack: Popular extensions for C++ development in Visual Studio Code.
-* Markdown Preview Enhanced: Markdown Preview Enhanced ported to vscode
-* Vim: Vim emulation for Visual Studio Code
-* LeetCode: Solve LeetCode problems in VS Code
-* LeetCode with labuladong: 帮助 labuladong 的读者高效刷题
+- vscode-icons: Icons for Visual Studio Code
+- C/C++: C/C++ IntelliSense, debugging, and code browsing.
+- C/C++ Extension Pack: Popular extensions for C++ development in Visual Studio Code.
+- Markdown Preview Enhanced: Markdown Preview Enhanced ported to vscode
+- Vim: Vim emulation for Visual Studio Code
+- LeetCode: Solve LeetCode problems in VS Code
+- LeetCode with labuladong: 帮助 labuladong 的读者高效刷题
 
 #### icon 图标
 
-* vscode-icons：目录树图标主题，风格硬朗
-* Material Icon Theme：与 vscode-icons 差不多，风格卡通一点
+- vscode-icons：目录树图标主题，风格硬朗
+- Material Icon Theme：与 vscode-icons 差不多，风格卡通一点
 
 #### 主题
 
-* One Dark Pro：偏灰色的主题，用着不错
-* Atom One Dark Theme：也还行，感觉字体颜色没有上面的多
+- One Dark Pro：偏灰色的主题，用着不错
+- Atom One Dark Theme：也还行，感觉字体颜色没有上面的多
 
 #### markdown
 
-* Markdown All in One：
-* plantuml：markdown中支持 UML 类图
-* Markdown Table Prettifier：
+- Markdown All in One：
+- plantuml：markdown中支持 UML 类图
+- Markdown Table Prettifier：
 
 #### 代码风格规范
 
-* Prettier - Code formatter：主要支持前端语言，JavaScript、[JSX](https://facebook.github.io/jsx/)、[Angular](https://angular.io/)、[Vue](https://vuejs.org/)、[Flow](https://flow.org/)、[TypeScript](https://www.typescriptlang.org/)、CSS, [Less](http://lesscss.org/), and [SCSS](https://sass-lang.com/)、[HTML](https://en.wikipedia.org/wiki/HTML)、[Ember/Handlebars](https://handlebarsjs.com/)、[JSON](https://json.org/)、[GraphQL](https://graphql.org/)、[Markdown](https://commonmark.org/), including [GFM](https://github.github.com/gfm/) and [MDX v1](https://mdxjs.com/)、[YAML](https://yaml.org/)
-* Better Align：无论是否选择**任何语言**，任何字符或单词都可以实现更好的**垂直对齐**。
-* indent-rainbow：用颜色填充缩进，非常直观，如果有缩进错误还会变成红色。对写 `Python` 用处极大。
+- Prettier - Code formatter：主要支持前端语言，JavaScript、[JSX](https://facebook.github.io/jsx/)、[Angular](https://angular.io/)、[Vue](https://vuejs.org/)、[Flow](https://flow.org/)、[TypeScript](https://www.typescriptlang.org/)、CSS, [Less](http://lesscss.org/), and [SCSS](https://sass-lang.com/)、[HTML](https://en.wikipedia.org/wiki/HTML)、[Ember/Handlebars](https://handlebarsjs.com/)、[JSON](https://json.org/)、[GraphQL](https://graphql.org/)、[Markdown](https://commonmark.org/), including [GFM](https://github.github.com/gfm/) and [MDX v1](https://mdxjs.com/)、[YAML](https://yaml.org/)
+- Better Align：无论是否选择**任何语言**，任何字符或单词都可以实现更好的**垂直对齐**。
+- indent-rainbow：用颜色填充缩进，非常直观，如果有缩进错误还会变成红色。对写 `Python` 用处极大。
 
 
 
 > 参考网址：
 >
-> * vs-code“实用插件”：<https://hailangya.com/articles/2021/03/15/vs-code-plugins/>
-> * 10 款 VS Code 插件神器，第 7 款超级实用！：<https://cloud.tencent.com/developer/article/1889258>
+> - vs-code“实用插件”：<https://hailangya.com/articles/2021/03/15/vs-code-plugins/>
+> - 10 款 VS Code 插件神器，第 7 款超级实用！：<https://cloud.tencent.com/developer/article/1889258>
 
 ## 配置
 
@@ -294,11 +294,11 @@ exit
 
 2. 安装 **Error Lens** 扩展：
 
-    * 在扩展市场中搜索 `Error Lens` 并安装。
+    - 在扩展市场中搜索 `Error Lens` 并安装。
 
-    * `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
+    - `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
 
-    * 安装后，可以**根据需要**进行配置。打开设置文件（`settings.json`），添加或修改以下配置项：
+    - 安装后，可以**根据需要**进行配置。打开设置文件（`settings.json`），添加或修改以下配置项：
 
       ```json
       "errorLens.enabled": true,
@@ -314,7 +314,7 @@ exit
       "errorLens.hintForeground": "#008000",
       ```
 
-      
+
 
 
 
@@ -662,12 +662,12 @@ Specifies the current working directory for the debugger, which is the base fold
    - `configurationProvider`: 配置提供者。
 3. JSON 模式：
    VS Code 使用 JSON 模式来验证 `c_cpp_properties.json` 文件。您可以在以下链接中查看完整的模式定义：
-   https://github.com/microsoft/vscode-cpptools/blob/main/Extension/c_cpp_properties.schema.json
+   <https://github.com/microsoft/vscode-cpptools/blob/main/Extension/c_cpp_properties.schema.json>
 4. 配置示例：
    文档中通常会提供一些配置示例，这些可以作为很好的起点：
-   https://code.visualstudio.com/docs/cpp/config-linux
-   https://code.visualstudio.com/docs/cpp/config-msvc
-   https://code.visualstudio.com/docs/cpp/config-clang-mac
+   <https://code.visualstudio.com/docs/cpp/config-linux>
+   <https://code.visualstudio.com/docs/cpp/config-msvc>
+   <https://code.visualstudio.com/docs/cpp/config-clang-mac>
 5. 扩展命令：
    在 VS Code 中，您可以使用 "C/C++: Edit Configurations (UI)" 命令来通过图形界面编辑这些设置，这可能会更直观一些。
 6. 更新和变化：
@@ -684,19 +684,30 @@ Specifies the current working directory for the debugger, which is the base fold
 
 
 
-# CLion
+# CLion （Windows）
+
+> 参考：[IntelliJ IDEA 中最被低估的快捷键](https://blog.jetbrains.com/zh-hans/idea/2022/11/intellij-idea-3/)
 
 ### clion 高亮快捷键
 
 选中文本，Ctrl+Shift+f7：高亮显示所有该文本，按ESC高亮消失（类似Ctrl+Shift+F）
 
-
+- `Ctrl+Shift+f7`：高亮所有选中文本，按 ESC 取消高亮
+- `Tab/Shift+Tab`：缩进，反缩进
+- `Ctrl+Shift+j`：连接行
+- `Ctrl+x`：剪切当前行，或选定块到剪贴板
+- `Ctrl+d`：复制当前行，或选定块
+- `Alt+Shift+↑/↓`：移动行
+- `Alt+Shift+鼠标左键`：多个光标
+- `Alt+Shift+Insert`：切换为块模式，然后鼠标框选
+- ``Ctrl+Shift+Alt+鼠标框选`：标选则多行文本
+- `Alt+j`：选择多次出现的内容
 
 
 
 # Nodejs
 
-```
+```shell
 registry=https://registry.npm.taobao.org/
 strict-ssl=false
 proxy=http://user:password@proxy.huawei.com:8080/
@@ -720,8 +731,5 @@ https-proxy=http://user:password@proxy.huawei.com:8080/
 
    Linux 选择【预构建二进制文件】-->【Linux】-->【x64】-->【v20.16.0(LTS)】-->下载，会得到如 `node-v20.16.0-linux-x64.tar.xz` 的文件。
 
-   
 
-   
 
-   
