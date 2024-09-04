@@ -2,9 +2,9 @@
 
 
 
-# shell 命令
+# shell 编程
 
-### Linux文本处理：掌握基础、扩展和Perl正则表达式的威力
+## 正则表达式
 
 <https://blog.csdn.net/dgwxligg/article/details/138875027>
 
@@ -33,7 +33,7 @@
   总结来说，选择哪种正则表达式主要依赖于任务的复杂性及所使用工具的支持度。对于简单的文本匹配，BRE和ERE足够用了；而对于要求更高的模式匹配，尤其是涉及到复杂文本处理的场合，PCRE则是更好的选择。
 
 
-### "通配符"和"正则表达式"的区别
+## "通配符"和"正则表达式"的区别
 
 > [正则表达式和通配符的区别](https://blog.csdn.net/bytxl/article/details/8801304)
 
@@ -99,7 +99,7 @@
 > - 通配的`*`和正则里面的`*`是不一样的含义。
 
 
-### shell 中转义字符$
+## shell 中转义字符$
 
 在linux shell脚本中经常用到字符`$`，下面是`$`的一些常见用法
 
@@ -135,9 +135,139 @@ second:bb  //$2是传递给该shell脚本的第二个参数
 argume:aa bb //$@ 是传给脚本的所有参数的列表
 ```
 
+## 重定向
+
+在 Shell 中，输出重定向是一种将命令的标准输出（stdout）或标准错误（stderr）保存到文件或传递给另一个命令的技术。输出重定向使你能够灵活地管理和处理命令的输出。
+
+1. 基本输出重定向
+   将标准输出重定向到文件
+
+   - `>`：将命令的标准输出重定向到一个文件。如果文件已经存在，会覆盖文件的内容。
+
+     ```shell
+     command > filename
+
+     echo "Hello, World!" > output.txt
+     # 这会将 "Hello, World!" 保存到 output.txt 文件中。如果 output.txt 已存在，其内容会被覆盖。
+     ```
+
+   - `>>`：将命令的标准输出追加到文件的末尾。如果文件不存在，会创建文件；如果文件已经存在，新的输出内容会追加到文件末尾。
+
+     ```shell
+     command >> filename
+
+     echo "Hello again!" >> output.txt
+     # 这会将 "Hello again!" 追加到 output.txt 的末尾，而不会覆盖之前的内容。
+     ```
+
+2. 重定向标准错误
+   标准错误输出（stderr）通常用于输出错误信息，可以将其重定向到文件。
+
+   - `2>`：将标准错误输出重定向到文件。
+
+     ```shell
+     command 2> errorfile.txt
+
+     ls non_existent_file 2> error.txt
+     # 这会将 ls 命令的错误信息保存到 error.txt 文件中。
+     ```
+
+3. 同时重定向标准输出和标准错误
+
+   - `&>` 或 `2>&1`：将标准输出和标准错误一起重定向到同一个文件。
+
+     ```shell
+     command &> outputfile.txt
+     # 或
+     command > outputfile.txt 2>&1
+
+     ls /nonexistent_directory &> all_output.txt
+     # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
+     ```
+
+4. 重定向到 `/dev/null`
+   `/dev/null` 是一个特殊的文件，任何写入它的数据都会被丢弃。可以使用它来忽略不需要的输出。
+
+   - 忽略标准输出/标准错误/标注输出和错误：
+
+     ```shell
+     # 忽略标准输出：
+     command > /dev/null
+     
+     # 忽略标准错误：
+     command 2> /dev/null
+     
+     # 忽略标准输出和标准错误：
+     command > /dev/null 2>&1
+     
+     ls /nonexistent_directory > /dev/null 2>&1
+     # 这会忽略 ls 命令的所有输出。
+     ```
+
+5. 管道（|）
+   管道将一个命令的标准输出作为下一个命令的标准输入。常用于将多个命令串联起来处理数据。
+
+   - 使用管道：
+
+     ```shell
+     command1 | command2
+
+     ls -l | grep "^d"
+     这会将 ls -l 的输出传递给 grep 命令，只显示目录条目。
+     ```
+
+6. 文件描述符的重定向
+   在 Shell 中，文件描述符用于标识不同的输入和输出流：
+
+   - 标准输入 (stdin)：文件描述符 0
+   - 标准输出 (stdout)：文件描述符 1
+   - 标准错误 (stderr)：文件描述符 2
+
+   你可以使用文件描述符进行更精细的重定向控制。
+
+   ```shell
+   command 1> stdout.txt 2> stderr.txt
+   # 这会将标准输出重定向到 stdout.txt，将标准错误重定向到 stderr.txt。
+   ```
+
+7. Here Document (<<)
+   Here Document 用于将多行字符串作为输入传递给命令。
+
+   ```shell
+   command << EOF
+   line1
+   line2
+   EOF
+   ```
+
+   - command：这是需要接收多行输入的命令。
+   - <<：这个符号告诉 Shell 开始一个 Here Document。
+   - EOF：这个是标识符（delimiter），表示 Here Document 的开始和结束。EOF 只是一个常用的标识符名称，你可以用其他任何字符串代替，只要它在开始和结束时保持一致即可。
+
+   如下命令，在 << EOF 之后的所有内容都将作为输入传递给指定的命令，直到遇到结尾标识符（如 EOF）。
+
+   ```shell
+   cat << EOF > file.txt
+   This is line 1
+   This is line 2
+   EOF
+   # 这会将多行文本保存到 file.txt 中。
+   ```
+
+总结
+- `>`：将标准输出重定向到文件（覆盖文件内容）。
+- `>>`：将标准输出追加到文件末尾。
+- `2>`：将标准错误输出重定向到文件。
+- `&>` 或 `2>&1`：同时重定向标准输出和标准错误。
+- `/dev/null`：丢弃输出。
+- `|`：将一个命令的输出作为下一个命令的输入。
+- `Here Document (<<)`：用于传递多行输入。
 
 
-## shell 编程学习
+
+# shell 编程学习
+
+## 学习笔记
 
 > 中文：
 >
@@ -860,7 +990,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
   - 优先级相同的操作按*从左至右*顺序求值
 
   
-### 7、Bash基本功能（多命令顺序执行)
+## 7、Bash基本功能（多命令顺序执行)
 
 <https://www.cnblogs.com/liuyuelinfighting/p/16082830.html>
 
