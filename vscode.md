@@ -7,8 +7,6 @@
 - 安装过程可以添加右键菜单
 - 插件安装目录默认，需要额外修改
 
-
-
 ### 便携版
 
 - 插件安装位置在便携解压目录
@@ -17,8 +15,6 @@
 官方文档在Portable Mode部分已经说明了，你只需要在解压后的VSCode目录里新建一个名为data的文件夹，那么以后所有的数据文件（包括用户配置、插件等）都会安装到这个data文件夹里。
 
 以前网上流传的加启动选项--extensions-dir [path] 的方法，在部分情景下有不少缺点，这里提到的方法应该是最完美的，百闻不如一试，赶快动手吧~
-
-
 
 最后，附上一段把 VSCode 添加到右键菜单的[bat代码](https://www.zhihu.com/search?q=bat代码&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra={"sourceType"%3A"answer"%2C"sourceId"%3A1139906712})，保存到一个.bat文件里并放到 VSCode 目录中，双击运行：
 
@@ -42,8 +38,6 @@ exit
 reg delete "HKEY_CLASSES_ROOT\*\shell\VSCode" /f
 exit
 ```
-
-
 
 ## vscode-server
 
@@ -129,18 +123,12 @@ exit
 
    - 断开远程连接，然后重新连接。VS Code 应该检测到 VS Code Server 已经安装，并直接使用它。
 
-
-
-
-
 ## 插件
 
 ### 系统安装
 
 - MinGw
 - Operator Mono 字体
-
-
 
 ### 软件安装
 
@@ -173,8 +161,6 @@ exit
 - Prettier - Code formatter：主要支持前端语言，JavaScript、[JSX](https://facebook.github.io/jsx/)、[Angular](https://angular.io/)、[Vue](https://vuejs.org/)、[Flow](https://flow.org/)、[TypeScript](https://www.typescriptlang.org/)、CSS, [Less](http://lesscss.org/), and [SCSS](https://sass-lang.com/)、[HTML](https://en.wikipedia.org/wiki/HTML)、[Ember/Handlebars](https://handlebarsjs.com/)、[JSON](https://json.org/)、[GraphQL](https://graphql.org/)、[Markdown](https://commonmark.org/), including [GFM](https://github.github.com/gfm/) and [MDX v1](https://mdxjs.com/)、[YAML](https://yaml.org/)
 - Better Align：无论是否选择**任何语言**，任何字符或单词都可以实现更好的**垂直对齐**。
 - indent-rainbow：用颜色填充缩进，非常直观，如果有缩进错误还会变成红色。对写 `Python` 用处极大。
-
-
 
 > 参考网址：
 >
@@ -279,12 +265,12 @@ exit
 
 在系统的 `settings.json` 里添加
 
+```json
     "workbench.colorCustomizations": {
         "tab.activeBackground": "#d9ff009d",
         "editor.lineHighlightBackground": "#ffd00033"
     },
-
-
+```
 
 ### 显示错误和告警
 
@@ -313,10 +299,6 @@ exit
       "errorLens.infoForeground": "#0000ff",
       "errorLens.hintForeground": "#008000",
       ```
-
-
-
-
 
 ## 按键映射
 
@@ -385,10 +367,6 @@ exit
         "editor.lineHighlightBackground": "#ffd00033"
     },
 
-
-
-
-
 ## 调试
 
 ### vscode 调试添加运行参数
@@ -417,8 +395,6 @@ exit
     ]
 }
 ```
-
-
 
 ### vscode 调试添加环境变量
 
@@ -461,8 +437,6 @@ exit
 }
 ```
 
-
-
 ### vscode 设置调试器当前工作路径
 
 `launch.json` 中添加 `cwd` 项：
@@ -489,8 +463,6 @@ Specifies the current working directory for the debugger, which is the base fold
 }
 ```
 
-
-
 ### 查看反汇编代码
 
 运行程序后，在监视变量中添加：
@@ -502,10 +474,6 @@ Specifies the current working directory for the debugger, which is the base fold
 ```
 
 然后在**<font color=red>调试控制台</font>**就可以看到汇编代码了。
-
-
-
-
 
 ## c++ intellisense 排除某些文件
 
@@ -680,17 +648,11 @@ Specifies the current working directory for the debugger, which is the base fold
 
 通过仔细阅读这些文档和资源，您应该能够全面了解 `c_cpp_properties.json` 文件的配置选项，以及如何根据您的项目需求进行最佳设置。如果您在配置过程中遇到任何具体问题，欢迎随时询问。
 
-
-
-
-
 # CLion （Windows）
 
 > 参考：[IntelliJ IDEA 中最被低估的快捷键](https://blog.jetbrains.com/zh-hans/idea/2022/11/intellij-idea-3/)
 
-### clion 高亮快捷键
-
-选中文本，Ctrl+Shift+f7：高亮显示所有该文本，按ESC高亮消失（类似Ctrl+Shift+F）
+## clion 快捷键
 
 - `Ctrl+Shift+f7`：高亮所有选中文本，按 ESC 取消高亮
 - `Tab/Shift+Tab`：缩进，反缩进
@@ -702,8 +664,6 @@ Specifies the current working directory for the debugger, which is the base fold
 - `Alt+Shift+Insert`：切换为块模式，然后鼠标框选
 - ``Ctrl+Shift+Alt+鼠标框选`：标选则多行文本
 - `Alt+j`：选择多次出现的内容
-
-
 
 # Nodejs
 
@@ -730,6 +690,3 @@ https-proxy=http://user:password@proxy.huawei.com:8080/
    下载网址：<https://nodejs.org/zh-cn/download/package-manager>
 
    Linux 选择【预构建二进制文件】-->【Linux】-->【x64】-->【v20.16.0(LTS)】-->下载，会得到如 `node-v20.16.0-linux-x64.tar.xz` 的文件。
-
-
-
