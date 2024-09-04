@@ -351,7 +351,7 @@ int main(){
 
 > 参考资料
 >
-> C 位域：https://www.runoob.com/cprogramming/c-bit-fields.html
+> C 位域：<https://www.runoob.com/cprogramming/c-bit-fields.html>
 
 ## protected 访问权限
 
@@ -577,6 +577,84 @@ int main()
 [C/C++语言中的#和##的作用](https://blog.csdn.net/michaelhit/article/details/82853634?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_title~default-0-82853634-blog-44133701.pc_relevant_multi_platform_whitelistv2&spm=1001.2101.3001.4242.1&utm_relevant_index=1)
 
 [c 语言中的#号和##号的作用](https://blog.csdn.net/zxx2096/article/details/81206935?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-2-81206935-blog-82853634.pc_relevant_multi_platform_whitelistv2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-2-81206935-blog-82853634.pc_relevant_multi_platform_whitelistv2&utm_relevant_index=3)
+
+## 条件编译指令
+
+C++ 中的条件编译指令是预处理器指令，用于根据某些条件在编译时有选择地包含或排除代码片段。这些指令允许在不同的平台、配置或编译选项下编译不同的代码。常见的条件编译指令包括 #if、#ifdef、#ifndef、#else、#elif 和 #endif。
+
+### 主要的条件编译指令:
+
+```cpp
+#if: 如果条件为真,编译后面的代码
+#ifdef: 如果宏已定义,编译后面的代码
+#ifndef: 如果宏未定义,编译后面的代码
+#elif: else if 的作用
+#else: else 的作用
+#endif: 结束条件编译块
+defined()：预处理器中的一个特殊运算符，用于检查某个宏是否已被定义。
+```
+
+> :bulb: 注意：`#ifdef` 与 `#if defined()` 等价，同理，`#ifndef` 与 `#if !defined()` 等价。
+
+```cpp
+#ifdef DEBUG
+// 等同于
+#if defined(DEBUG)
+
+#ifndef DEBUG
+// 等同于
+#if !defined(DEBUG)
+```
+
+使用示例：
+
+```cpp
+#define DEBUG
+
+#ifdef DEBUG
+    std::cout << "Debug mode is on" << std::endl;
+#else
+    std::cout << "Debug mode is off" << std::endl;
+#endif
+
+#if defined(_WIN32) || defined(_WIN64)
+    std::cout << "Running on Windows" << std::endl;
+#elif defined(__linux__)
+    std::cout << "Running on Linux" << std::endl;
+#elif defined(__APPLE__)
+    std::cout << "Running on macOS" << std::endl;
+#else
+    std::cout << "Unknown operating system" << std::endl;
+#endif
+```
+
+### `#if` 一次判断多个条件
+
+使用逻辑运算符，且逻辑运算符可以和 `defined() 运算符`混合使用。
+C++ 预处理器支持以下逻辑运算符：
+- && (与)
+- || (或)
+- ! (非)
+
+```cpp
+#if defined(__cplusplus) && __cplusplus >= 201703L && !defined(LEGACY_MODE)
+    // 这段代码只在 C++17 或更高版本，且未定义 LEGACY_MODE 时编译
+    std::cout << "Using C++17 features" << std::endl;
+#endif
+```
+
+### 使用注意事项
+
+1. 嵌套使用: 条件编译指令可以嵌套,但要注意配对和缩进,以提高可读性。
+2. 避免过度使用: 过多的条件编译可能导致代码难以维护和理解。
+3. 注意跨平台兼容性: 使用标准的宏定义来检测平台,如 _WIN32, linux, APPLE 等。
+4. 保持一致性: 在项目中保持条件编译的一致使用风格。
+5. 注释说明: 对于复杂的条件编译,添加注释说明其用途和条件。
+6. 测试覆盖: 确保测试涵盖了所有条件编译的分支。
+7. 版本控制: 使用版本控制系统时,注意不同分支间条件编译的一致性。
+8. 优先使用 #if defined() 而非 #ifdef: 前者更灵活,可以组合多个条件。
+9. 使用 #pragma once 或头文件保护: 防止头文件重复包含。
+10. 注意宏定义的位置: 确保在使用条件编译指令之前已定义相关宏。
 
 ## struct 和 union 内存对齐
 
@@ -831,8 +909,8 @@ int main() {
     int *a  = &val;
     int **b = &a;
 
-	foo(a, b);
-	return 0;
+    foo(a, b);
+    return 0;
 }
 ```
 
@@ -977,37 +1055,37 @@ doube()() (e)[9]; // 这个声明在gcc下编译时不通过的。按照作者�
 例子：
 
 ```c++
-typedef double (*pFun)();//定义函数指针pFun
+typedef double (*pFun)(); // 定义函数指针pFun
 typedef double (*(*e)[2])();
 
 double Fun1()
 {
-	cout<<"Fun1"<<endl;
-	return 1;
+    cout << "Fun1" << endl;
+    return 1;
 };
 
 double Fun2()
 {
-	cout<<"Fun2"<<endl;
-	return 2;
+    cout << "Fun2" << endl;
+    return 2;
 };
 
 int main()
 {
-	pFun array[2]= {Fun1, Fun2};
-	array[0]();//执行Fun1
-	array[1]();//执行Fun2
+    pFun array[2] = {Fun1, Fun2};
+    array[0](); // 执行Fun1
+    array[1](); // 执行Fun2
 
-	e MyE = &array;//将array的首地址赋给MyE
-	cout<<sizeof(MyE)<<endl;//既然是指针，长度自然为4（32位机上）
-	cout<<sizeof(*MyE)<<endl;//（两个指针）长度为8（32位机上）
+    e MyE = &array;               // 将array的首地址赋给MyE
+    cout << sizeof(MyE) << endl;  // 既然是指针，长度自然为4（32位机上）
+    cout << sizeof(*MyE) << endl; // （两个指针）长度为8（32位机上）
 
-	(*MyE[0])();//执行Fun1，注意优先级，其实就是 (*(MyE[0]))();
+    (*MyE[0])(); // 执行Fun1，注意优先级，其实就是 (*(MyE[0]))();
 
-	(*MyE)[0]();//执行Fun1
-	(*MyE)[1]();//执行Fun2
+    (*MyE)[0](); // 执行Fun1
+    (*MyE)[1](); // 执行Fun2
 
-	return 0;
+    return 0;
 }
 ```
 
@@ -1040,18 +1118,18 @@ int main()
 // a, b, c 同时为1时返回true；否则返回false
 // 写法1
 if (a && b && c) {
-	return true;
+    return true;
 }
 
 // 写法2
 if (!a) {
-	return false;
+    return false;
 }
 if (!b) {
-	return false;
+    return false;
 }
 if (!c) {
-	return false;
+    return false;
 }
 return true;
 ```
@@ -1161,7 +1239,7 @@ step1(step2)
 
 ## 为什么使用空类
 
-> [[C/C++中，空数组、空类、类中空数组的解析及其作用](https://www.cnblogs.com/Allen-rg/p/7307116.html)](https://www.cnblogs.com/Allen-rg/p/7307116.html)
+> [[C/C++中，空数组、空类、类中空数组的解析及其作用](https://www.cnblogs.com/Allen-rg/p/7307116.html)](<https://www.cnblogs.com/Allen-rg/p/7307116.html>)
 
 空类在“泛型编程”中，空类（空结构）的用处非常广：
 
@@ -1217,27 +1295,27 @@ void _fun(A b, float) {
 
 ### 【C++断言机制】深入理解 C/C++ 中静态断言 static_assert 与断言 assert
 
-https://blog.csdn.net/qq_21438461/article/details/132293042
+<https://blog.csdn.net/qq_21438461/article/details/132293042>
 
 ### C/C++ for 循环的几种用法
 
-https://blog.csdn.net/cpp_learner/article/details/117395735?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-117395735-blog-54602752.235^v40^pc_relevant_3m_sort_dl_base4&spm=1001.2101.3001.4242.1&utm_relevant_index=1
+<https://blog.csdn.net/cpp_learner/article/details/117395735?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-117395735-blog-54602752.235^v40^pc_relevant_3m_sort_dl_base4&spm=1001.2101.3001.4242.1&utm_relevant_index=1>
 
 ### C++ 类定义中 class+宏+类名的意义
 
-https://vzhougm.gitee.io/2021/06/25/c&c++/C++%20%E7%B1%BB%E5%AE%9A%E4%B9%89%E4%B8%ADclass+%E5%AE%8F+%E7%B1%BB%E5%90%8D%E7%9A%84%E6%84%8F%E4%B9%89/
+<https://vzhougm.gitee.io/2021/06/25/c&c++/C++%20%E7%B1%BB%E5%AE%9A%E4%B9%89%E4%B8%ADclass+%E5%AE%8F+%E7%B1%BB%E5%90%8D%E7%9A%84%E6%84%8F%E4%B9%89/>
 
 ### 返回函数指针的函数
 
-https://www.cnblogs.com/lifexy/p/14098103.html
+<https://www.cnblogs.com/lifexy/p/14098103.html>
 
 ## 《重构 改善既有代码的设计第二版》中文版
 
-https://github.com/MwumLi/book-refactoring2
+<https://github.com/MwumLi/book-refactoring2>
 
 ## c++ enum class compare
 
-https://juejin.cn/s/c%2B%2B%20enum%20class%20compare
+<https://juejin.cn/s/c%2B%2B%20enum%20class%20compare>
 
 ## 不能 delete void 指针
 
@@ -1245,9 +1323,9 @@ https://juejin.cn/s/c%2B%2B%20enum%20class%20compare
 
 ## C++11
 
-https://www.apiref.com/cpp-zh/cpp/11.html
+<https://www.apiref.com/cpp-zh/cpp/11.html>
 值初始化
-https://www.apiref.com/cpp-zh/cpp/language/value_initialization.html
+<https://www.apiref.com/cpp-zh/cpp/language/value_initialization.html>
 C++11 特性之 default/delete
 　在未显式的定义类的特殊成员函数时，如果被调用，系统会自动隐式的创建该特殊成员函数，且隐式的创建方式比显式的创建方式执行效率高。
 　只需在函数声明后加上=default;，就可将该函数声明为 defaulted 函数，编译器将为显式声明的 defaulted 函数自动生成函数体，以获得更高的执行效率。
@@ -1255,7 +1333,7 @@ C++11 特性之 default/delete
 
 ## extern 声明变量或函数
 
-https://blog.csdn.net/weixin_38145317/article/details/86496041
+<https://blog.csdn.net/weixin_38145317/article/details/86496041>
 
 ## 整形存储指针
 
