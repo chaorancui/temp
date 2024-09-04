@@ -999,9 +999,32 @@ git rebase --edit-todo
 Git revert 用于撤回某次提交的内容，同时再产生一个新的提交(commit)。原理就是在一个新的提交中，对之前提交的内容相反的操作。
 
 ```shell
-git revert -n commit-id
-# 反做多个commit-id
-git revert -n commit-idA..commit-idB
+# 撤销一个提交
+git revert <commit-hash>
+
+# 撤销多个连续的提交
+git revert <oldest-commit-hash>^..<newest-commit-hash>
+
+# 撤销多个不连续的提交
+git revert <commit1-hash>
+git revert <commit2-hash>
+
+# 撤销最新的提交
+git revert HEAD
+```
+
+选项说明：
+
+`-n` 或 `--no-commit`：使用此选项来将更改应用到工作区而不立即提交。你可以在修改文件或合并冲突后手动提交。
+
+```shell
+git revert <oldest-commit-hash>^..<newest-commit-hash>
+```
+
+`-m parent-number`：这个选项用于撤销合并提交。因为合并提交有多个父提交，所以需要指定哪个父提交的内容要保留。`parent-number` 从 1 开始计数。
+
+```shell
+git revert -m 1 <merge-commit-hash>
 ```
 
 
