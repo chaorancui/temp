@@ -6,7 +6,7 @@
 
 ### 1. constexpr
 
-`constexpr` 是 C++ 11 中新增加的用于**指示常量表达式**的关键字。在此之前（C++ 98/03标准）只有 `const` 关键字，其在实际使用中经常会表现出**两种不同的语义**。举个例子：
+`constexpr` 是 C++ 11 中新增加的用于**指示常量表达式**的关键字。在此之前（C++ 98/03 标准）只有 `const` 关键字，其在实际使用中经常会表现出**两种不同的语义**。举个例子：
 
 总的来说在 C++ 11 标准中，`const` 用于为修饰的变量添加“只读”属性；而 `constexpr` 关键字则用于指明其后是一个常量（或者常量表达式），编译器在编译程序时可以顺带将其结果计算出来，而无需等到程序运行阶段，这样的优化极大地**提高了程序的执行效率**。
 
@@ -18,15 +18,15 @@ auto 和 decltype 是在 C++11 中引入的关键字，可以在**编译期**推
 
 **概括：**
 
-- `cv` 属性指的是 `const` 和 `volatile`。其中 `const` 区分顶层和底层。auto 推导中，**底层const 会保留下来**。顶层 const 若需保留需在声明 auto 变量时明确指出，如 `const auto xxx`。
+- `cv` 属性指的是 `const` 和 `volatile`。其中 `const` 区分顶层和底层。auto 推导中，**底层 const 会保留下来**。顶层 const 若需保留需在声明 auto 变量时明确指出，如 `const auto xxx`。
 - 在声明的变量类型**不为指针或引用**的情况下，需**忽略**等号右边的引用类型和 `顶层cv` 属性，得到 atuo 占位符的类型，进而得到变量类型。
 - 在声明的变量类型**为指针或引用**的情况下，需**保留**等号右边的引用和 `顶层cv` 属性，得到 atuo 占位符的类型，进而得到变量类型。
 - auto 推导表达式类型时会进行考虑隐式类型转换，如 `uint32_t + uint64_t` 推导的结果为 `uint64_t`。
 - auto 定义的变量必须有初始值，即定义的同时就要初始化。
 
-在 **《Effective Modern C++》** 这本书中，**Scott Meyers** 将 **auto** 的类型推导规则划分为了3种场景，并对每种场景依次介绍了其推导方式[1]：
+在 **《Effective Modern C++》** 这本书中，**Scott Meyers** 将 **auto** 的类型推导规则划分为了 3 种场景，并对每种场景依次介绍了其推导方式[1]：
 
-##### 场景1：声明的变量类型是引用或者指针，但不是转发引用
+##### 场景 1：声明的变量类型是引用或者指针，但不是转发引用
 
 在这种场景下，按照以下方式推导：
 
@@ -47,14 +47,14 @@ auto e = &cx; // e被推导为cosnt int *
 
 对变量 b 来说，其初始化表达式 cx 的类型是 const int，用 const int 替换 auto 占位符，得到 b 的类型是 const int&。
 
-对变量 c 来说，其初始化表达式 rx 的类型是 const int&，这时要先应用步骤1，把引用去掉，变为 const int，之后的推导和 b 一样。
+对变量 c 来说，其初始化表达式 rx 的类型是 const int&，这时要先应用步骤 1，把引用去掉，变为 const int，之后的推导和 b 一样。
 
-场景1还有一个变体：当声明的变量是 **const** 引用或指针时，推导过程大致相同，但是这个时候，初始化表达式的 **const** 属性不再需要作为 **auto** 占位符的一部分：
+场景 1 还有一个变体：当声明的变量是 **const** 引用或指针时，推导过程大致相同，但是这个时候，初始化表达式的 **const** 属性不再需要作为 **auto** 占位符的一部分：
 
 ```c++
 int x = 27;
 const int cx = x;
-const int &rx = x; 
+const int &rx = x;
 
 const auto &a = x;  // a被推导为const int&
 const auto &b = cx;  // b被推导为const int&
@@ -64,12 +64,12 @@ const auto d = &rx;  // d被推导为const int *const
 
 这里的 b 和 c 在推导时，由于声明的类型已经带有 const，因此 auto 占位符只需要被替换为 int，得到 const int& 类型。
 
-##### 场景2：声明的变量类型是转发引用
+##### 场景 2：声明的变量类型是转发引用
 
 在这种场景下，变量类型的推导大体遵循以下规则：
 
 1. 如果初始化表达式的类型是左值，变量被推导为左值引用类型；
-2. 如果初始化表达式的类型是右值，推导方式同场景1。
+2. 如果初始化表达式的类型是右值，推导方式同场景 1。
 
 ```C++
 int x = 27;
@@ -84,20 +84,20 @@ auto&& d = 28;  // d被推导为int&&
 
 注意转发引用的语法很像右值引用，很多同学会把 auto&& 误解为右值引用。但实际上从上面的例子可以看出，a、b、c 三个变量都不是右值引用，只有 d 因为初始化表达式是右值，所以成为了右值引用。
 
-转发引用的推导背后还有引用折叠的原理，需要了解相关知识的，可以阅读《Effective Modern C++》的Item24~Item28。
+转发引用的推导背后还有引用折叠的原理，需要了解相关知识的，可以阅读《Effective Modern C++》的 Item24~Item28。
 
-##### 场景3：声明的变量类型既不是引用也不是指针
+##### 场景 3：声明的变量类型既不是引用也不是指针
 
 在这种场景下，按照以下方式推导：
 
-1. 如果初始化表达式是引用类型，忽略引用部分（和场景1一样）；
-2. 如果初始化表达式带有const或volatile属性，同样忽略。
+1. 如果初始化表达式是引用类型，忽略引用部分（和场景 1 一样）；
+2. 如果初始化表达式带有 const 或 volatile 属性，同样忽略。
 
 ```C++
 int x = 27;
 const int cx = x;
 const int& rx = x;
- 
+
 auto a = x;  // a被推导为int
 auto b = cx;  // b被推导为int
 auto c = rx;  // c被推导为int
@@ -139,7 +139,7 @@ C++11 的一大亮点就是引入了 Lambda 表达式。利用 Lambda 表达式�
 
 1. capture list：捕获外部变量列表
 2. params list：形参列表
-3. mutable指示符：用来说用是否可以修改捕获的变量
+3. mutable 指示符：用来说用是否可以修改捕获的变量
 4. exception：异常设定
 5. return type：返回类型
 6. function body：函数体
@@ -152,13 +152,13 @@ C++11 的一大亮点就是引入了 Lambda 表达式。利用 Lambda 表达式�
 
 - [&]：默认**以引用捕获**所有变量；
 
-- [x]：仅以值捕获x，其它变量不捕获，捕获多个变量用 "," 分隔；
+- [x]：仅以值捕获 x，其它变量不捕获，捕获多个变量用 "," 分隔；
 
-- [&x]：仅以引用捕获x，其它变量不捕获；
+- [&x]：仅以引用捕获 x，其它变量不捕获；
 
-- [=, &x]：默认以值捕获所有变量，但是x是例外，通过引用捕获；
+- [=, &x]：默认以值捕获所有变量，但是 x 是例外，通过引用捕获；
 
-- [&, x]：默认以引用捕获所有变量，但是x是例外，通过值捕获；
+- [&, x]：默认以引用捕获所有变量，但是 x 是例外，通过值捕获；
 
 - [this]：通过引用捕获当前对象（其实是复制指针）；
 
@@ -167,7 +167,7 @@ C++11 的一大亮点就是引入了 Lambda 表达式。利用 Lambda 表达式�
   > C++11/14/17/20 的捕获行为有差异
 
 **修改捕获变量**
-在Lambda表达式中，如果以传值方式捕获外部变量，则函数体中不能修改该外部变量，否则会引发编译错误。那么有没有办法可以修改值捕获的外部变量呢？这是就需要使用mutable关键字，该关键字用以说明**表达式体内的代码可以修改值捕获的变量**。
+在 Lambda 表达式中，如果以传值方式捕获外部变量，则函数体中不能修改该外部变量，否则会引发编译错误。那么有没有办法可以修改值捕获的外部变量呢？这是就需要使用 mutable 关键字，该关键字用以说明**表达式体内的代码可以修改值捕获的变量**。
 
 **Lambda 表达式的参数**
 Lambda 表达式的参数和普通函数的参数类似，但有区别。在 **Lambda 表达式中传递参数限制**如下：
@@ -178,11 +178,11 @@ Lambda 表达式的参数和普通函数的参数类似，但有区别。在 **L
 
 **捕获列表和参数列表**
 
-在C++的Lambda表达式中，捕获列表（capture list）和参数列表（parameter list）都是可选的部分，但它们的作用不同。
+在 C++的 Lambda 表达式中，捕获列表（capture list）和参数列表（parameter list）都是可选的部分，但它们的作用不同。
 
-参数列表是用于定义Lambda表达式的形参的，这些形参可以在Lambda函数体中被使用。Lambda表达式的形参列表和函数的参数列表一样，可以有默认值和可变参数等特性。
+参数列表是用于定义 Lambda 表达式的形参的，这些形参可以在 Lambda 函数体中被使用。Lambda 表达式的形参列表和函数的参数列表一样，可以有默认值和可变参数等特性。
 
-而捕获列表则用于在Lambda表达式内捕获外部作用域的变量，以供Lambda函数体中使用。这些变量可以是Lambda函数外部的局部变量、全局变量、静态变量等等。当Lambda表达式被定义时，**捕获列表会将这些变量复制到Lambda函数体内**，使Lambda函数能够在不同的上下文中执行而不受影响。
+而捕获列表则用于在 Lambda 表达式内捕获外部作用域的变量，以供 Lambda 函数体中使用。这些变量可以是 Lambda 函数外部的局部变量、全局变量、静态变量等等。当 Lambda 表达式被定义时，**捕获列表会将这些变量复制到 Lambda 函数体内**，使 Lambda 函数能够在不同的上下文中执行而不受影响。
 
 ### 4. 强类型枚举
 
@@ -201,17 +201,17 @@ for_each(testA,testA + sizeof(testA)/sizeof(testA[0]),[](int &e){  cout << e << 
 C++11 中引入了 for_each 循环的语言特性（自动确定循环范围），使用这个特性能够非常方便快捷的对**「普通数组 / STL 容器」**中的元素进行遍历，而不必再关心和计算他们的的界限。
 
 ```C++
-int num[5] = {1, 2, 3, 4, 5};    
+int num[5] = {1, 2, 3, 4, 5};
 for (auto x : num) {
-   cout << x << endl; 
+   cout << x << endl;
 }
 ```
 
-上面`for`述句的第一部分定义被用来做范围迭代的变量，就像被声明在一般for循环的变量一样，其作用域仅只于循环的范围。而在":"之后的第二区块，代表将被迭代的范围。
+上面`for`述句的第一部分定义被用来做范围迭代的变量，就像被声明在一般 for 循环的变量一样，其作用域仅只于循环的范围。而在":"之后的第二区块，代表将被迭代的范围。
 
-这种for语句还可以用于**C型数组**，**初始化列表**，和任何定义了`begin()`和`end()`来回返**首尾迭代器的类型**。
+这种 for 语句还可以用于**C 型数组**，**初始化列表**，和任何定义了`begin()`和`end()`来回返**首尾迭代器的类型**。
 
-**基于范围for循环使用细节：**
+**基于范围 for 循环使用细节：**
 
 ```C++
 /*  1.基于范围的FOR循环的遍历是只读的遍历，除非将变量变量的类型声明为引用类型。 */
@@ -244,7 +244,7 @@ for (auto &n : getSet()) {
 } // 输出为：GetSet， 1， 2， 3， 4， 5， 6，
 ```
 
-> 1. 基于范围的for循环和普通的for循环一样，在遍历的过程中如果修改容器，会造成迭代器失效，（有关迭代器失效的问题请参阅C++ primer这本书，写的很详细）
+> 1. 基于范围的 for 循环和普通的 for 循环一样，在遍历的过程中如果修改容器，会造成迭代器失效，（有关迭代器失效的问题请参阅 C++ primer 这本书，写的很详细）
 > 2. 注意：如果数组（集合）的大小（范围）在编译期间不能确定，那么不能够使用基于范围的 for 循环。
 
 ### 7. static_assert
@@ -310,7 +310,7 @@ void func2() //无参数
     cout << "hello!\n";
 }
 
-int main() 
+int main()
 {
     thread t1(func, 1, 2); //提供参数
     thread t2(func2);
@@ -327,14 +327,14 @@ int main()
 }
 ```
 
-**使用join()**
+**使用 join()**
 我们知道, 上例中如果主线程 (main) 先退出, 那些还未完成任务的线程将得不到执行机会, 因为 main 会在执行完调用 exit(), 然后整个进程就结束了, 那它的"子线程" (我们知道线程是平级的, 这里只是, 形象一点) 自然也就 over 了。
 所以就像上例中, 线程对象调用 join() 函数, **join() 会阻塞当前线程**, 直到线程函数执行结束, 如果线程有返回值, 会被忽略。
 
 **使用 detach()**
 对比于 join(), 我们肯定有**不想阻塞当前线程的时候, 这时可以调用 detach(**), 这个函数会分离线程对象和线程函数, 让线程作为后台线程去执行, 当前线程也不会被阻塞了, 但是分离之后, 也不能再和线程发生联系了, 例如不能再调用 get_id() 来获取线程 id 了, 或者调用 join() 都是不行的, 同时也无法控制线程何时结束。程序终止后, 不会等待在后台执行的其余分离线程, 而是将他们挂起, 并且本地对象被破坏。
 
-**警惕作用域**  
+**警惕作用域**
 
 `std::thread` 出了作用域之后就会被析构, 这时如果线程函数还没有执行完就会发生错误, 因此, 要注意**保证线程函数的生命周期在线程变量之内**。
 
@@ -343,7 +343,7 @@ int main()
 **`std::thread` 不能复制, 但是可以移动**
 也就是说, 不能对线程进行复制构造, 复制赋值, 但是可以移动构造, 移动赋值
 
-> 使用C++11进行多线程开发 (std::thread)：<https://blog.csdn.net/weixin_36888577/article/details/82891531>
+> 使用 C++11 进行多线程开发 (std::thread)：<https://blog.csdn.net/weixin_36888577/article/details/82891531>
 
 ### 9. alignof & alignas 说明符
 
@@ -354,10 +354,10 @@ int main()
 语法：
 
 ```C++
-alignof(类型标识)  
+alignof(类型标识)
 ```
 
-[返回std::size_t](https://en.cppreference.com/w/cpp/types/size_t)类型的值。
+[返回 std::size_t](https://en.cppreference.com/w/cpp/types/size_t)类型的值。
 
 解释
 
@@ -367,7 +367,7 @@ alignof(类型标识)
 
 > [alignas 说明符 (C++11 起)](https://www.apiref.com/cpp-zh/cpp/language/alignas.html)
 >
-> [alignas用法](https://juejin.cn/s/alignas%E7%94%A8%E6%B3%95)
+> [alignas 用法](https://juejin.cn/s/alignas%E7%94%A8%E6%B3%95)
 
 `alignas` 是一个 C++11 中的关键字，用于指定变量、结构体、联合体、类等对象的对齐方式。它可以用来控制数据的内存对齐，以优化内存的访问速度。
 
@@ -418,11 +418,11 @@ unique_ptr<int> uptr = make_unique<int>(); // 改为使用此代码
 
 ### std::enable_if_t
 
-> [C++ SFINAE简介和std::enable_if_t的简单使用](https://blog.csdn.net/wangx_x/article/details/122867422)
+> [C++ SFINAE 简介和 std::enable_if_t 的简单使用](https://blog.csdn.net/wangx_x/article/details/122867422)
 >
-> [c++模板元编程std::enable_if详解](https://blog.csdn.net/SWX230162/article/details/124587261?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-3-124587261-blog-84667071.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-3-124587261-blog-84667071.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4)
+> [c++模板元编程 std::enable_if 详解](https://blog.csdn.net/SWX230162/article/details/124587261?spm=1001.2101.3001.6650.3&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-3-124587261-blog-84667071.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-3-124587261-blog-84667071.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4)
 
-先引入一个很重要的概念：`SFINAE`，这是英文Substitution failure is not an error的缩写，意思是**匹配失败不是错误**。这句话的意思是：我们使用模板函数时编译器会根据传入的参数来推导适配最合适的模板函数，在某些情况下，推导过程会发现某一个或者某几个模板函数推导起来其实是无法编译通过的，但只要有一个可以正确推导并编译出来，则那些推导得到的可能产生编译错误的模板函数就并不会引发编译错误，即匹配失败不是错误。
+先引入一个很重要的概念：`SFINAE`，这是英文 Substitution failure is not an error 的缩写，意思是**匹配失败不是错误**。这句话的意思是：我们使用模板函数时编译器会根据传入的参数来推导适配最合适的模板函数，在某些情况下，推导过程会发现某一个或者某几个模板函数推导起来其实是无法编译通过的，但只要有一个可以正确推导并编译出来，则那些推导得到的可能产生编译错误的模板函数就并不会引发编译错误，即匹配失败不是错误。
 
 现在开始描述下 `std::enable_if` 的使用方式吧，`std::enable_if` 顾名思义，满足条件时类型有效。作为选择类型的小工具，其广泛的应用在 C++ 的模板元编程（meta programming）中。基本实现方式大约为：
 
@@ -435,7 +435,7 @@ struct enable_if<true, T> { typedef T type; };
 ```
 
 一个是**普通版本的模板类定义**，一个**偏特化版本的模板类定义**。
-主要在于第一个参数是否为true，当第一个**模板参数为false的时候并不会定义type**，只有在第一模板参数为true的时候才会定义type。
+主要在于第一个参数是否为 true，当第一个**模板参数为 false 的时候并不会定义 type**，只有在第一模板参数为 true 的时候才会定义 type。
 
 ```cpp
 typename std::enable_if<true, int>::type t; // 正确，type等同于int
@@ -468,10 +468,10 @@ typename std::enable_if<std::is_integral<T>::value, bool>::type
 is_odd(T t) {
   return bool(t%2);
 }
- 
+
 template <typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
 bool is_even(T t) {
-  return !is_odd(t); 
+  return !is_odd(t);
 }
 ```
 
@@ -484,22 +484,22 @@ using enable_if_t = typename enable_if<_Test, _Ty>::type;
 
 **使用场景**
 **类型偏特化**
-在使用模板编程的时候，可以使用enbale_if的特性根据模板参数的不同特性进行不同的类型选择。
+在使用模板编程的时候，可以使用 enbale_if 的特性根据模板参数的不同特性进行不同的类型选择。
 
 ```cpp
 template<class T, class Enable = void>
 class Test {
 public:
- Test() { 
-  std::cout << "normal template" << std::endl; 
+ Test() {
+  std::cout << "normal template" << std::endl;
  }
-}; 
+};
 
 template<class T>
 class Test<T, typename std::enable_if<std::is_floating_point<T>::value>::type> {
 public:
- Test() { 
-  std::cout << "is_floating_point" << std::endl; 
+ Test() {
+  std::cout << "is_floating_point" << std::endl;
  }
 };
 int main() {
@@ -522,19 +522,19 @@ is_floating_point
 ```cpp
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value,bool>::type
-GetValue (T i) { 
+GetValue (T i) {
  cout << "is integral" << endl;
- return i>0;  
+ return i>0;
 }
 template <typename T>
 typename std::enable_if<!std::is_integral<T>::value,bool>::type
-GetValue (T i) { 
+GetValue (T i) {
  cout << "is not integral" << endl;
- return i>0; 
+ return i>0;
 }
 
-int main() 
- int i = 1;    
+int main()
+ int i = 1;
  float f = 2.0;
  std::cout << i << " GetValue : " << GetValue(i) << std::endl;
  std::cout << f << " GetValue : " << GetValue(f) << std::endl;
@@ -557,13 +557,13 @@ int main()
 template <typename T,
           typename std::enable_if<std::is_integral<T>::value, int>::type = 0>
 void TestFunc(T msg) {
- std::cout << "is integral" << std::endl; 
+ std::cout << "is integral" << std::endl;
 }
 
 template <typename T,
           typename std::enable_if<!std::is_integral<T>::value, int>::type = 0>
 void TestFunc(T msg) {
- std::cout << "is not integral" << std::endl; 
+ std::cout << "is not integral" << std::endl;
 }
 ```
 
@@ -574,7 +574,7 @@ is integral
 is not integral
 ```
 
-另外这块的详细使用场景也可以看下百度apollo cyber代码中message部分的封装，也是大量使用了std::enable_if。
+另外这块的详细使用场景也可以看下百度 apollo cyber 代码中 message 部分的封装，也是大量使用了 std::enable_if。
 
 ## `C++ 17`
 
@@ -582,17 +582,15 @@ is not integral
 >
 > [C++语法糖(std::optional)详解以及示例代码](https://zhuanlan.zhihu.com/p/627806230)
 >
-> [C++17之std::optional全方位详解](https://blog.csdn.net/hhdshg/article/details/103433781)
->
->
+> [C++17 之 std::optional 全方位详解](https://blog.csdn.net/hhdshg/article/details/103433781)
 
 ### 1. std::optional
 
-类模板 `std::optional` 管理一个*可选* ﻿的所含值，即**既可以存在也可以不存在的值**。
+类模板 `std::optional` 管理一个*可选*的所含值，即**既可以存在也可以不存在的值**。
 
 一种常见的 `optional` 使用情况是作为可能失败的函数的返回值。与如 [std::pair](http://zh.cppreference.com/w/cpp/utility/pair)<T, bool> 等其他手段相比，`optional` 可以很好地处理构造开销高昂的对象，并更加可读，因为它明确表达了意图。
 
-当一个 `optional<T>` 类型的对象被[按语境转换到 bool](https://zh.cppreference.com/w/cpp/language/implicit_conversion) 时，若对象*含值* ﻿则转换返回 true，若它*不含值*" ﻿则返回 false。
+当一个 `optional<T>` 类型的对象被[按语境转换到 bool](https://zh.cppreference.com/w/cpp/language/implicit_conversion) 时，若对象*含值*则转换返回 true，若它*不含值*则返回 false。
 
 ```C++
 #include <iostream>
@@ -613,19 +611,19 @@ int main() {
     } else {
         std::cout << "Result 1: division by zero" << std::endl;
     }
-    
+
     auto result2 = divide(10, 0);
     if (result2.has_value()) {
         std::cout << "Result 2: " << result2.value() << std::endl;
     } else {
         std::cout << "Result 2: division by zero" << std::endl;
     }
-    
+
     return 0;
 }
 ```
 
-如果分母为零，则返回一个std::nullopt，表示结果不存在。否则，返回一个包含除法结果的std::optional<int>类型的对象。
+如果分母为零，则返回一个 std::nullopt，表示结果不存在。否则，返回一个包含除法结果的 std::optional<int>类型的对象。
 
 ### 2. [[maybe_unused]]
 
@@ -641,7 +639,7 @@ int main() {
 - [枚举](https://runebook.dev/zh-CN/docs/cpp/language/enum)： `enum [[maybe_unused]] E {};` ，
 - 枚举器： `enum { A [[maybe_unused]], B [[maybe_unused]] = 42 };` 。
 
-如果编译器对未使用的实体发出警告,那么对于任何被声明为maybe_unused的实体,该警告将被抑制。
+如果编译器对未使用的实体发出警告,那么对于任何被声明为 maybe_unused 的实体,该警告将被抑制。
 
 ```C++
 [[maybe_unused]] void f([[maybe_unused]] bool thing1,
@@ -686,23 +684,23 @@ int test(int a, int b, [[maybe_unused]] int c) {  // Modified
 
 > [C++17 的 多态内存分配器 - 知乎 (zhihu.com)](https://zhuanlan.zhihu.com/p/359409607)
 >
-> [标准库头文件  - C++中文 - API参考文档 (apiref.com)](https://www.apiref.com/cpp-zh/cpp/header/memory_resource.html)
+> [标准库头文件 - C++中文 - API 参考文档 (apiref.com)](https://www.apiref.com/cpp-zh/cpp/header/memory_resource.html)
 
 C++ 17 引入了一系列新的内存管理工具, 定义在 header `<memory_resources>` 之中. 其中的东西都在 namespace `std::pmr` 下. pmr 的意思是 polymorphic memory resources.多态的内存分配器。
 
 ```c++
-class memory_resource; 
+class memory_resource;
 
 template<class Tp> class polymorphic_allocator; // Tp 是需要被分配的类型
 
-memory_resource* new_delete_resource() noexcept; 
-memory_resource* null_memory_resource() noexcept; 
-memory_resource* set_default_resource(memory_resource* r) noexcept; 
-memory_resource* get_default_resource() noexcept; 
+memory_resource* new_delete_resource() noexcept;
+memory_resource* null_memory_resource() noexcept;
+memory_resource* set_default_resource(memory_resource* r) noexcept;
+memory_resource* get_default_resource() noexcept;
 
-struct pool_options; 
-class synchronized_pool_resource; 
-class unsynchronized_pool_resource; 
+struct pool_options;
+class synchronized_pool_resource;
+class unsynchronized_pool_resource;
 class monotonic_buffer_resource;
 ```
 
@@ -783,93 +781,93 @@ int main() {
 
 1. **只能在函数或方法内部使用**
 
-    `if constexpr` 只能出现在函数体内部，包括普通函数、成员函数、lambda 表达式等。这是因为 `if constexpr` 的主要目的是在编译时根据条件选择代码路径，而这些代码路径只能在函数执行期间实际使用。
+   `if constexpr` 只能出现在函数体内部，包括普通函数、成员函数、lambda 表达式等。这是因为 `if constexpr` 的主要目的是在编译时根据条件选择代码路径，而这些代码路径只能在函数执行期间实际使用。
 
 2. **不能在类的成员变量初始化或全局作用域中使用**
 
-    由于 `if constexpr` 需要在编译时评估，因此它不能直接用于全局作用域，也不能用于类的成员变量初始化表达式中。
+   由于 `if constexpr` 需要在编译时评估，因此它不能直接用于全局作用域，也不能用于类的成员变量初始化表达式中。
 
-    **错误示例：**
+   **错误示例：**
 
-    ```cpp
-    class MyClass {
-        int x = if constexpr (true) { return 1; } else { return 2; };  // 错误：不能在类成员变量初始化时使用
-    };
-    ```
+   ```cpp
+   class MyClass {
+       int x = if constexpr (true) { return 1; } else { return 2; };  // 错误：不能在类成员变量初始化时使用
+   };
+   ```
 
 3. **不能用于模板参数列表中**
 
-    `if constexpr` 不能直接用于模板参数列表或在模板参数列表中使用。
+   `if constexpr` 不能直接用于模板参数列表或在模板参数列表中使用。
 
-    **错误示例：**
+   **错误示例：**
 
-    ```cpp
-    template <typename T, if constexpr (std::is_integral<T>::value)>  // 错误：不能在模板参数列表中使用
-    void func() {
-        // ...
-    }
-    ```
+   ```cpp
+   template <typename T, if constexpr (std::is_integral<T>::value)>  // 错误：不能在模板参数列表中使用
+   void func() {
+       // ...
+   }
+   ```
 
 4. **可以用于函数内部的模板代码**
 
-    `if constexpr` 经常用于模板函数中，以根据模板参数的特性选择不同的代码路径。这是 `if constexpr` 最常见的用途之一。
+   `if constexpr` 经常用于模板函数中，以根据模板参数的特性选择不同的代码路径。这是 `if constexpr` 最常见的用途之一。
 
-    **正确示例：**
+   **正确示例：**
 
-    ```cpp
-    template <typename T>
-    void process(T value) {
-        if constexpr (std::is_integral_v<T>) {
-            std::cout << value << " is an integral type.\n";
-        } else {
-            std::cout << value << " is not an integral type.\n";
-        }
-    }
-    ```
+   ```cpp
+   template <typename T>
+   void process(T value) {
+       if constexpr (std::is_integral_v<T>) {
+           std::cout << value << " is an integral type.\n";
+       } else {
+           std::cout << value << " is not an integral type.\n";
+       }
+   }
+   ```
 
 5. **可以用于 lambda 表达式中**
 
-    `if constexpr` 也可以在 lambda 表达式的主体中使用。
+   `if constexpr` 也可以在 lambda 表达式的主体中使用。
 
-    **正确示例：**
+   **正确示例：**
 
-    ```cpp
-    auto lambda = [](auto value) {
-        if constexpr (std::is_integral_v<decltype(value)>) {
-            std::cout << value << " is an integral type.\n";
-        } else {
-            std::cout << value << " is not an integral type.\n";
-        }
-    };
-    ```
+   ```cpp
+   auto lambda = [](auto value) {
+       if constexpr (std::is_integral_v<decltype(value)>) {
+           std::cout << value << " is an integral type.\n";
+       } else {
+           std::cout << value << " is not an integral type.\n";
+       }
+   };
+   ```
 
 6. **不能用于类成员变量的直接初始化**
 
-    由于 `if constexpr` 是编译时条件，因此它不能用于直接初始化类的成员变量，而应当在构造函数或成员函数内使用。
+   由于 `if constexpr` 是编译时条件，因此它不能用于直接初始化类的成员变量，而应当在构造函数或成员函数内使用。
 
-    **错误示例：**
+   **错误示例：**
 
-    ```cpp
-    class MyClass {
-        int x = if constexpr (true) { return 1; } else { return 0; };  // 错误
-    };
-    ```
+   ```cpp
+   class MyClass {
+       int x = if constexpr (true) { return 1; } else { return 0; };  // 错误
+   };
+   ```
 
-    **正确示例：**
+   **正确示例：**
 
-    ```cpp
-    class MyClass {
-        int x;
-    public:
-        MyClass() {
-            if constexpr (true) {
-                x = 1;
-            } else {
-                x = 0;
-            }
-        }
-    };
-    ```
+   ```cpp
+   class MyClass {
+       int x;
+   public:
+       MyClass() {
+           if constexpr (true) {
+               x = 1;
+           } else {
+               x = 0;
+           }
+       }
+   };
+   ```
 
 总结
 
@@ -883,7 +881,7 @@ int main() {
 
 (GSL:Guidelines support library)
 
-C++ 的语法特性实在是太多了，因此实践过程中许多人只选择了 C++ 的一部分语言特性进行开发，从而约定了最佳实践（用什么、怎么用、要不要用）。其中一个著名的规范就是CCG （C++ Core Guidelines）。为了在开发过程中更好地遵守 CCG 的最佳实践，可以使用 GSL（The Guideline Support Library） 库。
+C++ 的语法特性实在是太多了，因此实践过程中许多人只选择了 C++ 的一部分语言特性进行开发，从而约定了最佳实践（用什么、怎么用、要不要用）。其中一个著名的规范就是 CCG （C++ Core Guidelines）。为了在开发过程中更好地遵守 CCG 的最佳实践，可以使用 GSL（The Guideline Support Library） 库。
 
 Philosophy.4: Ideally, a program should be statically type safe
 
@@ -893,7 +891,7 @@ Philosophy.4: Ideally, a program should be statically type safe
 int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 ```
 
-在转化的类型可以容纳时，narrow_cast可以正常运行，如果narrow_cast转化后的值与原值不同时，会抛出runtime_error的异常。
+在转化的类型可以容纳时，narrow_cast 可以正常运行，如果 narrow_cast 转化后的值与原值不同时，会抛出 runtime_error 的异常。
 
 ## c++ 标准库头文件
 
@@ -920,21 +918,21 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 
 整型提升是 C 程序设计语言中的一项规定：在**表达式计算**时，各种整形首先要提升为 int 类型，如果 int 类型不足以表示则要提升为 unsigned int 类型；然后执行表达式的运算。
 
-一些数据类型（比如char，short int）比int占用更少的字节数，对它们执行操作时，这些数据类型会自动提升为int或unsigned int。
+一些数据类型（比如 char，short int）比 int 占用更少的字节数，对它们执行操作时，这些数据类型会自动提升为 int 或 unsigned int。
 
 **寻常算术转换**：
 
 许多操作数类型为算术类型的双目运算符会引发转换，并以类似的方式产生结果类型。它的目的的产生一个普通类型，同时也是运算结果的类型。这个模式成为“寻常算术转换”。
 
- 如果其中一个操作数类型是long double，那么另一个操作数也被转换为long double。其次如果一个操作数的类型是double，那么另一个操作数也被转换为double，再次，如果其中一个操作数的类型是float，那么另一个操作数也被转换为float。否则两个操作数进行整形升级，执行下面的规则：
+如果其中一个操作数类型是 long double，那么另一个操作数也被转换为 long double。其次如果一个操作数的类型是 double，那么另一个操作数也被转换为 double，再次，如果其中一个操作数的类型是 float，那么另一个操作数也被转换为 float。否则两个操作数进行整形升级，执行下面的规则：
 
-如果其中一个操作数的类型是unsigned long int，那么另一个操作数也被转换成unsigned long int。其次，如果其中一个操作数类型是long int，而另一个操作数的类型是unsigned int，如果long int能够完整表示unsigned int的所有值，那么unsigned int 类型操作数操作数被转换为long int，如果long int 不能完整表示unsigned int的所有值，那么两个操作数都被转换为unsigned long int。再次，如果一个操作数的类型是long int，那么另一个操作数被转换为long int。再再次，如果一个操作数的类型是是unsigned int，那么另一个操作数被转换为unsigned int。如果所有以上情况都不属于，那么两个操作数都为int。
+如果其中一个操作数的类型是 unsigned long int，那么另一个操作数也被转换成 unsigned long int。其次，如果其中一个操作数类型是 long int，而另一个操作数的类型是 unsigned int，如果 long int 能够完整表示 unsigned int 的所有值，那么 unsigned int 类型操作数操作数被转换为 long int，如果 long int 不能完整表示 unsigned int 的所有值，那么两个操作数都被转换为 unsigned long int。再次，如果一个操作数的类型是 long int，那么另一个操作数被转换为 long int。再再次，如果一个操作数的类型是是 unsigned int，那么另一个操作数被转换为 unsigned int。如果所有以上情况都不属于，那么两个操作数都为 int。
 
-采用通俗语言大意如下：**当执行算术运算时，操作数的类型如果不同，就会发生转换。数据类型一般朝着浮点精度更高、长度更长的方向转换，整型数如果转换为signed不会丢失信息，就转换为signed，否则转换为unsigned**。
+采用通俗语言大意如下：**当执行算术运算时，操作数的类型如果不同，就会发生转换。数据类型一般朝着浮点精度更高、长度更长的方向转换，整型数如果转换为 signed 不会丢失信息，就转换为 signed，否则转换为 unsigned**。
 
-整型提升的意义在于：表达式的整型运算要在 CPU 的相应运算器件内执行，CPU 内整型运算器(ALU)的操作数的字节长度一般就是 int 的字节长度，同时也是 CPU 的通用寄存器的长度。因此，即使两个 char 类型的相加，在 CPU 执行时实际上也要先转换为 CPU 内整型操作数的标准长度。通用 CPU（general-purpose CPU）是难以直接实现两个8比特字节直接相加运算（虽然机器指令中可能有这种字节相加指令）。所以，表达式中各种长度可能小于 int 长度的整型值，都必须先转换为 int 或 unsigned int，然后才能送入 CPU 去执行运算。
+整型提升的意义在于：表达式的整型运算要在 CPU 的相应运算器件内执行，CPU 内整型运算器(ALU)的操作数的字节长度一般就是 int 的字节长度，同时也是 CPU 的通用寄存器的长度。因此，即使两个 char 类型的相加，在 CPU 执行时实际上也要先转换为 CPU 内整型操作数的标准长度。通用 CPU（general-purpose CPU）是难以直接实现两个 8 比特字节直接相加运算（虽然机器指令中可能有这种字节相加指令）。所以，表达式中各种长度可能小于 int 长度的整型值，都必须先转换为 int 或 unsigned int，然后才能送入 CPU 去执行运算。
 
-例如：对精度低于int类型的无符号整数进行**位运算**时，编译器会进行整数提升，再对提升后的整数进行位运算，因此要特别注意对于这类无符号整数的位运算，避免出现非预期的结果。
+例如：对精度低于 int 类型的无符号整数进行**位运算**时，编译器会进行整数提升，再对提升后的整数进行位运算，因此要特别注意对于这类无符号整数的位运算，避免出现非预期的结果。
 
 ## 命名空间
 
@@ -945,13 +943,13 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 - **每个命名空间都是一个作用域**：命名空间中的每个名字都必须表示该空间内的唯一实体。定义在某个命名空间中的名字可以被该命名**空间内的其它成员直接访问**，也可以被这些成员**内嵌作用域中的任何单位访问**。位于该**命名空间之外**的代码则必须**明确指出**所用的名字属于哪个命名空间。
 - **命名空间可以是不连续的**：直观理解是：同一个命名空间出现在多个文件中，但他们仍组成一个命名空间。命名空间可以定义在几个不同的部分，这一点与其它作用域不太一样。命名空间的定义可以不连续的特性使得我们可以**将几个独立的接口和实现文件组成一个命名空间**。此时，命名空间的组织方式类似于我们管理自定义类及函数的方式：命名空间的一部分成员的作用是定义类，以及声明作为类接口的函数及对象，则这些成员应该置于头文件中，这些头文件将被包含在使用了这些成员的文件中。命名空间成员的定义部分则置于另外的源文件中。
 
-- **内联命名空间**：C++11新标准引入了一种新的嵌套命名空间，称为内联命名空间(inline namespace)。和普通的嵌套命名空间不同，**内联命名空间中的名字可以被外层命名空间直接使用**。也就是说，我们无须在内联命名空间的名字前添加表示该命名空间的前缀，通过外层命名空间的名字就可以直接访问它。定义内联命名空间的方式是在关键字namespace前添加关键字inline。关键字inline必须出现在命名空间第一次定义的地方，后续再打开命名空间的时候可以写inline，也可以不写。当应用程序的代码在一次发布和另一次发布之间发生了改变时，常常会用到内联命名空间。
-- **未命名的命名空间**(unnamed namespace)：是指关键字namespace后紧跟花括号括起来的一系列声明语句。未命名的命名空间中定义的变量拥有静态生命周期：它们在第一次使用前创建，并且直到程序结束才销毁。
-- **using声明**：一条using声明(usingdeclaration)语句一次只引入命名空间的一个成员。它使得我们可以清楚地知道程序中所用的到底是哪个名字。
-- **using指示**(usingdirective)：和using声明类似的地方是，我们可以使用命名空间名字的简写形式；和using声明不同的地方是，我们无法控制哪些名字是可见的，因为所有名字都是可见的。using指示以关键字using开始，后面是关键字namespace以及命名空间的名字。
-- **避免using指示**：using指示一次性注入某个命名空间的所有名字，这种用法看似简单实则充满了风险：只使用一条语句就突然将命名空间中所有成员的名字变得可见了。如果应用程序使用了多个不同的库，而这些库中的名字通过using指示变得可见，则全局命名空间污染的问题将重新出现。
+- **内联命名空间**：C++11 新标准引入了一种新的嵌套命名空间，称为内联命名空间(inline namespace)。和普通的嵌套命名空间不同，**内联命名空间中的名字可以被外层命名空间直接使用**。也就是说，我们无须在内联命名空间的名字前添加表示该命名空间的前缀，通过外层命名空间的名字就可以直接访问它。定义内联命名空间的方式是在关键字 namespace 前添加关键字 inline。关键字 inline 必须出现在命名空间第一次定义的地方，后续再打开命名空间的时候可以写 inline，也可以不写。当应用程序的代码在一次发布和另一次发布之间发生了改变时，常常会用到内联命名空间。
+- **未命名的命名空间**(unnamed namespace)：是指关键字 namespace 后紧跟花括号括起来的一系列声明语句。未命名的命名空间中定义的变量拥有静态生命周期：它们在第一次使用前创建，并且直到程序结束才销毁。
+- **using 声明**：一条 using 声明(usingdeclaration)语句一次只引入命名空间的一个成员。它使得我们可以清楚地知道程序中所用的到底是哪个名字。
+- **using 指示**(usingdirective)：和 using 声明类似的地方是，我们可以使用命名空间名字的简写形式；和 using 声明不同的地方是，我们无法控制哪些名字是可见的，因为所有名字都是可见的。using 指示以关键字 using 开始，后面是关键字 namespace 以及命名空间的名字。
+- **避免 using 指示**：using 指示一次性注入某个命名空间的所有名字，这种用法看似简单实则充满了风险：只使用一条语句就突然将命名空间中所有成员的名字变得可见了。如果应用程序使用了多个不同的库，而这些库中的名字通过 using 指示变得可见，则全局命名空间污染的问题将重新出现。
 
-> [C++/C++11中命名空间(namespace)的使用](https://www.huaweicloud.com/articles/12620834.html)
+> [C++/C++11 中命名空间(namespace)的使用](https://www.huaweicloud.com/articles/12620834.html)
 
 ## 初始化方式
 
@@ -971,18 +969,18 @@ private:
 
 ```c++
 class C {
-private:  
+private:
     int a=7;  // C++11 only
     int b{7}; // or int b={7}; C++11 only
     int c(7); // error，小括号初始化方式不能用于就地初始化。
-};  
+};
 ```
 
 ### 就地初始化与初始化列表的先后顺序
 
 C++11 支持了就地初始化非静态数据成员的同时，初始化列表的方式也被保留下来，也就是说既可以使用就地初始化，也可以使用初始化列表来完成数据成员的初始化工作。当二者同时使用时并不冲突，**初始化列表发生在就地初始化之后**，即最终的初始化结果以初始化列表为准。
 
-在C++11中，对象初始化拥有多种语法选择：圆括号，等号，花括号：
+在 C++11 中，对象初始化拥有多种语法选择：圆括号，等号，花括号：
 
 ```C++
 int x(0); //用圆括号初始化
@@ -993,7 +991,7 @@ int z = { 0 };  //用"="和花括号初始化，C++通常把它和“只使用�
 
 C++ 中指定初始化值的三种方式中，只有花括号能用在每个地方。
 
-花括号初始化有一个新奇的特性，它**阻止在built-in类型中的隐式收缩转换**（narrowing conversation）。如果表达式的值不能保证被初始化对象表现出来，代码将无法通过编译。用圆括号和”=“初始化不会检查收缩转换（narrowing conversation）。
+花括号初始化有一个新奇的特性，它**阻止在 built-in 类型中的隐式收缩转换**（narrowing conversation）。如果表达式的值不能保证被初始化对象表现出来，代码将无法通过编译。用圆括号和”=“初始化不会检查收缩转换（narrowing conversation）。
 
 ```c++
 double x, y, z;
@@ -1003,11 +1001,11 @@ int sum2(x + y + z); //可以（表达式的值被截断为 int）
 int sum3 = x + y + z; //同上
 ```
 
-花括号初始化的另外一个值得一谈的特性是它能避免C++最令人恼火的解析。
+花括号初始化的另外一个值得一谈的特性是它能避免 C++最令人恼火的解析。
 
-初始化经常使用括号，或者是使用大括号，或者是复赋值操作。因为这个原因，c++11提出了统一初始化，意味着使用这初始化列表，
+初始化经常使用括号，或者是使用大括号，或者是复赋值操作。因为这个原因，c++11 提出了统一初始化，意味着使用这初始化列表，
 
-一个初始化列表强制使用赋值操作， 也就是意味着每个变量都是一个默认的初始化值，被初始化为0（NULL 或者是 nullptr）。如下：
+一个初始化列表强制使用赋值操作， 也就是意味着每个变量都是一个默认的初始化值，被初始化为 0（NULL 或者是 nullptr）。如下：
 
 ```c++
 int i; //这是一个未定义的行为
@@ -1039,17 +1037,17 @@ vector<short> tmp3 {1, c, 5}; // 从 "int" 到 "short" 进行收缩转换无效
 
 > 如在列表初始化中出现缩窄转换，编译无法通过。
 
-****
+---
 
-## 顶层const 和 底层 const 理解
+## 顶层 const 和 底层 const 理解
 
-首先，const是一个限定符，被它修饰的变量的值不能改变。
+首先，const 是一个限定符，被它修饰的变量的值不能改变。
 
-对于**一般的变量**来说，其实**没有**顶层const和底层const的区别，而只有像**指针**这类复合类型的基本变量，才有这样的区别。
+对于**一般的变量**来说，其实**没有**顶层 const 和底层 const 的区别，而只有像**指针**这类复合类型的基本变量，才有这样的区别。
 
-1. 顶层const：指的是 const 修饰的**变量本身**是一个常量，无法修改，指的是指针，就是 * 号的右边
+1. 顶层 const：指的是 const 修饰的**变量本身**是一个常量，无法修改，指的是指针，就是 \* 号的右边
 
-2. 底层const：指的是 const 修饰的变量**所指向的对象**是一个常量，指的是所指变量，就是 * 号的左边
+2. 底层 const：指的是 const 修饰的变量**所指向的对象**是一个常量，指的是所指变量，就是 \* 号的左边
 
 ```c++
 int a = 10;
@@ -1071,7 +1069,7 @@ Tips:
 
 2. const 成员函数本质上是修饰 this 指针，成员变量引用会被看成常量指针的。
 
-3. **const的引用(reference to const)**对于引用对象本身是否是一个常量没有做出限定，因此对象也可能是个非常量，允许通过其他途径改变它的值。
+3. **const 的引用(reference to const)**对于引用对象本身是否是一个常量没有做出限定，因此对象也可能是个非常量，允许通过其他途径改变它的值。
 
 4. **指向常量的指针**也没有规定其所指的对象必须是一个常量，所谓指向常量**仅仅要求不能通过该指针修改所指向对象的值**，而**没有规定所指对象的值不能通过其他途径改变**。
 
@@ -1083,7 +1081,7 @@ Tips:
 
    作用：指针的引用就是指针的别名，可以用这个别名全局地修改指针，类比变量的引用。否则就需要用指针的指针。
 
-> [Difference between const int*, const int * const, and int const *](https://www.geeksforgeeks.org/difference-between-const-int-const-int-const-and-int-const/)
+> [Difference between const int*, const int * const, and int const \*](https://www.geeksforgeeks.org/difference-between-const-int-const-int-const-and-int-const/)
 >
 > ![](https://media.geeksforgeeks.org/wp-content/cdn-uploads/PointersWithConstants-1024x535.png)
 
@@ -1100,27 +1098,27 @@ stl_placement_new
 
 ## 类型转换
 
-[C++标准转换运算符reinterpret_cast](https://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html)
+[C++标准转换运算符 reinterpret_cast](https://www.cnblogs.com/ider/archive/2011/07/30/cpp_cast_operator_part3.html)
 
-reinterpret_cast运算符是用来处理无关类型之间的转换；它会产生一个新的值，这个值会有与原始参数（expressoin）有完全相同的比特位。
+reinterpret_cast 运算符是用来处理无关类型之间的转换；它会产生一个新的值，这个值会有与原始参数（expressoin）有完全相同的比特位。
 
-所以总结来说：reinterpret_cast用在任意指针（或引用）类型之间的转换；以及指针与足够大的整数类型之间的转换；从整数类型（包括枚举类型）到指针类型，无视大小。
+所以总结来说：reinterpret_cast 用在任意指针（或引用）类型之间的转换；以及指针与足够大的整数类型之间的转换；从整数类型（包括枚举类型）到指针类型，无视大小。
 
-（所谓"足够大的整数类型",取决于操作系统的参数，如果是32位的操作系统，就需要整形（int）以上的；如果是64位的操作系统，则至少需要长整形（long）。具体大小可以通过sizeof运算符来查看）。
+（所谓"足够大的整数类型",取决于操作系统的参数，如果是 32 位的操作系统，就需要整形（int）以上的；如果是 64 位的操作系统，则至少需要长整形（long）。具体大小可以通过 sizeof 运算符来查看）。
 
 ## C++ 说明符和限定符
 
 > [C++ 说明符和限定符](https://zhuanlan.zhihu.com/p/645909785)
 
-在C++中，说明符（Specifier）和限定符（Qualifier）用于修饰数据类型、函数、变量等，以改变其行为或提供额外的信息。它们是编程语言中的关键字或关键字组合。下面是一些常见的C++说明符和限定符：
+在 C++中，说明符（Specifier）和限定符（Qualifier）用于修饰数据类型、函数、变量等，以改变其行为或提供额外的信息。它们是编程语言中的关键字或关键字组合。下面是一些常见的 C++说明符和限定符：
 
 1. 数据类型说明符：
 
 - int: 整数类型，用于声明整数变量。
 - double: 双精度浮点数类型，用于声明带有小数点的浮点数变量。
-- float: 单精度浮点数类型，类似于double但存储空间较小。
+- float: 单精度浮点数类型，类似于 double 但存储空间较小。
 - char: 字符类型，用于声明单个字符变量。
-- bool: 布尔类型，用于声明布尔值（true或false）变量。
+- bool: 布尔类型，用于声明布尔值（true 或 false）变量。
 - void: 空类型，用于表示没有返回值的函数或空指针。
 
 存储类说明符：
@@ -1129,7 +1127,7 @@ reinterpret_cast运算符是用来处理无关类型之间的转换；它会产�
 - static: 静态存储类，使得局部变量在程序生命周期内保持其值，且只初始化一次。
 - extern: 外部存储类，用于声明全局变量，并表示该变量在其他文件中定义。
 - register: 寄存器存储类，用于请求将变量存储在寄存器中，以便更快地访问。
-- mutable: 用于修饰类的成员变量，允许在const成员函数中修改这些变量。
+- mutable: 用于修饰类的成员变量，允许在 const 成员函数中修改这些变量。
 
 限定符：
 
@@ -1137,9 +1135,9 @@ reinterpret_cast运算符是用来处理无关类型之间的转换；它会产�
 
 - volatile: 用于声明易变的变量，告诉编译器不要进行优化，因为变量的值可能会在意料之外的情况下改变（如中断）。
 
-- restrict（C99标准新增）：用于告知编译器，该指针是访问对象的唯一且初始的方式，从而进行优化。
+- restrict（C99 标准新增）：用于告知编译器，该指针是访问对象的唯一且初始的方式，从而进行优化。
 
-  在保证多个指针所指向的区域无交叠的前提下，可以将这些指针加上restrict限定符，用于指导编译器做出更激进的优化。
+  在保证多个指针所指向的区域无交叠的前提下，可以将这些指针加上 restrict 限定符，用于指导编译器做出更激进的优化。
 
 访问限定符：
 
@@ -1147,9 +1145,9 @@ reinterpret_cast运算符是用来处理无关类型之间的转换；它会产�
 - private: 在类中指定私有成员，只能在类的内部访问。
 - protected: 在类中指定受保护成员，可以在类的内部和派生类中访问。
 
-这些说明符和限定符提供了更多的灵活性和控制，帮助开发者在C++中编写更有效、安全和可维护的代码。
+这些说明符和限定符提供了更多的灵活性和控制，帮助开发者在 C++中编写更有效、安全和可维护的代码。
 
-在C++11中引入了 thread_local 关键字，它是一个存储类说明符，用于声明线程局部存储的变量。这使得变量的值在每个线程中都有一份独立的副本，而不是像普通变量那样在所有线程之间共享。
+在 C++11 中引入了 thread_local 关键字，它是一个存储类说明符，用于声明线程局部存储的变量。这使得变量的值在每个线程中都有一份独立的副本，而不是像普通变量那样在所有线程之间共享。
 
 非类型描述符放在类型描述符的左边，更符合阅读习惯。
 
@@ -1169,11 +1167,11 @@ virtual void Fun(); // 符合：virtual 放在 void 左边
 > - constexpr
 > - explicit 说明符
 
-## restrict关键字
+## restrict 关键字
 
-restrict 关键字是 C 语言中的一种类型限定符（Type Qualifiers），只用于限定指针，该关键字用于告诉编译器，所有修改该指针指向内容的操作，**全部是基于该指针的，即不存在其他修改操作的途径**，消除pointer aliasing（指针别名），从而帮助编译器**生成更优的机器码**。在保证多个指针所指向的区域无交叠的前提下，可以将这些指针加上restrict限定符，用于指导编译器做出更激进的优化。
+restrict 关键字是 C 语言中的一种类型限定符（Type Qualifiers），只用于限定指针，该关键字用于告诉编译器，所有修改该指针指向内容的操作，**全部是基于该指针的，即不存在其他修改操作的途径**，消除 pointer aliasing（指针别名），从而帮助编译器**生成更优的机器码**。在保证多个指针所指向的区域无交叠的前提下，可以将这些指针加上 restrict 限定符，用于指导编译器做出更激进的优化。
 
-需要特别**注意**的是，如果指针指向同一块区域而错误的加上了restrict限定符，则结果是未定义的。
+需要特别**注意**的是，如果指针指向同一块区域而错误的加上了 restrict 限定符，则结果是未定义的。
 
 这个指针有两个作用，一个是告诉编译器，编译器一旦获得了这个信息，那么就可以放心大胆地对这个进行优化。另一个作用是告诉程序员，这段内存只能通过这个指针访问。
 
@@ -1187,7 +1185,7 @@ int add(int *a, int *b){
 }
 ```
 
-在这个函数中，有的同学就说了，直接返回22不就好了，这么想的同学就**忽略了a==b的可能**，如果a和b指向同一个地址，那么这个函数将返回24。实际上，编译器就是这个想要把额外操作去掉的“同学”，如果我们能清晰的告诉他，a和b在本函数中不管怎么移动都永远不可能指向相同的地址，那么，处理这个函数时，*a +*b 可以直接使用两立即数相加，不需要再从地址中读取值，就能优化代码执行的效率。**因此，在没有指明a不可能等于b的情况下，编译器能做到的最大优化就是，b指向地址的值一定是12，但a的值必须从地址中读取**。
+在这个函数中，有的同学就说了，直接返回 22 不就好了，这么想的同学就**忽略了 a==b 的可能**，如果 a 和 b 指向同一个地址，那么这个函数将返回 24。实际上，编译器就是这个想要把额外操作去掉的“同学”，如果我们能清晰的告诉他，a 和 b 在本函数中不管怎么移动都永远不可能指向相同的地址，那么，处理这个函数时，*a +*b 可以直接使用两立即数相加，不需要再从地址中读取值，就能优化代码执行的效率。**因此，在没有指明 a 不可能等于 b 的情况下，编译器能做到的最大优化就是，b 指向地址的值一定是 12，但 a 的值必须从地址中读取**。
 
 ```cpp
 int add(int __restrict *a, int __restrict *b){
@@ -1197,9 +1195,9 @@ int add(int __restrict *a, int __restrict *b){
 }
 ```
 
-- 作用二：告诉程序员，这段内存需要满足restrict规则
+- 作用二：告诉程序员，这段内存需要满足 restrict 规则
 
-C库中有两个函数可以从一个位置把字节复制到另一个位置。在C99标准下，它们的原型如下：
+C 库中有两个函数可以从一个位置把字节复制到另一个位置。在 C99 标准下，它们的原型如下：
 
 ```cpp
 void * memcpy（void * restrict s1, const void * restrict s2, size_t n);
@@ -1219,48 +1217,48 @@ void test()
 }
 ```
 
-如上面的代码，tmp 初始指向字符 "I"，按照本意，我们是想把从 ptr 开始的5个字符 "Hello" 复制到从 tmp 开始的地址上。那么如果memcpy 没有考虑地址重叠的话，它会从 ptr 开始把字符一个一个拷贝到 tmp 地址上。那么你就会发现，当把第一个字符 "H" 拷贝到tmp指向 "I" 的位置的时候，被拷贝的5个字符已经变成“HelHo"了，也就是改 dst 的同时，也改到了 src 了。那这样起来肯定会违背我们的本意，但是这个不是 memcpy 的锅，人家已经通过 restrict 告诉你s2这块地址只有限定在只能通过 s2 指针来访问才能保证没问题，是你自己没按照函数规则来。
+如上面的代码，tmp 初始指向字符 "I"，按照本意，我们是想把从 ptr 开始的 5 个字符 "Hello" 复制到从 tmp 开始的地址上。那么如果 memcpy 没有考虑地址重叠的话，它会从 ptr 开始把字符一个一个拷贝到 tmp 地址上。那么你就会发现，当把第一个字符 "H" 拷贝到 tmp 指向 "I" 的位置的时候，被拷贝的 5 个字符已经变成“HelHo"了，也就是改 dst 的同时，也改到了 src 了。那这样起来肯定会违背我们的本意，但是这个不是 memcpy 的锅，人家已经通过 restrict 告诉你 s2 这块地址只有限定在只能通过 s2 指针来访问才能保证没问题，是你自己没按照函数规则来。
 
-这也告诉我们，**在设计memcpy的时候，需要考虑内存重叠的情况**。解决办法如下，当修改dst也有可能改到src的情况下，可以把src和dst均加上要拷贝的size，然后从尾巴开始逐一字符拷贝，这样就不会有重叠了。
+这也告诉我们，**在设计 memcpy 的时候，需要考虑内存重叠的情况**。解决办法如下，当修改 dst 也有可能改到 src 的情况下，可以把 src 和 dst 均加上要拷贝的 size，然后从尾巴开始逐一字符拷贝，这样就不会有重叠了。
 
 ## POD 数据类型
 
-> [**对POD定义的修正**](https://zh.wikipedia.org/wiki/C%2B%2B11)
+> [**对 POD 定义的修正**](https://zh.wikipedia.org/wiki/C%2B%2B11)
 
-在**C++03**中，一个类（class）或结构（struct）要想被作为[POD](https://zh.wikipedia.org/wiki/POD_(程序设计))，必须遵守几条规则。符合这种定义的类别**能够产生与C兼容的对象内存布局（object layout），而且可以被静态初始化**。但C++03标准严格限制了何种类型与C兼容或可以被静态初始化的，尽管并不存在技术原因导致编译器无法处理。如果创建一个C++03 POD类型，然后为其添加一个非虚成员函数，这个类型就不再是POD类型了，从而无法被静态初始化，也不再与C兼容，尽管其内存布局并没有发生变化。
+在**C++03**中，一个类（class）或结构（struct）要想被作为[POD](<https://zh.wikipedia.org/wiki/POD_(程序设计)>)，必须遵守几条规则。符合这种定义的类别**能够产生与 C 兼容的对象内存布局（object layout），而且可以被静态初始化**。但 C++03 标准严格限制了何种类型与 C 兼容或可以被静态初始化的，尽管并不存在技术原因导致编译器无法处理。如果创建一个 C++03 POD 类型，然后为其添加一个非虚成员函数，这个类型就不再是 POD 类型了，从而无法被静态初始化，也不再与 C 兼容，尽管其内存布局并没有发生变化。
 
-**C++11**通过把POD概念划分成两个概念：***平凡的（trivial）***和**标准布局*（standard-layout）***，**放宽**了关于POD的定义。
+**C++11**通过把 POD 概念划分成两个概念：**_平凡的（trivial）_**和**标准布局*（standard-layout）***，**放宽**了关于 POD 的定义。
 
 ### Trivial 类型
 
-根据C++标准，一个类型T是Trivial的，如果它满足以下所有条件：
+根据 C++标准，一个类型 T 是 Trivial 的，如果它满足以下所有条件：
 
 a) 是一个标量类型（scalar type），或
-b) 是一个trivial类，满足：
+b) 是一个 trivial 类，满足：
 
-- 有一个trivial默认构造函数
-- 有trivial复制构造函数和移动构造函数
-- 有trivial复制赋值运算符和移动赋值运算符
-- 有一个trivial析构函数
-- 所有非静态数据成员都是trivial类型
+- 有一个 trivial 默认构造函数
+- 有 trivial 复制构造函数和移动构造函数
+- 有 trivial 复制赋值运算符和移动赋值运算符
+- 有一个 trivial 析构函数
+- 所有非静态数据成员都是 trivial 类型
 
 其中：
 
-- Trivial默认构造函数：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的（使用 = default，或者空函数体什么都不做）
-- Trivial复制/移动构造函数：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的
-- Trivial复制/移动赋值运算符：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的
-- Trivial析构函数：非虚的，并且基类的析构函数也是trivial的
+- Trivial 默认构造函数：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的（使用 = default，或者空函数体什么都不做）
+- Trivial 复制/移动构造函数：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的
+- Trivial 复制/移动赋值运算符：要么是隐式定义的，要么是用户提供的并且等同于隐式定义的
+- Trivial 析构函数：非虚的，并且基类的析构函数也是 trivial 的
 
 如果一个类或结构体满足上述所有条件，那么它就是一个平凡的类型。**平凡类型可以通过简单的内存复制操作来创建或销毁**（例如，通过 `memcpy` 或 `memset`），这在某些情况下能提高性能。
 
 ### Standard-layout 类型
 
-一个类型T是Standard-layout的，如果它满足以下所有条件：
+一个类型 T 是 Standard-layout 的，如果它满足以下所有条件：
 
 a) 是一个标量类型，或
-b) 是一个standard-layout类，满足：
+b) 是一个 standard-layout 类，满足：
 
-- **所有非静态数据成员都具有相同的访问控制（public、protected或private）**
+- **所有非静态数据成员都具有相同的访问控制（public、protected 或 private）**
 
   解释：这确保了所有成员在内存中的连续性，没有因为不同的访问级别而导致的潜在填充或重排。
 
@@ -1270,7 +1268,7 @@ b) 是一个standard-layout类，满足：
       double b;
       char c;
   }; // 全部是public，符合条件
-  
+
   class Bad {
   public:
       int a;
@@ -1287,28 +1285,28 @@ b) 是一个standard-layout类，满足：
   struct Good {
       void foo() {}
   }; // 没有虚函数，符合条件
-  
+
   struct Bad {
       virtual void foo() {} // 虚函数，不符合条件
   };
   ```
 
-- **所有非静态数据成员，包括在其所有基类中的，都是standard-layout类型**
+- **所有非静态数据成员，包括在其所有基类中的，都是 standard-layout 类型**
 
-  解释：这确保了整个类的内存布局是可预测的，因为所有成员都遵循standard-layout规则
+  解释：这确保了整个类的内存布局是可预测的，因为所有成员都遵循 standard-layout 规则
 
   ```cpp
   struct StandardLayoutMember {};
-  
+
   struct Good {
       int a;
       StandardLayoutMember b;
   }; // 所有成员都是standard-layout，符合条件
-  
+
   struct NonStandardLayoutMember {
       virtual void foo() {}
   };
-  
+
   struct Bad {
       int a;
       NonStandardLayoutMember b; // 成员不是standard-layout，不符合条件
@@ -1321,11 +1319,11 @@ b) 是一个standard-layout类，满足：
 
   ```cpp
   struct Base {};
-  
+
   struct Good : Base {
       int first; // 第一个成员类型与基类不同，符合条件
   };
-  
+
   struct Bad : Base {
       Base first; // 第一个成员类型与基类相同，不符合条件
   };
@@ -1333,14 +1331,14 @@ b) 是一个standard-layout类，满足：
 
 - **没有两个基类有<font color=red>相同类型</font>的非静态数据成员**
 
-  解释：这避免了多重继承时可能出现的成员重叠问题。// 例如两个基类都有int类型成员，不符合条件
+  解释：这避免了多重继承时可能出现的成员重叠问题。// 例如两个基类都有 int 类型成员，不符合条件
 
   ```cpp
   struct Base1 { int x; };
   struct Base2 { double y; };
-  
+
   struct Good : Base1, Base2 {}; // 基类成员类型不同，符合条件
-  
+
   struct Base3 { int z; };
   struct Bad : Base1, Base3 {}; // 两个基类都有int类型成员，不符合条件
   ```
@@ -1352,7 +1350,7 @@ b) 是一个standard-layout类，满足：
   ```cpp
   struct Base { int x; };
   struct Good : Base { double y; }; // 符合条件
-  
+
   struct Derived : Base { int y; }; // 不符合条件，与Base共享初始序列
   ```
 
@@ -1364,7 +1362,7 @@ b) 是一个standard-layout类，满足：
   > - 成员的顺序和类型必须完全匹配。
   > - 这个序列从第一个成员开始，直到遇到不同类型的成员或其中一个类型的成员结束
   >
-  > 这条规则主要影响那些需要精确控制内存布局的场景，比如：**与C语言接口交互**、**序列化和反序列化**、**底层系统编程**、**某些性能敏感的应用**
+  > 这条规则主要影响那些需要精确控制内存布局的场景，比如：**与 C 语言接口交互**、**序列化和反序列化**、**底层系统编程**、**某些性能敏感的应用**
 
 - **最多只有一个类（包括所有基类）有<font color=red>非静态</font>数据成员**
 
@@ -1373,7 +1371,7 @@ b) 是一个standard-layout类，满足：
   ```cpp
   struct Base {};
   struct Good : Base { int x; double y; }; // 只有一个类有非静态成员，符合条件
-  
+
   struct Base2 { int z; };
   struct Bad : Base2 { double w; }; // 基类和派生类都有非静态成员，不符合条件
   ```
@@ -1390,20 +1388,20 @@ b) 是一个standard-layout类，满足：
   struct StaticOnly { static int x; };
   struct Good1 : StaticOnly { int y; }; // 符合条件
   struct Good2 { int z; };
-  
+
   struct Bad : StaticOnly, Good2 { double w; }; // 不符合条件，1继承自只有静态成员的类，2继承自一个非空类，3自身有非静态数据成员
   ```
 
 ### POD (Plain Old Data) 类型
 
-在C++11之前，POD是一个统一的概念。但在C++11及以后，POD的概念被分解为两个独立的概念：trivial和standard-layout。
+在 C++11 之前，POD 是一个统一的概念。但在 C++11 及以后，POD 的概念被分解为两个独立的概念：trivial 和 standard-layout。
 
-一个类型是POD，当且仅当它**同时满足以下两个条件**：
+一个类型是 POD，当且仅当它**同时满足以下两个条件**：
 
-- 是一个trivial类型
-- 是一个standard-layout类型
+- 是一个 trivial 类型
+- 是一个 standard-layout 类型
 
-C++标准库提供了type traits来检查这些属性：
+C++标准库提供了 type traits 来检查这些属性：
 
 ```cpp
 #include <type_traits>
@@ -1413,14 +1411,14 @@ static_assert(std::is_standard_layout<StandardLayoutType>::value, "Not standard 
 std::is_pod<T>::value  // C++20前
 ```
 
-注意：`std::is_pod` 在C++20中被废弃，因为Trivial和Standard-layout的概念已经足够精确地描述了POD的特性。
+注意：`std::is_pod` 在 C++20 中被废弃，因为 Trivial 和 Standard-layout 的概念已经足够精确地描述了 POD 的特性。
 
 ### 总结
 
 - **Trivial** 类型强调的是类型行为的简单性和高效性。
-- **Standard-layout** 类型强调的是类型的内存布局与C语言的兼容性。
+- **Standard-layout** 类型强调的是类型的内存布局与 C 语言的兼容性。
 
-这两个属性并不是互斥的，一个类型可以同时是Trivial和Standard-layout类型。
+这两个属性并不是互斥的，一个类型可以同时是 Trivial 和 Standard-layout 类型。
 
 ## 经典宏用法收集
 
@@ -1441,8 +1439,8 @@ std::is_pod<T>::value  // C++20前
 > <https://blog.csdn.net/zhangzhangkeji/article/details/132005953>
 
 如上图，若函数的形参不在函数体里使用，可以不提供形参名，而且可以给此形参提供默认值。也能编译通过。
-在看vs2019上的源码时，也出现了这种写法。应用SFINAE（substitute false is not an error）原则，若没推断出形参类型，也不报错，若推断出形参类型，则为其提供默认值。
+在看 vs2019 上的源码时，也出现了这种写法。应用 SFINAE（substitute false is not an error）原则，若没推断出形参类型，也不报错，若推断出形参类型，则为其提供默认值。
 
-google：c++模板  无名参数默认赋值
+google：c++模板 无名参数默认赋值
 
 [C++模板 匿名类型参数](https://www.jianshu.com/p/3deec1ac6430)
