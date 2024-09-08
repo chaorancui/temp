@@ -12,9 +12,17 @@
 
 ### 2. 自动推导 atuo 和 decltype
 
-auto 和 decltype 是在 C++11 中新增的类型推导方法，它可以让程序员不再需要手工编写变量的类型。
+auto 和 decltype 是在 C++11 中引入的关键字，可以在**编译期**推导出变量或者表达式的类型，方便开发者编写代码。
 
 #### **auto**
+
+**概括：**
+
+- `cv` 属性指的是 `const` 和 `volatile`。其中 `const` 区分顶层和底层。auto 推导中，**底层const 会保留下来**。顶层 const 若需保留需在声明 auto 变量时明确指出，如 `const auto xxx`。
+- 在声明的变量类型**不为指针或引用**的情况下，需**忽略**等号右边的引用类型和 `顶层cv` 属性，得到 atuo 占位符的类型，进而得到变量类型。
+- 在声明的变量类型**为指针或引用**的情况下，需**保留**等号右边的引用和 `顶层cv` 属性，得到 atuo 占位符的类型，进而得到变量类型。
+- auto 推导表达式类型时会进行考虑隐式类型转换，如 `uint32_t + uint64_t` 推导的结果为 `uint64_t`。
+- auto 定义的变量必须有初始值，即定义的同时就要初始化。
 
 在 **《Effective Modern C++》** 这本书中，**Scott Meyers** 将 **auto** 的类型推导规则划分为了3种场景，并对每种场景依次介绍了其推导方式[1]：
 
@@ -28,11 +36,13 @@ auto 和 decltype 是在 C++11 中新增的类型推导方法，它可以让程�
 ```c++
 int x = 27;
 const int cx = x;
-const int& rx = x;
- 
-auto& a = x;  // a被推导为int&
-auto& b = cx;  // b被推导为const int&
-auto& c = rx;  // c被推导为const int&
+const int &rx = x;
+
+auto &a = x;  // a被推导为int&
+auto &b = cx;  // b被推导为const int&
+auto &c = rx;  // c被推导为const int&
+auto d = &x; // d被推导为int *
+auto e = &cx; // e被推导为cosnt int *
 ```
 
 对变量 b 来说，其初始化表达式 cx 的类型是 const int，用 const int 替换 auto 占位符，得到 b 的类型是 const int&。
@@ -44,11 +54,12 @@ auto& c = rx;  // c被推导为const int&
 ```c++
 int x = 27;
 const int cx = x;
-const int& rx = x; 
+const int &rx = x; 
 
-const auto& a = x;  // a被推导为const int&
-const auto& b = cx;  // b被推导为const int&
-const auto& c = rx;  // c被推导为const int&
+const auto &a = x;  // a被推导为const int&
+const auto &b = cx;  // b被推导为const int&
+const auto &c = rx;  // c被推导为const int&
+const auto d = &rx;  // d被推导为const int *const
 ```
 
 这里的 b 和 c 在推导时，由于声明的类型已经带有 const，因此 auto 占位符只需要被替换为 int，得到 const int& 类型。
@@ -155,12 +166,8 @@ C++11 的一大亮点就是引入了 Lambda 表达式。利用 Lambda 表达式�
 
   > C++11/14/17/20 的捕获行为有差异
 
-
-
 **修改捕获变量**
 在Lambda表达式中，如果以传值方式捕获外部变量，则函数体中不能修改该外部变量，否则会引发编译错误。那么有没有办法可以修改值捕获的外部变量呢？这是就需要使用mutable关键字，该关键字用以说明**表达式体内的代码可以修改值捕获的变量**。
-
-
 
 **Lambda 表达式的参数**
 Lambda 表达式的参数和普通函数的参数类似，但有区别。在 **Lambda 表达式中传递参数限制**如下：
@@ -168,8 +175,6 @@ Lambda 表达式的参数和普通函数的参数类似，但有区别。在 **L
 1. 参数列表中不能有默认参数
 2. 不支持可变参数
 3. 所有参数必须有参数名
-
-
 
 **捕获列表和参数列表**
 
@@ -179,13 +184,9 @@ Lambda 表达式的参数和普通函数的参数类似，但有区别。在 **L
 
 而捕获列表则用于在Lambda表达式内捕获外部作用域的变量，以供Lambda函数体中使用。这些变量可以是Lambda函数外部的局部变量、全局变量、静态变量等等。当Lambda表达式被定义时，**捕获列表会将这些变量复制到Lambda函数体内**，使Lambda函数能够在不同的上下文中执行而不受影响。
 
-
-
 ### 4. 强类型枚举
 
 C++11 引入了语法为 `enum class` 的强类型枚举。 它们与整数类型不兼容，并且需要显式转换以获取其数值。 C++11 还引入了以 `enum name : type {}` 形式为弱类型枚举指定存储类的功能。
-
-
 
 ### 5. for_each
 
@@ -194,10 +195,6 @@ int testA[] = {1,2,3,4,5};
 for_each(testA,testA + sizeof(testA)/sizeof(testA[0]),[](int &e){  cout << e << endl;});
 
 ```
-
-
-
-
 
 ### 6. 基于范围的 for 循环
 
@@ -250,8 +247,6 @@ for (auto &n : getSet()) {
 > 1. 基于范围的for循环和普通的for循环一样，在遍历的过程中如果修改容器，会造成迭代器失效，（有关迭代器失效的问题请参阅C++ primer这本书，写的很详细）
 > 2. 注意：如果数组（集合）的大小（范围）在编译期间不能确定，那么不能够使用基于范围的 for 循环。
 
-
-
 ### 7. static_assert
 
 C++11 中引入了 `static_assert` 这个关键字，用来做**编译期间的断言**，因此叫做静态断言。
@@ -290,8 +285,6 @@ void swap(T& a, T& b)
 ```
 
 > 在 C++20 开始引入 `concepts` ，相比 `static_assert` ，其功能上更强大，提供了很好的诊断功能。
-
-
 
 ### 8. std::thread
 
@@ -350,11 +343,7 @@ int main()
 **`std::thread` 不能复制, 但是可以移动**
 也就是说, 不能对线程进行复制构造, 复制赋值, 但是可以移动构造, 移动赋值
 
-
-
 > 使用C++11进行多线程开发 (std::thread)：<https://blog.csdn.net/weixin_36888577/article/details/82891531>
-
-
 
 ### 9. alignof & alignas 说明符
 
@@ -375,8 +364,6 @@ alignof(类型标识)
 返回由[类型标识](https://zh.cppreference.com/w/cpp/language/type#.E7.B1.BB.E5.9E.8B.E7.9A.84.E5.91.BD.E5.90.8D)所指示的类型的任何实例所要求的[对齐](https://zh.cppreference.com/w/cpp/language/object#.E5.AF.B9.E9.BD.90)字节数，该类型可以是[完整](https://zh.cppreference.com/w/cpp/language/type#.E4.B8.8D.E5.AE.8C.E6.95.B4.E7.B1.BB.E5.9E.8B)对象类型、元素类型完整的数组类型或者到这些类型之一的引用类型。
 
 如果类型是引用类型，那么运算符返回*被引用*类型的对齐要求；如果类型是数组类型，那么返回元素类型的对齐要求。
-
-
 
 > [alignas 说明符 (C++11 起)](https://www.apiref.com/cpp-zh/cpp/language/alignas.html)
 >
@@ -418,10 +405,6 @@ sizeof(A) // 结果为 8，而不是 6
 
 ### 10.tuple
 
-
-
-
-
 ## `C++ 14`
 
 ### 1. std::make_unique<T>()
@@ -432,8 +415,6 @@ sizeof(A) // 结果为 8，而不是 6
 unique_ptr<int> uptr(new int); // 可以弃用此代码
 unique_ptr<int> uptr = make_unique<int>(); // 改为使用此代码
 ```
-
-
 
 ### std::enable_if_t
 
@@ -595,8 +576,6 @@ is not integral
 
 另外这块的详细使用场景也可以看下百度apollo cyber代码中message部分的封装，也是大量使用了std::enable_if。
 
-
-
 ## `C++ 17`
 
 > [std::optional](https://zh.cppreference.com/w/cpp/utility/optional)
@@ -648,8 +627,6 @@ int main() {
 
 如果分母为零，则返回一个std::nullopt，表示结果不存在。否则，返回一个包含除法结果的std::optional<int>类型的对象。
 
-
-
 ### 2. [[maybe_unused]]
 
 提示编译器修饰的内容可能暂时没有使用，避免产生警告。
@@ -675,8 +652,6 @@ int main() {
               // no warning because it is declared [[maybe_unused]]
 } // parameters thing1 and thing2 are not used, no warning
 ```
-
-
 
 许多 C/C++ 编译器能帮我们找出「未使用变量」，并产生警告信息，然而，在一些情況下，这些「未使用变量」并不是真的沒用。举例来说，有時候使用这些变量的代码被 `#ifdef` 与 `#endif` 包起來，在特定状态下才会发生作用。例如：
 
@@ -705,11 +680,7 @@ int main() {
 int test(int a, int b, [[maybe_unused]] int c) {  // Modified
 ```
 
-
-
 > [C++ 17 fallthrough、nodiscard、maybe_unused 屬性](https://zh-blog.logan.tw/2020/07/19/cxx-17-fallthrough-nodiscard-maybe-unused-attribute/)
-
-
 
 ### 3.标准库头文件 <memory_resource>
 
@@ -745,8 +716,6 @@ class monotonic_buffer_resource;
 
 所以 PMR 使用起来很简单, 创建一个 `memory_resource` , 然后用 `polymorphic_allocator` 在上面进行分配就行了.
 
-
-
 ### if constexpr
 
 `constexpr if` 是 C++17 引入的一种**条件编译机制**，使得编译器在编译时根据条件选择执行特定的代码分支，而不生成不必要的代码。这在模板编程中非常有用，因为它允许在编译时根据模板参数的特性来选择不同的代码路径，从而避免运行时开销和错误。
@@ -771,7 +740,6 @@ if constexpr (condition) {
 
 - 只有 `condition` 为 `true` 时，对应的 `if` 分支代码才会被编译，`else` 分支的代码会被完全忽略，反之亦然。
 - 不满足条件的代码分支完全不会参与编译，因此即使该分支中的代码存在语法错误或其他问题，也不会影响编译。
-
 
 **例子**
 
@@ -909,16 +877,7 @@ int main() {
 - 不能用于全局作用域或类成员变量的直接初始化。
 - 不能用于模板参数列表中。
 
-
 ## `C++ 20`
-
-
-
-
-
-
-
-
 
 ## 开发准则支持库(GSL)
 
@@ -935,8 +894,6 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 ```
 
 在转化的类型可以容纳时，narrow_cast可以正常运行，如果narrow_cast转化后的值与原值不同时，会抛出runtime_error的异常。
-
-
 
 ## c++ 标准库头文件
 
@@ -955,11 +912,7 @@ int z = gsl::narrow_cast<int>(7.9);  // OK: you asked for it
 - 1
 -
 
-
-
 # 零碎知识
-
-
 
 ## 整形提升和寻常算数转换
 
@@ -1029,8 +982,6 @@ private:
 
 C++11 支持了就地初始化非静态数据成员的同时，初始化列表的方式也被保留下来，也就是说既可以使用就地初始化，也可以使用初始化列表来完成数据成员的初始化工作。当二者同时使用时并不冲突，**初始化列表发生在就地初始化之后**，即最终的初始化结果以初始化列表为准。
 
-
-
 在C++11中，对象初始化拥有多种语法选择：圆括号，等号，花括号：
 
 ```C++
@@ -1054,7 +1005,6 @@ int sum3 = x + y + z; //同上
 
 花括号初始化的另外一个值得一谈的特性是它能避免C++最令人恼火的解析。
 
-
 初始化经常使用括号，或者是使用大括号，或者是复赋值操作。因为这个原因，c++11提出了统一初始化，意味着使用这初始化列表，
 
 一个初始化列表强制使用赋值操作， 也就是意味着每个变量都是一个默认的初始化值，被初始化为0（NULL 或者是 nullptr）。如下：
@@ -1065,8 +1015,6 @@ int i{}； //i调用默认的构造函数为i赋值为0
 int *p； //这是一个未定义的行为
 int *p{} ;// p被初始化为一个nullptr
 ```
-
-
 
 ### 缩窄转换
 
@@ -1093,8 +1041,6 @@ vector<short> tmp3 {1, c, 5}; // 从 "int" 到 "short" 进行收缩转换无效
 
 ****
 
-
-
 ## 顶层const 和 底层 const 理解
 
 首先，const是一个限定符，被它修饰的变量的值不能改变。
@@ -1119,8 +1065,6 @@ const int& b5 = a; // 用于声明引用变量，都是底层 const
 1. 执行对象拷贝时有限制，常量的底层 const 不能赋值给非常量的底层 const
 2. 使用命名的强制类型转换函数 const_cast 时，只能改变运算对象的底层 const
 
-
-
 Tips:
 
 1. 用于声明引用的 const 都是**底层 const**。
@@ -1139,13 +1083,9 @@ Tips:
 
    作用：指针的引用就是指针的别名，可以用这个别名全局地修改指针，类比变量的引用。否则就需要用指针的指针。
 
-
-
 > [Difference between const int*, const int * const, and int const *](https://www.geeksforgeeks.org/difference-between-const-int-const-int-const-and-int-const/)
 >
 > ![](https://media.geeksforgeeks.org/wp-content/cdn-uploads/PointersWithConstants-1024x535.png)
-
-
 
 ## 左值引用和右值引用
 
@@ -1154,17 +1094,9 @@ Tips:
 1. 实现 move 语义
 2. 完美转发
 
-
-
-
-
-
-
 ## new 方法
 
 stl_placement_new
-
-
 
 ## 类型转换
 
@@ -1175,8 +1107,6 @@ reinterpret_cast运算符是用来处理无关类型之间的转换；它会产�
 所以总结来说：reinterpret_cast用在任意指针（或引用）类型之间的转换；以及指针与足够大的整数类型之间的转换；从整数类型（包括枚举类型）到指针类型，无视大小。
 
 （所谓"足够大的整数类型",取决于操作系统的参数，如果是32位的操作系统，就需要整形（int）以上的；如果是64位的操作系统，则至少需要长整形（long）。具体大小可以通过sizeof运算符来查看）。
-
-
 
 ## C++ 说明符和限定符
 
@@ -1219,11 +1149,7 @@ reinterpret_cast运算符是用来处理无关类型之间的转换；它会产�
 
 这些说明符和限定符提供了更多的灵活性和控制，帮助开发者在C++中编写更有效、安全和可维护的代码。
 
-
-
 在C++11中引入了 thread_local 关键字，它是一个存储类说明符，用于声明线程局部存储的变量。这使得变量的值在每个线程中都有一份独立的副本，而不是像普通变量那样在所有线程之间共享。
-
-
 
 非类型描述符放在类型描述符的左边，更符合阅读习惯。
 
@@ -1242,8 +1168,6 @@ virtual void Fun(); // 符合：virtual 放在 void 左边
 > - inline
 > - constexpr
 > - explicit 说明符
-
-
 
 ## restrict关键字
 
@@ -1294,7 +1218,6 @@ void test()
     memcpy(tmp, ptr, 5);
 }
 ```
-
 
 如上面的代码，tmp 初始指向字符 "I"，按照本意，我们是想把从 ptr 开始的5个字符 "Hello" 复制到从 tmp 开始的地址上。那么如果memcpy 没有考虑地址重叠的话，它会从 ptr 开始把字符一个一个拷贝到 tmp 地址上。那么你就会发现，当把第一个字符 "H" 拷贝到tmp指向 "I" 的位置的时候，被拷贝的5个字符已经变成“HelHo"了，也就是改 dst 的同时，也改到了 src 了。那这样起来肯定会违背我们的本意，但是这个不是 memcpy 的锅，人家已经通过 restrict 告诉你s2这块地址只有限定在只能通过 s2 指针来访问才能保证没问题，是你自己没按照函数规则来。
 
@@ -1499,12 +1422,6 @@ std::is_pod<T>::value  // C++20前
 
 这两个属性并不是互斥的，一个类型可以同时是Trivial和Standard-layout类型。
 
-
-
-
-
-
-
 ## 经典宏用法收集
 
 ```cpp
@@ -1519,12 +1436,6 @@ std::is_pod<T>::value  // C++20前
 #define abs(a, b) (((a) > (b))? ((a) - (b)) : ((b) - (a)))
 ```
 
-
-
-
-
-
-
 ## c++ 给无名形参提供默认值
 
 > <https://blog.csdn.net/zhangzhangkeji/article/details/132005953>
@@ -1535,4 +1446,3 @@ std::is_pod<T>::value  // C++20前
 google：c++模板  无名参数默认赋值
 
 [C++模板 匿名类型参数](https://www.jianshu.com/p/3deec1ac6430)
-
