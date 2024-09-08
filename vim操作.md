@@ -802,7 +802,7 @@ Windows 下，安装与运行 Neovim 有 2 种方式：
 ### neovim GUI 客户端
 
 Neovim 为很多平台都提供了 GUI，可以参见 [GUIs](https://github.com/neovim/neovim/wiki/Related-projects#gui)。
-Windows 系统下一些不错的 GUI 客户端有 [Neovim Qt](https://github.com/equalsraf/neovim-qt) 和 [FVim](https://github.com/yatli/fvim)（这两个都跨平台 GUI）。
+Windows 系统下一些不错的 GUI 客户端有 [Neovim Qt](https://github.com/equalsraf/neovim-qt) 和 [FVim](https://github.com/yatli/fvim)（这两个都是跨平台 GUI）。
 
 > 对比：
 >
@@ -829,7 +829,8 @@ Windows 系统下一些不错的 GUI 客户端有 [Neovim Qt](https://github.com
 
 - Linux 下的 vim：`~/.vimrc`
 - Windows 下的 Neovim：`~/AppData/Local/nvim/init.vim`
-  > 打开 Neovim，输入 `:h init.vim` 查看 Neovim 的配置文件位置
+  > 方法1：打开 Neovim，输入 `:h init.vim` 查看 Neovim 的配置文件位置
+  > 方法2：打开 Neovim，输入 `:echo stdpath('config')` 查看
 - Windows 下的 Neovim Qt、Fvim：`~/AppData/Local/nvim/ginit.vim`
 - Windows 下的 Fvim 专用配置文件：`~/AppData/Local/fvim/fvim.vim`
 
