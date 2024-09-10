@@ -261,46 +261,7 @@ exit
 }
 ```
 
-### vscode 标签页高亮
-
-在系统的 `settings.json` 里添加
-
-```json
-    "workbench.colorCustomizations": {
-        "tab.activeBackground": "#d9ff009d",
-        "editor.lineHighlightBackground": "#ffd00033"
-    },
-```
-
-### 显示错误和告警
-
-1. 使用内置的 "Problems" 面板：
-
-    VS Code 默认会在 "Problems" 面板中显示错误和警告。虽然这不是直接显示在代码末尾，但它提供了一个集中的错误查看位置。
-
-2. 安装 **Error Lens** 扩展：
-
-    - 在扩展市场中搜索 `Error Lens` 并安装。
-
-    - `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
-
-    - 安装后，可以**根据需要**进行配置。打开设置文件（`settings.json`），添加或修改以下配置项：
-
-      ```json
-      "errorLens.enabled": true,
-      "errorLens.fontWeight": "normal",
-      "errorLens.fontStyle": "normal",
-      "errorLens.italic": false,
-      "errorLens.fontSize": "12px",
-      "errorLens.messageBackgroundMode": "message",
-      "errorLens.messageBackgroundColor": "rgba(255,255,255,0.1)",
-      "errorLens.errorForeground": "#ff0000",
-      "errorLens.warningForeground": "#ffa500",
-      "errorLens.infoForeground": "#0000ff",
-      "errorLens.hintForeground": "#008000",
-      ```
-
-## 按键映射
+### 按键映射
 
 > [Visual Studio Code 的按键绑定](https://code.visualstudio.com/docs/getstarted/keybindings#_keyboard-shortcuts-reference)
 
@@ -360,12 +321,60 @@ exit
 
 ### vscode 标签页高亮
 
-在系统的`settings.json`里添加
+在系统的 `settings.json` 里添加
 
+```json
     "workbench.colorCustomizations": {
         "tab.activeBackground": "#d9ff009d",
         "editor.lineHighlightBackground": "#ffd00033"
     },
+```
+
+### 显示错误和告警
+
+1. 使用内置的 "Problems" 面板：
+
+    VS Code 默认会在 "Problems" 面板中显示错误和警告。虽然这不是直接显示在代码末尾，但它提供了一个集中的错误查看位置。
+
+2. 安装 **Error Lens** 扩展：
+
+    - 在扩展市场中搜索 `Error Lens` 并安装。
+
+    - `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
+
+    - 安装后，可以**根据需要**进行配置。打开设置文件（`settings.json`），添加或修改以下配置项：
+
+      ```json
+      "errorLens.enabled": true,
+      "errorLens.fontWeight": "normal",
+      "errorLens.fontStyle": "normal",
+      "errorLens.italic": false,
+      "errorLens.fontSize": "12px",
+      "errorLens.messageBackgroundMode": "message",
+      "errorLens.messageBackgroundColor": "rgba(255,255,255,0.1)",
+      "errorLens.errorForeground": "#ff0000",
+      "errorLens.warningForeground": "#ffa500",
+      "errorLens.infoForeground": "#0000ff",
+      "errorLens.hintForeground": "#008000",
+      ```
+
+## 使用技巧
+
+### 查找匹配行，存至文件
+
+1. 在 vscode 中，可以使用如下**正则搜索**包含特性字符串的行：
+
+   ```shell
+   # 行之间没有空行
+   ^.*特定字符串.*$
+   # 如果要每行下面都有一个空行，需要把 $ 替换成换行符 \n。经尝试，linux 和 windows 下都用\n
+   ^.*特定字符串.*\n
+   ```
+
+2. 按 `Alt + Enter`，即可选中所有已经匹配到的文字。
+
+3. 按 `Ctrl + C` 复制，再 `Ctrl + N` 新建文件，再 `Ctrl + V` 粘贴，在 `Ctrl + S` 保存文件即可。
+
 
 ## 调试
 
