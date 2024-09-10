@@ -382,6 +382,75 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
 
 这些最佳实践可以帮助您更有效地使用SFINAE，同时保持代码的清晰度和可维护性。随着C++标准的发展，一些SFINAE的使用场景可能会被更现代的特性所取代，但理解SFINAE仍然对于理解模板元编程和泛型编程非常重要。
 
+## 模板的两阶段翻译
+
+> 英文名为 Two-phase translation，中文也可翻译成两阶段检查或两阶段编译。
+
+C++ 中的 Two-Phase Translation（两阶段翻译）是模板编译的一个核心机制，特别是在标准C++（如C++98）中首次引入。它规定模板的实例化分为两个阶段，模板定义阶段和模板实例化阶段，以确保编译器能够正确解析模板代码。
+
+1. 定义阶段检查
+   在这个阶段，编译器检查模板的整体结构，但**不涉及依赖于模板参数**的部分。主要检查内容包括：
+
+   - 语法正确性：
+     - 模板的语法结构是否正确。
+     - 括号匹配、分号位置等检查。
+   - 非依赖名称的正确性：
+     - 不依赖于模板参数的名称检查。
+     - 非模板函数、全局变量等的检查。
+     - 不依赖于模板参数的 **静态断言**（static assertions）
+   - 模板参数的声明是否正确
+   - 不依赖于模板参数的基本语义检查
+
+2. 实例化阶段检查
+   当模板被实例化时，**依赖于模板参数**的部分被检查。这个阶段包括：
+
+   - 依赖名称的检查：
+     解析并检查在第一阶段被标记为依赖的名称。
+   - 类型检查：
+     对实例化后的代码进行完整的类型检查。
+   - 语义分析：
+     进行全面的语义分析，包括重载解析、访问控制等。
+   - 特化和偏特化的检查：
+     检查是否存在适用的特化或偏特化版本。
+
+3. 示例
+
+   ```cpp
+   template <typename T>
+   class MyClass {
+   public:
+       void func() {
+           T::static_method();     // (1)
+           int x = sizeof(T);      // (2)
+           helper(42);             // (3)
+           undeclared_var = 10;    // (4)
+       }
+
+   private:
+       T member;                   // (5)
+   };
+
+   void helper(int) { /* ... */ }
+   ```
+
+   第一阶段（定义检查）：
+
+   - (1) 和 (2) 被标记为依赖表达式，不进行检查。
+   - (3) helper 函数被识别并检查其存在性。
+   - (4) undeclared_var 不被检查，因为它可能是 T 的静态成员。
+   - (5) member 的声明被检查语法正确性。
+
+   第二阶段（实例化检查，例如 MyClass<int>）：
+
+   - (1) 检查 int 是否有 static_method。
+   - (2) 验证 sizeof(int) 的使用是否正确。
+   - (3) 解析 helper(42) 调用，检查参数类型是否匹配。
+   - (4) 检查 undeclared_var，如果 int 没有这个静态成员，报错。
+   - (5) 检查 int member 的合法性。
+
+4. 编译器实现的差异
+不同的编译器可能会在两个阶段之间的边界上有略微不同的行为。一些编译器可能会尝试在第一阶段做更多的检查，而其他编译器可能会推迟更多的检查到第二阶段。
+
 ## 模板零碎知识
 
 ### 在类代码内简化模板类名的使用
@@ -820,6 +889,35 @@ typedef typename std::vector<T>::size_type size_type;
 ```
 
 那么这个例子的真是面目是，`typedef`创建了存在类型的别名，而`typename`告诉编译器`std::vector<T>::size_type`是一个类型而不是一个成员。
+
+## if constexpr 和 static_assert(false) 的组合
+
+C++ 模板中，不能同时使用 `if constexpr` 和 `static_assert(false)`，会编译报错。
+
+`if constexpr` 是 C++17 引入的一个特性，用于在编译时进行条件分支。它的主要目的是根据模板参数或其他编译时常量来选择性地编译代码块。
+`static_assert` 是一个编译时断言，用于在编译期间检查条件是否为真。如果条件为假，编译器会产生一个错误。
+
+同时使用 `fi constexpr` 和 `static_assert(false)` 时，会出现编译错误。例如：
+
+```cpp
+template <typename T>
+void func() {
+    if constexpr (std::is_integral_v<T>) {
+        // 整数类型的代码
+    } else {
+        static_assert(false, "Not supported for this type");
+    }
+}
+```
+
+这段代码的问题在于，即使 if constexpr 的条件为真（即 T 是整数类型），static_assert(false) 仍然会被实例化和检查，导致编译错误。具体分析：
+
+a. 模板的完整实例化：当模板被实例化时，编译器会检查整个模板定义，包括所有分支，即使是 if constexpr 中的未选中分支。
+
+b. static_assert 的即时求值：static_assert 是在编译时立即求值的，不会等到运行时。
+
+c. 两阶段名称查找：在模板实例化过程中，编译器会进行两阶段名称查找，这意味着即使在未选中的 if constexpr 分支中的代码也会被部分处理。
+
 
 # 常见元模板
 
