@@ -959,13 +959,29 @@ ssh -p 22 my@127.0.0.1
 
 ```shell
 # 1.创建容器，默认是root用户，需自定义<>中内容
+# `host` 模式 `-p` 选项不需要，因为 `host` 模式下容器直接使用宿主机的网络栈，端口是共享的。
 docker run -d \
     -it \
-    -h <hostname> '便于区分docker主机名和宿主机主机名' \
-    -p <host_port>:<container_port> \
-    --name <docker_name> \
-    -v <HOST-DIR>:<CONTAINER-DIR> \
-    <IMAGE>
+    --privileged \
+    -h <hostname> \
+    --restart always \
+    --network host \
+    --name <dockername> \
+    -v /data/<path>:/data/<path> \
+    IMAGE \
+    /bin/bash
+
+# `bridge` 模式可以使用 `-p` 选项指定端口
+docker run -d \
+    -it \
+    --privileged \
+    -h <hostname> \
+    --restart always \
+    --network bridge \
+    -p <port_h:port_c> \
+    --name <dockername> \
+    -v /data/<path>:/data/<path> \
+    IMAGE \
     /bin/bash
 
 # 2.进入容器
@@ -977,7 +993,7 @@ passwd
 
 # 4.安装 ssh
 apt-get update
-apt-get install openssh-server
+apt-get install openssh-server -y
 
 # 5.查看 ssh 是否启动
 ps -e | grep ssh # 有sshd,说明ssh服务已经启动。如果没有启动，输入`service ssh start`启动服务
@@ -985,7 +1001,8 @@ ps -e | grep ssh # 有sshd,说明ssh服务已经启动。如果没有启动，�
 # 6.修改配置，
 # 打开配置文件`/etc/ssh/sshd_config`
 PermitRootLogin yes  # 原文件为`PermitRootLogin without-password`，需要改成左边
-Port 22  # 原文件为`#Port 22`（不放开注释默认22），如果上面docker run命令中-p <host_port>:<container_port>的<container_port>为22，此处`Port 22`；若<container_port>为其他值如10086，则此处需要改成`Port 10086`。放开多个端口需同时添加多条`Port xxx`。
+Port 22  # 可能原文件为`#Port 22`，即默认放开 22 端口给 ssh 用。
+Port xxx # 如果 docker run 用的是 host 模式，这里直接指定一个合法端口给 ssh 用就可以，如 10086，宿主机和 docker 都是用这个端口，注意不要冲突。如果 docker run 命令中为 bridge 模式（默认）且用 -p <host_port>:<container_port>的<container_port>为22，此处`Port 22`；若<container_port>为其他值如10086，则此处需要改成`Port 10086`。放开多个端口需同时添加多条`Port xxx`。
 
 # 7.启动 ssh，重启用`service ssh restart`
 service ssh start
