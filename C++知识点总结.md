@@ -407,9 +407,11 @@ inline int func(int a)  //函数定义
 
 ## 结构体初始化的四种方法
 
-### 定义
+如果没什么要求，可以直接**定义结构体变量后逐个成员赋值**。
 
-```c++
+C 语言中结构体初始化方式和 C++ 中不同。对如下结构体：
+
+```C
 struct InitMember
 {
     int first；
@@ -419,33 +421,21 @@ struct InitMember
 };
 ```
 
-### 方法一：定义时赋值
+### C 语言结构体初始化
 
-```c++
+#### 方法一：按顺序初始化（聚合初始化）
+
+这种方式按结构体成员的**声明顺序**来进行初始化，必须确保提供的初始化值与结构体成员的顺序匹配，**不能错位**。
+
+```C
 struct InitMember test = {-10,3.141590，"method one"，0.25}；
 ```
 
-需要注意对应的顺序，不能错位。
+#### 方法二：指定成员初始化（**C99 Designated Initializers**）
 
-### 方法二：定义后逐个赋值
+从 C99 开始，C 语言支持使用指定成员初始化器（Designated Initializers），你可以指定**某些字段的值**而**不必按顺序**提供所有成员的初始化值。这允许你更灵活地初始化结构体，并且可以跳过某些成员的初始化（未初始化的成员将使用默认值）。
 
-```c++
-struct InitMember test；
-
-test.first = -10;
-test.second = 3.141590;
-test.third = "method two";
-test.four = 0.25;
-
-```
-
-因为是逐个确定的赋值，无所谓顺序啦。
-
-### 方法三：定义时乱序赋值（C 风格）
-
-这种方法类似于第一种方法和第二种方法的结合体，既能初始化时赋值，也可以不考虑顺序；
-
-```c++
+```C
 struct InitMember test = {
     .second = 3.141590,
     .third = "method three",
@@ -456,18 +446,108 @@ struct InitMember test = {
 
 这种方法在 Linux 内核（kernel）中经常使用，在音视频编解码库 FFmpeg 中也大量频繁使用，还是很不错的一种方式。
 
-### 方法四：定义时乱序赋值（C++风格）
+#### 方法三：嵌套结构体初始化
 
-这种方法和前一种类似，网上称之为 C++风格，类似于 key-value 键值对的方式，同样不考虑顺序。
+如果结构体包含其他结构体作为成员，可以通过嵌套的方式初始化。
+
+```cpp
+struct Inner {
+    int inner_member;
+};
+
+struct Outer {
+    struct Inner inner_struct;
+    int outer_member;
+};
+
+struct Outer test = { { 10 }, 20 };  // 内层结构体 `inner_struct` 的初始化值为 10，外层成员 `outer_member` 为 20
+```
+
+> 此外还可以：
+> 1. 部分初始化
+>    在 C 语言中，如果只对部分成员进行初始化，未初始化的成员将自动被初始化为 0（对于数值类型）或 NULL（对于指针类型）。
+>
+>    ```C
+>    struct InitMember test = { -10, 3.141590 };  // 剩下的成员将被初始化为 0 或 NULL
+>    ```
+>
+> 2. 默认初始化
+>    C 没有直接提供默认初始化功能，所有未初始化的成员都默认值为 0（对于数值类型）或 NULL（对于指针类型）。因此，如果你声明了结构体变量而不显式进行初始化，成员值会是随机的。使用 {0} 初始化所有成员为 0 的一种方式
+>
+>    ```C
+>    struct InitMember test = {0};  // 初始化所有成员为 0 或 NULL
+>    ```
+
+
+### C++ 语言结构体初始化
+
+#### 方法一：按顺序初始化（聚合初始化）---- 同 C 语言
+
+#### 方法二：指定成员初始化（**C++20 Designated Initializers**）---- C++ 20 后才支持
+
+**从 C++20 开始**，C++ 才引入了类 C99 风格的 designated initializers，允许按成员名称初始化结构体成员，而不必按顺序提供所有成员的值。
+
+#### 方法三：构造函数初始化
+
+C++ 中的结构体可以有构造函数，因此可以通过构造函数来初始化成员。即使结构体默认情况下不提供构造函数，你也可以为其定义构造函数。
 
 ```c++
-struct InitMember test = {
-    second：3.141590,
-    third："method three",
-    first：-10,
-    four：0.25
+struct InitMember {
+    int first;
+    double second;
+    const char* third;
+    float four;
+
+    // 定义构造函数
+    InitMember(int f, double s, const char* t, float fr)
+        : first(f), second(s), third(t), four(fr) {}
 };
+
+InitMember test = InitMember(-10, 3.141590, "method three", 0.25);
 ```
+
+#### 方法四：默认成员初始化（C++11 引入）
+
+从 C++11 开始，C++ 支持在定义结构体时为成员提供默认初始值。这使得你可以在不显式提供所有成员值的情况下初始化结构体。
+
+```cpp
+struct InitMember {
+    int first = 0;
+    double second = 3.14159;
+    const char* third = "default";
+    float four = 0.25;
+};
+
+InitMember test;  // 结构体的成员将使用默认值进行初始化
+```
+
+
+#### 方法五：列表初始化（C++11 引入）
+
+C++11 引入了列表初始化（initializer list），可以直接用花括号初始化结构体成员，无需显式调用构造函数。
+
+```cpp
+struct InitMember {
+    int first;
+    double second;
+    const char* third;
+    float four;
+};
+
+InitMember test{ -10, 3.141590, "method three", 0.25 };
+```
+
+这种方式与传统的聚合初始化类似，但列表初始化语法支持更多类型的对象，并且**是 C++11 之后强烈推荐的初始化方式**。
+
+#### 方法六：嵌套结构体初始化
+
+同 C 语言，只不过不再需要加上 struct 关键字。
+
+```cpp
+Outer test = { { 10 }, 20 };  // 无需像 C 语言一样，前面再加 struct
+```
+
+
 
 ## C/C++中 `#` 和 `##` 的用法
 
