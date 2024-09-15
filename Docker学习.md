@@ -535,14 +535,14 @@ docker run -it nginx:latest /bin/bash
 docker run -d \
     -it \
     --privileged \
-    -h <hostname> '便于区分docker主机名和宿主机主机名' \
-    --restart always '总是启动容器' \
-    --network bridge 'bridge可以改端口映射，host使用主机端口'\
-    -p <port> '指定端口映射，格式为：主机(宿主)端口:容器端口' \
+    -h <hostname> \
+    --restart always \
+    --network bridge \
+    -p <port_h:port_c> \
     --name ascendc_c00619335 \
     -v /data/c00619335:/data \
     IMAGE \
-    /bin/bash ' [COMMAND]'
+    /bin/bash
 
 docker exec -it ascendc_c00619335 bash
 ```
@@ -666,6 +666,9 @@ docker exec -it mynginx /bin/sh /root/runoob.sh
 # 在容器 my_container 中开启一个交互模式的终端
 docker exec -it my_container /bin/bash # 使用容器名
 docker exec -it container_id /bin/bash # 使用容器ID
+
+# 登录 docker 时切换路径
+docker exec -it <container_name_or_id> bash -c "cd /path/to/directory && exec bash"
 ```
 
 
