@@ -532,6 +532,19 @@ docker run -it nginx:latest /bin/bash
 > [Docker Volume - 目录挂载以及文件共享](https://kebingzao.com/2019/02/25/docker-volume/)
 
 ```shell
+# `host` 模式 `-p` 选项不需要，因为 `host` 模式下容器直接使用宿主机的网络栈，端口是共享的。
+docker run -d \
+    -it \
+    --privileged \
+    -h <hostname> \
+    --restart always \
+    --network host \
+    --name ascendc_c00619335 \
+    -v /data/c00619335:/data \
+    IMAGE \
+    /bin/bash
+
+# `bridge` 模式可以使用 `-p` 选项指定端口
 docker run -d \
     -it \
     --privileged \
@@ -732,7 +745,57 @@ docker cp /mnt/dist/index1.html container_id:/app/html/index.html
 
 
 
+### 网络模式更改
 
+要将 Docker 容器的网络模式从 `bridge` 模式改为 `host` 模式，你不能直接修改正在运行容器的网络模式。你需要停止并删除当前容器，然后使用 `--network host` 重新启动它。以下是具体的步骤：
+
+1. **查看正在运行的容器**
+
+   首先，确认当前容器的名称或 ID。可以使用以下命令查看正在运行的容器：
+
+   ```shell
+   docker ps
+   ```
+
+   记下需要修改网络模式的容器的名称或 ID。
+
+2. **停止并删除容器**
+
+   要修改网络模式，首先需要停止并删除容器。使用以下命令停止容器：
+
+   ```shell
+   # 停止容器：
+   docker stop <container_name_or_id>
+
+   # 删除容器：
+   docker rm <container_name_or_id>
+   ```
+
+3. **使用 `host` 网络模式重新运行容器**
+
+   现在你可以使用 `--network host` 选项重新启动容器。
+
+   如果你之前使用了 `docker run` 创建容器，可以类似地运行 `docker run`，只是这次使用 `--network host` 选项。
+
+   ```shell
+   # 假设原始命令是这样：
+   docker run -d -p 80:80 --name my_container <image_name>
+
+   # 修改为使用 `host` 网络模式的命令：
+   docker run -d --network host --name my_container <image_name>
+   ```
+
+   在这个命令中，`-p` 选项已不再需要，因为 `host` 模式下容器直接使用宿主机的网络栈，端口是共享的。
+
+4. **验证网络模式**
+
+   容器启动后，你可以使用 `docker inspect` 验证容器的网络模式：
+
+   ```shell
+   docker inspect <container_name_or_id> | grep -i "networkmode"
+   ```
+
+   这应该显示 `host` 作为网络模式。
 
 ## 镜像相关命令补充
 
