@@ -1010,11 +1010,14 @@ ssh root@xx.xx.xx.xx -p <port>
 
 #### ssh 启动报错 Badly formatted port number
 
-`/etc/ssh/sshd_config` 中端口号有问题，改正默认值 22 即可。如
+`/etc/ssh/sshd_config` 中端口号有问题，改正默认值 22，然后重启 ssh 服务即可。如
 
 ```shell
 # 打开文件 /etc/ssh/sshd_config，将 Port 改成22
 Port 22
+
+# 重启 ssh 服务
+service ssh start
 ```
 
 ### scp
