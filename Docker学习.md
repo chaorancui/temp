@@ -560,6 +560,26 @@ docker run -d \
 docker exec -it ascendc_c00619335 bash
 ```
 
+### **删除容器**
+
+docker rm 命令用于删除一个或多个已经停止的容器。
+docker rm 命令不会删除正在运行的容器，如果你需要先停止容器，可以使用 docker stop 命令。
+
+```shell
+# docker start : 删除一个或多个已经停止的容器
+
+docker rm [OPTIONS] CONTAINER [CONTAINER...]
+
+OPTIONS说明：
+-f, --force: 强制删除正在运行的容器（使用 SIGKILL 信号）。
+-l, --link: 删除指定的连接，而不是容器本身。
+-v, --volumes: 删除容器挂载的卷。
+
+# 示例
+docker rm my_container # 用容器名删除
+docker rm container_id # 用容器ID删除
+docker rm `docker ps -aq` # 删除多个未运行的容器, 运行中的无法删除
+```
 
 
 ### **更新容器配置**
