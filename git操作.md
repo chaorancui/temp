@@ -47,12 +47,14 @@ ssh-keygen -t rsa -C "915422643@qq.com"
 
 该命令会在用户主目录（Windows：C:\Users\用户名\，Linux：~/）里生产.ssh文件夹，里面有id_rsa和id_rsa.pub两个文件，这两个文件就是SSH Key的秘钥对。其中，id_rsa是私钥，不能泄露，id_rsa.pub是公钥，可以告诉别人。
 
-拷贝 SSH 秘钥后要修改权限，原因是拷贝过来的密钥权限会变宽报错permissions are too open，一般修改为600就好：
+拷贝 SSH 秘钥后要修改权限，原因是拷贝过来的密钥权限会变宽报错permissions are too open。
+
+Linux 下：**私钥文件**必须只能由文件的拥有者访问，权限应设置为 `0600`。**公钥文件**可保持 `0644`。
+
+Windows 下：**私钥文件和公钥文件**默认权限都为 `0644`。
 
 ```bash 
-一般拷贝后文件权限会改变，
-chmod 700 id_rsa id_rsa.pub
-# 或者
+# 由文件的拥有者访问，600
 chmod 600 id_rsa id_rsa.pub
 # 再不行
 chmod 400 id_rsa id_rsa.pub
