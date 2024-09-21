@@ -668,6 +668,7 @@ C++ 中的条件编译指令是预处理器指令，用于根据某些条件在�
 #if: 如果条件为真,编译后面的代码
 #ifdef: 如果宏已定义,编译后面的代码
 #ifndef: 如果宏未定义,编译后面的代码
+#undef: 取消宏定义，后面也可在重新定义
 #elif: else if 的作用
 #else: else 的作用
 #endif: 结束条件编译块
@@ -706,6 +707,13 @@ defined()：预处理器中的一个特殊运算符，用于检查某个宏是�
 #else
     std::cout << "Unknown operating system" << std::endl;
 #endif
+
+// 重新定义宏
+#define MAX 100
+// 使用 MAX
+#undef MAX
+#define MAX 200
+// 此后 MAX 的值变为 200
 ```
 
 ### `#if` 一次判断多个条件
