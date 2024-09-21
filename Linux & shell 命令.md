@@ -1195,6 +1195,46 @@ cat [filename] | tail -n +1000 | head -n 3000
 cat [filename] | head -n 3000 | tail -n +1000
 ```
 
+### realpath
+
+`realpath` 是一个 Linux 和 Unix 系统中的命令，用于**解析符号链接或相对路径**并**返回文件或目录的绝对路径**。它对于处理路径、确认文件位置、确保路径的一致性非常有用。
+
+**主要功能**：
+
+1. **解析相对路径**：将给定的相对路径转换为绝对路径。
+2. **解析符号链接**：将符号链接解析为其实际的目标路径。
+3. **去除冗余**：移除 `.` 和 `..` 这样的路径部分，并返回简化的路径。
+
+**常见用法**：
+
+```shell
+realpath [选项] [文件/目录]
+```
+
+**常用选项**：
+
+- `--relative-to=DIR`：显示相对于指定目录的相对路径。
+- `--no-symlinks`：不解析符号链接，只对路径进行规范化。
+- `--canonicalize-missing`：即使路径不存在，也返回规范化后的路径。
+
+**示例**：
+
+```shell
+# 1. 将相对路径转换为绝对路径：
+realpath ./mydir
+# 输出：/home/user/mydir
+
+# 2. 解析符号链接：假设 `/tmp/mylink` 是指向 `/home/user/mydir` 的符号链接：
+realpath /tmp/mylink
+# 输出：/home/user/mydir
+
+# 3. 获取相对路径：
+realpath --relative-to=/home /home/user/mydir
+# 输出：user/mydir
+```
+
+`realpath` 命令非常适用于需要在脚本中确保路径一致性的场景。
+
 ## 系统命令
 
 ### 服务开机自启动
@@ -1661,7 +1701,7 @@ curl: (7) Failed to connect to raw.githubusercontent.com port 443: Connection re
    185.199.108.133 user-images.githubusercontent.com
    185.199.108.133 avatars2.githubusercontent.com
    185.199.108.133 avatars1.githubusercontent.com
-
+   
    # The following lines are desirable for IPv6 capable hosts
    ::1     ip6-localhost ip6-loopback
    fe00::0 ip6-localnet
