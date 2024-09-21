@@ -375,8 +375,13 @@ exit
 
 3. 按 `Ctrl + C` 复制，再 `Ctrl + N` 新建文件，再 `Ctrl + V` 粘贴，在 `Ctrl + S` 保存文件即可。
 
-
 ## 调试
+
+> 官方文档：
+>
+> [python](https://vscode.js.cn/docs/python/debugging)
+>
+> [C++](https://vscode.js.cn/docs/cpp/launch-json-reference)
 
 ### vscode 调试添加运行参数
 
@@ -409,16 +414,24 @@ exit
 
 `launch.json` 中添加 `envs` 项：
 
-> python 用 `env`
+> python/bash 用 `env`
+>
+> ```json
+> "env": {
+>     "PYTHONPATH": "/usr/local/xxx/xxx/python:${env:PYTHONPATH}",
+>     "PATH": "~/xxx/xxx:${env:PATH}",
+>     "LD_LIBRARY_PATH": "~/xxx/lib64:${env:LD_LIBRARY_PATH}"
+> }
+> ```
 >
 > C/C++ 用 `environment`
 >
 > ```json
 > "environment":[
->  {
->      "name":"squid",
->      "value":"clam"
->  }
+> {
+>   "name":"squid",
+>   "value":"clam"
+> }
 > ]
 > ```
 
@@ -445,6 +458,28 @@ exit
     ]
 }
 ```
+
+> 在 VSCode 的 `launch.json` 中，**同一个环境变量不能配置多次**。如果你在多个地方配置同一个环境变量（如 `PATH`），后面的配置会覆盖前面的配置。
+>
+> 追加环境变量，要使用 `${env:xxx}`。
+>
+> `${env:PATH}` 是 VSCode 的变量替换语法，用于引用当前系统环境中的 `PATH` 变量。在 `launch.json` 中使用 `${env:PATH}` 可以获取到当前用户或系统定义的 `PATH` 环境变量的值。这确保了在调试过程中，新的环境变量配置能够基于现有的 `PATH`，而不是覆盖它。
+>
+> **平台差异**
+>
+> 需要注意的是，`PATH` 环境变量的路径分隔符在不同操作系统中是不同的：
+>
+> - Windows：使用分号 `;` 作为路径分隔符。例子：`C:\Program Files;C:\Windows\System32`。
+> - Unix/Linux/macOS：使用冒号 `:` 作为路径分隔符。例子：`/usr/local/bin:/usr/bin:/bin`。
+>
+> 因此，在配置 `launch.json` 时，确保使用正确的路径分隔符。例如，在 Unix 系统上，应该使用 `:`，而在 Windows 上使用 `;`。
+>
+> **路径格式**：
+>
+> - **Windows**：使用反斜杠 `\`，需要转义为双反斜杠 `\\`，例如 `C:\\my\\new\\path`。
+> - **Unix/Linux/macOS**：使用正斜杠 `/`，例如 `/my/new/path`。
+
+
 
 ### vscode 设置调试器当前工作路径
 
