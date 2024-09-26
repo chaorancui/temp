@@ -375,6 +375,12 @@ exit
 
 3. 按 `Ctrl + C` 复制，再 `Ctrl + N` 新建文件，再 `Ctrl + V` 粘贴，在 `Ctrl + S` 保存文件即可。
 
+### 搜索编辑器
+
+1. 在 vscode 中侧边栏中，找到 search 项，在 SEARCH 栏中点击 `Open New Seach Editor`(中间的图标)。
+
+2. 输入要搜索的内容，即可像文件一样展示搜索结果。
+
 ## 调试
 
 > 官方文档：
