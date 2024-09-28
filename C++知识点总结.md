@@ -464,6 +464,7 @@ struct Outer test = { { 10 }, 20 };  // 内层结构体 `inner_struct` 的初始
 ```
 
 > 此外还可以：
+>
 > 1. 部分初始化
 >    在 C 语言中，如果只对部分成员进行初始化，未初始化的成员将自动被初始化为 0（对于数值类型）或 NULL（对于指针类型）。
 >
@@ -472,12 +473,12 @@ struct Outer test = { { 10 }, 20 };  // 内层结构体 `inner_struct` 的初始
 >    ```
 >
 > 2. 默认初始化
->    C 没有直接提供默认初始化功能，所有未初始化的成员都默认值为 0（对于数值类型）或 NULL（对于指针类型）。因此，如果你声明了结构体变量而不显式进行初始化，成员值会是随机的。使用 {0} 初始化所有成员为 0 的一种方式
+>    C 没有直接提供默认初始化功能，因此，如果你声明了结构体变量而不显式进行初始化，成员值会是随机的。
+>    使用 {0} 初始化所有成员为 0 的一种方式，所有未初始化的成员都默认值为 0（对于数值类型）或 NULL（对于指针类型）。
 >
 >    ```C
 >    struct InitMember test = {0};  // 初始化所有成员为 0 或 NULL
 >    ```
-
 
 ### C++ 语言结构体初始化
 
@@ -521,7 +522,6 @@ struct InitMember {
 InitMember test;  // 结构体的成员将使用默认值进行初始化
 ```
 
-
 #### 方法五：列表初始化（C++11 引入）
 
 C++11 引入了列表初始化（initializer list），可以直接用花括号初始化结构体成员，无需显式调用构造函数。
@@ -546,8 +546,6 @@ InitMember test{ -10, 3.141590, "method three", 0.25 };
 ```cpp
 Outer test = { { 10 }, 20 };  // 无需像 C 语言一样，前面再加 struct
 ```
-
-
 
 ## C/C++中 `#` 和 `##` 的用法
 
@@ -662,7 +660,7 @@ int main()
 
 C++ 中的条件编译指令是预处理器指令，用于根据某些条件在编译时有选择地包含或排除代码片段。这些指令允许在不同的平台、配置或编译选项下编译不同的代码。常见的条件编译指令包括 #if、#ifdef、#ifndef、#else、#elif 和 #endif。
 
-### 主要的条件编译指令:
+### 主要的条件编译指令
 
 ```cpp
 #if: 如果条件为真,编译后面的代码
@@ -720,6 +718,7 @@ defined()：预处理器中的一个特殊运算符，用于检查某个宏是�
 
 使用逻辑运算符，且逻辑运算符可以和 `defined() 运算符`混合使用。
 C++ 预处理器支持以下逻辑运算符：
+
 - && (与)
 - || (或)
 - ! (非)
@@ -735,7 +734,7 @@ C++ 预处理器支持以下逻辑运算符：
 
 1. 嵌套使用: 条件编译指令可以嵌套,但要注意配对和缩进,以提高可读性。
 2. 避免过度使用: 过多的条件编译可能导致代码难以维护和理解。
-3. 注意跨平台兼容性: 使用标准的宏定义来检测平台,如 _WIN32, linux, APPLE 等。
+3. 注意跨平台兼容性: 使用标准的宏定义来检测平台,如 WIN32, linux, APPLE 等。
 4. 保持一致性: 在项目中保持条件编译的一致使用风格。
 5. 注释说明: 对于复杂的条件编译,添加注释说明其用途和条件。
 6. 测试覆盖: 确保测试涵盖了所有条件编译的分支。
@@ -1031,14 +1030,19 @@ return 0;
 ## C++函数传参
 
 1. 非指针变量、class、struct：
-   - 函数内修改值，不影响外部：传值(int)、传 const 引用(const int &)
-   - 函数内修改值，影响外部：传指针(int \*)、传非 const 引用(int &)
+   - 函数内修改值，不影响外部：传值(`int`)、传 const 引用(`const int &`)
+   - 函数内修改值，影响外部：传指针(`int *`)、传非 const 引用(`int &`)
 2. 指针变量：
-   - 函数内修改指针指向，不影响外部：传指针(int _，对指针类型来说，就是传值)、传指向指针的 const 引用(const int _&)
-   - 函数内修改指针指向，影响外部：传指针的指针(int \*_)、传向指针的非 const 引用(int _&)
+   - 函数内修改指针指向，不影响外部：传指针(`int *`，对指针类型来说，就是传值)、传指向指针的 const 引用(`const int *&`)
+   - 函数内修改指针指向，影响外部：传指针的指针(`int **`)、传向指针的非 const 引用(`int *&`)
 3. 一维数组：
-   - 函数内修改值，不影响外部：传指向数组的 const 引用(const int (&arr)[2])
-   - 函数内修改值，影响外部：传指向数组的指针(int \*/int arr[2])、传指向数组的引用(int (&arr)[2])
+   - 函数内修改值，不影响外部：传指向数组的 const 引用(`const int (&arr)[2]`)
+   - 函数内修改值，影响外部：传指向数组的指针(`int * 或 int arr[2]`)、传指向数组的引用(`int (&arr)[2]`)
+
+> 这里 `int (&ref)[2]` 表示：
+>
+> - ref 是一个对数组的引用，数组的类型是 int[2]（长度为 2 的整型数组）。
+> - ref 引用的数组大小是编译时确定的，因此**引用的数组大小必须匹配**。
 
 ## typedef 使用
 
@@ -1327,7 +1331,7 @@ step1(step2)
 
 ## 为什么使用空类
 
-> [[C/C++中，空数组、空类、类中空数组的解析及其作用](https://www.cnblogs.com/Allen-rg/p/7307116.html)](<https://www.cnblogs.com/Allen-rg/p/7307116.html>)
+> [C/C++中，空数组、空类、类中空数组的解析及其作用](https://www.cnblogs.com/Allen-rg/p/7307116.html)
 
 空类在“泛型编程”中，空类（空结构）的用处非常广：
 
@@ -1355,7 +1359,7 @@ void _fun(A b, float) {
 }
 ```
 
-当然，空类应该还有其他的用处。我们所有知道和理解的就是：空类是 C++中一个有用的机制，不同名称的空类代表着不同的类型。
+当然，空类应该还有其他的用处。我们所有知道和理解的就是：空类是 C++ 中一个有用的机制，不同名称的空类代表着不同的类型。
 
 <font color=red>空类在编译的时候会被编译器自动的加入一个 char 成员，不为别的，只是为了，让它被实例后的对象占有空间，从而可以区分。</font>
 
@@ -1431,19 +1435,15 @@ C++11 特性之 default/delete
 
 在某些情况下，程序需要在指针的基础上存储额外的信息。例如，使用指针的低位来存储标志位。这在内存对齐的系统中特别有用，因为指针的低位通常是零，可以用来存储其他信息，而不会影响指针的实际地址。
 
-```
-cpp
-复制代码
+```cpp
 uintptr_t ptr_with_flags = reinterpret_cast<uintptr_t>(ptr) | flag;
 ```
 
 ### 2. **内存管理和垃圾回收**
 
-垃圾回收器和内存管理系统有时会使用整形操作来操作和管理内存块。将指针转换为整数可以方便地进行地址计算、内存对齐和其他低级操作。
+内存管理系统和垃圾回收器有时会使用整形操作来操作和管理内存块。将**指针转换为整数可以方便地进行地址计算、内存对齐和其他低级操作**。
 
-```
-cpp
-复制代码
+```cpp
 uintptr_t addr = reinterpret_cast<uintptr_t>(ptr);
 ```
 
@@ -1451,8 +1451,8 @@ uintptr_t addr = reinterpret_cast<uintptr_t>(ptr);
 
 在某些情况下，需要将指针序列化（如保存到文件或发送到网络）。由于指针是地址，在不同的程序运行期间可能会变化，所以通常将指针转换为整形来序列化，然后在反序列化时恢复。
 
-```
-cpp复制代码uintptr_t serialized_ptr = reinterpret_cast<uintptr_t>(ptr);
+```cpp
+uintptr_t serialized_ptr = reinterpret_cast<uintptr_t>(ptr);
 // 序列化后的数据
 ```
 
@@ -1460,9 +1460,7 @@ cpp复制代码uintptr_t serialized_ptr = reinterpret_cast<uintptr_t>(ptr);
 
 某些高性能计算或嵌入式系统中，为了减少存储和计算开销，开发者可能会选择将指针转换为整形来进行特定的优化操作。这种方法可以绕过某些语言和硬件的限制。
 
-```
-cpp
-复制代码
+```cpp
 uintptr_t int_ptr = reinterpret_cast<uintptr_t>(ptr);
 ```
 
@@ -1470,8 +1468,8 @@ uintptr_t int_ptr = reinterpret_cast<uintptr_t>(ptr);
 
 在调试和日志记录过程中，开发者可能需要记录指针的值。将指针转换为整形可以更容易地进行比较、打印和分析。
 
-```
-cpp复制代码uintptr_t int_ptr = reinterpret_cast<uintptr_t>(ptr);
+```cpp
+uintptr_t int_ptr = reinterpret_cast<uintptr_t>(ptr);
 std::cout << "Pointer value: " << int_ptr << std::endl;
 ```
 
@@ -1479,8 +1477,8 @@ std::cout << "Pointer value: " << int_ptr << std::endl;
 
 在与某些低级语言（如 C 和汇编）进行接口编程时，可能需要将指针转换为整形，以便在不同语言之间传递数据。
 
-```
-cpp复制代码uintptr_t addr = reinterpret_cast<uintptr_t>(ptr);
+```cpp
+uintptr_t addr = reinterpret_cast<uintptr_t>(ptr);
 // 传递到其他语言的接口
 ```
 
@@ -1498,12 +1496,11 @@ cpp复制代码uintptr_t addr = reinterpret_cast<uintptr_t>(ptr);
 
 根据 ANSI-C 标准，在标识符中，**两个下划线 `__` 保留给编译器内部使用，单个下划线 `_` 通常用于标准库函数的名称**（例如“ \_main”和“ \_exit”）。
 
-## \_\_builtin_expect 说明
+## `__builtin_expect` 与 `likely(x)`
 
-### 引言
-
-> 这个指令是 gcc 引入的，作用是**允许程序员将最有可能执行的分支告诉编译器**。这个指令的写法为：`__builtin_expect(EXP, N)`。
-> 意思是：EXP==N 的概率很大。
+**`__builtin_expect`**：
+这个指令是 **gcc 引入**的，作用是**允许程序员将最有可能执行的分支告诉编译器**。
+写法为：`__builtin_expect(EXP, N)`，意思是：EXP==N 的概率很大。
 
 一般的使用方法是将`__builtin_expect`指令封装为`likely`和`unlikely`宏。这两个宏的写法如下.
 
@@ -1514,7 +1511,7 @@ cpp复制代码uintptr_t addr = reinterpret_cast<uintptr_t>(ptr);
 
 `!!(x)` 的作用是把(x)转变成"布尔值"：无论(x)的值是多少，`!(x)` 得到的是 `true` 或 `false`, `!!(x)` 就得到了原值的"布尔值"。
 
-### 内核中的 likely() 与 unlikely()
+**likely() 与 unlikely()**：
 
 首先要明确：
 
@@ -1528,7 +1525,7 @@ if(unlikely(value))  //也等价于 if(value)
 `__builtin_expect((x),0)` 表示 x 的值为假的可能性更大。
 也就是说，使用`likely()`，执行 if 后面的语句的机会更大，使用 `unlikely()`，执行 else 后面的语句的机会更大。通过这种方式，编译器在编译过程中，会将可能性更大的代码紧跟着起面的代码，从而减少指令跳转带来的性能上的下降。
 
-### 例子
+**例子**：
 
 ```c++
 int x, y;
@@ -1555,7 +1552,7 @@ else
 
    可以使用 .def 文件[导入到应用程序中](https://learn.microsoft.com/zh-cn/cpp/build/importing-using-def-files?view=msvc-170)或[从 DLL 导出](https://learn.microsoft.com/zh-cn/cpp/build/exporting-from-a-dll-using-def-files?view=msvc-170)。
 
-2. **使用 \_\_declspec**
+2. **使用 `__declspec`**
 
    **Microsoft 专用**
 
