@@ -20,7 +20,7 @@ auto 和 decltype 是在 C++11 中引入的关键字，可以在**编译期**推
 
 - `cv` 属性指的是 `const` 和 `volatile`。其中 `const` 区分顶层和底层。auto 推导中，**底层 const 会保留下来**。顶层 const 若需保留需在声明 auto 变量时明确指出，如 `const auto xxx`。
 - 在声明的变量类型**不为指针或引用**的情况下，需**忽略**等号右边的引用类型和 `顶层cv` 属性，得到 atuo 占位符的类型，进而得到变量类型。
-- 在声明的变量类型**为指针或引用**的情况下，需**保留**等号右边的引用和 `顶层cv` 属性，得到 atuo 占位符的类型，进而得到变量类型。
+- xxxxxxxxxx65 1#include <iostream>2#include <cstdint>3#include <vector>4#include <algorithm>5#include <iomanip>6​7using namespace std;8​9template<typename T>10void PrintVector1d(const vector<T> &vec, const string &str = "vec") {11    cout << setw(20) << left << str << ": ";12    cout << "[";13    cout << vec[0];14    for (size_t i = 1; i < vec.size(); ++i) {15        cout << " " << vec[i];16    }17    cout << "]" << endl;18}19​20int main() {21    uint32_t loopM = 10;22//    uint32_t loopM = 9;23    uint32_t coreNum = 4;24​25#if 126    // [3, 3, 2, 2]27    uint32_t  singleCoreBlockM = loopM / coreNum;28    uint32_t blockDim = coreNum;29    uint32_t  reminderNum = loopM % blockDim;30    vector<uint32_t> eachCoreBlockM = vector<uint32_t>(blockDim, singleCoreBlockM);31    for (uint32_t i = 0; i < reminderNum; ++i) {32        eachCoreBlockM[i]++;33    }34​35    vector<uint32_t> startAddr = vector<uint32_t>(blockDim, 0);36    vector<uint32_t> dataLength = eachCoreBlockM;37​38    for (uint32_t i = 1; i < blockDim; ++i) {39        startAddr[i] = startAddr[i - 1] + dataLength[i - 1];40    }41#else42    // [3, 3, 3, 1]43    uint32_t  singleCoreBlockM = (loopM + coreNum - 1) / coreNum;44    uint32_t blockDim = (loopM + singleCoreBlockM - 1) / singleCoreBlockM;45    vector<uint32_t> eachCoreBlockM = vector<uint32_t>(blockDim, singleCoreBlockM);46    if (loopM % singleCoreBlockM != 0) {47        eachCoreBlockM.back() = loopM % singleCoreBlockM;48    }49​50    vector<uint32_t> startAddr = vector<uint32_t>(blockDim, 0);51    vector<uint32_t> dataLength = eachCoreBlockM;52​53    for (uint32_t i = 1; i < blockDim; ++i) {54        startAddr[i] = startAddr[i - 1] + dataLength[i - 1];55    }56​57#endif58​59    // print60    cout << "blockDim: " << blockDim << endl;61    PrintVector1d(eachCoreBlockM, "eachCoreBlockM");62    PrintVector1d(startAddr, "startAddr");63    PrintVector1d(dataLength, "dataLength");64    return 0;65}cpp
 - auto 在一行定义多个变量时，各个变量的推导不能产生二义性。
 - auto 推导表达式类型时会进行考虑隐式类型转换，如 `uint32_t + uint64_t` 推导的结果为 `uint64_t`。
 - auto 定义的变量必须有初始值，即定义的同时就要初始化。
@@ -1510,7 +1510,7 @@ b) 是一个 standard-layout 类，满足：
   struct StaticOnly { static int x; };
   struct Good1 : StaticOnly { int y; }; // 符合条件
   struct Good2 { int z; };
-
+  
   struct Bad : StaticOnly, Good2 { double w; }; // 不符合条件，1继承自只有静态成员的类，2继承自一个非空类，3自身有非静态数据成员
   ```
 
