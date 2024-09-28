@@ -308,6 +308,84 @@ for (auto &n : getSet()) {
 > 1. 基于范围的 for 循环和普通的 for 循环一样，在遍历的过程中如果修改容器，会造成迭代器失效，（有关迭代器失效的问题请参阅 C++ primer 这本书，写的很详细）
 > 2. 注意：如果数组（集合）的大小（范围）在编译期间不能确定，那么不能够使用基于范围的 for 循环。
 
+### 尾置返回类型
+
+> [cxx17 尾随返回类型](https://hedzr.com/c++/algorithm/cxx17-trailing-return-type/)
+
+尾随返回类型（trailing return type declaration）自从 C++11 被引入，所谓尾随返回类型，无非是将函数声明格式中的**返回类型部分予以后置**，而其**原来的位置则采用 auto 关键字代替**。
+
+1. 基本语法
+
+   ```cpp
+   auto function_name(parameters) -> return_type;
+   ```
+
+   这里的 auto 是必需的，它告诉编译器返回类型将在箭头（->）后指定。
+   > 为什么需要 auto？
+   > - 语法要求：这是 C++ 标准规定的语法。
+   > - 占位符作用：auto 在这里起到占位符的作用，表示"真正的返回类型将在后面指定"。
+
+2. 示例
+
+   ```cpp
+   // 普通函数
+   auto add(int a, int b) -> int {
+       return a + b;
+   }
+
+   // 模板函数
+   template<typename T, typename U>
+   auto multiply(T t, U u) -> decltype(t * u) {
+       return t * u;
+   }
+   ```
+
+3. 用途和优势
+   - 提高可读性：对于复杂的返回类型，尾置返回可以提高代码的可读性。
+   - 在模板中更方便：可以使用函数参数来推导返回类型。
+   - 便于使用 decltype：特别是在返回类型依赖于参数的情况下。
+
+4. 与 auto 返回类型推导的区别
+   C++14 引入了返回类型推导，允许省略箭头和返回类型：
+
+   ```cpp
+   auto add(int a, int b) {
+       return a + b;
+   }
+   ```
+
+   这种情况下，auto 会根据 return 语句自动推导返回类型。
+
+5. 在 lambda 表达式中也可以使用尾置返回类型
+
+   ```cpp
+   auto lambda = [](int x, int y) -> int {
+       return x + y;
+   };
+   ```
+
+6. 注意事项
+   - 尾置返回类型对函数模板特别有用，尤其是当返回类型依赖于模板参数时。
+   - 在简单情况下，可以考虑使用 auto 返回类型推导（C++14 及以后）来简化语法。
+   - 在使用 decltype 时，尾置返回类型特别有用。
+
+7. 模板中使用
+
+   ```cpp
+   #include <vector>
+   #include <algorithm>
+
+   template<typename Container, typename Index>
+   auto authoritativeElementAt(Container&& c, Index i) 
+       -> decltype(std::forward<Container>(c)[i])
+   {
+       return std::forward<Container>(c)[i];
+   }
+   ```
+
+   在这个例子中，尾置返回类型允许我们使用**函数参数来定义返回类型**，这在函数声明开始时是不可能的。
+   总之，在使用尾置返回类型时，必须在函数名前使用 auto。这是语法规则的一部分，用于告诉编译器返回类型将在函数声明的末尾指定。这种语法在处理复杂返回类型或模板函数时特别有用。
+
 ### 7. static_assert
 
 C++11 中引入了 `static_assert` 这个关键字，用来做**编译期间的断言**，因此叫做静态断言。
@@ -636,6 +714,17 @@ is not integral
 ```
 
 另外这块的详细使用场景也可以看下百度 apollo cyber 代码中 message 部分的封装，也是大量使用了 std::enable_if。
+
+### auto 返回类型推导
+
+  TODO: 待补充差异
+   C++14 引入了返回类型推导，允许省略箭头和返回类型：
+
+   ```cpp
+   auto add(int a, int b) {
+       return a + b;
+   }
+   ```
 
 ## `C++ 17`
 

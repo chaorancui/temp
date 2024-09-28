@@ -920,6 +920,77 @@ b. static_assert 的即时求值：static_assert 是在编译时立即求值的�
 
 c. 两阶段名称查找：在模板实例化过程中，编译器会进行两阶段名称查找，这意味着即使在未选中的 if constexpr 分支中的代码也会被部分处理。
 
+## 函数模板**重载**中使用省略号（...）
+
+在函数模板重载中使用省略号（...）的目的是提供一种**通用的、低优先级的模板匹配方式**。可以理解为**回退机制**。
+这是一种常见的 SFINAE（Substitution Failure Is Not An Error）技术，用于在编译时进行类型特征检测。
+
+1. 省略号（`...`）的作用
+   在 C++ 中，省略号有两个主要用途：
+   - 表示**可变参数函数**，允许函数接受任意数量的参数。
+   - 在模板中作为**通用参数匹配器**，作为一种"捕获所有"的机制，用于匹配任何类型和数量的参数。
+
+   **重载优先级： 在函数重载解析中，更具体的重载版本会优先于更通用的版本**。使用 `...` 的版本被认为是最不具体的，因此具有最低的优先级。因此在 SFINAE 中，`...` 通常用作"后备"或"默认"选项。如果其他更具体的重载由于替换失败而被排除，那么带有 `...` 的版本将会被选中。
+
+   例子：
+
+   ```cpp
+   /*
+    * 1. 通过 decltype 和逗号表达式返回 std::true_type 来确认 T 是否具备 getValue() 方法。
+    * 2. 下面的 has_getValue 实现属于函数模板重载，因此函数签名要不同，不能都用 typename T 和 has_getValue()。
+    *    可以通过不同的函数入参区分。
+    */
+   // 2-1. 使用 int 参数版本，调用时用 has_getValue<T>(0)。也可用 double/string 等参数版本，对应调用时做修改即可。
+   template <typename T>
+   auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{});
+
+   // 2-2. 使用 ... 参数版本作为回退，它也可以匹配无参数的调用，因此上面不能没有参数
+   template <typename T>
+   std::false_type has_getValue(...);
+   ```
+
+   第一个重载使用 int 参数，更具体。第二个重载使用 ...，可以匹配任何参数，因此更通用。
+
+2. 工作原理：
+   当编译器尝试实例化 `has_getValue<T>(0)` 时，它首先尝试匹配第一个重载。
+   如果 T 类型有 getValue() 方法，第一个重载成功匹配，返回 std::true_type。
+   如果 T 类型没有 getValue() 方法，第一个重载的 SFINAE 失败（因为 decltype 表达式无效）。
+   SFINAE 失败后，编译器不会报错，而是继续尝试下一个重载。
+   第二个重载（...版本）总是可以匹配，所以它作为"回退"选项，返回 std::false_type。
+
+3. 常见用法：
+   1. 检查类是否有特定的**成员函数**：
+
+      ```cpp
+      template <typename T>
+      auto has_print(int) -> decltype(std::declval<T>().print(), std::true_type{});
+
+      template <typename T>
+      std::false_type has_print(...);
+      ```
+
+   2. 检查类是否有特定的**成员类型**：
+
+      ```cpp
+      template <typename T>
+      auto has_value_type(int) -> typename std::enable_if<sizeof(typename T::value_type) >= 0, std::true_type>::type;
+
+      template <typename T>
+      std::false_type has_value_type(...);
+      ```
+
+4. 优点：
+   - 这种技术允许我们在**编译时检查类型特征**，而不会导致编译错误。
+   - 它提供了一种**优雅的方式**来处理"类型不满足某种条件"的情况。
+   - 回退版本确保了即使第一个版本失败，我们仍然有一个有效的函数可以调用。
+
+5. 注意事项：
+   - 使用 `...` 的重载应该放在其他重载之后，因为它会匹配任何东西。
+   - 过度使用这种技术可能会使代码难以理解和维护。
+   - C++20 引入了概念（Concepts），提供了一种更清晰、更强大的方式来实现类似的功能。
+
+通过使用这种"回退"机制，我们可以创建强大而灵活的模板代码，能够适应各种不同的类型，同时保持**类型安全**和**编译时检查**的优势。这是 C++ 模板元编程中一个非常有用和常用的技巧，特别是在实现类型特征（type traits）和条件编译时。
+
 # 常见元模板
 
 ## std::enable_if
@@ -1099,7 +1170,7 @@ struct enable_if<true, T> { typedef T type; };
    }
    ```
 
-4. 结合 C++14 的别名模板
+4. 结合 C++14 的**别名模板**
 
    C++14 引入了 `std::enable_if_t`，这是一个别名模板，可以使代码更简洁。
 
@@ -1139,8 +1210,7 @@ struct enable_if<true, T> { typedef T type; };
    auto getSize(const T& container)
        -> std::enable_if_t<
            std::is_same_v<decltype(std::declval<T>().size()), size_t>,
-           size_t
-       >
+           size_t>
    {
        return container.size();
    }
@@ -1150,8 +1220,7 @@ struct enable_if<true, T> { typedef T type; };
    auto getSize(const T&)
        -> std::enable_if_t<
            !std::is_same_v<decltype(std::declval<T>().size()), size_t>,
-           size_t
-       >
+           size_t>
    {
        return 0;
    }
@@ -1167,7 +1236,7 @@ struct enable_if<true, T> { typedef T type; };
    }
    ```
 
-### 注意事项
+### 总结
 
 1. 可读性：过度使用 `std::enable_if` 可能导致代码难以理解。在适当的时候，考虑使用 `if constexpr`（C++17）或概念（Concepts）（C++20）来提高代码可读性。
 2. 编译时间：复杂的 SFINAE 表达式可能增加编译时间。
@@ -1176,13 +1245,11 @@ struct enable_if<true, T> { typedef T type; };
 
 总的来说，`std::enable_if` 是一个强大的工具，可以在编译时基于类型特性进行函数重载和模板特化。但它应该谨慎使用，并在可能的情况下考虑更现代的 C++ 特性。
 
-## std::declval 和 decltype
+## std::declval
 
-### std::declval
+### `<utility>` 定义
 
 > cppreference: [std::declval](https://zh.cppreference.com/w/cpp/utility/declval)
-
-#### `<utility>` 定义
 
 ```cpp
 template< class T >
@@ -1190,11 +1257,13 @@ typename std::add_rvalue_reference<T>::type declval() noexcept;
 // (C++11 起)
 ```
 
-将**任意类型 T 转换成引用类型**，使得在 decltype 说明符的操作数中不必经过构造函数就能使用成员函数。
-通常在模板中使用 std::declval，模板接受的模板实参通常可能无构造函数，但有**均返回所需类型的同一成员函数**。
+将**任意类型 T 转换成引用类型（实现上返回右值引用 T&&）**，使得在 decltype 说明符的操作数中**不必经过构造函数就能使用成员函数**。
+`std::declval` 通常用于模板中，其中可接受的**模板参数**可能**没有共同的构造函数**，但具有需要其**返回类型的相同成员函数**。如 stl 库不同容器构造函数不同，但 `.size()` 成员返回值类型都为 `size_t`。
 
-注意，std::declval 只能用于不求值语境，且不要求有定义；求值包含此函数的表达式是错误的。正式的说法是，ODR 式使用此函数的程序非良构。
+注意，`std::declval` **只能用于不求值语境**，且不要求有定义；求值包含此函数的表达式是错误的。正式的说法是，ODR 式使用此函数的程序非良构。
 此函数不能被调用，因此不会返回值。**返回类型是 T&&，除非 T 是（可有 cv 限定的）void，此时返回类型是 T**。
+
+目的：`std::declval` 允许你在不实际构造 T 类型对象的情况下创建 T 类型的右值。这在模板元编程和 SFINAE（Substitution Failure Is Not An Error）上下文中特别有用，因为你**需要在不要求类型完全定义或可构造的情况下检查类型或表达式的属性**。
 
 可能的实现
 
@@ -1206,27 +1275,125 @@ typename std::add_rvalue_reference<T>::type declval() noexcept
 }
 ```
 
-#### 常见用法
+### 常见用法
 
-`std::declval` 是 C++ 标准库中的一个工具函数模板（具体来说，在 `<utility>` 头文件中），用于在**未求值的上下文中获取类型 T 的值**。
+通常，在模板元编程中，你可能会想要检查某个表达式是否合法、类型是否满足某些特性，或者一个类是否能够调用某些成员函数，但实际构造这些类型的对象可能会带来很多限制：
 
-- 目的：`std::declval` 允许你在不实际构造 T 类型对象的情况下创建 T 类型的右值。这在模板元编程和 SFINAE（Substitution Failure Is Not An Error）上下文中特别有用，因为你**需要在不要求类型完全定义或可构造的情况下检查类型或表达式的属性**。
-- 语法：`std::declval<T>()` 返回类型 T&& 的右值引用。
+- 某些类型没有默认构造函数。
+- 某些类型的构造函数可能是私有的，或具有其他限制。
+- 某些类型可能是抽象类，无法实例化。
+
+为了避免实际构造对象，而又能够访问类型的成员函数或操作符，std::declval 提供了一种**编译时方法**来**模拟创建**某个类型的对象。
+
+> :bulb: Note：
+>
+> - `std::declval<T>()` 本质就是 T 的右值引用，其提供的编译时模拟创建对象功能**本质是右值引用的功能**。
+> - `std::declval` 和 `decltype` 通常一起使用 `decltype(std::declval<T>())`，在**编译时不实际构造类对象的情况下推导类型**。
+
+1. 获取成员函数返回值类型
+   在不实际构造类对象的情况下，获取成员函数的返回值类型。
+
+   ```cpp
+   #include <iostream>
+   #include <utility>
+
+   struct Default
+   {
+       int foo() const { return 1; }
+   };
+
+   struct NonDefault
+   {
+       NonDefault() = delete;
+       int foo() const { return 1; }
+   };
+
+   int main()
+   {
+       decltype(Default().foo()) n1 = 1;                   // n1 的类型是 int
+   //  decltype(NonDefault().foo()) n2 = n1;               // 错误：无默认构造函数
+       decltype(std::declval<NonDefault>().foo()) n2 = n1; // n2 的类型是 int
+       std::cout << "n1 = " << n1 << '\n'
+                 << "n2 = " << n2 << '\n';
+   }
+   ```
+
+2. 检查类的成员函数
+   在不实际构造类对象的情况下，检查一个类是否具有特定的成员函数。
+
+   ```cpp
+   #include <type_traits>
+   #include <utility>
+
+   struct Foo {
+       int getValue() { return 42; }
+   };
+
+   struct Bar {};
+
+   /*
+    * 1. 通过 decltype 和逗号表达式返回 std::true_type 来确认 T 是否具备 getValue() 方法。
+    * 2. 下面的 has_getValue 实现属于函数模板重载，因此函数签名要不同，不能都用 typename T 和 has_getValue()。
+    */
+   // 2-1. 使用 int 参数版本，调用时用 has_getValue<T>(0)。也可用 double/string 等参数版本，对应调用时做修改即可。
+   template <typename T>
+   auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{});
+
+   // 2-2. 使用 ... 参数版本作为回退，它也可以匹配无参数的调用，因此上面不能没有参数
+   template <typename T>
+   std::false_type has_getValue(...);
+
+   // 定义一个 trait 来封装 has_getValue 的结果
+   template <typename T>
+   struct has_getValue_trait : decltype(has_getValue<T>(0)) {};
+
+   int main() {
+       static_assert(has_getValue_trait<Foo>::value, "Foo has getValue");
+       static_assert(!has_getValue_trait<Bar>::value, "Bar doesn't have getValue");
+   }
+   ```
+
+   这里使用了 `std::declval<T>()` 来模拟 T 类型对象，从而能够在编译时检查 T 是否有 `getValue()` 成员函数。
+
+3. SFINAE 和表达式推导
+   在 SFINAE 中，编译器会尝试替换模板参数，如果替换失败则不会报错，而是选择其他可行的模板实现。`std::declval` 可以帮助我们在不需要实际构造对象的情况下推导表达式的合法性：
+
+   ```cpp
+   template <typename T>
+   auto is_addable(int) -> decltype(std::declval<T>() + std::declval<T>(), std::true_type{}) {
+       return std::true_type{};
+   }
+
+   template <typename T>
+   std::false_type is_addable(...) {
+       return std::false_type{};
+   }
+
+   int main() {
+       static_assert(is_addable<int>(0)::value, "int can be added");
+       static_assert(!is_addable<std::string>(0)::value, "std::string can't be added using '+'");
+   }
+   ```
+
+   在这个例子中，`std::declval<T>() + std::declval<T>()` 用于测试 T 类型对象能否相加，而不需要实际创建 T 类型的实例。
+
+4. 为什么 std::declval 必须返回右值引用？
+   在模板元编程中，右值引用（T&&）能够匹配到更多的类型，包括可修改的左值（通过引用折叠规则），这使得 std::declval 可以更加灵活地用于不同类型的推导和表达式合法性的判断。
+
+### 总结
+
+- `std::declval` 是用于模板元编程和 SFINAE 的编译时工具，它允许你在不构造类型对象的情况下模拟对该类型的操作。
+- 它通常用于检查类型的成员函数、操作符、表达式合法性等。
+- 由于 `std::declval` 不能用于运行时，它仅仅是编译期工具，因此可以避免构造不必要或非法的类型实例。
+- 在复杂的模板元编程中，`std::declval` 提供了非常有用的工具，可以帮助推导出类型的特性和能力。
 
 ### decltype
 
 decltype 是 C++11 中的一个关键字，它在不求值表达式的情况下返回表达式的类型。
 
-<!-- - 目的：它用于在编译时确定表达式的类型。这对于编写类型安全的代码、推断返回类型和模板元编程非常有用。 -->
+- 目的：它用于在编译时确定表达式的类型。这对于编写类型安全的代码、推断返回类型和模板元编程非常有用。
 
 - 语法：decltype(expression) 给出 expression 的类型。
-
-### `decltype(std::declval<T>())`
-
-当你使用 `decltype(std::declval<T>())` 时，你将这两个工具结合起来以确定 `std::declval<T>()` 的类型。
-
-- 这个表达式的作用是推导类型 T 的对象的类型。
-- 它不会实际创建 T 类型的对象,而是在编译时推导出如果有一个 T 类型的对象,它会是什么类型。
 
 ## std::integral_constant
 
@@ -2205,3 +2372,87 @@ void foo(Iter iter) {
 在这个函数中，我们使用`std::iterator_traits`来获取迭代器`Iter`指向的类型，并将其别名为`ValueType`。这样，我们就能在函数内部使用这个类型。
 
 从这个例子中，我们可以看到，概念和类型特性在 C++编程中各有其用。概念提供了一种明确、简洁的方式来表达我们对模板参数的要求，而类型特性则可以提供更多的类型信息。结合使用它们，可以让我们的程序更加强大、更加灵活。
+
+
+# 技巧
+
+## 用于校验的模板无需实现函数体
+
+假如想检查一个类是否具有特定的成员函数。
+
+```cpp
+#include <type_traits>
+#include <utility>
+
+struct Foo {
+    int getValue() { return 42; }
+};
+
+struct Bar {};
+
+// 1. 通过 decltype 和逗号表达式返回 std::true_type 来确认 T 是否具备 getValue() 方法。
+// 2. 下面的 has_getValue 实现属于函数模板重载，因此函数签名要不同，不能都用 typename T 和 has_getValue()。
+// 2-1. 使用 int 参数版本检查是否有 getValue() 方法
+template <typename T>
+auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{}) {
+    return std::true_type{};
+}
+// 2-2. 使用 ... 参数版本作为回退
+template <typename T>
+std::false_type has_getValue(...) {
+    return std::false_type{};
+}
+
+int main() {
+    static_assert(has_getValue<Foo>(0)::value, "Foo has getValue");
+    static_assert(!has_getValue<Bar>(0)::value, "Bar doesn't have getValue");
+}
+
+```
+
+将 has_getValue 函数模板改为函数声明，不提供实现。这是因为我们只需要它的返回类型，而不需要实际的函数体。
+
+```cpp
+#include <type_traits>
+#include <utility>
+
+struct Foo {
+    int getValue() { return 42; }
+};
+
+struct Bar {};
+
+// 通过 decltype 和逗号表达式返回 std::true_type 来确认 T 是否具备 getValue() 方法。
+template <typename T>
+auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{});
+
+template <typename T>
+std::false_type has_getValue(...);
+
+// 定义一个 trait 来封装 has_getValue 的结果
+template <typename T>
+struct has_getValue_trait : decltype(has_getValue<T>(0)) {};
+
+int main() {
+    static_assert(has_getValue_trait<Foo>::value, "Foo has getValue");
+    static_assert(!has_getValue_trait<Bar>::value, "Bar doesn't have getValue");
+}
+```
+
+## 可变参数
+
+> [C++学习之可变参数的函数与模板](https://songlee24.github.io/2014/07/22/cpp-changeable-parameter/)
+
+
+     ```cpp
+     return_type function_name(parameter_list, ...);
+     ```
+
+     使用 `<cstdarg>` 头文件中的宏来处理可变参数。
+     只能出现在形参列表的最后一个位置.
+     需要显式指定参数数量或使用某种约定来确定参数数量。
+     类型不安全，容易出错。
+     在现代 C++ 中，通常推荐使用更安全的替代方案，如可变参数模板。
+
+## 检查类是否有特定的**成员函数**，有几种方式
+
