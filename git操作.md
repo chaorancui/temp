@@ -686,7 +686,7 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   git branch -a
   ```
 
-- 显示所有**本地分支**，并提供额外的信息
+- 显示所有**本地分支**，并提供**额外的信息**
 
   ```bash
   # 列出本地所有分支，并显示每个分支的最新一次提交的简要信息
@@ -717,6 +717,46 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   - `1a2b3c4`： 是分支的最新提交的哈希值（简短形式）。
   - `[origin/main: ahead 2]`： 表示本地 main 分支比远程 origin/main 超前 2 个提交。
   - `Some commit message`： 是最新一次提交的简短描述。
+
+- `-vv` 选项查看本地分支与跟踪分支的差异
+  在使用 git branch -vv 时，ahead 和 behind 的信息（如 ahead 2, behind 1）只有在特定条件下才会显示。具体来说，这取决于以下几个因素：
+
+  1. 没有设置跟踪分支
+     如果本地分支没有设置为跟踪远程分支，则 git branch -vv 不会显示 ahead 或 behind 信息。这种情况下，它无法比较本地分支和远程分支之间的提交差异。你可以通过以下命令**检查某个分支是否设置了跟踪分支**：
+
+     ```bash
+     git branch -vv
+     ```
+
+     如果在分支名称旁边没有出现 [origin/branch-name]，那么该分支没有跟踪远程分支。
+
+  2. 没有提交差异
+     如果本地分支与跟踪的远程分支完全同步，也就是说既没有超前（ahead）也没有落后（behind），git branch -vv 也不会显示 ahead 或 behind 信息。这表示**本地分支和远程分支完全相同**。
+
+  3. 本地分支未更新到远程
+     当你没有运行 git fetch 或 git pull 来更新本地的远程分支引用时，Git 可能无法准确显示本地分支与远程分支之间的差异。要确保 Git 具有最新的远程分支信息，可以运行：
+
+     ```bash
+     git fetch
+     ```
+
+     git fetch 会从远程仓库获取最新的提交，并更新本地的远程分支引用。这样，Git 才能比较本地分支和远程分支，并显示 ahead 或 behind 信息。
+
+  4. 非推送/拉取的分支
+     有些本地分支可能只是临时分支，未设置推送或拉取的配置（比如 upstream）。这种情况下，git branch -vv 不会显示 ahead/behind 状态。
+
+     如何确保 ahead 和 behind 显示：
+
+     ```bash
+     # 确保跟踪远程分支：可以通过以下命令为本地分支设置跟踪的远程分支：
+     git branch --set-upstream-to=origin/branch-name
+
+     # 确保本地与远程更新同步：
+     git fetch
+     ```
+
+     这会确保 git branch -vv 能够正确显示与远程分支的差异情况（如 ahead 和 behind）。
+
 
 - 在本地新建一个分支（新分支 commit 信息与当前分支 commit 信息相同）
 
