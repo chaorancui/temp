@@ -686,16 +686,37 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   git branch -a
   ```
 
-- 显示分支 sha1、commit 信息、工作区(工作树)
+- 显示所有**本地分支**，并提供额外的信息
 
   ```bash
+  # 列出本地所有分支，并显示每个分支的最新一次提交的简要信息
   git branch -v
 
-  # 指定两次 v，会打印工作树（如果有）和上游分支名
+  # 列出所有本地分支，并提供额外的信息：哈希值、提交消息、跟踪分支、分支差异
   git branch -vv
-  # 如：
-  # master23b		bd52c0c1953 [23B/master] merge 'br_l3_l00504464_23A_23B_2' into 'master'
   ```
+
+  具体来说，-vv 选项表示 "verbose"（详细）模式，会显示每个分支的更多详细信息，如下：
+
+  - 本地分支名：列出当前所有的本地分支，当前分支会以 `*` 标记。
+  - 跟踪分支：如果一个本地分支设置了远程分支跟踪（即和某个远程分支有关联），则会显示该远程分支的名称。
+  - 分支的提交哈希值：列出分支最新一次提交的哈希值（简短的形式）。
+  - 提交消息：显示该分支的最后一次提交的提交消息的简短概述。
+  - 分支与跟踪分支的差异：显示当前本地分支和它跟踪的远程分支之间的差异，通常用 ahead 和 behind 的形式表示。例如，[origin/main: ahead 2, behind 1] 表示当前本地分支比远程分支超前 2 个提交，落后 1 个提交。
+
+  **示例**：
+
+  ```shell
+  $ git branch -vv
+  * main        1a2b3c4 [origin/main: ahead 2] Some commit message
+    feature1    5f6g7h8 [origin/feature1: gone] Another commit message
+    feature2    8i9j0k1 [origin/feature2] Yet another commit message
+  ```
+
+  - `*`：表示当前处于的分支。
+  - `1a2b3c4`： 是分支的最新提交的哈希值（简短形式）。
+  - `[origin/main: ahead 2]`： 表示本地 main 分支比远程 origin/main 超前 2 个提交。
+  - `Some commit message`： 是最新一次提交的简短描述。
 
 - 在本地新建一个分支（新分支 commit 信息与当前分支 commit 信息相同）
 
@@ -2057,7 +2078,6 @@ vimdiff 命令
 ```shell
 dp （":diffget"）
 ```
-
 
 如果希望把另一个文件的内容复制到当前行中，可以使用命令
 
