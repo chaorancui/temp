@@ -4,7 +4,7 @@
 
 > git 官方使用说明：
 >
-> https://git-scm.com/book/zh/v2/%E8%B5%B7%E6%AD%A5-%E5%85%B3%E4%BA%8E%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6
+> <https://git-scm.com/book/zh/v2/%E8%B5%B7%E6%AD%A5-%E5%85%B3%E4%BA%8E%E7%89%88%E6%9C%AC%E6%8E%A7%E5%88%B6>
 >
 > 推荐博文
 > [玩转 Git 三剑客笔记](https://www.cnblogs.com/xiaochenNN/p/17234617.html) > [三年 Git 使用心得 & 常见问题整理](https://segmentfault.com/a/1190000023734704)
@@ -137,7 +137,7 @@ git config --global credential.helper wincred
 
 有时候在电脑挂了梯子的情况下，clone 外网代码需要配置代理，**不用时再取消**：
 
-下载公司内部代码，不需要代理。但下载外网代码，如https://gitee.com和https://github.com，又需要代理。
+下载公司内部代码，不需要代理。但下载外网代码，如<https://gitee.com和https://github.com，又需要代理。>
 
 - 方法一：给指定的域名设置代理，其他不做代理
 
@@ -203,13 +203,13 @@ git config --global credential.helper wincred
 Git 可以在你提交时自动地把回车和换行转换成换行，而在检出代码时把换行转换成回车和换行。 你可以用 `core.autocrlf` 来打开此项功能。 如果是在 Windows 系统上，把它设置成 `true`，这样在检出代码时，换行会被转换成回车和换行：
 
 ```console
-$ git config --global core.autocrlf true
+git config --global core.autocrlf true
 ```
 
 如果使用以换行作为行结束符的 Linux 或 macOS，你不需要 Git 在检出文件时进行自动的转换； 然而当一个以回车加换行作为行结束符的文件不小心被引入时，你肯定想让 Git 修正。 你可以把 `core.autocrlf` 设置成 input 来告诉 Git 在提交时把回车和换行转换成换行，检出时不转换：
 
 ```console
-$ git config --global core.autocrlf input
+git config --global core.autocrlf input
 ```
 
 这样在 Windows 上的检出文件中会保留回车和换行，而在 macOS 和 Linux 上，以及版本库中会保留换行。
@@ -217,7 +217,7 @@ $ git config --global core.autocrlf input
 如果你是 Windows 程序员，且正在开发仅运行在 Windows 上的项目，可以设置 `false` 取消此功能，把回车保留在版本库中：
 
 ```console
-$ git config --global core.autocrlf false
+git config --global core.autocrlf false
 ```
 
 关掉了 Git 的“换行符自动转换”功能就万事大吉了吗？失去了它的“保护”，你心里会有点不踏实。你可能会问：如果我不小心在文件中混入了几个 Windows 回车该怎么办？这种意外可以防范吗？
@@ -391,40 +391,41 @@ git fetch 命令命令用于从远程获取代码库。
 
 - 将某个远程主机的所有分支的更新，全部取回本地。如果只想取回特定分支的更新，可以指定分支名。
 
-```bash
-git fetch <远程主机名>
-git fetch <远程主机名> <分支名>
-```
+  ```bash
+  git fetch # 获取所有远程仓库的更新
+  git fetch <远程主机名> # 获取指定远程仓库的更新（如 origin）
+  git fetch <远程主机名> <分支名> # 获取指定远程仓库的特定分支的更新
+  ```
 
-> 注：所取回的更新，在本地主机上要用 "远程主机名/分支名" 的形式读取。
-> 比如 origin 主机的 master，就要用 origin/master 读取。
+  > 注：所取回的更新，在本地主机上要用 "远程主机名/分支名" 的形式读取。
+  > 比如 origin 主机的 master，就要用 origin/master 读取。
 
 - 取回远程主机的更新以后，可以在它的基础上，使用 git switch/checkout 命令创建一个新的分支。
 
-```bash
-# 在本地创建和远程分支对应的分支，本地和远程分支的名称一致
-git checkout -b <branch_name> origin/<branch_name>
-```
+  ```bash
+  # 在本地创建和远程分支对应的分支，本地和远程分支的名称一致
+  git checkout -b <branch_name> origin/<branch_name>
+  ```
 
 - 此外，也可以使用 git merge 命令或者 git rebase 命令，在本地分支上合并远程分支。
 
-```bash
-git merge origin/master
-# 或者
-git rebase origin/master
-```
+  ```bash
+  git merge origin/master
+  # 或者
+  git rebase origin/master
+  ```
 
 - 也可以把当前分支 reset --hard 到远程分支
 
-```shell
-git reset --hard origin/master
-```
+  ```shell
+  git reset --hard origin/master
+  ```
 
-> 在 Git 中，`FETCH_HEAD` 是一个特殊的引用（ref），它指向**最近一次`git fetch`或`git pull`操作从远程仓库获取的最新提交**。每当执行`fetch`或`pull`命令时，Git 都会更新`FETCH_HEAD`，使其指向此次操作所获取的最新提交。
->
-> 此外，`FETCH_HEAD`也可以指向一个特定的远程分支，具体取决于`fetch`或`pull`操作时的设置。例如，如果你只从`origin/main`拉取，那么`FETCH_HEAD`将指向`origin/main`的最新提交。如果想从多个远程分支拉取，可以使用`git fetch --all`来更新所有远程分支的信息，此时`FETCH_HEAD`仍然只会指向最后一个被拉取的提交。
->
-> 你可以通过`git show FETCH_HEAD`或`git log FETCH_HEAD`来查看最近一次从远程仓库拉取的提交信息。
+  > 在 Git 中，`FETCH_HEAD` 是一个特殊的引用（ref），它指向**最近一次`git fetch`或`git pull`操作从远程仓库获取的最新提交**。每当执行`fetch`或`pull`命令时，Git 都会更新`FETCH_HEAD`，使其指向此次操作所获取的最新提交。
+  >
+  > 此外，`FETCH_HEAD`也可以指向一个特定的远程分支，具体取决于`fetch`或`pull`操作时的设置。例如，如果你只从`origin/main`拉取，那么`FETCH_HEAD`将指向`origin/main`的最新提交。如果想从多个远程分支拉取，可以使用`git fetch --all`来更新所有远程分支的信息，此时`FETCH_HEAD`仍然只会指向最后一个被拉取的提交。
+  >
+  > 你可以通过`git show FETCH_HEAD`或`git log FETCH_HEAD`来查看最近一次从远程仓库拉取的提交信息。
 
 ### git pull
 
@@ -534,7 +535,7 @@ git merge <source_branch> <dest_branch>
 
 这个时候 git add 的`-p, --patch`参数就派上大用场了。
 
-这个`(1/1) Stage this hunk [y,n,q,a,d,s,e,?]? `提示是什么意思？
+这个`(1/1) Stage this hunk [y,n,q,a,d,s,e,?]?`提示是什么意思？
 
 执行`git add --help`然后跳到`INTERACTIVE MODE` 下的 `patch`部分，有详细的解释
 
@@ -652,9 +653,9 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 - 根据提交 ID 查询日志
 
   ```shell
-  git log commit_id  　　			#查询ID(如：6bab70a08afdbf3f7faffaff9f5252a2e4e2d552)之前的记录，包含commit
-  git log commit1_id commit2_id 	 #查询commit1与commit2之间的记录，包括commit1和commit2
-  git log commit1_id..commit2_id 	 #同上，但是不包括commit1
+  git log commit_id  　　   #查询ID(如：6bab70a08afdbf3f7faffaff9f5252a2e4e2d552)之前的记录，包含commit
+  git log commit1_id commit2_id   #查询commit1与commit2之间的记录，包括commit1和commit2
+  git log commit1_id..commit2_id   #同上，但是不包括commit1
   ```
 
   > 其中，commit_id 可以是提交哈希值的简写模式，也可以使用 HEAD 代替。HEAD 代表最后一次提交，`HEAD^`为最后一个提交的父提交，等同于`HEAD～1`，`HEAD～2`代表倒数第二次提交
@@ -840,7 +841,7 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
    git checkout <branch_name> – <file_name> 将指定分支的指定提交内容还原到当前分支工作区
 
-> https://blog.csdn.net/Sweet_19BaBa/article/details/111950384
+> <https://blog.csdn.net/Sweet_19BaBa/article/details/111950384>
 
 ### git switch
 
@@ -893,11 +894,11 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 ```shell
 # 「工作区修改撤销」将 <file> 恢复到最新的提交状态，丢弃所有未提交的更改。对于撤销不需要的更改非常有用
 git restore <file>
-git restore .		# 全部文件，工作区修改撤销
+git restore .  # 全部文件，工作区修改撤销
 
 # 「暂存区重新放回工作区」如果你已经使用 git add 将文件添加到暂存区，但希望重新放回工作区
 git restore --staged <file>
-git restore --staged .		# 全部文件，暂存区重新放回工作区
+git restore --staged .  # 全部文件，暂存区重新放回工作区
 
 # 「还原文件到指定提交的状态」将文件 <file> 恢复到特定提交 <commit> 的状态，但分支已有提交节点不会变化，且回退的差异会保存在工作区。将文件还原到历史版本时非常有用
 git restore --source=<commit> <file>
@@ -945,15 +946,15 @@ HEAD^3 上上上一个版本
 git diff <file_name>
 
 # 暂存区（已add未commit） <=> 最近一次commit(HEAD)
-git diff --cached <file_name>	# 或
+git diff --cached <file_name> # 或
 git diff --staged <file_name>
 
 # 工作区（已track未add）+暂存区（已add未commit） <=> 最近一次commit(HEAD)
 git diff HEAD <file_name>
 
 # 最近一次commit(HEAD) <=> 过去X个的之前的 commit。
-git diff HEAD~X		# X为正整数
-git diff HEAD^^^	# 有X个^符号
+git diff HEAD~X  # X为正整数
+git diff HEAD^^^ # 有X个^符号
 
 
 # 两个分支上最后 commit 的内容的差别
@@ -1289,7 +1290,7 @@ git config core.ignorecase true
 1. 使用 `git rebase -i` 进入编辑
 
    ```shell
-   git rebase -i <after-this-commit>	# 不含本次commit id
+   git rebase -i <after-this-commit> # 不含本次commit id
    git rebase -i HEAD~3
    ```
 
@@ -1612,7 +1613,7 @@ git 项目,VSCode 显示不同颜色块的含义：<https://www.cnblogs.com/soyx
 
 ### Git commit 规范
 
-https://zhuanlan.zhihu.com/p/182553920
+<https://zhuanlan.zhihu.com/p/182553920>
 
 **commit message 格式**：
 
@@ -1662,7 +1663,7 @@ scope 用于说明 commit 影响的范围，比如数据层、控制层、视图
 `diff` 命令是 Linux 下自带的一个强大的文本比对工具，而且使用起来非常方便。而且它在大多数的 Linux 发行版里已经预装了，它可以逐行比对两个文本文件，并输出它们的差异点。更多介绍可以直接查看它的 man 手册。
 
 ```text
-$ man diff
+man diff
 ```
 
 但是，diff 命令虽然强大，但它的输出结果实在是太感人了，不直观也不清晰。于是，有大佬为了弥补这个缺点，基于 diff 开发了更强大的工具。这里推荐两个：`colordiff` 和 `wdiff` 。
@@ -1674,15 +1675,15 @@ $ man diff
 你可以自行安装 colordiff 到你的电脑，根据不同的发行版选择不同的安装命令。
 
 ```text
-$ yum install colordiff             [On CentOS/RHEL/Fedora]
-$ dnf install colordiff             [On Fedora 23+ version]
-$ sudo apt-get install colordiff    [On Debian/Ubuntu/Mint]
+yum install colordiff             [On CentOS/RHEL/Fedora]
+dnf install colordiff             [On Fedora 23+ version]
+sudo apt-get install colordiff    [On Debian/Ubuntu/Mint]
 ```
 
 同样，你可以使用 man 命令查看它的帮助文档：
 
 ```text
-$ man colordiff
+man colordiff
 ```
 
 **wdiff 命令**
@@ -1692,15 +1693,15 @@ diff 命令是逐行比较差异，而 `wdiff` 更变态，是逐字比较。所
 安装命令如下：
 
 ```java
-$ yum install wdiff             [On CentOS/RHEL/Fedora]
-$ dnf install wdiff             [On Fedora 23+ version]
-$ sudo apt-get install wdiff    [On Debian/Ubuntu/Mint]
+yum install wdiff             [On CentOS/RHEL/Fedora]
+dnf install wdiff             [On Fedora 23+ version]
+sudo apt-get install wdiff    [On Debian/Ubuntu/Mint]
 ```
 
 更详细内容可以查看它的 man 手册。
 
 ```text
-$ man wdiff
+man wdiff
 ```
 
 ### vimdiff 命令
@@ -1892,7 +1893,7 @@ git merge --strategy-option theirs
 
 ### git 使用 ours 和 theirs
 
-> [Git-优雅地解决冲突：使用 ours 和 theirs]https://blog.csdn.net/qq_41603165/article/details/104922336
+> [Git-优雅地解决冲突：使用 ours 和 theirs]<https://blog.csdn.net/qq_41603165/article/details/104922336>
 
 对于 merge 和 rebase 来说，ours 和 theirs 对应的分支正好是相反的。
 
