@@ -38,13 +38,13 @@ doxygen -g
 
 - **PROJECT_NAME**: 设置项目名称。
 
-  ```
+  ```ini
   PROJECT_NAME = "Your Project Name"
   ```
 
 - **INPUT**: 设置需要生成文档的源码目录或文件。
 
-  ```
+  ```ini
   INPUT = path/to/your/source
   ```
 
@@ -52,38 +52,38 @@ doxygen -g
 
 - **OUTPUT_DIRCTORY**: 设置需要生成文档的保存目录。
 
-  ```
+  ```ini
   OUTPUT_DIRECTORY = path/to/your/out
   ```
 
 - **RECURSIVE**: 如果要递归处理子目录，设置为 `YES`。
 
-  ```
+  ```ini
   RECURSIVE = YES
   ```
 
 - **EXTRACT_ALL**: 如果你希望提取所有的注释，包括没有文档的符号，设置为 `YES`。
 
-  ```
+  ```ini
   EXTRACT_ALL = YES
   ```
 
 - **GENERATE_LATEX** 和 **GENERATE_HTML**: 设置为 `YES`，以生成 PDF 或 HTML 文档。
 
-  ```
+  ```ini
   GENERATE_HTML = YES
   GENERATE_LATEX = YES
   ```
 
 - **HAVE_DOT**: 设置为 `YES` 以生成类图。
 
-  ```
+  ```ini
   HAVE_DOT = YES
   ```
 
 - **CALL_GRAPH 和 CALLER_GRAPH**: 设置为 `YES` 以生成调用图和调用者图。
 
-  ```
+  ```ini
   CALL_GRAPH = YES
   CALLER_GRAPH = YES
   ```
@@ -112,7 +112,8 @@ dot -Tpng class_diagram.dot -o class_diagram.png
 
 这样可以得到项目中类之间调用关系的图示。
 
-
+> 参考：
+> [1]. [绘制函数调用图（call graph）：doxygen + graphviz](https://www.cnblogs.com/lidabo/p/15855564.html)
 
 # 名称解修饰
 
