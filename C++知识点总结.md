@@ -1697,3 +1697,11 @@ int main() {
 右值引用允许我们在不实际构造对象的情况下，推导类型属性和成员函数合法性。
 std::declval 通过返回类型的右值引用（T&&），让编译器能够在模板元编程中“模拟”对象的存在，进而进行类型推导、SFINAE 检查等操作。
 右值引用的这种特性非常有助于元编程，因为它避免了不必要的构造开销，并能处理无法实际构造的类型。
+
+## enable_shared_from_this
+
+std::enable_shared_from_this<T>：当一个类继承自 std::enable_shared_from_this<T>（T 是类本身），这个类的对象就可以通过 shared_from_this() 函数生成一个指向自身的 std::shared_ptr。
+
+在使用 std::shared_ptr 时，直接通过 this 来创建一个新的共享指针是危险的，因为这可能会导致管理同一个对象的多个共享指针，而它们彼此之间并不知道对方的存在，最终可能导致对象被提前析构或析构多次。
+std::enable_shared_from_this 提供了一种机制，允许类对象在创建时将自己与 shared_ptr 关联起来，从而保证即使在类的成员函数中调用 shared_from_this()，也可以获取正确的、引用计数一致的 std::shared_ptr。
+
