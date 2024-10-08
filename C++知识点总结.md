@@ -1363,6 +1363,152 @@ void _fun(A b, float) {
 
 <font color=red>空类在编译的时候会被编译器自动的加入一个 char 成员，不为别的，只是为了，让它被实例后的对象占有空间，从而可以区分。</font>
 
+## mutable 关键字
+
+mutable 是 C++中的一个关键字,主要用于修饰类的成员变量。它的主要作用是允许在 const 成员函数中修改被 mutable 修饰的成员变量。这打破了 const 成员函数不能修改类成员的一般规则。
+
+以下是 mutable 关键字的几个要点:
+
+1. 用途:
+
+   - 允许在 const 成员函数中修改特定的成员变量。
+   - 通常用于那些不影响对象逻辑状态的成员变量。
+
+2. 语法:
+   在声明成员变量时,在类型前加上 mutable 关键字。
+
+   ```cpp
+   class MyClass {
+   private:
+       mutable int counter;
+   };
+   ```
+
+3. 常见应用场景:
+
+   - 缓存机制：允许缓存的值在 const 对象中修改。
+   - 线程同步：允许在 const 成员函数中修改同步机制（如锁、条件变量）。
+   - 计数器：记录函数调用或对象访问次数。
+   - 惰性初始化：延迟初始化不影响对象核心状态。
+
+   1. 缓存机制
+
+      这是 mutable 最常见的使用场景之一。当一个 const 成员函数需要进行密集计算时，可以缓存计算的结果，以提高程序性能。在这种情况下，缓存结果的变量通常不被认为是对象的核心逻辑状态。因此，可以将缓存变量声明为 mutable，以便在 const 对象中更新缓存值。
+
+      ```cpp
+      class BigData {
+      private:
+          mutable std::optional<int> cachedResult;
+          std::vector<int> data;
+
+      public:
+          int computeResult() const {
+              if (!cachedResult) {
+                  // 假设这是一个耗时的计算
+                  int result = 0;
+                  for (const auto& item : data) {
+                      result += std::pow(item, 2);
+                  }
+                  cachedResult = result;
+              }
+              return *cachedResult;
+          }
+      };
+      ```
+
+   2. 线程同步
+
+      在 const 成员函数中,我们可能需要使用互斥锁来保证线程安全。这时可以将互斥锁声明为 mutable，以便在 const 成员函数中修改它们。锁的状态通常不属于对象的逻辑状态，因此这种设计是合理的。
+
+      ```cpp
+      class ThreadSafeCounter {
+      private:
+          mutable std::mutex mtx;
+          int value;
+
+      public:
+          int getValue() const {
+              std::lock_guard<std::mutex> lock(mtx);
+              return value;
+          }
+
+          void increment() {
+              std::lock_guard<std::mutex> lock(mtx);
+              ++value;
+          }
+      };
+      ```
+
+   3. 统计或调试信息
+
+      当我们想在 const 成员函数中更新一些不影响对象逻辑状态的统计信息时,可以使用 mutable。
+
+      ```cpp
+      class DataAnalyzer {
+      private:
+          mutable int accessCount = 0;
+          std::vector<double> data;
+
+      public:
+          double getAverage() const {
+              ++accessCount;  // 更新访问计数
+              if (data.empty()) return 0.0;
+              return std::accumulate(data.begin(), data.end(), 0.0) / data.size();
+          }
+
+          int getAccessCount() const {
+              return accessCount;
+          }
+      };
+      ```
+
+   4. 惰性初始化
+
+      在某些情况下，可能希望延迟初始化某个成员变量，直到它第一次被需要时再进行初始化。由于这种初始化不应影响对象的逻辑一致性，因此可以使用 mutable 来允许在 const 成员函数中完成初始化。
+
+      ```cpp
+      class LazyInitialization {
+      private:
+          mutable std::unique_ptr<ExpensiveObject> expensiveObject;
+
+      public:
+          const ExpensiveObject& getObject() const {
+              if (!expensiveObject) {
+                  expensiveObject = std::make_unique<ExpensiveObject>();
+              }
+              return *expensiveObject;
+          }
+      };
+      ```
+
+   5. 实现逻辑上的常量性
+
+      有时,我们可能需要修改对象的某些内部状态,但这种修改在逻辑上不改变对象的值。
+
+      ```cpp
+      class String {
+      private:
+          char* str;
+          mutable size_t hash_value;
+          mutable bool hash_computed = false;
+
+      public:
+          size_t getHash() const {
+              if (!hash_computed) {
+                  hash_value = std::hash<std::string_view>()(str);
+                  hash_computed = true;
+              }
+              return hash_value;
+          }
+      };
+      ```
+
+4. 注意事项:
+   - 不要过度使用 mutable,它可能破坏 const 的语义。
+   - 只将真正需要在 const 环境中修改的成员声明为 mutable。
+5. 线程安全:
+   mutable 成员在多线程环境中可能需要额外的同步机制。
+
 # 小整理
 
 ## 类 class
@@ -1427,7 +1573,6 @@ C++11 特性之 default/delete
 
 <https://blog.csdn.net/weixin_38145317/article/details/86496041>
 
-
 ## 裸数组
 
 C /C++中，裸数组是个什么概念
@@ -1438,43 +1583,52 @@ ChatGPT
 裸数组的特点：
 固定大小：裸数组在声明时必须指定大小，数组的大小是编译时常量，不能在运行时动态调整。
 
-cpp
-复制代码
+```cpp
 int arr[10];  // 大小为10的整型数组，不能改变大小
+```
+
 不进行边界检查：访问裸数组的元素时，编译器不会检查是否越界，程序员需要自己确保访问安全。
 
-cpp
-复制代码
+```cpp
 arr[11] = 5;  // 如果超出数组的边界，可能导致未定义行为
+```
+
 不自带内存管理：裸数组不进行任何自动化的内存管理，例如内存分配、释放或重新分配。数组元素的生命周期是由它们的存储类型（如局部变量、全局变量）决定的。
 
 指针兼容性：裸数组可以被隐式转换为指向其第一个元素的指针。这是 C/C++ 中使用数组的核心特性。
 
-cpp
-复制代码
+```cpp
 int* ptr = arr;  // arr 被转换为指向其第一个元素的指针
+```
+
 没有额外的功能：裸数组只提供最基本的功能，即元素存储和访问。相比之下，C++ 的标准容器如 std::vector 提供了更丰富的功能（如动态大小调整、边界检查等）。
 
 裸数组的例子：
-cpp
-复制代码
+
+```cpp
 int arr[5] = {1, 2, 3, 4, 5};  // 声明并初始化一个大小为5的数组
 for(int i = 0; i < 5; ++i) {
     std::cout << arr[i] << std::endl;  // 输出数组元素
 }
+```
+
 裸数组与现代 C++ 容器的对比：
 在现代 C++ 中，裸数组的使用逐渐被更安全、更功能丰富的容器（如 std::vector 或 std::array）替代。裸数组虽然性能高且语法简单，但由于缺乏内存安全保障，容易引发诸如越界访问、内存泄漏等问题。因此，推荐在现代 C++ 代码中尽量使用标准库提供的容器类。
 
 裸数组常见的问题：
 内存泄漏（特别是与动态分配结合时）：
-cpp
-复制代码
+
+```cpp
 int* arr = new int[10];
 // 如果忘记调用 delete[] arr; 会导致内存泄漏
+```
+
 越界访问：
-cpp
-复制代码
+
+```cpp
 arr[10] = 1;  // 如果数组大小为 10，则访问 arr[10] 会导致未定义行为
+```
+
 总之，裸数组是 C/C++ 中最基本的数组形式，但它的使用可能带来隐患，尤其是在涉及到复杂内存管理时。
 
 ## 整形存储指针
@@ -1640,43 +1794,46 @@ else
 右值引用（T&&）能在不构造对象的情况下“模拟”创建某个类型的对象，原因在于右值引用的语法允许我们声明一个引用，它指向的对象可以是临时的、未命名的对象，而不需要实际创建该对象。这个特性被 std::declval 所利用，使得我们可以在编译时“模拟”出某个类型的对象而不触发实际的构造函数调用。
 
 原理
+
 1. 右值引用不需要实际对象存在
-在 C++ 中，引用是一种绑定到现有对象的别名。右值引用专门用于绑定到临时对象（右值），而这些对象往往是短期存在、无命名的。重要的是，右值引用只是一个引用，它不需要对象实际存在，只需要编译器知道它将会引用什么类型的对象。
+   在 C++ 中，引用是一种绑定到现有对象的别名。右值引用专门用于绑定到临时对象（右值），而这些对象往往是短期存在、无命名的。重要的是，右值引用只是一个引用，它不需要对象实际存在，只需要编译器知道它将会引用什么类型的对象。
 
-例如，当你写出这样的代码时：
+   例如，当你写出这样的代码时：
 
-cpp
-复制代码
-int&& r = 42;
-42 是一个临时对象（右值），而 r 是一个绑定到这个临时对象的右值引用。你可以通过 r 来访问 42，但你并没有手动创建一个持久的 int 对象。
+   ```cpp
+   int&& r = 42;
+   ```
 
-std::declval<T>() 使用的原理类似。它返回的是一个 T&&，但并不会真正创建一个 T 类型的对象。因此，编译器可以假装存在一个 T 类型的右值对象供我们使用，而实际上在运行时并没有这样的对象。
+   42 是一个临时对象（右值），而 r 是一个绑定到这个临时对象的右值引用。你可以通过 r 来访问 42，但你并没有手动创建一个持久的 int 对象。
+
+   std::declval<T>() 使用的原理类似。它返回的是一个 T&&，但并不会真正创建一个 T 类型的对象。因此，编译器可以假装存在一个 T 类型的右值对象供我们使用，而实际上在运行时并没有这样的对象。
 
 2. 右值引用允许访问类型的成员和操作
-由于右值引用只是在编译时告诉编译器要引用的类型是什么，我们可以使用右值引用来访问该类型的成员函数或运算符，而无需实际创建一个对象。这在模板元编程中尤其有用，因为我们可能只关心某个类型是否支持某个操作，而不想真的创建一个对象进行实际的操作。
+   由于右值引用只是在编译时告诉编译器要引用的类型是什么，我们可以使用右值引用来访问该类型的成员函数或运算符，而无需实际创建一个对象。这在模板元编程中尤其有用，因为我们可能只关心某个类型是否支持某个操作，而不想真的创建一个对象进行实际的操作。
 
-例如：
+   例如：
 
-cpp
-复制代码
-#include <utility>  // for std::declval
+   ```cpp
+   #include <utility> // for std::declval
 
-struct Foo {
-    int getValue() { return 42; }
-};
+   struct Foo {
+   int getValue() { return 42; }
+   };
 
-template <typename T>
-auto test() -> decltype(std::declval<T>().getValue()) {
-    return 0;
-}
+   template <typename T>
+   auto test() -> decltype(std::declval<T>().getValue()) {
+   return 0;
+   }
 
-int main() {
-    test<Foo>();  // 没有创建 Foo 对象，但可以检查 getValue 函数
-}
-在这个例子中，std::declval<T>() 返回一个 T 的右值引用，通过它我们可以检查 T 是否有 getValue() 函数，但 Foo 对象本身从未真正被创建。
+   int main() {
+   test<Foo>(); // 没有创建 Foo 对象，但可以检查 getValue 函数
+   }
+   ```
+
+   在这个例子中，std::declval<T>() 返回一个 T 的右值引用，通过它我们可以检查 T 是否有 getValue() 函数，但 Foo 对象本身从未真正被创建。
 
 3. 避免实际构造对象的限制
-有些类型的对象可能无法实际构造，或者在编译时我们还不知道该类型是否有默认构造函数。右值引用允许我们绕过这些限制，进行类型检查和推导：
+   有些类型的对象可能无法实际构造，或者在编译时我们还不知道该类型是否有默认构造函数。右值引用允许我们绕过这些限制，进行类型检查和推导：
 
 类型没有默认构造函数：某些类型无法直接构造（如有私有构造函数、删除默认构造函数等），但我们仍然可以通过右值引用访问它的成员函数或检查某些操作是否合法。
 
@@ -1704,4 +1861,3 @@ std::enable_shared_from_this<T>：当一个类继承自 std::enable_shared_from_
 
 在使用 std::shared_ptr 时，直接通过 this 来创建一个新的共享指针是危险的，因为这可能会导致管理同一个对象的多个共享指针，而它们彼此之间并不知道对方的存在，最终可能导致对象被提前析构或析构多次。
 std::enable_shared_from_this 提供了一种机制，允许类对象在创建时将自己与 shared_ptr 关联起来，从而保证即使在类的成员函数中调用 shared_from_this()，也可以获取正确的、引用计数一致的 std::shared_ptr。
-
