@@ -374,7 +374,7 @@ for (auto &n : getSet()) {
    ```cpp
    #include <vector>
    #include <algorithm>
-
+   
    template<typename Container, typename Index>
    auto authoritativeElementAt(Container&& c, Index i) 
        -> decltype(std::forward<Container>(c)[i])
@@ -473,18 +473,111 @@ int main()
 **使用 detach()**
 对比于 join(), 我们肯定有**不想阻塞当前线程的时候, 这时可以调用 detach(**), 这个函数会分离线程对象和线程函数, 让线程作为后台线程去执行, 当前线程也不会被阻塞了, 但是分离之后, 也不能再和线程发生联系了, 例如不能再调用 get_id() 来获取线程 id 了, 或者调用 join() 都是不行的, 同时也无法控制线程何时结束。程序终止后, 不会等待在后台执行的其余分离线程, 而是将他们挂起, 并且本地对象被破坏。
 
-**警惕作用域**
+**警惕作用域**：
 
 `std::thread` 出了作用域之后就会被析构, 这时如果线程函数还没有执行完就会发生错误, 因此, 要注意**保证线程函数的生命周期在线程变量之内**。
 
-**线程不能复制**
+**线程不能复制**：
 
 **`std::thread` 不能复制, 但是可以移动**
 也就是说, 不能对线程进行复制构造, 复制赋值, 但是可以移动构造, 移动赋值
 
 > 使用 C++11 进行多线程开发 (std::thread)：<https://blog.csdn.net/weixin_36888577/article/details/82891531>
 
-### 9. alignof & alignas 说明符
+### chrono 时间库
+
+C++11 引入的 `<chrono>` 库是一个强大的工具，旨在处理时间相关的操作。**chrono** 是希腊语“χρόνος”（chronos）的缩写，意思是“时间”。它通过引入新的类和函数，简化了**时间的表示、操作和度量**。`<chrono>` 库的设计灵活且类型安全，支持不同的时间单位，并避免了以往手动管理时间的复杂性。下面是该库的关键组件和它们的用途：
+
+#### `duration`（持续时间）
+
+`std::chrono::duration` 表示时间的长度（即一段持续时间）。它可以表示不同的时间单位，比如秒、毫秒、微秒等。`duration` 是一个模板类，接受两个参数：**时间刻度（rep）** 和 **时间单位（period）**。
+
+常用时间单位：
+
+- `std::chrono::seconds`：表示秒。
+- `std::chrono::milliseconds`：表示毫秒（千分之一秒）。
+- `std::chrono::microseconds`：表示微秒（百万分之一秒）。
+- `std::chrono::nanoseconds`：表示纳秒（十亿分之一秒）。
+
+例如：
+
+```cpp
+#include <iostream>
+#include <chrono>
+
+int main() {
+    std::chrono::seconds sec(10);  // 10秒
+    std::chrono::milliseconds ms(500);  // 500毫秒
+    std::cout << "Duration: " << sec.count() << " seconds\n";
+    std::cout << "Duration: " << ms.count() << " milliseconds\n";
+}
+```
+
+#### `time_point`（时间点）
+
+`std::chrono::time_point` 表示某个特定时钟的时间点。它是通过时钟和持续时间来表示的。`time_point` 结合了时钟和 `duration`，代表某个时刻，可以与其他 `time_point` 进行比较，或者用来计算持续时间。
+
+例如，获取当前系统时间点：
+
+```cpp
+#include <iostream>
+#include <chrono>
+
+int main() {
+    std::chrono::time_point now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    std::cout << "Current time: " << std::ctime(&now_c);
+}
+```
+
+#### `clock`（时钟）
+
+`std::chrono::clock` 表示时间源，用来提供当前时间点。C++11 引入了三种时钟：
+
+- **`system_clock`**：表示系统时钟，通常是挂钩到操作系统的系统时间，随时间改变，可能会被用户手动修改。
+- **`steady_clock`**：表示一个单调递增的时钟，不能倒退，适合计时操作。
+- **`high_resolution_clock`**：表示一个高精度的时钟，通常是 `steady_clock` 的别名。
+
+例如，使用 `steady_clock` 进行计时：
+
+```cpp
+#include <iostream>
+#include <chrono>
+#include <thread>
+
+int main() {
+    auto start = std::chrono::steady_clock::now();
+    std::this_thread::sleep_for(std::chrono::seconds(2));  // 模拟耗时操作
+    auto end = std::chrono::steady_clock::now();
+
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "Elapsed time: " << elapsed.count() << " seconds\n";
+}
+```
+
+#### `literals`（字面量支持）
+
+C++14 引入了时间字面量（`std::chrono::literals`），使得定义时间持续时间更直观。常用的字面量包括：
+
+- `h`：小时（`std::chrono::hours`）
+- `min`：分钟（`std::chrono::minutes`）
+- `s`：秒（`std::chrono::seconds`）
+- `ms`：毫秒（`std::chrono::milliseconds`）
+- `us`：微秒（`std::chrono::microseconds`）
+- `ns`：纳秒（`std::chrono::nanoseconds`）
+
+例如：
+
+```cpp
+using namespace std::chrono_literals;
+auto duration = 5s;  // 表示5秒
+```
+
+#### 小结
+
+`<chrono>` 库为 C++ 程序提供了处理时间的强大工具。它通过类型安全的时间表示，灵活的时钟机制，以及直观的时间字面量，使得时间计算和操作更加简洁、准确和高效。
+
+### alignof & alignas 说明符
 
 > [alignof 运算符(C++11 起)](https://zh.cppreference.com/w/cpp/language/alignof)
 
