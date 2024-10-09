@@ -1864,12 +1864,13 @@ enable_shared_from_this 是 C++ 标准库中的一个模板类，它允许一个
 > std::enable_shared_from_this 提供了一种机制，允许类对象在创建时将自己与 shared_ptr 关联起来，从而保证即使在类的成员函数中调用 shared_from_this()，也可以获取正确的、引用计数一致的 std::shared_ptr。
 
 主要特点：
+
 - 安全创建 shared_ptr：它允许对象安全地创建指向自身的 shared_ptr，而不会导致多个独立的 shared_ptr 控制块。
 - 避免循环引用：正确使用时，它可以帮助避免某些类型的循环引用问题。
 - 延长对象生命周期：通过创建额外的 shared_ptr，可以在需要时延长对象的生命周期。
 
-
 使用方法：
+
 - 让你的类继承 std::enable_shared_from_this<YourClass>。
 - 使用 shared_from_this() 方法来获取指向 this 的 shared_ptr。
 
@@ -1884,7 +1885,7 @@ public:
     std::shared_ptr<MyClass> getShared() {
         return shared_from_this();
     }
-    
+
     void doSomething() {
         std::cout << "Doing something" << std::endl;
     }
@@ -1893,12 +1894,12 @@ public:
 int main() {
     std::shared_ptr<MyClass> sp1 = std::make_shared<MyClass>();
     std::shared_ptr<MyClass> sp2 = sp1->getShared();
-    
+
     sp2->doSomething();
-    
+
     std::cout << "sp1 use count: " << sp1.use_count() << std::endl;
     std::cout << "sp2 use count: " << sp2.use_count() << std::endl;
-    
+
     return 0;
 }
 ```
@@ -1908,8 +1909,6 @@ int main() {
 对象必须已经被 shared_ptr 管理，才能调用 shared_from_this()。
 不要在构造函数中调用 shared_from_this()，因为此时对象还未被完全构造。
 enable_shared_from_this 不会自动创建 shared_ptr，你仍需要显式创建第一个 shared_ptr。
-
-
 
 通过 this 创建 shared_ptr 指针的常见场景:
 
@@ -1942,9 +1941,7 @@ enable_shared_from_this 不会自动创建 shared_ptr，你仍需要显式创建
 - 不能在构造函数中调用 shared_from_this()。
 - 要小心避免循环引用。
 
-
 返回指向自身的智能指针，有什么优势吗？
-
 
 Claude-3.5-Sonnet
 
@@ -2029,5 +2026,192 @@ int main() {
 printNeighbors() 方法展示了如何安全地访问可能已经被删除的邻居节点。
 这个例子展示了智能指针如何帮助管理复杂的对象关系，同时避免内存泄漏和悬垂指针问题。
 
+## 多重继承，static_cast 成父类
 
+在 C++ 中，多重继承情况下使用 `static_cast` 将子类转换为父类，通常发生在以下几种情况下：
 
+### 解决多重继承中的歧义
+
+也称：调用`特定父类`的方法或成员变量。
+
+当一个子类继承了多个父类，而这些父类中有同名的成员函数或变量时，**编译器无法知道该调用哪一个父类的成员**。在这种情况下，必须通过 `static_cast` 明确指定要访问哪个父类中的成员。
+
+例如，假设你有一个类 `Derived` 继承了两个父类 `Base1` 和 `Base2`，而这两个父类都有同名的成员函数 `foo()`。要明确调用 `Base1` 的 `foo()` 函数，你可以使用 `static_cast`：
+
+```cpp
+class Base1 {
+public:
+    void foo() { std::cout << "Base1::foo" << std::endl; }
+};
+
+class Base2 {
+public:
+    void foo() { std::cout << "Base2::foo" << std::endl; }
+};
+
+class Derived : public Base1, public Base2 {};
+
+Derived d;
+// d.foo();  // 错误：编译器不知道调用哪个父类的 show() 方法，如果 Derived 中也有 foo 函数则不会报错
+(static_cast<Base1&>(d)).foo();  // 调用 Base1::foo
+(static_cast<Base2&>(d)).foo();  // 调用 Base2::foo
+```
+
+### 消除隐藏关系
+
+有时子类会定义一个与父类同名的非虚函数，导致**父类的同名函数在子类中被隐藏**（注意区分重载，重写 重定义）。如果你想调用父类的同名函数，`static_cast` 可以帮助你绕过这种隐藏关系。
+
+重载(overload)，重写(override 也称覆盖), 重定义(redefine 也称隐藏)。
+
+```cpp
+class Base1 {
+public:
+    void foo() { std::cout << "Base1::foo" << std::endl; }
+};
+
+class Base2 {
+public:
+    void foo() { std::cout << "Base2::foo" << std::endl; }
+};
+
+class Derived : public Base1, public Base2 {
+public:
+    void foo() { std::cout << "Derived::foo" << std::endl; }
+};
+
+Derived d;
+d.foo();  // 调用 Derived::foo
+(static_cast<Base1&>(d)).foo();  // 调用 Base1::foo
+(static_cast<Base2&>(d)).foo();  // 调用 Base2::foo
+```
+
+在这个例子中，`Derived` 中的 `foo()` 函数隐藏了 `Base1` 和 `Base2` 中的 `foo()`。如果你想调用 `Base1` 的 `foo()`，你可以使用 `static_cast`。
+
+### 多重继承中使用指针/引用时，明确类型
+
+当将一个子类对象传递给父类时，如果通过**值传递**会导致**对象切片**（slicing）（**按引用/指针传递不会出现切片，一般加上类型转换**），即只保留父类部分的数据，而子类的特有部分（包括成员变量和重写的虚函数）将被“切片”掉。这会导致子类的特性丢失。
+
+按**指针/引用传递是避免对象切片的一种常见方式**，特别是在涉及继承和多态的场景中。即使你可以直接访问父类的成员，但**通过指针或引用时，`static_cast` 类型转换通常是必要的**，安全且明确。
+
+```cpp
+class Base {
+public:
+    virtual void show() { std::cout << "Base" << std::endl; }
+};
+
+class Derived : public Base {
+public:
+    void show() override { std::cout << "Derived" << std::endl; }
+};
+
+Derived d = Derived();
+Base b = d;  // 按值传递，对象切片，只保留 Base 部分
+b.show();  // 调用 Base::show()
+
+Base *b_pointer = &d;  // 按指针传递，避免对象切片，子类对象的完整数据结构都被保留
+b_pointer->show();  // 调用 Derived::show()
+
+Base& b_ref = static_cast<Base&>(d);  // 按指针传递，避免对象切片 + 指针/引用一般加上引用转换
+b_ref.show();  // 调用的是 Derived::show()，保持多态行为
+```
+
+### 优化性能：比 `dynamic_cast` 更高效
+
+在性能至关重要的地方，如果你确信类型转换是安全的，可以使用 `static_cast` 进行编译时的转换。`static_cast` 比 `dynamic_cast` 更快，因为它不进行运行时的类型检查。
+
+例如，当类型是静态已知的，而你需要在多重继承中转换指针时，`static_cast` 比 `dynamic_cast` 更高效。
+
+```cpp
+Base1* base1 = static_cast<Base1*>(d);  // 快速、安全的转换
+```
+
+### 总结
+
+虽然在单一继承的情况下，访问父类成员通常不需要 `static_cast`，但在**多重继承**、**函数隐藏**、**指针/引用上下文**以及**对象切片**的情形中，`static_cast` 是一种非常有效的工具，使用 `static_cast` 将子类转换为父类的典型场景包括：
+
+- 解决多重继承中的歧义。
+- 访问父类中隐藏的成员函数。
+- 安全且明确地将子类指针或引用转换为特定的父类，避免对象切片。
+- 作为性能优化的一部分，在确定类型转换是安全的情况下使用，避免运行时的动态检查。
+
+## 重载、重写、重定义
+
+重载(overload)，重写(override 也称覆盖), 重定义(redefine 也称隐藏)
+
+### 重载（overload）
+
+指函数名相同，但是它的参数表列个数或顺序，类型不同。但是不能靠返回类型来判断。
+
+1. 相同的范围（在同一个作用域中） ；
+2. 函数名字相同；
+3. 参数不同；
+4. virtual 关键字可有可无。
+5. 返回值可以不同；
+
+### 重写（override 也称覆盖 ）
+
+是指派生类重新定义基类的虚函数，特征是：
+
+1. 不在同一个作用域（分别位于派生类与基类） ；
+2. 函数名字相同；
+3. 参数相同；
+4. 基类函数必须有 virtual 关键字，不能有 static 。
+5. 返回值相同（或是协变），否则报错；<—-协变这个概念我也是第一次才知道…
+6. 重写函数的访问修饰符可以不同。尽管 virtual 是 private 的，派生类中重写改写为 public,protected 也是可以的
+
+### 重定义（redefine 也称隐藏）
+
+1. 不在同一个作用域（分别位于派生类与基类） ；
+2. 函数名字相同；
+3. 返回值可以不同；
+4. 参数不同。此时，不论有无 virtual 关键字，基类的函数将被隐藏（注意别与重载以及覆盖混淆） 。
+5. 参数相同，但是基类函数没有 virtual 关键字。此时，基类的函数被隐藏（注意别与覆盖混淆） 。
+
+**示例**：
+
+```cpp
+#include <iostream>
+#include <complex>
+using namespace std;
+
+class Base
+{
+public:
+   virtual void a(int x)    {    cout << "Base::a(int)" << endl;      }
+   // overload the Base::a(int) function
+   virtual void a(double x) {    cout << "Base::a(double)" << endl;   }
+   virtual void b(int x)    {    cout << "Base::b(int)" << endl;      }
+   void c(int x)            {    cout << "Base::c(int)" << endl;      }
+};
+
+class Derived : public Base
+{
+public:
+   // redefine the Base::a() function
+   void a(complex<double> x)   {    cout << "Derived::a(complex)" << endl;      }
+   // override the Base::b(int) function
+   void b(int x)               {    cout << "Derived::b(int)" << endl;          }
+   // redefine the Base::c() function
+   void c(int x)               {    cout << "Derived::c(int)" << endl;          }
+};
+
+int main()
+{
+   Base b;
+   Derived d;
+   Base* pb = new Derived;
+   // ----------------------------------- //
+   b.a(1.0);                              // Base::a(double)
+   d.a(1.0);                              // Derived::a(complex)
+   pb->a(1.0);                            // Base::a(double), This is redefine the Base::a() function
+   // pb->a(complex<double>(1.0, 2.0));   // clear the annotation and have a try
+   // ----------------------------------- //
+   b.b(10);                               // Base::b(int)
+   d.b(10);                               // Derived::b(int)
+   pb->b(10);                             // Derived::b(int), This is the virtual function
+   // ----------------------------------- //
+   delete pb;
+
+   return 0;
+}
+```
