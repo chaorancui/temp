@@ -132,15 +132,19 @@
 
 - 解释说明
 
-  ️:information_source: 这是一些重要的信息说明。code：`:information_source:`
+  ️:information_source: **说明**：这是一些重要的信息说明。code：`:information_source:`
 
-  :bulb: 这里有一个提示，可以帮助你更好地理解内容。code：`:bulb:`
+  :bulb: **提示**：这里有一个提示，可以帮助你更好地理解内容。code：`:bulb:`
+
+  :bell: **提示**：这里有一个提示，可以帮助你更好地理解内容。code：`:bell:`
 
 - 扩展阅读
 
-  :book: 扩展阅读：你可以阅读《深入了解 Markdown》这本书来获取更多信息。code：`:book:`
+  :book: **扩展阅读**：你可以阅读《深入了解 Markdown》这本书来获取更多信息。code：`:book:`
 
-  :link: 更多内容：[点击这里查看相关资料](https://gist.github.com/rxaviers/7360908)。code：`:link:`
+  :link: **更多内容**：[点击这里查看相关资料](https://gist.github.com/rxaviers/7360908)。code：`:link:`
+
+  :memo: **附加/总结内容**：这里是一些可选的附加内容，或总结内容。code：`:momo:`
 
 - 存疑/进一步确认
 
@@ -153,6 +157,12 @@
   :warning:️ 请注意：此操作可能导致数据丢失。code：`:warning:`
 
   :exclamation: 重要提醒：请在继续之前备份您的文件。code：`:exclamation:`
+  
+- 强调
+
+  :pushpin: ​**重要**：这是重要的强调信息，提示隐藏的关键内容。code：`:pushpin:`
+
+  :zap: **强调**：请注意这个特别标注的信息。code：`:zap:`
 
 ### 强调
 
