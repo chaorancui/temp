@@ -1,6 +1,11 @@
 [toc]
 
-# python 常用库
+# python 数据科学和机器学习库
+
+## 参考链接
+
+[1]. [数据科学和机器学习](https://mlhowto.readthedocs.io/en/latest/index.html)
+[2]. [NumPy reference](https://numpy.org/doc/stable/reference/index.html#reference)
 
 ## numpy 模块
 
@@ -32,6 +37,79 @@
 > | complex64  | 复数， 由两个 32 位浮点数表示                                            |
 > | complex128 | 复数， 由两个 64 位浮点数表示                                            |
 
+### NumPy 数组内存布局
+
+[ndarray.flags](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flags.html#numpy.ndarray.flags)
+
+要打印 NumPy 数组的内存排布，可以使用数组对象的 `flags` 属性。`flags` 包含了有关数组内存布局的各种信息，包括是否是连续的内存布局（C-连续或F-连续）、是否可写、是否拥有自己的数据等。
+
+以下是如何读取 `.npy` 文件并查看其内存排布的示例：
+
+```python
+import numpy as np
+
+# 读取 .npy 文件
+array = np.load('文件路径.npy')
+
+# 打印内存排布信息
+print(array.flags)
+```
+
+输出
+
+```shell
+  C_CONTIGUOUS : True
+  F_CONTIGUOUS : False
+  OWNDATA : True
+  WRITEABLE : True
+  ALIGNED : True
+  WRITEBACKIFCOPY : False
+  UPDATEIFCOPY : False
+```
+
+**解释**：
+
+- **C_CONTIGUOUS**：如果数组按 C 语言中的行优先顺序存储（即一行的元素连续存储），则为 `True`。
+- **F_CONTIGUOUS**：如果数组按 Fortran 语言中的列优先顺序存储（即一列的元素连续存储），则为 `True`。
+- **OWNDATA**：如果数组拥有自己的数据（而不是视图或切片），则为 `True`。
+- **WRITEABLE**：如果数组是可写的，则为 `True`。
+- **ALIGNED**：如果数组数据在内存中是按照要求对齐的，则为 `True`。
+- **WRITEBACKIFCOPY** 和 **UPDATEIFCOPY**：用于管理写时复制的高级选项，通常情况下是 `False`。
+
+通过 `flags`，你可以清楚地了解数组在内存中的排布情况。
+
+:book: **扩展内容**：
+通常情况下：
+
+- **`C_CONTIGUOUS` 为 `True`** 表示数组是按照 C 语言的行优先顺序存储（行主序），即一行的数据在内存中是连续存储的。
+- **`F_CONTIGUOUS` 为 `True`** 表示数组是按照 Fortran 的列优先顺序存储（列主序），即一列的数据在内存中是连续存储的。
+
+然而，某些情况下，数组可能同时是 C 连续的和 Fortran 连续的，这通常发生在 **数组是一维数组** 或者 **数组的形状使得行和列的存储顺序一致时**。如：
+
+1. **一维数组的特殊情况**：
+
+   对于一维数组，内存中的存储是线性的，不存在行或列的概念。因此，无论是按行（C）还是按列（Fortran），其内存存储方式都是连续的。在这种情况下，`C_CONTIGUOUS` 和 `F_CONTIGUOUS` 都会返回 `True`。
+
+   ```python
+   import numpy as np
+   arr = np.array([1, 2, 3, 4, 5])  # 一维数组
+   print(arr.flags)
+   ```
+
+2. **二维数组的特殊情况**：
+
+   如果一个二维数组的形状为 `(1, n)` 或者 `(n, 1)`（即单行或单列的情况），也会出现同时是 C 连续和 Fortran 连续的情况，因为内存中的数据也是线性的。
+
+   ```python
+   import numpy as np
+   arr = np.array([[1, 2, 3, 4]])  # 只有一行
+   print(arr.flags)
+   ```
+
+总结
+
+当数组是 **一维** 或 **二维并且行或列长度为 1** 时，数组内存的存储顺序在行优先和列优先的情况下都是连续的，因此 `C_CONTIGUOUS` 和 `F_CONTIGUOUS` 都会同时为 `True`。这种现象是正常的。
+
 ### 数组转换为字符串
 
 `numpy.array2string` 是一个非常灵活的函数，它可以将 NumPy 数组转换为字符串，并且提供了很多选项来控制输出格式。
@@ -40,7 +118,7 @@
 numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, separator=' ', prefix='', style=<no value>, formatter=None, threshold=None, edgeitems=None, sign=None, floatmode=None, suffix='', *, legacy=None)
 ```
 
-**参数说明**
+**参数说明**：
 
 - **a**: 输入的 NumPy 数组。
 - **max_line_width**: 每行的最大字符宽度。如果超过这个宽度，数组会换行。
@@ -346,4 +424,43 @@ print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}
   ```
 
 这些函数使得 NumPy 在数据分析、机器学习等领域中非常方便地进行随机数生成和模拟实验。根据不同的需求，可以选择合适的分布和函数来生成随机数。
+
+### `.npy` 文件
+
+`.npy` 文件是 NumPy 库中的一种专有文件格式，用于高效地存储 NumPy 数组。与常见的文本文件（如 `.csv`）不同，`.npy` 是二进制文件，保存了数组的形状、数据类型以及实际的数据内容，因此比普通的文本格式更快、更节省空间。
+
+要打开 `.npy` 文件，可以使用 Python 中的 NumPy 库。下面是一个示例代码，演示如何读取和保存 `.npy` 文件：
+
+#### 打开并读取 `.npy` 文件
+
+```python
+import numpy as np
+
+# 读取 .npy 文件
+array = np.load('文件路径.npy')
+
+# 查看读取的数组
+print(array)
+
+# 输出数据的形状和数据类型
+print("数据形状:", array.shape)
+print("数据类型:", array.dtype)
+# 打印内存排布信息
+print(array.flags)
+```
+
+使用 NumPy 加载 `.npy` 文件时会**自动识别数据的形状和类型**，因此只需要指定文件路径即可。
+
+
+#### 保存数组为 `.npy` 文件
+
+```python
+import numpy as np
+
+# 创建一个 NumPy 数组
+array = np.array([1, 2, 3, 4, 5])
+
+# 保存为 .npy 文件
+np.save('文件路径.npy', array)
+```
 
