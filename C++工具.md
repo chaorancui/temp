@@ -428,6 +428,23 @@ int main() {
 6. **`PyObject_CallFunctionObjArgs()`**: 调用函数并传入参数（在这里是打印的字符串）。
 7. **`Py_Finalize()`**: 关闭 Python 解释器。
 
+CMakeLists.txt 配置：
+
+```cmake
+cmake_minimum_required(VERSION 3.10)
+
+project(test1)
+
+# 找到 Python 安装的头文件和库
+include_directories("C:/Python310/include")
+link_directories("C:/Python310/libs")
+
+add_executable(test1 main.cpp)
+
+# 链接 Python 库
+target_link_libraries(test1 python310)  # 这里使用了 python3.10 的库
+```
+
 执行结果：
 
 ```shell
