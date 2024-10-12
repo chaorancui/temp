@@ -443,6 +443,19 @@ Hello, Python from C++!
 
 通过这种方式，可以将 Python 的灵活性与 C++ 的高性能结合起来，从而实现复杂且高效的应用程序。
 
+### 使用记录
+
+#### ImportWarning
+
+如果运行过程中出现如下 log：
+
+```shell
+ImportWarning: xxxxxx.find_spec() not found; falling back to find_module()`
+```
+
+这个日志中的警告信息表明，在程序运行时，Python 的 `importlib` 模块中发生了一些导入机制上的警告。
+`xxxxxx.find_spec()` 方法没有找到。在 Python 3 中，`find_spec()` 是导入模块时首选的方式，而 `find_module()` 是 Python 2 中的旧方法。日志中的提示意味着程序回退到使用较老的 `find_module()` 方法来查找模块。
+
 # 大型项目技巧
 
 ## 文件路径合法性校验
