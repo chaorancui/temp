@@ -1,3 +1,5 @@
+[toc]
+
 # C++ 工具
 
 ## Doxygen
@@ -121,7 +123,7 @@ dot -Tpng class_diagram.dot -o class_diagram.png
 
 常见的名称解修饰工具包括：
 
-### 1. **`c++filt` 工具**
+### `c++filt` 工具
 
 `c++filt` 是一个常用的工具，用于将名称修饰后的符号恢复为人类可读的C++函数名。
 
@@ -138,7 +140,7 @@ dot -Tpng class_diagram.dot -o class_diagram.png
 
     这里 `_Z3foo3int` 是一个经过修饰的函数名，通过 `c++filt` 解修饰后，得到 `foo(int)`，表示这是一个接受 `int` 参数的 `foo` 函数。
 
-### 2. **`nm` 命令**
+### `nm` 命令
 
 - `nm` 是一个用于列出二进制文件（如 `.o`、`.a`、`.so`、可执行文件）中符号表的工具，通常与 `c++filt` 配合使用。
 
@@ -154,11 +156,11 @@ dot -Tpng class_diagram.dot -o class_diagram.png
 
     这条命令会列出 `myfile.o` 中的所有符号，并解修饰所有名称修饰的符号。
 
-### 3. **编译器支持的解修饰功能**
+### 编译器支持的解修饰功能
 
 一些C++编译器（如GCC、Clang、MSVC）提供了内置的工具或选项来直接在调试信息中显示解修饰后的符号。调试器如 `gdb` 也可以自动解修饰符号。
 
-### 4. **手动解修饰**
+### 手动解修饰
 
 如果你有修饰规则的具体细节，也可以通过手动解修饰。然而，C++的名称修饰规则非常复杂，通常手动解修饰不是实际的选择。
 
@@ -215,16 +217,14 @@ dot -Tpng class_diagram.dot -o class_diagram.png
 
 ### 基本使用示例（C++）
 
-#### 1. 定义命令行标志
-
-使用 `gflags`，可以通过宏来定义标志：
+使用 `gflags`，可以通过宏来**定义命令行标志**：
 
 - **布尔标志**：`DEFINE_bool`，用于表示是否启用某个功能。
 - **整型标志**：`DEFINE_int32` 和 `DEFINE_int64`，用于定义整型参数。
 - **浮点型标志**：`DEFINE_double`，用于定义浮点型参数。
 - **字符串标志**：`DEFINE_string`，用于定义字符串参数。
 
-#### 示例代码
+示例：
 
 ```cpp
 #include <iostream>
@@ -255,13 +255,13 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-#### 编译
+编译：
 
 ```bash
 g++ -o example example.cpp -lgflags
 ```
 
-#### 运行程序
+运行程序：
 
 ```bash
 ./example --host=127.0.0.1 --port=9000 --verbose
@@ -275,7 +275,7 @@ Port: 9000
 Verbose mode enabled
 ```
 
-#### 帮助信息
+### 生成帮助信息
 
 `gflags` 可以自动生成帮助信息，当用户输入 `--help` 时：
 
@@ -346,7 +346,9 @@ Usage: ./example [--host=string] [--port=int32] [--verbose]
   --rate=0.8
   ```
 
-### gflags 的优点
+### 总结
+
+**gflags 的优点**：
 
 - **自动解析命令行参数**：简化了开发者处理命令行参数的工作。
 - **自动生成帮助信息**：为用户提供清晰的帮助文档，无需手动编写。
@@ -354,16 +356,92 @@ Usage: ./example [--host=string] [--port=int32] [--verbose]
 - **命名空间隔离**：通过命名空间可以防止命令行标志的冲突。
 - **适应性强**：可用于小型脚本工具到大型复杂系统。
 
-### gflags 的应用场景
+**gflags 的应用场景**：
 
 - **命令行工具**：许多命令行工具需要处理大量的参数和选项，`gflags` 可以帮助定义和解析这些参数。
 - **服务程序**：对于服务器或守护进程，`gflags` 可以用来定义端口、日志级别、主机等运行时参数。
 - **实验性应用**：在机器学习、数据分析等领域，经常需要快速调整参数，`gflags` 可以为这种需求提供便利。
 
-### 总结
-
 `gflags` 是一个强大且易于使用的命令行参数解析库，适用于需要灵活处理命令行选项的项目。它通过简洁的 API 和自动生成的帮助信息，帮助开发者快速定义、解析和使用命令行标志，使得命令行工具和应用程序的开发变得更加简单高效。
 
+## 嵌入 Python 的 C++ 程序
+
+嵌入 Python 的 C++ 应用程序指的是在 C++ 应用程序中嵌入一个 Python 解释器，使得 C++ 代码能够调用 Python 代码、运行 Python 脚本、或者与 Python 库进行交互。这种技术常用于：
+
+1. **扩展现有应用程序的功能**：通过使用丰富的 Python 库，开发者可以快速实现一些功能而不需要全部用 C++ 编写。
+2. **动态脚本功能**：可以在 C++ 程序中嵌入 Python 脚本，允许用户动态修改应用程序的行为，而不需要重新编译。
+3. **混合开发**：结合 Python 的快速开发和 C++ 的高性能，通过两者的互操作提升开发效率。
+
+嵌入 Python 的常见步骤包括初始化 Python 解释器、执行 Python 代码、调用 Python 函数、和处理 Python 返回值。
+
+### 基本流程
+
+1. **初始化 Python 解释器** (`Py_Initialize()`).
+2. **执行 Python 代码** (`PyRun_SimpleString()` 或 `PyObject_CallObject()`).
+3. **关闭 Python 解释器** (`Py_Finalize()`).
+
+### 示例
+
+嵌入 Python 到 C++ 的简单例子：
+
+```cpp
+#include <Python.h>
+
+int main() {
+    // 初始化 Python 解释器
+    Py_Initialize();
+
+    // 简单执行 Python 代码
+    const char *python_code = "print('Hello from Python!')\n";
+    PyRun_SimpleString(python_code);
+
+    // 创建 Python 字符串变量并调用 Python 内置函数
+    PyObject *py_string = PyUnicode_FromString("Hello, Python from C++!");
+    if (py_string) {
+        // 调用 Python 的 `print()` 函数
+        PyObject *py_print = PyImport_ImportModule("builtins");
+        if (py_print) {
+            PyObject *py_func = PyObject_GetAttrString(py_print, "print");
+            if (py_func && PyCallable_Check(py_func)) {
+                PyObject_CallFunctionObjArgs(py_func, py_string, NULL);
+            }
+            Py_XDECREF(py_func);
+            Py_XDECREF(py_print);
+        }
+        Py_XDECREF(py_string);
+    }
+
+    // 关闭 Python 解释器
+    Py_Finalize();
+
+    return 0;
+}
+```
+
+代码解释：
+
+1. **`Py_Initialize()`**: 初始化 Python 解释器，使 C++ 程序可以执行 Python 代码。
+2. **`PyRun_SimpleString()`**: 直接执行一段 Python 代码。
+3. **`PyUnicode_FromString()`**: 创建一个 Python 字符串对象。
+4. **`PyImport_ImportModule()`**: 导入 Python 模块（在这里是内置的 `builtins` 模块）。
+5. **`PyObject_GetAttrString()`**: 获取模块中的函数（在这里是 `print` 函数）。
+6. **`PyObject_CallFunctionObjArgs()`**: 调用函数并传入参数（在这里是打印的字符串）。
+7. **`Py_Finalize()`**: 关闭 Python 解释器。
+
+执行结果：
+
+```shell
+Hello from Python!
+Hello, Python from C++!
+```
+
+### 使用场景
+
+- **游戏引擎**：很多游戏引擎使用 C++ 来保证性能，同时嵌入 Python 作为脚本语言来实现游戏逻辑和行为。
+- **科学计算软件**：C++ 负责核心算法的高效实现，而嵌入 Python 用于调度和处理高级逻辑。
+- **插件系统**：通过嵌入 Python，可以让用户使用 Python 来编写插件或扩展功能。
+
+通过这种方式，可以将 Python 的灵活性与 C++ 的高性能结合起来，从而实现复杂且高效的应用程序。
 
 # 大型项目技巧
 
@@ -398,7 +476,7 @@ bool CheckPathValid(const string& filePath)
     // 无法获取绝对路径。 1. 无权限 2. 文件路径不存在。通过创建路径的方式，判断目录是否有权访问.
     // 寻找最后一个分割符，// 可以找到路径分隔符
     // 通过创建路径的方式，判断指定路径是否有效
-    
+
     return true;
 }
 ```
