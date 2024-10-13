@@ -2,6 +2,8 @@
 
 # Linux 命令
 
+> [ Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh-cn/latest/base/index.html)
+
 # 系统版本命令
 
 ## 查看 Linux 发行版本名和版本号
