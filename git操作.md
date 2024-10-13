@@ -11,6 +11,8 @@
 
 在 Git 管理下，大家实际操作的目录被称为工作树，也就是工作区域
 
+## git 介绍
+
 ### git 别名
 
 Git 并不会在你输入部分命令时自动推断出你想要的命令。 如果不想每次都输入完整的 Git 命令，可以通过 `git config` 文件来轻松地为每一个命令设置一个别名。
@@ -230,7 +232,7 @@ git config --global core.autocrlf false
 
 我建议使用最严格的 `true` 选项。
 
-**行尾批量转换**
+**行尾批量转换**：
 
 借助 git 的 core.autocrlf 可以进行批量转换
 
@@ -332,6 +334,8 @@ git push -u origin "master"
   - 当项目包含多个子模块时，管理和同步这些子模块的版本可能变得复杂。
 
 使用 `.gitmodules` 和子模块功能，可以有效地管理和复用代码库，但同时也要考虑其复杂性带来的潜在维护成本。
+
+## 常用 git 命令
 
 ### git remote
 
@@ -831,7 +835,7 @@ git log [<options>] [<revision range>] [[\--] <path>…]
    # git switch -c <branch_name> 创建并切换至分支
    ```
 
-​ **git checkout -b** <branch_name>**origin/**<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
+   **git checkout -b** <branch_name>**origin/**<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
 
 2. 还原工作区（文件内容）
    git checkout – <file_name> 丢弃工作区的修改，并用最近一次的 commit 内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
@@ -910,7 +914,7 @@ git restore -i
 
 git reset 命令用于回退版本，可以指定退回某一次提交的版本。
 
-```
+```shell
 git reset [--soft | --mixed | --hard] [HEAD]
 ```
 
@@ -1278,6 +1282,8 @@ git clean -df
 
 git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉编译后生成的.o 和.exe 等文件. 这个在打包要发布一个 release 的时候非常有用
 
+## git 技巧
+
 ### git 仓库忽略大小写
 
 ```bash
@@ -1527,51 +1533,53 @@ git config --global --unset http.proxy
 git config --global --unset https.proxy
 ```
 
-### GIT 自动补全命令,分支名 以及 高亮显示当前分支
+### GIT 自动补全
+
+git 可以配置自动补全命令，补全分支名，以及高亮显示当前分支
 
 【注】`~/.bashrc` 是 Linux 的，对应到 Mac 是 `~/.bash_profile` ，看网上的教程要注意区分和替换
 
-#### 1、执行以下命令，克隆官方 git 库，然后在`git/contrib/completion`找到两个关键文件
+1. 执行以下命令，克隆官方 git 库，然后在`git/contrib/completion`找到两个关键文件
 
-```shell
-git clone https://github.com/git/git.git
-cd git/contrib/completion
-```
+   ```shell
+   git clone https://github.com/git/git.git
+   cd git/contrib/completion
+   ```
 
-- `contrib/completion/git-completion.bash` 自动补全
-- `contrib/completion/git-prompt.sh` 高亮显示当前分支名称
+   - `contrib/completion/git-completion.bash` 自动补全
+   - `contrib/completion/git-prompt.sh` 高亮显示当前分支名称
 
-#### 2、执行以下命令，将两个文件复制到用户目录，并设置隐藏
+2. 执行以下命令，将两个文件复制到用户目录，并设置隐藏
 
-```shell
-cp git-completion.bash ~/.git-completion.bash
-cp git-prompt.sh ~/.git-prompt.sh
-```
+   ```shell
+   cp git-completion.bash ~/.git-completion.bash
+   cp git-prompt.sh ~/.git-prompt.sh
+   ```
 
-#### 3、配置 `~/.bash_profile` 文件，没有该文件就新增，然后加入以下内容(会使命令响应时间变长...)
+3. 配置 `~/.bash_profile` 文件，没有该文件就新增，然后加入以下内容(会使命令响应时间变长...)
 
-```bash
-# git命令自动补全
-source ~/.git-completion.bash
-# git显示分支官方实现
-GIT_PS1_SHOWDIRTYSTATE=true
-GIT_PS1_SHOWCOLORHINTS=true
-GIT_PS1_SHOWSTASHSTATE=true
-GIT_PS1_SHOWUNTRACKEDFILES=true
-#GIT_PS1_SHOWUPSTREAM=auto
-if [ -f ~/.git-completion.bash ]; then
-  source ~/.git-prompt.sh
-  PROMPT_COMMAND='__git_ps1 "[\t][\u@\h:\w]" "\\\$ "'
-fi
-```
+   ```bash
+   # git命令自动补全
+   source ~/.git-completion.bash
+   # git显示分支官方实现
+   GIT_PS1_SHOWDIRTYSTATE=true
+   GIT_PS1_SHOWCOLORHINTS=true
+   GIT_PS1_SHOWSTASHSTATE=true
+   GIT_PS1_SHOWUNTRACKEDFILES=true
+   #GIT_PS1_SHOWUPSTREAM=auto
+   if [ -f ~/.git-completion.bash ]; then
+     source ~/.git-prompt.sh
+     PROMPT_COMMAND='__git_ps1 "[\t][\u@\h:\w]" "\\\$ "'
+   fi
+   ```
 
-#### 4、执行以下命令进行刷新
+4. 执行以下命令进行刷新
 
-```shell
-source ~/.bash_profile
-```
+   ```shell
+   source ~/.bash_profile
+   ```
 
-### 解决 git 命令会将结果输出到单独窗口必须按 q 才能退出的问题
+### git 命令结果输出到单独窗口
 
 这与 git 的 pager 设置有关。
 
@@ -1598,9 +1606,9 @@ git config --global pager.branch true # git branch 分页
 
 > [解决 git 命令会将结果输出到单独窗口必须按 q 才能退出的问题](https://blog.csdn.net/albertsh/article/details/114806994)
 
-### vscode git 不显示修改颜色标记 Gutter Indicators
+### 不显示修改颜色标记
 
-搜了半天，发现这玩意叫做 Gutter Indicators。作用是在一个 git 仓库中，如果对某个文件做了修改，编辑器会在行号旁边用不同颜色标志该文件的修改情况。
+搜了半天，发现这玩意叫做 Gutter Indicators。作用是在一个 git 仓库中，如果对某个文件做了修改，vsocde 编辑器会在行号旁边用不同颜色标志该文件的修改情况。
 
 原因是在项目最外层文件夹（项目名的同级目录下）git init 了，产生了.git 文件。
 
@@ -1808,9 +1816,13 @@ Kompare 的特性有如下：
 
 > [推荐 9 款代码对比工具](https://zhuanlan.zhihu.com/p/336414874)
 
-## [如何解决 Git 中的合并冲突？详细操作步骤指南](https://www.lsbin.com/9410.html)
+## 解决 Git 合并冲突
 
-### [Git 冲突显示方式](https://taoshu.in/git/git-diff3.html)
+> [如何解决 Git 中的合并冲突？详细操作步骤指南](https://www.lsbin.com/9410.html)
+
+### Git 冲突显示方式
+
+> [Git 冲突显示方式](https://taoshu.in/git/git-diff3.html)
 
 git 的默认 `conflictstyle` 是 `merge`，遇到冲突后会显示如下标记：
 
@@ -1866,25 +1878,25 @@ her she had to be back by 11pm.
 
 1.**接受本地版本**。要接受来自本地版本的文件的所有更改，请运行：
 
-```
+```shell
 git checkout --ours <file name>
 ```
 
 或者，要接受**所有**冲突文件的本地版本，请使用：
 
-```
+```shell
 git merge --strategy-option ours
 ```
 
 2.**接受远程版本**。要从远程分支更新文件的更改，请运行：
 
-```
+```shell
 git checkout --theirs <file name>
 ```
 
 接受**所有**冲突文件的远程版本：
 
-```
+```shell
 git merge --strategy-option theirs
 ```
 
@@ -1966,7 +1978,7 @@ git config mergetool.prompt false
 
 Git 的 diff 工具设置已完成。
 
-### Mergetool 查看差异解决合并冲突
+### Mergetool 解决合并冲突
 
 如何解决 Git 中的合并冲突？要使用 `mergetool` 并查看差异，请运行：
 
@@ -2035,7 +2047,7 @@ git mergetool <filename>
 >
 > [关于 vim：使用 vimdiff 时加载不同的颜色](https://www.codenong.com/2019281/)
 
-### vim 中用于解决冲突的相关命令
+### vim 中解决冲突的命令
 
 作为编辑器之神, vim 自然早早就考虑到了很多人会使用其进行冲突合并, 因此也内置了很多非常高效有用的操作命令, 我挑选了比较有用的列在下面:
 
