@@ -1499,7 +1499,7 @@ git config --global https.proxy http://proxyaddress:port
 
 **Linux**：
 
-```
+```shell
 unset HTTP_PROXY
 unset HTTPS_PROXY
 git config --global --unset http.proxy
@@ -1509,7 +1509,7 @@ git config --global --unset https.proxy
 
 再次定义代理：
 
-```
+```shell
 export HTTP_PROXY=proxyaddress:port
 export HTTPS_PROXY=proxyaddress:port
 git config --global http.proxy http://proxyaddress:port
@@ -1620,7 +1620,7 @@ git 项目,VSCode 显示不同颜色块的含义：<https://www.cnblogs.com/soyx
 
 ## Git commit 规范
 
-### Git commit 规范
+### commit 规范介绍
 
 <https://zhuanlan.zhihu.com/p/182553920>
 
@@ -1695,7 +1695,7 @@ sudo apt-get install colordiff    [On Debian/Ubuntu/Mint]
 man colordiff
 ```
 
-**wdiff 命令**
+**wdiff 命令**：
 
 diff 命令是逐行比较差异，而 `wdiff` 更变态，是逐字比较。所以如果你的文本只是修改了少数一些词语的话，使用 wdiff 命令将更加高效。
 
@@ -1928,55 +1928,55 @@ git rebase 会以 branch_a 为参照，提取 branch_b 分支上的提交，将�
 
 1. 在终端中运行以下行：
 
-```shell
-git mergetool --tool-help
-```
+   ```shell
+   git mergetool --tool-help
+   ```
 
-输出打印出当前设置的所有支持的差异工具：
+   输出打印出当前设置的所有支持的差异工具：
 
-```shell
-'git mergetool --tool=<tool>' may be set to one of the following:
-                meld
-                tortoisemerge
-                vimdiff
-                vimdiff1
-                vimdiff2
-                vimdiff
-The following tools are valid, but not currently available:
-                araxis
-                bc
-                bc3
-                bc4
-```
+   ```shell
+   'git mergetool --tool=<tool>' may be set to one of the following:
+                   meld
+                   tortoisemerge
+                   vimdiff
+                   vimdiff1
+                   vimdiff2
+                   vimdiff
+   The following tools are valid, but not currently available:
+                   araxis
+                   bc
+                   bc3
+                   bc4
+   ```
 
-根据选择的编辑器，可以使用不同的工具。例如：
+   根据选择的编辑器，可以使用不同的工具。例如：
 
-- **Emacs**差异工具：Ediff 或 emerge
-- **Vim**差异工具：vimdiff、vimdiff2 或 vimdiff3
+   - **Emacs**差异工具：Ediff 或 emerge
+   - **Vim**差异工具：vimdiff、vimdiff2 或 vimdiff3
 
-[Git 合并冲突的解决方法](https://www.lsbin.com/tag/git合并冲突的解决方法/)：进一步的步骤显示了如何为 Vim 设置**vimdiff**工具的示例。
+   [Git 合并冲突的解决方法](https://www.lsbin.com/tag/git合并冲突的解决方法/)：进一步的步骤显示了如何为 Vim 设置**vimdiff**工具的示例。
 
 2. 更改 `git config` 设置默认合并工具：
 
-```shell
-git config merge.tool <tool name>
-# 例如，如果使用 Vim，请运行：
-git config merge.tool vimdiff
-```
+   ```shell
+   git config merge.tool <tool name>
+   # 例如，如果使用 Vim，请运行：
+   git config merge.tool vimdiff
+   ```
 
 3. 设置冲突显示格式， diff3 工具以显示两个文件的共同祖先，即任何编辑之前的版本：
 
-```shell
-git config merge.conflictstyle diff3
-```
+   ```shell
+   git config merge.conflictstyle diff3
+   ```
 
-4. 启动合并解析工具前不提示：
+4. 启动合并解析工具前不提示
 
-```
-git config mergetool.prompt false
-```
+   ```shell
+   git config mergetool.prompt false
+   ```
 
-Git 的 diff 工具设置已完成。
+   Git 的 diff 工具设置已完成。
 
 ### Mergetool 解决合并冲突
 
