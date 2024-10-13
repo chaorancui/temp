@@ -446,6 +446,149 @@ y.sh: y.sh x.sh
 x.sh: x.sh
 ```
 
+## shell 中 `|` `&&` `||` `()` `{}` `逻辑与或非`
+
+> [shell 中 | && || () {} 用法以及 shell 的逻辑与或非](https://www.cnblogs.com/aaronLinux/p/8340281.html)
+
+### | 运算符
+
+管道符号，是unix一个很强大的功能,符号为一条竖线:"|"。
+用法:
+
+```shell
+command 1 | command 2
+```
+
+他的功能是把第一个命令command 1执行的结果作为command2的输入传给command 2，例如:
+
+```shell
+ls -s | sort -nr
+```
+
+-s 是file size，-n是numeric-sort，-r是reverse
+该命令列出当前目录中的文档(含size)，并把输出送给sort命令作为输入，sort命令按数字递减的顺序把ls的输出排序。
+
+### && 运算符
+
+格式
+
+```shell
+command1  && command2
+```
+
+&&左边的命令（命令 1）返回真(即返回 0，成功被执行）后，&&右边的命令（命令 2）才能够被执行；换句话说，“如果这个命令执行成功&&那么执行这个命令”。
+语法格式如下：
+
+```shell
+command1 && command2 && command3 ...
+```
+
+1. 命令之间使用 && 连接，实现逻辑与的功能。
+
+2. 只有在 && 左边的命令返回真（命令返回值 $? == 0），&& 右边的命令才会被执行。
+
+3. 只要有一个命令返回假（命令返回值 $? == 1），后面的命令就不会被执行。
+
+4. 示例 1 中，cp 命令首先从 root 的家目录复制文件文件 anaconda-ks.cfg 到 /data 目录下；执行成功后，使用 rm 命令删除源文件；如果删除成功则输出提示信息"SUCCESS"。
+
+   ![img](https:////upload-images.jianshu.io/upload_images/3269979-0030f07de707cdf9.jpg?imageMogr2/auto-orient/strip|imageView2/2/w/956/format/webp)
+
+   示例 1.jpg
+
+### || 运算符
+
+格式
+
+```shell
+command1 || command2
+```
+
+||则与&&相反。如果||左边的命令（command1）未执行成功，那么就执行||右边的命令（command2）；或者换句话说，“如果这个命令执行失败了||那么就执行这个命令。
+
+1. 命令之间使用 || 连接，实现逻辑或的功能。
+
+2. 只有在 || 左边的命令返回假（命令返回值 $? == 1），|| 右边的命令才会被执行。这和 c 语言中的逻辑或语法功能相同，即实现短路逻辑或操作。
+
+3. 只要有一个命令返回真（命令返回值 $? == 0），后面的命令就不会被执行。
+
+4. 示例 2 中，如果 dir 目录不存在，将输出提示信息 fail 。
+
+   ![img](https:////upload-images.jianshu.io/upload_images/3269979-14f9f3cf35f2ac05.jpg?imageMogr2/auto-orient/strip|imageView2/2/w/570/format/webp)
+
+   示例 2.jpg
+
+5. 示例 3 中，如果 dir 目录存在，将输出 success 提示信息；否则输出 fail 提示信息。
+
+   ![img](https:////upload-images.jianshu.io/upload_images/3269979-c495d95cc835f354.jpg?imageMogr2/auto-orient/strip|imageView2/2/w/737/format/webp)
+
+   示例 3.jpg
+
+   6.下面是一个 shell 脚本中常用的||组合示例
+
+```shell
+echo $BASH |grep -q 'bash' || { exec bash "$0" "$@" || exit 1; }    系统调用exec是以新的进程去代替原来的进程，但进程的PID保持不变。因此，可以这样认为，exec系统调用并没有创建新的进程，只是替换了原来进程上下文的内容。原进程的代码段，数据段，堆栈段被新的进程所代替。
+```
+
+### () 运算符
+
+如果希望把几个命令合在一起执行，shell 提供了两种方法。既可以在当前 shell 也可以在子 shell 中执行一组命令。
+格式:
+
+```shell
+(command1;command2;command3....)               多个命令之间用;分隔
+```
+
+1. 一条命令需要独占一个物理行，如果需要将多条命令放在同一行，命令之间使用命令分隔符（;）分隔。执行的效果等同于多个独立的命令单独执行的效果。
+
+2. () 表示在当前 shell 中将多个命令作为一个整体执行。需要注意的是，使用 () 括起来的命令在执行前面都不会切换当前工作目录，也就是说命令组合都是在当前工作目录下被执行的，尽管命令中有切换目录的命令。
+
+3. 命令组合常和命令执行控制结合起来使用。
+
+4. 示例 4 中，如果目录 dir 不存在，则执行命令组合。
+
+   ![img](https:////upload-images.jianshu.io/upload_images/3269979-b2bbf7d1d82d20ba.jpg?imageMogr2/auto-orient/strip|imageView2/2/w/1157/format/webp)
+
+   示例 4.jpg
+
+### {} 运算符
+
+如果使用{}来代替()，那么相应的命令将在子 shell 而不是当前 shell 中作为一个整体被执行，只有在{}中所有命令的输出作为一个整体被重定向时，其中的命令才被放到子 shell 中执行，否则在当前 shell 执行。
+它的一般形式为：
+
+```shell
+{ command1;command2;command3… }      注意：在使用{}时，{}与命令之间必须使用一个空格
+```
+
+1. 示例 5 中，使用{}则在子 shell 中执行了打印操作
+
+   ![img](https:////upload-images.jianshu.io/upload_images/3269979-1702732ef384c16d.jpg?imageMogr2/auto-orient/strip|imageView2/2/w/1134/format/webp)
+
+   示例 5.jpg
+
+### 逻辑 与 或 非
+
+逻辑非 ! 条件表达式的相反
+
+if [ ! 表达式 ]
+
+if [ ! -d $num ] 如果不存在目录$num
+
+逻辑与 –a 条件表达式的并列
+
+if [ 表达式 1 –a 表达式 2 ]
+
+逻辑或 -o 条件表达式的或
+
+if [ 表达式 1 –o 表达式 2 ]
+
+- 表达式与前面的= != -d –f –x -ne -eq -lt 等合用
+
+- 逻辑符号就正常的接其他表达式，没有任何括号（ ），就是并列
+
+if [ -z "$JHHOME" -a -d $HOME/$num ]
+
+- 注意逻辑与-a 与逻辑或-o 很容易和其他字符串或文件的运算符号搞混了
+
 ## 取消 tab 补全报警声
 
 - Linux 发行版 Terminal
@@ -1718,4 +1861,3 @@ curl: (7) Failed to connect to raw.githubusercontent.com port 443: Connection re
    - Linux 命令：`sudo nscd restart`
 
    Tips： 如以上刷新不好使，请重启尝试
-
