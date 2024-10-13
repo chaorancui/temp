@@ -1,18 +1,4 @@
-# python
-
-## 查看 python 安装
-
-查看python版本：python --version
-
-windows查看安装python版本：py -0
-
-查看python安装路径：where python
-
-pip install --force-reinstall pandas
-
-pip install zstd xlwt xlrd numpy
-
-
+[toc]
 
 # python 学习
 
@@ -96,8 +82,6 @@ Parameter 2: 123
 ```
 
 如果参数不足或类型不正确，脚本将提示正确的用法并退出。
-
-
 
 ## 负索引
 
@@ -183,8 +167,6 @@ for i in range(1, len(my_list) + 1):
 
 1. `range(5)` 生成从 0 到 4 的数字，不包括 5。`np.arange()` 类似。
 2. `lst[1:4]` 选择从索引 1 到索引 3 的元素，不包括索引 4。数组索引从0开始。
-
-
 
 ## realpath
 
@@ -272,8 +254,6 @@ print(absolute_path_unix)
 - **跨平台**：由于 `os.path` 是跨平台的，`realpath` 可以在不同操作系统上使用而无需担心兼容性问题。
 
 通过使用 `realpath`，你可以更可靠地处理文件路径，确保你的代码处理的是实际的文件位置而不是符号链接指向的路径。
-
-
 
 ## f-string
 
@@ -421,9 +401,7 @@ The first number is 1.
 
 f-string 提供了一种简洁且高效的字符串格式化方式。它们不仅可以嵌入变量，还可以嵌入复杂的表达式，并支持各种格式化选项。通过使用 f-string，可以使代码更易读、更直观。
 
-
-
-##  with...as...
+## with...as
 
 在Python中，`with ... as ...` 语句用于上下文管理（context management）。它提供了一种简洁的方式来**处理资源的分配和释放**，比如**文件操作、锁、网络连接**等。
 
@@ -544,9 +522,7 @@ for t in threads:
 
 `with ... as ...` 语句是Python中强大的特性，用于确保资源的正确管理和释放。通过实现 `__enter__` 和 `__exit__` 方法，你可以创建自定义的上下文管理器，从而更好地控制资源的生命周期。标准库中也提供了许多内置的上下文管理器，便于在各种场景中使用。
 
-
-
-## try 和 except 
+## try 和 except
 
 在 Python 中，`try` 和 `except` 语句用于处理异常（错误）。异常处理机制使你可以捕获并处理在程序运行过程中可能发生的错误，从而提高程序的健壮性和可靠性。以下是对 `try` 和 `except` 语句的详细解释和使用示例。
 
@@ -692,8 +668,6 @@ except MyCustomError as e:
 - 使用 `else` 块可以在没有异常时执行代码，使用 `finally` 块可以确保代码总是执行。
 - 谨慎使用 `except Exception as e`，因为它会捕获所有类型的异常。
 - 可以定义和捕获自定义异常，以处理特定的错误情况。
-
-
 
 ## Python 异常
 
@@ -970,8 +944,6 @@ kwargs = {'a': 10, 'b': 20, 'c': 30}
 my_function(**kwargs)  # 输出: 10 20 30
 ```
 
-
-
 # python 模板
 
 ## Python 模板引擎
@@ -1218,8 +1190,6 @@ print(output)
 
 选择合适的模板引擎取决于具体的需求和使用场景。在 Web 开发中，Jinja2 是一个很好的选择，而对于需要高性能的应用，Mako 是一个不错的选择。如果你在使用 Django 框架，Django Templates 是默认且集成良好的选择。
 
-
-
 ## python 模板过滤器
 
 Python 中的模板引擎（如 Jinja2 和 Django 模板）提供了丰富的过滤器（filters），用于对模板中的变量进行各种格式化、转换和处理操作。以下是常见的模板引擎过滤器及其用法总结：
@@ -1351,10 +1321,6 @@ Python 中的模板引擎（如 Jinja2 和 Django 模板）提供了丰富的过
 - 模板引擎过滤器允许在模板中对变量进行各种格式化、转换和处理操作，使模板更加灵活和强大。
 - 不同的模板引擎可能支持不同的过滤器语法和过滤器集合，具体使用时需要参考相应的模板引擎文档。
 - 过滤器的使用可以大大简化模板中对输出内容的处理和格式化操作，提高代码的可读性和维护性。
-
-
-
-
 
 ## python 模板变量展开
 
@@ -1490,24 +1456,6 @@ output = template.render(
 print(output)
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # python面向对象
 
 ## 类方法和类函数
@@ -1518,7 +1466,7 @@ print(output)
 
 类方法**使用 `@classmethod` 装饰器标识**，并且**第一个参数通常被命名为 `cls`**，表示调用该方法的类本身。类方法可以**通过类名或实例来调用**，但通常建议使用类名调用类方法。
 
-#### 示例：
+#### 示例
 
 ```python
 class MyClass:
@@ -1538,7 +1486,7 @@ MyClass.class_method()  # 输出: Class method called with class attribute: 10
 
 普通的类方法是指在类中定义的普通方法，**没有使用 `@classmethod` 装饰器标识**。这些方法**可以通过实例访问**，并且**第一个参数通常是 `self`**，表示调用该方法的实例本身。
 
-#### 示例：
+#### 示例
 
 ```python
 class MyClass:
@@ -1576,8 +1524,6 @@ obj.instance_method()  # 输出: Instance method called with instance attribute:
 - 使用 **普通的类方法（类函数）**：
   - 当方法需要访问和**操作实例的属性时，应使用普通的类方法**。
   - 普通的类方法适用于实现与特定实例相关的逻辑和操作。
-
-
 
 ## 获取类的变量
 
@@ -1744,10 +1690,6 @@ Class Variables: {'class_variable': 'I am a class variable'}
 Instance Variables: {'name': 'Alice', 'age': 30}
 ```
 
-
-
-
-
 ## vars() 函数
 
 在Python中，`vars()`函数可以用于**将对象的属性转换为字典**。这个函数**返回对象的`__dict__`属性**，该属性是一个字典，包含了对象的可变属性（即实例变量）。
@@ -1788,37 +1730,8 @@ print(person_dict)
 
 使用`vars()`函数将对象转换为字典后，我们可以将其与模板字符串结合使用，方便地进行字符串格式化。例如，结合前面提到的`string.Template` 和 Jinja2模板引擎。
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # PyQt5
 
 ## [PyQt5 关于Qt Designer的初步应用和打包过程详解](http://www.codebaoku.com/it-python/it-python-223940.html)
 
 ​    在PyQt中编写UI界面可以直接通过代码来实现，也可以通过Qt Designer来完成。Qt Designer的设计符合MVC的架构，其实现了视图和逻辑的分离，从而实现了开发的便捷。Qt Designer中的操作方式十分灵活，其通过拖拽的方式放置控件可以随时查看控件效果。Qt Designer生成的.ui文件（实质上是XML格式的文件）也可以通过pyuic5工具转换成.py文件。 Qt Designer随PyQt5-tools包一起安装，其安装路径在 “Python安装路径\Lib\site-packages\pyqt5-tools”下。若要启动Qt Designer可以直接到上述目录下，双击designer.exe打开Qt Designer；或将上述路径加入环境变量，在命令行输入designer打开；或在PyCharm中将其配置为外部工具打开。下面以PyCharm为例，讲述PyCharm中Qt Designer的配置方法。
-
-
-
-
-
