@@ -758,7 +758,6 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
      这会确保 git branch -vv 能够正确显示与远程分支的差异情况（如 ahead 和 behind）。
 
-
 - 在本地新建一个分支（新分支 commit 信息与当前分支 commit 信息相同）
 
   ```bash
@@ -1413,6 +1412,7 @@ git bisec reset
 Git 文件版本管理依赖于核心四对象及相互之间指向关系：标签(tag)->提交(commit)->目录树(tree) )->块(blob).
 Git 为了降低对象文件的存储、传输成本，提供了 GC 机制，将松散对象等文件收纳到包文件。
 
+```shell
 git cat-file -t <commit-id>
 
 git cat-file commit <commit-id>
@@ -1421,6 +1421,7 @@ git cat-file tree <tree-id>
 git ls-tree <tree-id>
 
 git cat-file blob <blob-id>
+```
 
 ### git 钩子机制
 
