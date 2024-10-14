@@ -12,9 +12,9 @@
 
 - prettier：
 
-  使用此扩展配置 Prettier 有多种方式。您可以使用[VS Code 设置](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode#prettier-settings)、[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)或`.editorconfig`文件。VS Code 设置旨在用作后备，通常仅用于非项目文件。**建议您始终在项目中包含一个 Prettier 配置文件，指定项目的所有设置。**这将确保无论您如何运行 Prettier（从此扩展、从 CLI 或从另一个带有 Prettier 的 IDE），都将应用相同的设置。
+  使用此扩展配置 Prettier 有多种方式。您可以使用[VS Code 设置](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode#prettier-settings)、[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)或`.editorconfig`文件。VS Code 设置旨在用作后备，通常仅用于非项目文件。**建议您始终在项目中包含一个 Prettier 配置文件，指定项目的所有设置**。这将确保无论您如何运行 Prettier（从此扩展、从 CLI 或从另一个带有 Prettier 的 IDE），都将应用相同的设置。
 
-  建议使用[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)来设置格式化选项。选项从正在格式化的文件开始递归搜索，因此如果您想将 Prettier 设置应用于整个项目，只需在根目录中设置配置即可。
+  建议使用[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)来设置格式化选项。选项从正在格式化的文件开始递归搜索，因此如果您想将 Prettier 设置应用于整个项目，只需在根目录中设置配置即可。配置选项参考：[Options](https://prettier.io/docs/en/options.html)。
 
   在项目目录下新增文件 `.prettierrc.json`，内容如下：
 
@@ -50,7 +50,7 @@
   }
   ```
 
-  > :warning: 问题：在格式化 markdown 的时候，针对 markdown 中的公式 $ $，会把 `_` 换成 `*`，原因是当成了**斜体的格式化（斜体使用一个 `_` 或 `*`）**，不知道如何避免。如：
+  > :warning: 问题：在格式化 markdown 的时候，针对 markdown 中的公式 $ $，会把 `_` 换成 `*`，原因可能是 pretteir 默认使用 `*` 进行斜体的格式化，当公式中出现多个 `_` 时，可能被语法树分析成斜体从而被改成 `*`。不知道如何避免。问题如：
   >
   > `$$ \mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i $$` 格式化成
   >
@@ -157,7 +157,7 @@
   :warning:️ 请注意：此操作可能导致数据丢失。code：`:warning:`
 
   :exclamation: 重要提醒：请在继续之前备份您的文件。code：`:exclamation:`
-  
+
 - 强调
 
   :pushpin: ​**重要**：这是重要的强调信息，提示隐藏的关键内容。code：`:pushpin:`
