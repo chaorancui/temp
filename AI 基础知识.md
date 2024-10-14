@@ -11,17 +11,48 @@
 5. Pooling : 卷积神经网络中常见的一种操作，Pooling 层是模仿人的视觉系统对数据进行降维，其本质是降维。减小网络的模型参数量和计算成本，也在一定程度上降低过拟合的风险
 6. Img2Col : 是一种实现卷积操作的加速计算策略。它能将卷积操作转化为 GEMM（通用矩阵乘 General Matrix Multiply)，从而最大化地缩短卷积计算的时间。
 
-## GEMM
+## MM 和 GEMM
 
-矩阵相乘的方法名称是gemm（General Matrix to Matrix Multiplication）。分成双精度（dgemm）和单精度（sgemm）两个版本，这两个版本的参数是一致的，只不过在一些参数类型上是double和float的区别。
+MM 和 GEMM 都是大模型中常用的矩阵运算，但它们在数学上有一些重要的区别:
 
-SGEMM 指的是单精度浮点矩阵乘法，它的完整性形式是 C=αA∗B+βC，在本文中
+1. **MM (Matrix Multiplication)**:
+
+   MM 指的是标准的矩阵乘法。对于两个矩阵 $ A_{m \times k} $ 和 $ B_{k \times n} $，它们的乘积 $ C_{m \times n} = AB $ 是一个 $ m \times n $ 的矩阵。
+
+   数学表达式:
+   $$ C_{(i, j)} = \Sigma_{k=1}^n A_{(i, k)} \times B_{(k, j)} $$
+
+2. **GEMM (General Matrix Multiplication)**:
+
+   GEMM 是一种更通用的矩阵运算,全称为"General Matrix Multiply"。它的形式是:
+
+   C = αAB + βC
+
+   其中 α 和 β 是标量,A、B、C 是矩阵。
+
+3. 主要区别:
+
+   1. 操作复杂度:
+      - MM 只进行矩阵乘法
+      - GEMM 除了矩阵乘法外,还包含缩放(α)和累加(β)操作
+   2. 灵活性:
+      - MM 是 GEMM 的一个特例(当 α=1,β=0 时)
+      - GEMM 允许更灵活的矩阵运算组合
+   3. 性能优化:
+      - GEMM 通常有更优化的实现,因为它可以一次性完成多个操作,减少内存访问
+   4. 应用场景:
+      - MM 在简单的矩阵乘法中使用
+      - GEMM 在需要频繁进行矩阵乘加操作的场景中更有优势,如深度学习中的全连接层或卷积层
+   5. 数值稳定性:
+      - GEMM 由于其缩放和累加操作,在某些情况下可能提供更好的数值稳定性
+
+在大模型中,GEMM 通常更受欢迎,因为它能提供更高的计算效率和更大的灵活性。但具体使用哪种方法还要根据实际需求和硬件支持情况来决定。
+
+矩阵相乘的方法名称是 gemm（General Matrix to Matrix Multiplication）。分成双精度（dgemm）和单精度（sgemm）两个版本，这两个版本的参数是一致的，只不过在一些参数类型上是 double 和 float 的区别。
 
 # 性能优化
 
 [CUDA SGEMM 优化笔记](https://linn-ylz.com/Computer-Science/CUDA/CUDA-SGEMM-optimization-notes/)
-
-
 
 # 术语
 
@@ -492,4 +523,4 @@ NPU 编程中，深度学习模型会被编译成一系列算子 IR，然后通�
 
 > [1]. [一起实践神经网络量化系列教程（一）！](https://oldpan.me/archives/how-to-quan-1)
 
-实际点来说，量化就是将我们训练好的模型，不论是权重、还是计算op，都转换为低精度去计算。因为FP16的量化很简单，所以实际中我们谈论的量化更多的是INT8的量化，当然也有3-bit、4-bit的量化，不过目前来说比较常见比较实用的，也就是INT8量化了，之后老潘的重点也是INT8量化。
+实际点来说，量化就是将我们训练好的模型，不论是权重、还是计算 op，都转换为低精度去计算。因为 FP16 的量化很简单，所以实际中我们谈论的量化更多的是 INT8 的量化，当然也有 3-bit、4-bit 的量化，不过目前来说比较常见比较实用的，也就是 INT8 量化了，之后老潘的重点也是 INT8 量化。
