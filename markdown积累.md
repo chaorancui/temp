@@ -50,11 +50,106 @@
   }
   ```
 
-  > :warning: 问题：在格式化 markdown 的时候，针对 markdown 中的公式 $ $，会把 `_` 换成 `*`，原因可能是 pretteir 默认使用 `*` 进行斜体的格式化，当公式中出现多个 `_` 时，可能被语法树分析成斜体从而被改成 `*`。不知道如何避免。问题如：
+  > :warning: 问题：在格式化 markdown 的时候，针对 markdown 中的公式 $ $，会把 `_` 换成 `*`，原因可能是 pretteir 默认使用 `*` 进行斜体的格式化，当公式中出现多个 `_` 时，可能被语法树分析成斜体从而被改成 `*`。问题如：
   >
   > `$$ \mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i $$` 格式化成
   >
   > `$$ \mu*B = \frac{1}{m} \sum*{i=1}^{m} x*i $$`
+
+## prettier 插件
+
+要让 Prettier 在格式化 Markdown 文件时忽略数学公式（尤其是用 `$$` 包围的块级 LaTeX 数学公式），你可以通过以下几种方法实现：
+
+### 使用 Prettier 的 `prettier-ignore` 注释
+
+Prettier 支持在文件中添加 `prettier-ignore` 注释，来忽略特定部分的格式化。你可以在公式的上方加上 `<!-- prettier-ignore -->` 注释，让 Prettier 跳过格式化该公式。`<!-- prettier-ignore -->` 的作用范围仅为**它紧邻的下一个代码块**或**元素**。这意味着 Prettier 只会忽略紧随其后的一个语句或一组语法结构（包含空格或换行，**不能包含空行**），而不会影响多个部分。
+
+示例：
+
+```markdown
+<!-- prettier-ignore -->
+添加 `prettier-ignore` 注释，下面的两行都不会被格式化。直至遇见空行。
+对于两个矩阵 $ A_{m \times p} $ 和 $ B_{p \times n} $，它们的乘积 $ C_{m \times n} = AB $ 是一个 $ m \times n $ 的矩阵。
+$$ C_{(i, j)} = \Sigma_{k=1}^n A_{(i, k)} \times B_{(k, j)} $$
+
+上面有空行，这里以及下面的代码会被格式化。
+$$ C*{(i, j)} = \Sigma*{k=1}^n A*{(i, k)} \times B*{(k, j)} $$
+```
+
+当 Prettier 遇到这个注释时，它会跳过对这个公式的格式化。
+
+### 修改 Prettier 配置文件
+
+目前，Prettier 并没有内置的选项来自动跳过 Markdown 中的数学公式。不过，可以通过结合 `remark` 插件来实现更细粒度的控制。你可以自己编写或使用现有的 `remark` 插件，来处理 Markdown 中的数学公式部分，并跳过对它们的格式化。
+
+### 使用 `remark-math` 插件与 Prettier 配合
+
+`remark-math` 是一个 `remark` 插件，它能够识别并处理 Markdown 中的数学公式。你可以使用它配合 Prettier 一起工作。
+
+**步骤**：
+
+1. 安装 `remark-math` 和 `remark-html-katex`（用于将数学公式转换成可视化效果）：
+
+   ```bash
+   npm install remark-math remark-html-katex
+   ```
+
+2. 在 Prettier 的配置文件中添加自定义的 `remark` 配置，以识别数学公式并跳过它们的格式化：
+
+   ```javascript
+   const remarkMath = require("remark-math");
+   const remarkHtmlKatex = require("remark-html-katex");
+
+   module.exports = {
+     plugins: [
+       // 使用 remark-math 插件来处理数学公式
+       {
+         name: "markdown",
+         parse: "markdown",
+         plugins: [remarkMath, remarkHtmlKatex],
+       },
+     ],
+   };
+   ```
+
+3. 将公式用 `$$` 或 `$` 包围，Prettier 将能够识别出这些公式，并通过插件处理它们，而不会对公式内容进行重新格式化。
+
+示例：
+
+```markdown
+Here is an inline formula: $E = mc^2$
+
+Here is a block formula:
+
+$$
+a^2 + b^2 = c^2
+$$
+```
+
+通过 `remark-math` 插件，Prettier 不会对这些数学公式的内容进行重新排版和格式化，而是保持公式原有的样式。
+
+### 4. 使用 `.prettierignore` 文件（全局忽略）
+
+如果你想完全避免 Prettier 格式化某些 Markdown 文件（或特定类型的文件），你可以使用 `.prettierignore` 文件来忽略这些文件的格式化。这对于包含大量数学公式的文件可能是一个简单的解决方案。
+
+示例：
+
+在项目根目录下创建一个 `.prettierignore` 文件，并添加你要忽略的 Markdown 文件路径：
+
+```bash
+# .prettierignore
+docs/math-heavy-file.md
+```
+
+这种方法适用于需要跳过特定文件的情况，而不是局部忽略公式的格式化。
+
+### 总结
+
+- **局部忽略**：使用 `<!-- prettier-ignore -->` 注释跳过某个数学公式的格式化。
+- **插件方式**：使用 `remark-math` 插件结合 Prettier，让 Prettier 识别数学公式并跳过其格式化。
+- **全局忽略**：通过 `.prettierignore` 文件，忽略某些特定的 Markdown 文件的格式化。
+
+选择其中一种方法可以帮助你控制 Prettier 对 Markdown 文件中数学公式的处理方式。
 
 ## markdown 写作
 
