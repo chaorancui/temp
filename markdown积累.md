@@ -62,7 +62,8 @@
 
 ### 使用 Prettier 的 `prettier-ignore` 注释
 
-Prettier 支持在文件中添加 `prettier-ignore` 注释，来忽略特定部分的格式化。你可以在公式的上方加上 `<!-- prettier-ignore -->` 注释，让 Prettier 跳过格式化该公式。`<!-- prettier-ignore -->` 的作用范围仅为**它紧邻的下一个代码块**或**元素**。这意味着 Prettier 只会忽略紧随其后的一个语句或一组语法结构（包含空格或换行，**不能包含空行**），而不会影响多个部分。
+Prettier 支持在文件中添加 `prettier-ignore` 注释，来忽略特定部分的格式化。你可以在公式的上方加上 `<!-- prettier-ignore -->` 注释，让 Prettier 跳过格式化该公式。
+Prettier 只会忽略**紧随注释的多行代码块或段落**（即**遇到空行结束**，可以包含空格或换行），其他部分仍会遵循默认的格式化规则。
 
 示例：
 
