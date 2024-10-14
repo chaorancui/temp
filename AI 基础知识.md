@@ -16,9 +16,8 @@
 MM 和 GEMM 都是大模型中常用的矩阵运算，但它们在数学上有一些重要的区别:
 
 1. **MM (Matrix Multiplication)**:
-
+   <!-- prettier-ignore -->
    MM 指的是标准的矩阵乘法。对于两个矩阵 $ A_{m \times p} $ 和 $ B_{p \times n} $，它们的乘积 $ C_{m \times n} = AB $ 是一个 $ m \times n $ 的矩阵。
-
    数学表达式:
    $$ C_{(i, j)} = \Sigma_{k=1}^n A_{(i, k)} \times B_{(k, j)} $$
 
