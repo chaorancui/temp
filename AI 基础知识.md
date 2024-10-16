@@ -96,6 +96,90 @@ MM 和 GEMM 都是大模型中常用的矩阵运算，但它们在数学上有�
 
       选择使用 SGEMM 还是 DGEMM 通常需要在精度、速度和内存使用之间做权衡。在大多数深度学习应用中，SGEMM 已经能提供足够的精度，同时带来显著的性能提升。
 
+## 各种 Matmul
+
+在深度学习和线性代数中，**矩阵乘法**（Matrix Multiplication，简称`matmul`）是一个核心的操作，通常用于神经网络的前向传播、权重计算和激活计算。矩阵乘法有不同类型的实现方式，适应不同的应用场景和张量形状。让我们先从最常见的 **线性矩阵乘法**（Linear Matrix Multiplication）开始。
+
+### Linear Matmul
+
+**Linear Matmul**，通常指的是常规的矩阵乘法（即二维矩阵相乘），它用于线性变换。对于两个矩阵 $ A $ 和 $ B $，它们的乘积满足以下条件：
+
+- $ A $ 的列数与 $ B $ 的行数必须相等。
+- 矩阵乘法的结果是一个新的矩阵，行数为 $ A $ 的行数，列数为 $ B $ 的列数。
+
+公式如下：
+
+$$ C = A \times B $$
+
+其中，
+
+- $ A \in \mathbb{R}^{m \times n} $
+- $ B \in \mathbb{R}^{n \times p} $
+- 结果矩阵 $ C \in \mathbb{R}^{m \times p} $
+
+示例：
+
+假设 $ A $ 是一个 $ 2 \times 3 $ 的矩阵，$ B $ 是一个 $ 3 \times 2 $ 的矩阵：
+
+$$ A = \begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{pmatrix}, \quad B = \begin{pmatrix} 7 & 8 \\ 9 & 10 \\ 11 & 12 \end{pmatrix} $$
+
+矩阵乘积 $ C = A \times B $ 结果为：
+
+$$ C = \begin{pmatrix} 58 & 64 \\ 139 & 154 \end{pmatrix} $$
+
+### Batch Matmul
+
+**Batch Matmul** 是一种矩阵乘法的扩展，适用于批量的多维张量乘法。在深度学习中，输入通常是三维或更高维的张量，因此需要对批次数据进行矩阵乘法。
+
+在 Batch Matmul 中，每个批次中的矩阵独立执行矩阵乘法，结果也是批次级别的。例如，给定两个形状为 $ (batch\_size, m, n) $ 和 $ (batch\_size, n, p) $ 的张量，结果将是形状 $ (batch\_size, m, p) $ 的张量。
+
+示例：
+
+如果有两个张量，分别是形状 $ (2, 2, 3)$ 和 $ (2, 3, 2) $，它们的每个“子矩阵”会进行独立的矩阵乘法，最终生成一个 $ (2, 2, 2) $ 的输出。
+
+### Element-wise Matmul (Hadamard Product)
+
+**Element-wise Matmul**，也叫 **Hadamard Product**，指的是两个矩阵在元素级别逐元素相乘，要求两个矩阵具有相同的形状。与常规矩阵乘法不同，元素相乘不会进行矩阵的行列组合，而是直接对对应位置的元素做乘法。
+
+公式如下：
+
+$$ C[i, j] = A[i, j] \times B[i, j] $$
+
+#### 示例：
+
+$$ A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}, \quad B = \begin{pmatrix} 5 & 6 \\ 7 & 8 \end{pmatrix} $$
+
+Hadamard 乘积为：
+
+$$ C = \begin{pmatrix} 1 \times 5 & 2 \times 6 \\ 3 \times 7 & 4 \times 8 \end{pmatrix} = \begin{pmatrix} 5 & 12 \\ 21 & 32 \end{pmatrix} $$
+
+### Strassen’s Matmul (快速矩阵乘法)
+
+**Strassen算法** 是一种减少矩阵乘法中运算次数的快速算法。普通的矩阵乘法复杂度是 $ O(n^3) $ ，而 Strassen 算法通过减少一些乘法运算，实现了 $ O(n^{2.81}) $ 的复杂度。这种算法在大型矩阵乘法中能提供一定的效率提升。
+
+虽然 Strassen 算法在理论上减少了计算复杂度，但其递归实现方式带来了额外的内存开销，因此在某些场景下并不总是最优选择。
+
+### Sparse Matmul
+
+**Sparse Matmul** 用于处理稀疏矩阵的乘法。稀疏矩阵是指包含大量零元素的矩阵，直接使用普通矩阵乘法效率较低。Sparse Matmul 利用稀疏矩阵的特性，只计算非零元素的乘法，显著减少了计算时间和内存占用。
+
+稀疏矩阵乘法在图神经网络、科学计算和大规模数据处理中的应用非常广泛。
+
+### Block Matmul
+
+**Block Matmul** 是矩阵分块计算的一种方式，将大矩阵划分为多个小块，分别进行计算，然后再合并结果。这个方法能够提高矩阵乘法在并行计算中的效率，尤其是在处理非常大的矩阵时。
+
+### 总结
+
+- **Linear Matmul**：常规矩阵乘法，广泛用于线性变换。
+- **Batch Matmul**：批量矩阵乘法，适用于处理多维张量。
+- **Element-wise Matmul**（Hadamard Product）：逐元素乘法，要求矩阵形状相同。
+- **Strassen’s Matmul**：一种快速矩阵乘法算法，减少了乘法次数。
+- **Sparse Matmul**：稀疏矩阵乘法，专门处理稀疏矩阵。
+- **Block Matmul**：将矩阵分块处理，适合并行计算。
+
+每种 `matmul` 操作都有其特定的应用场景，选择合适的矩阵乘法能够提升算法性能。
+
 # 性能优化
 
 [CUDA SGEMM 优化笔记](https://linn-ylz.com/Computer-Science/CUDA/CUDA-SGEMM-optimization-notes/)
