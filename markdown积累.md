@@ -167,6 +167,12 @@ docs/math-heavy-file.md
 
 - [PlantUML 一览](https://plantuml.com/zh/)
   PlantUML 是一个通用性很强的工具，可以快速、直接地创建各种图表。
+  
+- [GitBook 支持的 Markdown](https://chrisniael.gitbooks.io/gitbook-documentation/content/format/markdown.html)
+
+- [GitHub 支持的 Markdown](https://docs.github.com/zh/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax)
+
+- [Markdown 基本语法](https://hugodoit.pages.dev/zh-cn/basic-markdown-syntax/#links)
 
 #### 写作规范
 
@@ -240,7 +246,7 @@ docs/math-heavy-file.md
 
   :link: **更多内容**：[点击这里查看相关资料](https://gist.github.com/rxaviers/7360908)。code：`:link:`
 
-  :pencil: **分析/总结/附加**：这里是一些可选的分析/总结/附加内容，或总结内容。code：`:pencil:` 或 `:momo:`
+  :pencil: **分析/总结/附加**：这里是一些可选的分析/总结/附加内容，或总结内容。code：` 或 `:momo:`
 
 - 存疑/进一步确认
 
@@ -262,16 +268,19 @@ docs/math-heavy-file.md
 
 ### 强调
 
-| 样式名   | 效果                    | Markdown                                                                                                                      |
-| -------- | ----------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| 加粗     | **文本**                | `**文本** 或 __文本__`，用两个`*`或两个`_`包围文本                                                                            |
-| 斜体     | _文本_                  | `*文本* 或 _文本_`，用一个`*`或一个`_`包围文本                                                                                |
-| 删除线   | ~~文本~~                | `~~文本~~`                                                                                                                    |
-| 下划线   | <u>文本</u>             | `<u>文本</u>`，Markdown 自身没有实现下划线，但它是 HTML 的子集，实现了`<u>`标签。<br>一般文本建议不要加下划线，容易误会成链接 |
-| 上标     | 文本^上标^              | `文本^上标^`                                                                                                                  |
-| 下标     | 文本~下标~              | `文本~下标~`                                                                                                                  |
-| 小号字体 | <small>小号字体</small> | `<small>小号字体</small>`                                                                                                     |
-| 大号字体 | <big>大号字体</big>     | `<big>大号字体</big>`                                                                                                         |
+| 样式名   | 效果                      | Markdown                                                                                                                      |
+| -------- | ------------------------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| 加粗     | **文本**                  | `**文本** 或 __文本__ 或 <strong>文本</strong>`，用两个`*`或两个`_`包围文本                                                   |
+| 斜体     | _文本_                    | `*文本* 或 _文本_ 或 <em>文本</em>`，用一个`*`或一个`_`包围文本                                                               |
+| 删除线   | ~~文本~~  <del>文本</del> | `~~文本~~` 或 `<del>文本</del>`                                                                                               |
+| 下划线   | <u>文本</u>               | `<u>文本</u>`，Markdown 自身没有实现下划线，但它是 HTML 的子集，实现了`<u>`标签。<br>一般文本建议不要加下划线，容易误会成链接 |
+| 上标     | 文本^上标^                | `文本^上标^`                                                                                                                  |
+| 下标     | 文本~下标~                | `文本~下标~`                                                                                                                  |
+| 小号字体 | <small>小号字体</small>   | `<small>小号字体</small>`                                                                                                     |
+| 大号字体 | <big>大号字体</big>       | `<big>大号字体</big>`                                                                                                         |
+| 键盘文本 | <kbd>Ctrl</kbd>           | `<kbd>Ctrl</kbd>`                                                                                                             |
+
+注：删除线用~~括起来是不规范语法，有的md编辑器并不支持，比如：MarkdownPad2中的Markdown(扩展)模式就不行，但其github风格则可以，这里CSDN也支持。参考：[Markdown语法](https://blog.csdn.net/frank_0713/article/details/80878883)
 
 ### 使用 VSCode 编辑 MarkDown 文件（vditor 所见及所得）
 
