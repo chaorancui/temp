@@ -234,7 +234,7 @@ docs/math-heavy-file.md
 
 - 解释说明
 
-  ️:information_source: **说明**：这是一些重要的信息说明。code：`:information_source:`
+  ️:page_with_curl: **说明**：这是一些重要的信息说明。code：`:page_with_curl:`
 
   :bulb: **提示**：这里有一个提示，可以帮助你更好地理解内容。code：`:bulb:`
 
