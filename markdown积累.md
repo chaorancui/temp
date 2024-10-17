@@ -240,7 +240,7 @@ docs/math-heavy-file.md
 
   :link: **更多内容**：[点击这里查看相关资料](https://gist.github.com/rxaviers/7360908)。code：`:link:`
 
-  :memo: **分析/总结/附加**：这里是一些可选的分析/总结/附加内容，或总结内容。code：`:momo:`
+  :pencil: **分析/总结/附加**：这里是一些可选的分析/总结/附加内容，或总结内容。code：`:pencil:` 或 `:momo:`
 
 - 存疑/进一步确认
 
