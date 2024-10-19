@@ -1,3 +1,5 @@
+[toc]
+
 # vsCode 配置
 
 ## 软件
@@ -656,7 +658,7 @@ Specifies the current working directory for the debugger, which is the base fold
 
    在 `browse.path` 中指定你希望被解析的路径，并设置 `limitSymbolsToIncludedHeaders` 为 `true`，将**符号解析限制在 `includePath` 和 `browse.path` 中指定的文件和路径中**。
 
-## c_cpp_properties.json reference
+## c_cpp_properties.json
 
 1. 官方文档：
    您应该查阅的主要文档是 VS Code 官方网站上的 C/C++ 扩展文档：
@@ -697,6 +699,107 @@ Specifies the current working directory for the debugger, which is the base fold
    - `C_Cpp.files.exclude`
 
 通过仔细阅读这些文档和资源，您应该能够全面了解 `c_cpp_properties.json` 文件的配置选项，以及如何根据您的项目需求进行最佳设置。如果您在配置过程中遇到任何具体问题，欢迎随时询问。
+
+## PlantUML
+
+在 VSCode 中使用 Markdown 编写 UML 图，通常使用的是 `PlantUML` 插件。以下是配置环境和书写代码的步骤：
+
+1. 安装 VSCode 插件
+
+   首先需要在 VSCode 中安装相关插件：
+
+   - `PlantUML`：这是一个可以让你在 Markdown 中使用 PlantUML 语法绘制 UML 图的插件。需要安装 java。
+   - `Markdown All in One`：支持 Markdown(键盘快捷键、目录、自动预览等)。
+   - `Markdown Preview Enhanced`：可以对 Markdown 做增强预览, 比如支持各种绘图等。
+
+2. 下载 plantuml jar 包
+
+   从 **[PlantUML](https://plantuml.com/zh/download)** 直接下载集成 Graphviz 的 jar 包。
+   LGPL 协议的 jar 包不集成 Graphviz。
+
+3. 安装 Java
+
+   PlantUML 依赖 Java 运行环境。如果你没有安装 Java，需要安装一个。你可以从 **[Oracle 官方](https://www.oracle.com/java/technologies/javase-downloads.html)** 或者 **[OpenJDK](https://openjdk.java.net/)** 安装最新版本的 JDK。
+
+   确保 Java 安装成功后，你可以通过命令行执行以下命令来验证：
+
+   ```bash
+   java -version
+   ```
+
+4. 安装 Graphviz
+
+   PlantUML 需要 Graphviz 来生成图表。你可以从 **[Graphviz 官网](https://graphviz.org/)** 下载并安装。
+
+   安装成功后，也可以通过命令行验证安装：
+
+   ```bash
+   dot -version
+   ```
+
+5. 配置 VSCode 设置
+
+   如果是**在 Markdown 文件中嵌入 UML 代码**，预览时需要配置 `markdown-preview-enhanced` 插件，下面配置一个就可以。
+   - 方法一：使用 PlantUML 官网提供的 `plantuml.jar` 包（需要本地安装 JDK 并配置 java 系统环境变量）
+   - 方法二：直接使用 plantumlServer。只有联网才能用。
+
+   ```json
+   "markdown-preview-enhanced.plantumlJarPath": "D:\\Program Files\\plantuml-lgpl-1.2024.7.jar",
+   "markdown-preview-enhanced.plantumlServer": "https://kroki.io/plantuml/svg/",
+   ```
+
+   如果不配置，则报错如下：
+
+   ```log
+   Error: plantuml.jar file not found: ""
+
+   Please download plantuml.jar from https://plantuml.com/download.  
+
+
+   If you are using VSCode or coc.nvim, then please set the setting "markdown-preview-enhanced.plantumlJarPath" to the absolute path of plantuml.jar file.
+
+   If you don't want to use plantuml.jar, then you can use the online plantuml server 
+   by setting the setting "markdown-preview-enhanced.plantumlServer" to the URL of the online plantuml server, for example: https://kroki.io/plantuml/svg/
+   ```
+
+   如果是**直接新建 plantuml 文件编写代码**，则需要对 `PlantUML` 插件进行配置：
+   - 实测配置了 java 和 Graphviz 的系统环境变量后，不进行下述配置也可以。如果不行请再配置。
+
+   ```json
+   "plantuml.java": "C:/path/to/java",  // Java 路径
+   "plantuml.jar": "C:/path/to/plantuml.jar",  // PlantUML 的 jar 包路径
+   "plantuml.exportFormat": "png",  // 导出格式，常用的有 png, svg
+   ```
+
+6. 编写 UML 代码
+
+   你可以在 Markdown 文件中嵌入 UML 代码，用于生成图表。PlantUML 支持各种 UML 图，例如类图、时序图、用例图等。
+   `@startuml` 和 `@enduml` 之间的内容是你的 UML 代码：
+
+   ```plantuml
+   @startuml
+   Alice -> Bob: Hello
+   Bob --> Alice: Hi
+   @enduml
+   ```
+
+   或者新建 plantuml 文件，支持格式 `*.wsd`, `*.pu`, `*.puml`, `*.plantuml`, `*.iuml`，然后把上面的代码拷贝到文件中（注意不能含头尾```）。
+
+7. 预览 UML 图
+   在 VSCode 中，右键点击包含 UML 代码的 Markdown 文件，可以选择 "Preview" 选项来查看生成的图形。`PlantUML` 插件会自动渲染图表。
+
+   你也可以通过 `Ctrl+P` 打开命令面板，搜索 `PlantUML: Preview` 来预览。
+
+8. 导出图表
+   使用 `PlantUML` 插件，你可以右键 UML 代码块，选择“Export Current Diagram”来导出图片格式，如 PNG、SVG 或 PDF。
+
+9. 总结
+
+   1. 安装 PlantUML 插件。
+   2. 安装并配置 Java 和 Graphviz。
+   3. 在 Markdown 中使用 `plantuml` 代码块编写 UML 代码。
+   4. 预览和导出图表。
+
 
 # CLion （Windows）
 
