@@ -425,17 +425,17 @@ $$ \text{Each head's dimension} = \frac{d\_{\text{model}}}{h} $$
    ```python
    import torch
    import torch.nn as nn
-   
+
    # 创建一个词汇表大小为5，嵌入维度为2的Embedding层
    embedding_layer = nn.Embedding(num_embeddings=5, embedding_dim=2) # torch.nn.Embedding
-   
+
    # 定义输入的词汇ID序列，假设我们有三个词：'apple', 'banana', 'elderberry'
    # 对应的词汇ID为[0, 1, 4]
    input_ids = torch.tensor([0, 1, 4])
-   
+
    # 使用Embedding层将词汇ID映射为向量
    embedded_output = embedding_layer(input_ids)
-   
+
    print("Embedding向量输出：\n", embedded_output)
    ```
 
@@ -499,51 +499,72 @@ tensor([[0.7000, 0.8000, 0.9000],  # 对应ID 2的词
 
 在深度学习框架的实际实现中，Embedding 层的底层实现可能会使用`gather`，因为它高效且简洁，能快速从嵌入矩阵中取出对应的向量。
 
-## token/word embedding
+## token/word embedding 区别
 
 **Token embedding** 和 **word embedding** 虽然有相似之处，但它们并不是完全相同的概念，主要的区别在于它们所处理的基本单位不同。
 
-### **Word Embedding**
+1. **Word Embedding**
 
-- **基本概念**：**Word embedding** 是将**单词**（word）映射到连续向量空间中的表示方法。常见的词嵌入技术如 **Word2Vec**、**GloVe** 等会为每个单词（完整的词）生成一个固定维度的向量。
-- **处理单位**：**单词**，通常是文本中自然语言的最小语义单位。
-- **使用场景**：在较早的自然语言处理任务中，模型通常是基于词汇表（vocabulary），将每个词映射为对应的嵌入向量。在这种情况下，一个词就是一个基本处理单位。
+   - **基本概念**：**Word embedding** 是将**单词**（word）映射到连续向量空间中的表示方法。常见的词嵌入技术如 **Word2Vec**、**GloVe** 等会为每个单词（完整的词）生成一个固定维度的向量。
+   - **处理单位**：**单词**，通常是文本中自然语言的最小语义单位。
+   - **使用场景**：在较早的自然语言处理任务中，模型通常是基于词汇表（vocabulary），将每个词映射为对应的嵌入向量。在这种情况下，一个词就是一个基本处理单位。
 
-### **Token Embedding**
+2. **Token Embedding**
 
-- **基本概念**：**Token embedding** 是针对**令牌（token）**的嵌入，将文本中的每个 token（令牌）映射为向量。令牌可能是一个完整的词、一个子词（subword），甚至是一个字符。
-- **处理单位**：**令牌（token）**，通常由**词、子词或字符**组成。例如，BERT 和 GPT 等模型使用**子词**作为 token 单位，这样即使遇到生僻词或新词，也可以将词拆分为多个子词 token。
-- **使用场景**：在现代预训练语言模型（如 BERT、GPT 等）中，使用**子词级别的分词**（如BPE或WordPiece算法）将文本拆分为更小的单位。这种 token 可能是一个完整的词，也可能是子词的一部分。因此，token embedding 既可以表示词，也可以表示比词更小的单位。
+   - **基本概念**：**Token embedding** 是针对**令牌（token）** 的嵌入，将文本中的每个 token（令牌）映射为向量。令牌可能是一个完整的词、一个子词（subword），甚至是一个字符。
+   - **处理单位**：**令牌（token）**，通常由**词、子词或字符**组成。例如，BERT 和 GPT 等模型使用**子词**作为 token 单位，这样即使遇到生僻词或新词，也可以将词拆分为多个子词 token。
+   - **使用场景**：在现代预训练语言模型（如 BERT、GPT 等）中，使用**子词级别的分词**（如 BPE 或 WordPiece 算法）将文本拆分为更小的单位。这种 token 可能是一个完整的词，也可能是子词的一部分。因此，token embedding 既可以表示词，也可以表示比词更小的单位。
 
-### **主要区别**
+3. **主要区别**
 
-1. **基本处理单位不同**：
-   - **Word embedding** 的基本单位是词汇表中的**完整单词**。
-   - **Token embedding** 的基本单位是**令牌（token）**，它可能是完整的单词，也可能是子词，甚至是字符。
-2. **对 OOV（Out-Of-Vocabulary）词的处理**：
-   - **Word embedding** 模型无法处理未在词汇表中出现的词（称为 OOV 问题）。
-   - **Token embedding** 由于使用了子词级别的分词方法，即使遇到未知的词，也可以将其拆解为已知的子词来处理，从而缓解 OOV 问题。
-3. **应用模型**：
-   - **Word embedding** 通常应用于较早期的NLP模型（如 Word2Vec、GloVe），它们依赖于固定的词汇表。
-   - **Token embedding** 广泛应用于现代的预训练语言模型（如 BERT、GPT），这些模型通常采用基于子词的分词技术。
+   1. **基本处理单位不同**：
+      粒度：Token 通常比 word 更细粒度。
+      词汇表大小：Token embedding 通常有更小的词汇表。
+      - **Word embedding** 的基本单位是词汇表中的**完整单词**。
+      - **Token embedding** 的基本单位是**令牌（token）**，它可能是完整的单词，也可能是子词，甚至是字符。
+   2. **对 OOV（Out-Of-Vocabulary）词的处理**：
+      灵活性：Token embedding 可以处理更多种类的输入。
+      - **Word embedding** 模型无法处理未在词汇表中出现的词（称为 OOV 问题）。
+      - **Token embedding** 由于使用了子词级别的分词方法，即使遇到未知的词，也可以将其拆解为已知的子词来处理，从而缓解 OOV 问题。
+   3. **应用模型**：
+      - **Word embedding** 通常应用于较早期的 NLP 模型（如 Word2Vec、GloVe），它们依赖于固定的词汇表。
+      - **Token embedding** 广泛应用于现代的预训练语言模型（如 BERT、GPT），这些模型通常采用基于子词的分词技术。
 
-### **举例说明**
+4. **举例说明**
 
-假设有一个句子 **“unhappiness”**：
+   **Token embedding 在处理未知词时确实有显著优势**。假设我们有一个英语词汇表，其中并不包含"unfriendliness"这个词。
 
-- 在 **word embedding** 中，整个单词“unhappiness”被视为一个词，会有一个对应的嵌入向量。
-- 在 **token embedding** 中，模型可能将“unhappiness”拆分为多个子词 token，例如“un-”, “happi-”, “ness”，然后为每个子词 token 生成各自的向量。
+   - **Word Embedding** 的处理方式：
+     如果使用传统的 word embedding，"unfriendliness"会被视为一个未知词（Out-of-Vocabulary，OOV）。
+     系统可能会将其替换为特殊的 `<UNK>` 标记，或者完全忽略这个词。
+     **结果**：词的含义完全丢失，模型无法理解这个词。
 
-### 总结：
+   - **Token Embedding** 的处理方式：
+     使用子词（subword）tokenization，"unfriendliness" 可能被拆分为：["un", "friend", "li", "ness"]，每个子词都有其 own embedding。
+     模型可以组合这些子词的含义：
+     "un-"表示否定
+     "friend"表示朋友
+     "-li-"是连接词素
+     "-ness"表示状态或品质
+     **结果**：虽然"unfriendliness"作为一个完整的词不在词汇表中，但模型仍能大致理解其含义（不友好的状态或品质）。
 
-- **Word embedding** 关注完整的单词，适合较早的NLP任务。
-- **Token embedding** 关注更细粒度的语言单位（如子词），适合现代预训练模型的需求，能够更灵活地处理复杂的语言结构。
+   - Token embedding 的几个优势：
+
+     - **词形解析**：可以处理词缀、复合词等。
+     - **跨语言应用**：这种方法对于形态学丰富的语言（如德语、土耳其语）特别有效。
+     - **词汇表压缩**：可以用更小的词汇表表示更多的词。
+     - **处理专业术语**：在特定领域（如医学、法律）中的生僻词也可以得到合理处理。
+
+5. **总结**
+
+   - **Word embedding** 关注完整的单词，适合较早的 NLP 任务。
+   - **Token embedding** 关注更细粒度的语言单位（如子词），适合现代预训练模型的需求，能够更灵活地处理复杂的语言结构。
 
 ## token embedding
 
 Token embedding 是自然语言处理（NLP）中的一种技术，用于将文本数据中的单词、子词或字符（称为 token）转换为**稠密的向量表示**。这种向量表示能够捕捉文本中词语的**语义和语法信息**，并在机器学习模型中作为输入特征。Token embedding 的目标是将**高维、稀疏的离散表示**（如 one-hot 编码）转换为**低维、稠密的连续表示**，从而使得文本数据可以更高效地被处理和理解。
 
-### 常见的 Token Embedding 方法
+**常见的 Token Embedding 方法**：
 
 1. **One-hot Encoding**
    - 每个 token 用一个与词汇表大小相同的向量表示，向量中只有一个位置为 1，其余位置为 0。这种表示方式非常稀疏且高维，不适合直接用于复杂的模型。
@@ -556,7 +577,7 @@ Token embedding 是自然语言处理（NLP）中的一种技术，用于将文�
    - **ELMo**：基于双向 LSTM，通过上下文信息生成动态词嵌入。每个词的表示会根据其在句子中的上下文变化。
    - **BERT**：基于 Transformer 的双向编码器，通过预训练和微调方法生成词嵌入。它能够捕捉深层次的上下文信息，并且在许多 NLP 任务中表现出色。
 
-### 示例
+**示例**：
 
 假设我们有一个句子：“I love natural language processing”。
 
