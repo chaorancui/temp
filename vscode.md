@@ -2,7 +2,7 @@
 
 # VSCode
 
-## VSCode 软件
+## vscode 软件
 
 ### 安装版
 
@@ -47,7 +47,7 @@ exit
 
 > VSCode Server 的版本要和 VSCode 的版本对应，当 VSCode 更新时，下次 SSH 登陆远程服务器，VSCode Server 会重新下载安装更新后的版本。二者对应用的是<commit_id>，可以在 【VSCode 菜单栏】-->【Help】->【About】下查看【Commit】的值 。
 
-### 自动安装 VS Code Server
+### 自动安装
 
 1. **安装 Remote-SSH 扩展**：
    - 在 VS Code 中，打开扩展市场（快捷键：`Ctrl+Shift+X`）。
@@ -64,24 +64,19 @@ exit
    - 在连接的过程中，你可能会看到 VS Code 的输出窗口显示安装进度。
    - 一旦安装完成，你将在 VS Code 的左下角看到一个绿色的远程连接图标，表示你已经连接到远程主机。
 
-### 手动安装或解决安装问题
-
-在某些情况下，自动安装可能失败或你可能需要手动干预（远程服务器无法访问外网或网络不稳定一直安装失败）。这种情况下，你可以通过以下步骤手动安装或调试：
+**自动安装失败检查**：
+在某些情况下，自动安装可能失败（网络不稳定）。这种情况下，你可以先进行下述检查后再次尝试：
 
 1. **查看日志**：
    - 打开输出窗口（`View` -> `Output`）。
    - 从下拉菜单中选择 `Remote - SSH` 查看连接和安装过程的日志。
-2. **手动安装 VS Code Server**：
-   - 从日志中找到 VS Code Server 的下载 URL。
-   - 在远程主机上使用 `wget` 或 `curl` 下载该文件。
-   - 解压下载的文件并确保正确的权限设置。
-3. **检查权限**：
+2. **检查权限**：
    - 确保你的用户对安装目录有写权限。
    - 如果需要，尝试使用 `sudo` 权限进行安装（注意安全性和权限管理）。
 
-总结
+### 手动下载和安装
 
-### 手动下载和安装 VS Code Server
+当远程服务器无法访问外网或网络不稳定一直安装失败时，就需要手动安装。
 
 1. **下载 VS Code Server**：
 
@@ -92,7 +87,7 @@ exit
      ```shell
      wget https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<architecture>/stable -O vscode-server.tar.gz
      # 这个 URL 包含了具体的 `commit_id`、`platform` 和 `architecture` 信息。
-
+      
      # 例子：
      wget https://update.code.visualstudio.com/commit:f1e16e1e6214d7c44d078b1f0607b2388f29d729/server-linux-x64/stable -O vscode-server.tar.gz
      ```
@@ -127,40 +122,90 @@ exit
 
 ## 插件
 
-### 软件安装
+### C++ 插件
 
-- vscode-icons: Icons for Visual Studio Code
-- C/C++: C/C++ IntelliSense, debugging, and code browsing.
-- C/C++ Extension Pack: Popular extensions for C++ development in Visual Studio Code.
-- Markdown Preview Enhanced: Markdown Preview Enhanced ported to vscode
-- Vim: Vim emulation for Visual Studio Code
-- LeetCode: Solve LeetCode problems in VS Code
-- LeetCode with labuladong: 帮助 labuladong 的读者高效刷题
+- **C/C++ Extension Pack**: 此扩展包包含一组用于 Visual Studio Code 中 C++ 开发的流行扩展。**安装这 1 个，会自动安装下面 4 个**。
 
-#### icon 图标
+  - [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
+  - [C/C++ 主题](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-themes)
+  - [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
+  - [CMake 工具](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
+
+- **C/C++**: 此扩展为 Visual Studio Code 添加了对 C/C++ 的语言支持，包括[编辑（IntelliSense）](https://code.visualstudio.com/docs/cpp/cpp-ide)和[调试](https://code.visualstudio.com/docs/cpp/cpp-debug)功能。
+  
+  > 插件市场链接：[C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)，介绍信息挺有用的。
+  > C/C++ 扩展**不包含** C++ **编译器**或**调试器**。您需要安装这些工具或使用计算机上已安装的工具。如 Windows 上可以用 MinGW。
+
+- **C/C++ Themes**：语义着色，提供的较少，且不如直接换主题自由。**觉得意义不大**。
+
+- **CMake**：此扩展为Visual Studio Code 中的[CMake](http://www.cmake.org/)提供支持。提供特性：着色，补全，注释，代码片段，函数快速帮助。
+
+- **CMake Tools**：CMake Tools 为原生开发人员提供了针对 Visual Studio Code 中基于 CMake 的**项目**的功能齐全、便捷且强大的工作流程。可直接查看/配置项目。
+
+### python 插件
+
+- **Python**：提供对 IntelliSense（Pylance）、调试（Python 调试器）、格式化、linting、代码导航、重构、变量资源管理器、测试资源管理器等的支持！
+
+  > Python 扩展将默认自动安装以下扩展，以在 VS Code 中提供最佳的 Python 开发体验：
+  >
+  > - [Pylance——](https://marketplace.visualstudio.com/items?itemName=ms-python.vscode-pylance)提供高性能 Python 语言支持
+  > - [Python 调试器](https://marketplace.visualstudio.com/items?itemName=ms-python.debugpy)- 使用 debugpy 提供无缝调试体验
+
+- **autoDocstring - Python Docstring Generator**：快速生成 Python 函数的文档字符串。
+
+- **Jinja**：提供对 Jinja 模板语言的语言着色支持。
+
+### shell 插件
+
+编写 shell 脚本，有以下插件可以选择：
+
+1. shellman - Remisa
+   智能提示和自动补全，shellman全部搞定
+
+2. shellcheck - Timon Wong
+   语法错误检查
+
+3. shell-format - foxundermoon
+   快捷键：Ctrl + Shift + I
+
+到这里，刀就已经磨好了，去劈柴吧少年~
+
+> 本文转载自：[VScode 打造shell脚本IDE](https://zhuanlan.zhihu.com/p/199187317)
+
+### 代码编辑插件
+
+- **Vim**: VSCodeVim 是Visual Studio Code的 Vim 模拟器。
+- **VSCode Neovim**：Neovim是 Vim 的一个分支，可实现更高的可扩展性和集成性。此扩展使用完全嵌入的 Neovim 实例，不再是半成品 Vim 模拟！VSCode 的本机功能用于插入模式和编辑器命令，从而充分利用这两个编辑器。
+
+### icon 图标插件
 
 - **vscode-icons**：目录树图标主题，风格硬朗。
 - **Material Icon Theme**：与 vscode-icons 差不多，风格卡通一点。**推荐**。
 
-#### 主题插件
+### 主题插件
 
 - **One Dark Pro**：偏灰色的主题，用着不错
 - **Atom One Dark Theme**：也还行，感觉字体颜色没有上面的多
 - **Dracula Theme Official**：吸血鬼主题配色，写代码颜色区分清晰，**推荐**。
 - **Material Theme — Free**：偏灰绿，有多种可选。
 
-#### markdown 插件
+### markdown 插件
 
 - **Markdown Preview Enhanced**：超级强大的 Markdown 插件，预览滑动同步、Pandoc、自定义预览 css、TOC、Latex、渲染代码运行结果（配置复杂）。
 - **Markdown All in One**：Markdown 所需的一切（键盘快捷键、目录、自动预览、数学公式、列表编辑、自动补全等）。
 - **PlantUML**：提供 UML 支持。如要在 markdown 中渲染，需配置 Markdown Preview Enhanced。
 - **Markdown Table Prettifier**：编辑/格式化表格，将 csv 文本转化为表格。
 
-#### 代码风格规范插件
+### 代码风格规范插件
 
 - **Prettier - Code formatter**：主要支持前端语言，JavaScript、[JSX](https://facebook.github.io/jsx/)、[Angular](https://angular.io/)、[Vue](https://vuejs.org/)、[Flow](https://flow.org/)、[TypeScript](https://www.typescriptlang.org/)、CSS, [Less](http://lesscss.org/), and [SCSS](https://sass-lang.com/)、[HTML](https://en.wikipedia.org/wiki/HTML)、[Ember/Handlebars](https://handlebarsjs.com/)、[JSON](https://json.org/)、[GraphQL](https://graphql.org/)、[Markdown](https://commonmark.org/), including [GFM](https://github.github.com/gfm/) and [MDX v1](https://mdxjs.com/)、[YAML](https://yaml.org/)
 - **Better Align**：无论是否选择**任何语言**，任何字符或单词都可以实现更好的**垂直对齐**。
 - **indent-rainbow**：用颜色填充缩进，非常直观，如果有缩进错误还会变成红色。**对写 `Python` 用处极大**。
+
+### 其他插件
+
+- LeetCode: Solve LeetCode problems in VS Code
+- LeetCode with labuladong: 帮助 labuladong 的读者高效刷题
 
 > 参考网址：
 >
@@ -168,6 +213,150 @@ exit
 > - 10 款 VS Code 插件神器，第 7 款超级实用！：<https://cloud.tencent.com/developer/article/1889258>
 
 ## 插件配置
+
+### prettier 插件
+
+#### prettier 配置
+
+使用此扩展配置 Prettier 有多种方式。您可以使用[VS Code 设置](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode#prettier-settings)、[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)或`.editorconfig`文件。VS Code 设置旨在用作后备，通常仅用于非项目文件。**建议您始终在项目中包含一个 Prettier 配置文件，指定项目的所有设置**。这将确保无论您如何运行 Prettier（从此扩展、从 CLI 或从另一个带有 Prettier 的 IDE），都将应用相同的设置。
+
+建议使用[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)来设置格式化选项。选项从正在格式化的文件开始递归搜索，因此如果您想将 Prettier 设置应用于整个项目，只需在根目录中设置配置即可。配置选项参考：[Options](https://prettier.io/docs/en/options.html)。
+
+在项目目录下新增文件 `.prettierrc.json`，内容如下：
+
+```json
+{
+  "//参考网址": "https://prettier.io/docs/en/options",
+  "//printWidth": "默认 80",
+  "printWidth": 120,
+  "//tabWidth": "默认 2",
+  "tabWidth": 2,
+  "//useTabs": "默认 false",
+  "useTabs": false,
+  "//semi": "默认 false",
+  "semi": false,
+  "//singleQuote": "默认 false",
+  "singleQuote": false,
+  "//quoteProps": "默认 as-needed",
+  "quoteProps": "as-needed",
+  "//trailingComma": "默认 all",
+  "trailingComma": "es5",
+  "//bracketSpacing": "默认 true",
+  "bracketSpacing": true,
+  "//bracketSameLine": "默认 true",
+  "bracketSameLine": false,
+  "//arrowParens": "默认 always",
+  "arrowParens": "always",
+  "//proseWrap": "默认 preserve",
+  "proseWrap": "preserve",
+  "//endOfLine": "默认 lf",
+  "endOfLine": "lf",
+  "//embeddedLanguageFormatting": "默认 auto",
+  "embeddedLanguageFormatting": "auto"
+}
+```
+
+#### prettier 插件问题
+
+:warning: 在格式化 markdown 的时候，针对 **markdown 中的数学公式** $ $，会把 `_` 换成 `*`，原因可能是 pretteir 默认使用 `*` 进行斜体的格式化，当公式中出现多个 `_` 时，可能被语法树分析成斜体从而被改成 `*`。
+
+**问题**：
+`$$ \mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i $$` 格式化成
+`$$ \mu*B = \frac{1}{m} \sum*{i=1}^{m} x*i $$`
+
+**解决方案**：
+
+要让 Prettier 在格式化 Markdown 文件时忽略数学公式（尤其是用 `$$` 包围的块级 LaTeX 数学公式），你可以通过以下几种方法实现：
+
+1. 使用 Prettier 的 `prettier-ignore` 注释
+
+   Prettier 支持在文件中添加 `prettier-ignore` 注释，来忽略特定部分的格式化。你可以在公式的上方加上 `<!-- prettier-ignore -->` 注释，让 Prettier 跳过格式化该公式。
+   Prettier 只会忽略**紧随注释的多行代码块或段落**（即**遇到空行结束**，可以包含空格或换行），其他部分仍会遵循默认的格式化规则。
+
+   示例：
+
+   ```markdown
+   <!-- prettier-ignore -->
+   添加 `prettier-ignore` 注释，下面的两行都不会被格式化。直至遇见空行。
+   对于两个矩阵 $ A_{m \times p} $ 和 $ B_{p \times n} $，它们的乘积 $ C_{m \times n} = AB $ 是一个 $ m \times n $ 的矩阵。
+   $$ C_{(i, j)} = \Sigma_{k=1}^n A_{(i, k)} \times B_{(k, j)} $$
+
+   上面有空行，这里以及下面的代码会被格式化。
+   $$ C*{(i, j)} = \Sigma*{k=1}^n A*{(i, k)} \times B*{(k, j)} $$
+   ```
+
+   当 Prettier 遇到这个注释时，它会跳过对这个公式的格式化。
+
+### 使用 `remark-math` 插件与 Prettier 配合
+
+目前，Prettier 并没有内置的选项来自动跳过 Markdown 中的数学公式。不过，可以通过结合 `remark` 插件来实现更细粒度的控制。
+你可以自己编写或使用现有的 `remark` 插件，来处理 Markdown 中的数学公式部分，并跳过对它们的格式化。
+`remark-math` 是一个 `remark` 插件，它能够识别并处理 Markdown 中的数学公式。你可以使用它配合 Prettier 一起工作。
+
+**步骤**：
+
+1. 安装 `remark-math` 和 `remark-html-katex`（用于将数学公式转换成可视化效果）：
+
+   ```bash
+   npm install remark-math remark-html-katex
+   ```
+
+2. 在 Prettier 的配置文件中添加自定义的 `remark` 配置，以识别数学公式并跳过它们的格式化：
+
+   ```javascript
+   const remarkMath = require("remark-math");
+   const remarkHtmlKatex = require("remark-html-katex");
+
+   module.exports = {
+     plugins: [
+       // 使用 remark-math 插件来处理数学公式
+       {
+         name: "markdown",
+         parse: "markdown",
+         plugins: [remarkMath, remarkHtmlKatex],
+       },
+     ],
+   };
+   ```
+
+3. 将公式用 `$$` 或 `$` 包围，Prettier 将能够识别出这些公式，并通过插件处理它们，而不会对公式内容进行重新格式化。
+
+   示例：
+
+   ```markdown
+   Here is an inline formula: $E = mc^2$
+
+   Here is a block formula:
+
+   $$
+   a^2 + b^2 = c^2
+   $$
+   ```
+
+   通过 `remark-math` 插件，Prettier 不会对这些数学公式的内容进行重新排版和格式化，而是保持公式原有的样式。
+
+4. 使用 `.prettierignore` 文件（全局忽略）
+
+   如果你想完全避免 Prettier 格式化某些 Markdown 文件（或特定类型的文件），你可以使用 `.prettierignore` 文件来忽略这些文件的格式化。这对于包含大量数学公式的文件可能是一个简单的解决方案。
+
+   示例：
+
+   在项目根目录下创建一个 `.prettierignore` 文件，并添加你要忽略的 Markdown 文件路径：
+
+   ```bash
+   # .prettierignore
+   docs/math-heavy-file.md
+   ```
+
+   这种方法适用于需要跳过特定文件的情况，而不是局部忽略公式的格式化。
+
+### 总结
+
+- **局部忽略**：使用 `<!-- prettier-ignore -->` 注释跳过某个数学公式的格式化。
+- **插件方式**：使用 `remark-math` 插件结合 Prettier，让 Prettier 识别数学公式并跳过其格式化。
+- **全局忽略**：通过 `.prettierignore` 文件，忽略某些特定的 Markdown 文件的格式化。
+
+选择其中一种方法可以帮助你控制 Prettier 对 Markdown 文件中数学公式的处理方式。
 
 ### PlantUML && MPE
 

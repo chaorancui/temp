@@ -6,151 +6,54 @@
 
 - blueTex：好看，推荐
 
+### VNote
+
+[github 仓库连接](https://github.com/vnotex/vnote)。
+VNote是一款基于 Qt 的免费开源笔记应用，**目前专注于 Markdown 语言**。VNote 旨在为用户提供一个愉悦的笔记平台和极佳的编辑体验。
+VNote不仅仅是一个简单的 Markdown 编辑器。通过提供**笔记管理功能**，VNote 让 Markdown 笔记变得更简单。未来，VNote 将支持除 Markdown 之外的更多格式。
+利用 Qt，VNote 可以在Linux、Windows和macOS上运行。
+
+优点（已体验）：笔记方式管理，支持带格式粘贴，可以同时显示文件和目录。
+缺点（已体验）：markdown 特性支持较少，latex 支持都不太全。
+
 ### vscode
 
-插件：
+- **Markdown Preview Enhanced**：超级强大的 Markdown 插件，预览滑动同步、Pandoc、自定义预览 css、TOC、Latex、渲染代码运行结果（配置复杂）。
+- **Markdown All in One**：Markdown 所需的一切（键盘快捷键、目录、自动预览、数学公式、列表编辑、自动补全等）。
+- **PlantUML**：提供 UML 支持。如要在 markdown 中渲染，需配置 Markdown Preview Enhanced。
+- **Markdown Table Prettifier**：编辑/格式化表格，将 csv 文本转化为表格。
+- **Prettier - Code formatter**：主要支持前端语言，JavaScript、[JSX](https://facebook.github.io/jsx/)、[Angular](https://angular.io/)、[Vue](https://vuejs.org/)、[Flow](https://flow.org/)、[TypeScript](https://www.typescriptlang.org/)、CSS, [Less](http://lesscss.org/), and [SCSS](https://sass-lang.com/)、[HTML](https://en.wikipedia.org/wiki/HTML)、[Ember/Handlebars](https://handlebarsjs.com/)、[JSON](https://json.org/)、[GraphQL](https://graphql.org/)、[Markdown](https://commonmark.org/), including [GFM](https://github.github.com/gfm/) and [MDX v1](https://mdxjs.com/)、[YAML](https://yaml.org/)
 
-- prettier：
+#### prettier 插件问题
 
-  使用此扩展配置 Prettier 有多种方式。您可以使用[VS Code 设置](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode#prettier-settings)、[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)或`.editorconfig`文件。VS Code 设置旨在用作后备，通常仅用于非项目文件。**建议您始终在项目中包含一个 Prettier 配置文件，指定项目的所有设置**。这将确保无论您如何运行 Prettier（从此扩展、从 CLI 或从另一个带有 Prettier 的 IDE），都将应用相同的设置。
+:warning: 在格式化 markdown 的时候，针对 **markdown 中的数学公式** $ $，会把 `_` 换成 `*`，原因可能是 pretteir 默认使用 `*` 进行斜体的格式化，当公式中出现多个 `_` 时，可能被语法树分析成斜体从而被改成 `*`。
 
-  建议使用[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)来设置格式化选项。选项从正在格式化的文件开始递归搜索，因此如果您想将 Prettier 设置应用于整个项目，只需在根目录中设置配置即可。配置选项参考：[Options](https://prettier.io/docs/en/options.html)。
+**问题**：
+`$$ \mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i $$` 格式化成
+`$$ \mu*B = \frac{1}{m} \sum*{i=1}^{m} x*i $$`
 
-  在项目目录下新增文件 `.prettierrc.json`，内容如下：
+**解决方案**：
 
-  ```json
-  {
-    "//参考网址": "https://prettier.io/docs/en/options",
-    "//printWidth": "默认 80",
-    "printWidth": 120,
-    "//tabWidth": "默认 2",
-    "tabWidth": 2,
-    "//useTabs": "默认 false",
-    "useTabs": false,
-    "//semi": "默认 false",
-    "semi": false,
-    "//singleQuote": "默认 false",
-    "singleQuote": false,
-    "//quoteProps": "默认 as-needed",
-    "quoteProps": "as-needed",
-    "//trailingComma": "默认 all",
-    "trailingComma": "es5",
-    "//bracketSpacing": "默认 true",
-    "bracketSpacing": true,
-    "//bracketSameLine": "默认 true",
-    "bracketSameLine": false,
-    "//arrowParens": "默认 always",
-    "arrowParens": "always",
-    "//proseWrap": "默认 preserve",
-    "proseWrap": "preserve",
-    "//endOfLine": "默认 lf",
-    "endOfLine": "lf",
-    "//embeddedLanguageFormatting": "默认 auto",
-    "embeddedLanguageFormatting": "auto"
-  }
-  ```
+要让 Prettier 在格式化 Markdown 文件时忽略数学公式（尤其是用 `$$` 包围的块级 LaTeX 数学公式），你可以通过以下方法实现：
 
-  > :warning: 问题：在格式化 markdown 的时候，针对 markdown 中的公式 $ $，会把 `_` 换成 `*`，原因可能是 pretteir 默认使用 `*` 进行斜体的格式化，当公式中出现多个 `_` 时，可能被语法树分析成斜体从而被改成 `*`。问题如：
-  >
-  > `$$ \mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i $$` 格式化成
-  >
-  > `$$ \mu*B = \frac{1}{m} \sum*{i=1}^{m} x*i $$`
+1. 使用 Prettier 的 `prettier-ignore` 注释
 
-## prettier 插件
+   Prettier 支持在文件中添加 `prettier-ignore` 注释，来忽略特定部分的格式化。你可以在公式的上方加上 `<!-- prettier-ignore -->` 注释，让 Prettier 跳过格式化该公式。
+   Prettier 只会忽略**紧随注释的多行代码块或段落**（即**遇到空行结束**，可以包含空格或换行），其他部分仍会遵循默认的格式化规则。
 
-要让 Prettier 在格式化 Markdown 文件时忽略数学公式（尤其是用 `$$` 包围的块级 LaTeX 数学公式），你可以通过以下几种方法实现：
+   示例：
 
-### 使用 Prettier 的 `prettier-ignore` 注释
+   ```markdown
+   <!-- prettier-ignore -->
+   添加 `prettier-ignore` 注释，下面的两行都不会被格式化。直至遇见空行。
+   对于两个矩阵 $ A_{m \times p} $ 和 $ B_{p \times n} $，它们的乘积 $ C_{m \times n} = AB $ 是一个 $ m \times n $ 的矩阵。
+   $$ C_{(i, j)} = \Sigma_{k=1}^n A_{(i, k)} \times B_{(k, j)} $$
 
-Prettier 支持在文件中添加 `prettier-ignore` 注释，来忽略特定部分的格式化。你可以在公式的上方加上 `<!-- prettier-ignore -->` 注释，让 Prettier 跳过格式化该公式。
-Prettier 只会忽略**紧随注释的多行代码块或段落**（即**遇到空行结束**，可以包含空格或换行），其他部分仍会遵循默认的格式化规则。
-
-示例：
-
-```markdown
-<!-- prettier-ignore -->
-添加 `prettier-ignore` 注释，下面的两行都不会被格式化。直至遇见空行。
-对于两个矩阵 $ A_{m \times p} $ 和 $ B_{p \times n} $，它们的乘积 $ C_{m \times n} = AB $ 是一个 $ m \times n $ 的矩阵。
-$$ C_{(i, j)} = \Sigma_{k=1}^n A_{(i, k)} \times B_{(k, j)} $$
-
-上面有空行，这里以及下面的代码会被格式化。
-$$ C*{(i, j)} = \Sigma*{k=1}^n A*{(i, k)} \times B*{(k, j)} $$
-```
-
-当 Prettier 遇到这个注释时，它会跳过对这个公式的格式化。
-
-### 修改 Prettier 配置文件
-
-目前，Prettier 并没有内置的选项来自动跳过 Markdown 中的数学公式。不过，可以通过结合 `remark` 插件来实现更细粒度的控制。你可以自己编写或使用现有的 `remark` 插件，来处理 Markdown 中的数学公式部分，并跳过对它们的格式化。
-
-### 使用 `remark-math` 插件与 Prettier 配合
-
-`remark-math` 是一个 `remark` 插件，它能够识别并处理 Markdown 中的数学公式。你可以使用它配合 Prettier 一起工作。
-
-**步骤**：
-
-1. 安装 `remark-math` 和 `remark-html-katex`（用于将数学公式转换成可视化效果）：
-
-   ```bash
-   npm install remark-math remark-html-katex
+   上面有空行，这里以及下面的代码会被格式化。
+   $$ C*{(i, j)} = \Sigma*{k=1}^n A*{(i, k)} \times B*{(k, j)} $$
    ```
 
-2. 在 Prettier 的配置文件中添加自定义的 `remark` 配置，以识别数学公式并跳过它们的格式化：
-
-   ```javascript
-   const remarkMath = require("remark-math");
-   const remarkHtmlKatex = require("remark-html-katex");
-
-   module.exports = {
-     plugins: [
-       // 使用 remark-math 插件来处理数学公式
-       {
-         name: "markdown",
-         parse: "markdown",
-         plugins: [remarkMath, remarkHtmlKatex],
-       },
-     ],
-   };
-   ```
-
-3. 将公式用 `$$` 或 `$` 包围，Prettier 将能够识别出这些公式，并通过插件处理它们，而不会对公式内容进行重新格式化。
-
-示例：
-
-```markdown
-Here is an inline formula: $E = mc^2$
-
-Here is a block formula:
-
-$$
-a^2 + b^2 = c^2
-$$
-```
-
-通过 `remark-math` 插件，Prettier 不会对这些数学公式的内容进行重新排版和格式化，而是保持公式原有的样式。
-
-### 4. 使用 `.prettierignore` 文件（全局忽略）
-
-如果你想完全避免 Prettier 格式化某些 Markdown 文件（或特定类型的文件），你可以使用 `.prettierignore` 文件来忽略这些文件的格式化。这对于包含大量数学公式的文件可能是一个简单的解决方案。
-
-示例：
-
-在项目根目录下创建一个 `.prettierignore` 文件，并添加你要忽略的 Markdown 文件路径：
-
-```bash
-# .prettierignore
-docs/math-heavy-file.md
-```
-
-这种方法适用于需要跳过特定文件的情况，而不是局部忽略公式的格式化。
-
-### 总结
-
-- **局部忽略**：使用 `<!-- prettier-ignore -->` 注释跳过某个数学公式的格式化。
-- **插件方式**：使用 `remark-math` 插件结合 Prettier，让 Prettier 识别数学公式并跳过其格式化。
-- **全局忽略**：通过 `.prettierignore` 文件，忽略某些特定的 Markdown 文件的格式化。
-
-选择其中一种方法可以帮助你控制 Prettier 对 Markdown 文件中数学公式的处理方式。
+   当 Prettier 遇到这个注释时，它会跳过对这个公式的格式化。
 
 ## markdown 写作
 
