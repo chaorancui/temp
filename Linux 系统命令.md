@@ -162,7 +162,7 @@
    zypper rl usbutils # remove lock，解锁 usbutils
    ```
 
-## Linux terminal 终端快捷键汇
+## Terminal 终端快捷键汇总
 
 1. 常用快捷键
 
