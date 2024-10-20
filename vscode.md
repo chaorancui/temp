@@ -681,7 +681,7 @@ exit
 >
 > [C++](https://vscode.js.cn/docs/cpp/launch-json-reference)
 
-### vscode 调试添加运行参数
+### 调试添加运行参数
 
 `launch.json` 中添加 `args` 项，每个运行参数是一个字符串，如：
 
@@ -708,58 +708,35 @@ exit
 }
 ```
 
-### vscode 调试添加环境变量
+### 调试添加环境变量
 
 `launch.json` 中添加 `envs` 项：
 
-> python/bash 用 `env`
->
-> ```json
-> "env": {
->     "PYTHONPATH": "/usr/local/xxx/xxx/python:${env:PYTHONPATH}",
->     "PATH": "~/xxx/xxx:${env:PATH}",
->     "LD_LIBRARY_PATH": "~/xxx/lib64:${env:LD_LIBRARY_PATH}"
-> }
-> ```
->
-> C/C++ 用 `environment`
->
-> ```json
-> "environment":[
-> {
->   "name":"squid",
->   "value":"clam"
-> }
-> ]
-> ```
+1. **python/bash 用 `env`**
 
-```json
-{
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "env": {
-                "PYTHONPATH": "/usr/local/xxx/xxx/python:$PYTHONPATH",
-                "PATH": "~/xxx/xxx:$PATH",
-                "LD_LIBRARY_PATH": "~/xxx/lib64:$LD_LIBRARY_PATH"
-            }
-        }
-    ]
-}
-```
+   ```json
+   "env": {
+       "PYTHONPATH": "/usr/local/xxx/xxx/python:${env:PYTHONPATH}",
+       "PATH": "~/xxx/xxx:${env:PATH}",
+       "LD_LIBRARY_PATH": "~/xxx/lib64:${env:LD_LIBRARY_PATH}"
+   }
+   ```
 
+2. **C/C++ 用 `environment`**
+
+   ```json
+   "environment":[
+   {
+     "name":"squid",
+     "value":"clam"
+   }
+   ]
+   ```
+
+> :warning: **注意**：
 > 在 VSCode 的 `launch.json` 中，**同一个环境变量不能配置多次**。如果你在多个地方配置同一个环境变量（如 `PATH`），后面的配置会覆盖前面的配置。
 >
-> 追加环境变量，要使用 `${env:xxx}`。
+> 追加环境变量，要使用 `${env:xxx}`，而不能用 `$xxx`。
 >
 > `${env:PATH}` 是 VSCode 的变量替换语法，用于引用当前系统环境中的 `PATH` 变量。在 `launch.json` 中使用 `${env:PATH}` 可以获取到当前用户或系统定义的 `PATH` 环境变量的值。这确保了在调试过程中，新的环境变量配置能够基于现有的 `PATH`，而不是覆盖它。
 >
@@ -777,7 +754,7 @@ exit
 > - **Windows**：使用反斜杠 `\`，需要转义为双反斜杠 `\\`，例如 `C:\\my\\new\\path`。
 > - **Unix/Linux/macOS**：使用正斜杠 `/`，例如 `/my/new/path`。
 
-### vscode 设置调试器当前工作路径
+### 调试设置当前工作路径
 
 `launch.json` 中添加 `cwd` 项：
 
@@ -819,11 +796,11 @@ Specifies the current working directory for the debugger, which is the base fold
 
 在 Visual Studio Code (VS Code) 中配置 C++ IntelliSense 时，有时你可能需要排除某些文件或目录，以避免它们影响 IntelliSense 功能。以下是如何在 `c_cpp_properties.json` 文件中配置排除文件或目录的详细步骤。
 
-### 1. 使用 `c_cpp_properties.json` 配置排除路径
+### 使用 `c_cpp_properties.json` 配置排除路径
 
 `c_cpp_properties.json` 文件主要用于配置 IntelliSense 的包含路径、编译器路径等。然而，它本身不支持直接排除文件。你可以通过以下几种间接方法来实现：
 
-#### 1.1. 通过修改 `includePath`
+通过修改 `includePath`
 
 虽然 `c_cpp_properties.json` 没有提供直接的排除选项，但你可以控制 `includePath` 的设置，间接影响哪些文件被包含在 IntelliSense 中。
 
@@ -856,9 +833,9 @@ Specifies the current working directory for the debugger, which is the base fold
 
    通过仅包括你需要的路径，实际上排除了其他目录的影响。
 
-### 2. 使用 `.vscode/settings.json` 排除文件和目录
+### 使用 `.vscode/settings.json` 排除文件和目录
 
-另一个方法是通过 VS Code 的工作区设置排除文件或目录，这样可以影响到 IntelliSense 的显示效果。
+另一个方法是通过 VS Code 的**工作区配置**设置排除文件或目录，这样可以影响到 IntelliSense 的显示效果。
 
 1. 打开 `.vscode/settings.json` 文件：
 
@@ -909,7 +886,7 @@ Specifies the current working directory for the debugger, which is the base fold
    > 与 `files.exclude` 的区别：
    > `C_Cpp.files.exclude` **只影响 C/C++ 扩展**的行为，不会影响文件在 VS Code 文件浏览器中的可见性。
 
-### 3. 过滤符号
+### 过滤符号
 
 如果某些符号或文件仍然被 IntelliSense 识别，可以考虑使用 `c_cpp_properties.json` 中的 `browse` 配置来进一步限制哪些文件被解析：
 
