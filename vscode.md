@@ -216,13 +216,15 @@ exit
 
 ### prettier 插件
 
+由于笔者不写前端语言，此插件的主要用途是用来格式化 markdown。
+
 #### prettier 配置
 
 使用此扩展配置 Prettier 有多种方式。您可以使用[VS Code 设置](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode#prettier-settings)、[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)或`.editorconfig`文件。VS Code 设置旨在用作后备，通常仅用于非项目文件。**建议您始终在项目中包含一个 Prettier 配置文件，指定项目的所有设置**。这将确保无论您如何运行 Prettier（从此扩展、从 CLI 或从另一个带有 Prettier 的 IDE），都将应用相同的设置。
 
 建议使用[Prettier 配置文件](https://prettier.io/docs/en/configuration.html)来设置格式化选项。选项从正在格式化的文件开始递归搜索，因此如果您想将 Prettier 设置应用于整个项目，只需在根目录中设置配置即可。配置选项参考：[Options](https://prettier.io/docs/en/options.html)。
 
-在项目目录下新增文件 `.prettierrc.json`，内容如下：
+在项目目录下新增文件 `.prettierrc.json`，或者在 vscode 配置文件 `settings.json` 中，**直接添加**下述内容：
 
 ```json
 {
@@ -258,7 +260,7 @@ exit
 
 #### prettier 插件问题
 
-:warning: 在格式化 markdown 的时候，针对 **markdown 中的数学公式** $ $，会把 `_` 换成 `*`，原因可能是 pretteir 默认使用 `*` 进行斜体的格式化，当公式中出现多个 `_` 时，可能被语法树分析成斜体从而被改成 `*`。
+> :warning: 在格式化 markdown 的时候，针对 **markdown 中的数学公式** $ $，会把 `_` 换成 `*`，原因可能是 pretteir 默认使用 `*` 进行斜体的格式化，当公式中出现多个 `_` 时，可能被语法树分析成斜体从而被改成 `*`。
 
 **问题**：
 `$$ \mu_B = \frac{1}{m} \sum_{i=1}^{m} x_i $$` 格式化成
@@ -287,55 +289,55 @@ exit
 
    当 Prettier 遇到这个注释时，它会跳过对这个公式的格式化。
 
-### 使用 `remark-math` 插件与 Prettier 配合
+2. 使用 `remark-math` 插件与 Prettier 配合（**复杂未尝试**）
 
-目前，Prettier 并没有内置的选项来自动跳过 Markdown 中的数学公式。不过，可以通过结合 `remark` 插件来实现更细粒度的控制。
-你可以自己编写或使用现有的 `remark` 插件，来处理 Markdown 中的数学公式部分，并跳过对它们的格式化。
-`remark-math` 是一个 `remark` 插件，它能够识别并处理 Markdown 中的数学公式。你可以使用它配合 Prettier 一起工作。
+   目前，Prettier 并没有内置的选项来自动跳过 Markdown 中的数学公式。不过，可以通过结合 `remark` 插件来实现更细粒度的控制。
+   你可以自己编写或使用现有的 `remark` 插件，来处理 Markdown 中的数学公式部分，并跳过对它们的格式化。
+   `remark-math` 是一个 `remark` 插件，它能够识别并处理 Markdown 中的数学公式。你可以使用它配合 Prettier 一起工作。
 
-**步骤**：
+   **步骤**：
 
-1. 安装 `remark-math` 和 `remark-html-katex`（用于将数学公式转换成可视化效果）：
+   1. 安装 `remark-math` 和 `remark-html-katex`（用于将数学公式转换成可视化效果）：
 
-   ```bash
-   npm install remark-math remark-html-katex
-   ```
+      ```bash
+      npm install remark-math remark-html-katex
+      ```
 
-2. 在 Prettier 的配置文件中添加自定义的 `remark` 配置，以识别数学公式并跳过它们的格式化：
+   2. 在 Prettier 的配置文件中添加自定义的 `remark` 配置，以识别数学公式并跳过它们的格式化：
 
-   ```javascript
-   const remarkMath = require("remark-math");
-   const remarkHtmlKatex = require("remark-html-katex");
+      ```javascript
+      const remarkMath = require("remark-math");
+      const remarkHtmlKatex = require("remark-html-katex");
 
-   module.exports = {
-     plugins: [
-       // 使用 remark-math 插件来处理数学公式
-       {
-         name: "markdown",
-         parse: "markdown",
-         plugins: [remarkMath, remarkHtmlKatex],
-       },
-     ],
-   };
-   ```
+      module.exports = {
+        plugins: [
+          // 使用 remark-math 插件来处理数学公式
+          {
+            name: "markdown",
+            parse: "markdown",
+            plugins: [remarkMath, remarkHtmlKatex],
+          },
+        ],
+      };
+      ```
 
-3. 将公式用 `$$` 或 `$` 包围，Prettier 将能够识别出这些公式，并通过插件处理它们，而不会对公式内容进行重新格式化。
+   3. 将公式用 `$$` 或 `$` 包围，Prettier 将能够识别出这些公式，并通过插件处理它们，而不会对公式内容进行重新格式化。
 
-   示例：
+      示例：
 
-   ```markdown
-   Here is an inline formula: $E = mc^2$
+      ```markdown
+      Here is an inline formula: $E = mc^2$
 
-   Here is a block formula:
+      Here is a block formula:
 
-   $$
-   a^2 + b^2 = c^2
-   $$
-   ```
+      $$
+      a^2 + b^2 = c^2
+      $$
+      ```
 
-   通过 `remark-math` 插件，Prettier 不会对这些数学公式的内容进行重新排版和格式化，而是保持公式原有的样式。
+      通过 `remark-math` 插件，Prettier 不会对这些数学公式的内容进行重新排版和格式化，而是保持公式原有的样式。
 
-4. 使用 `.prettierignore` 文件（全局忽略）
+3. 使用 `.prettierignore` 文件（全局忽略）
 
    如果你想完全避免 Prettier 格式化某些 Markdown 文件（或特定类型的文件），你可以使用 `.prettierignore` 文件来忽略这些文件的格式化。这对于包含大量数学公式的文件可能是一个简单的解决方案。
 
@@ -350,13 +352,11 @@ exit
 
    这种方法适用于需要跳过特定文件的情况，而不是局部忽略公式的格式化。
 
-### 总结
+4. 总结
 
-- **局部忽略**：使用 `<!-- prettier-ignore -->` 注释跳过某个数学公式的格式化。
-- **插件方式**：使用 `remark-math` 插件结合 Prettier，让 Prettier 识别数学公式并跳过其格式化。
-- **全局忽略**：通过 `.prettierignore` 文件，忽略某些特定的 Markdown 文件的格式化。
-
-选择其中一种方法可以帮助你控制 Prettier 对 Markdown 文件中数学公式的处理方式。
+   - **局部忽略**：使用 `<!-- prettier-ignore -->` 注释跳过某个数学公式的格式化。
+   - **插件方式**：使用 `remark-math` 插件结合 Prettier，让 Prettier 识别数学公式并跳过其格式化。
+   - **全局忽略**：通过 `.prettierignore` 文件，忽略某些特定的 Markdown 文件的格式化。
 
 ### PlantUML && MPE
 
@@ -459,7 +459,7 @@ exit
    3. 在 Markdown 中使用 `plantuml` 代码块编写 UML 代码。
    4. 预览和导出图表。
 
-## 配置
+## 软件配置
 
 首先输入：`command + p`，然后输入：`Settings`，接下来，选择：`Preferences: Open Settings (UI)`，就进入了快捷键文件 `settings.json` 编辑页面。
 
