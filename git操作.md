@@ -13,18 +13,6 @@
 
 ## git 介绍
 
-### git 别名
-
-Git 并不会在你输入部分命令时自动推断出你想要的命令。 如果不想每次都输入完整的 Git 命令，可以通过 `git config` 文件来轻松地为每一个命令设置一个别名。
-
-```bash
-git config --global alias.co checkout
-git config --global alias.sw switch
-git config --global alias.br branch
-git config --global alias.ci commit
-git config --global alias.st status
-```
-
 ### git SSH 秘钥生成
 
 秘钥路径：
@@ -89,6 +77,50 @@ git 有三种配置
   ```
 
   注：每一个级别的配置都会覆盖上层的相同配置，例如 .git/config 里的配置会覆盖 %Git$/etc/gitconfig 中的同名变量。
+
+### 常用配置介绍
+
+> :book: **配置查询**：
+> [1]. [官方 Reference -> config](https://git-scm.com/docs/git-config)
+
+#### git 别名
+
+Git 并不会在你输入部分命令时自动推断出你想要的命令。 如果不想每次都输入完整的 Git 命令，可以通过 `git config` 文件来轻松地为每一个命令设置一个别名。
+
+```bash
+git config --global alias.co checkout
+git config --global alias.sw switch
+git config --global alias.br branch
+git config --global alias.ci commit
+git config --global alias.st status
+```
+
+#### 中文名转义
+
+在使用 git 的时候，经常会碰到有一些中文文件名或者路径被转义成\xx\xx\xx 之类的，此时可以通过 git 的配置来改变默认转义；转义后虽然有利于系统兼容性，但是带来了阅读的麻烦；
+可以通过配置 `core.quotepath` 为 `false` 进行修改（默认值为 true），命令如下：
+
+```shell
+git config core.quotepath false
+```
+
+> core.quotepath 的作用是控制路径是否编码显示的选项。当路径中的字符大于 0x80 的时候，如果设置为 true，转义显示；设置为 false，不转义。
+
+配置前后差异：
+
+```log
+# 配置前：
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   "C++\347\237\245\350\257\206\347\202\271\346\200\273\347\273\223.md"
+
+# 配置后
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   C++知识点总结.md
+```
 
 ### 配置个人身份
 
