@@ -53,7 +53,7 @@ Windows 下秘钥默认权限：-rw-r--r--
 
 ### git 配置
 
-git 有三种配置
+**git 有三层配置**：
 
 - 系统配置（对所有用户都适用）
   存放在 git 的安装目录下：%Git%/etc/gitconfig；若使用 git config 时使用 --system 选项，读写的就是这个文件：
@@ -78,10 +78,55 @@ git 有三种配置
 
   注：每一个级别的配置都会覆盖上层的相同配置，例如 .git/config 里的配置会覆盖 %Git$/etc/gitconfig 中的同名变量。
 
-### 常用配置介绍
+**查看配置**：
+
+- 特定配置的值：
+  可以运行 `git config <key>`，**如果它没有显示内容，就说明 Git 现在使用的是默认值**。
+
+  ```shell
+  git config user.name # 当前生效的特定配置的值
+  git config --global user.name # 某一层级特定配置的值
+  ```
+
+- 配置项来自哪层
+  可以通过 `--show-origin` 选项查看某个配置项**来自哪里**（系统级、全局级还是本地级别）以**及配置文件的路径**，从而判断是否使用的是默认值。若某项配置没有被设置，说明它在使用默认值。
+
+  ```shell
+  git config --show-origin user.name # 当前生效的特定配置，来自哪一层
+  git config --list --system --show-origin # 输出某一层自定义的所有配置，含配置文件路径
+  ```
+
+- 手动查找配置文件
+  Linux 下 Git 的配置文件存储在以下几个地方：
+  Windows 下可以通过 `git config --list --show-origin --system/--global/--local` 的输出查看。
+  - 系统级配置：`/etc/gitconfig`
+  - 全局配置：`~/.gitconfig`
+  - 本地配置：项目中的 `.git/config`
+
+**移除配置**：
+
+- 移除特定配置项
+  使用以下命令删除全局或本地的某个配置项：
+
+  ```bash
+  git config --global --unset <key>
+  git config --local --unset <key>
+  ```
+
+  然后你可以运行 git config <key>，如果它没有显示内容，就说明 Git 现在使用的是默认值。例如：
+
+  ```bash
+  git config --global --unset user.name
+  git config user.name
+  ```
+
+  临时禁用配置文件
+
+### 常用配置
 
 > :book: **配置查询**：
-> [1]. [官方 Reference -> config](https://git-scm.com/docs/git-config)
+> [1]. [官方 Reference -> config](https://git-scm.com/docs/git-config) > [2]. 输入命令 `git help config`，也会在浏览器上打开帮助文档。
+> [2]. git 默认配置可在
 
 #### git 别名
 
@@ -101,10 +146,17 @@ git config --global alias.st status
 可以通过配置 `core.quotepath` 为 `false` 进行修改（默认值为 true），命令如下：
 
 ```shell
-git config core.quotepath false
+git config --global core.quotepath false
 ```
 
-> core.quotepath 的作用是控制路径是否编码显示的选项。当路径中的字符大于 0x80 的时候，如果设置为 true，转义显示；设置为 false，不转义。
+如果不能解决，再添加如下命令尝试：
+
+```shell
+git config --global i18n.commitEncoding utf-8
+```
+
+> `core.quotepath`：作用是控制路径是否编码显示的选项。当路径中的字符大于 0x80 的时候，如果设置为 true，转义显示；设置为 false，不转义。
+> `i18n.commitEncoding`：提交消息的存储字符编码；Git 本身并不关心，但这些信息是必需的，例如从电子邮件或 gitk 图形历史浏览器（以及将来可能在其他地方或其他瓷器中）导入提交时。参见 git-mailinfo[1]。默认为 utf-8。
 
 配置前后差异：
 
