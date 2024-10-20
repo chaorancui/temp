@@ -1,8 +1,8 @@
 [toc]
 
-# vsCode 配置
+# VSCode
 
-## 软件
+## VSCode 软件
 
 ### 安装版
 
@@ -14,11 +14,11 @@
 - 插件安装位置在便携解压目录
 - 需要自己添加右键菜单
 
-官方文档在Portable Mode部分已经说明了，你只需要在解压后的VSCode目录里新建一个名为data的文件夹，那么以后所有的数据文件（包括用户配置、插件等）都会安装到这个data文件夹里。
+官方文档在 Portable Mode 部分已经说明了，你只需要在解压后的 VSCode 目录里新建一个名为 data 的文件夹，那么以后所有的数据文件（包括用户配置、插件等）都会安装到这个 data 文件夹里。
 
 以前网上流传的加启动选项--extensions-dir [path] 的方法，在部分情景下有不少缺点，这里提到的方法应该是最完美的，百闻不如一试，赶快动手吧~
 
-最后，附上一段把 VSCode 添加到右键菜单的[bat代码](https://www.zhihu.com/search?q=bat代码&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra={"sourceType"%3A"answer"%2C"sourceId"%3A1139906712})，保存到一个.bat文件里并放到 VSCode 目录中，双击运行：
+最后，附上一段把 VSCode 添加到右键菜单的[bat 代码](https://www.zhihu.com/search?q=bat代码&search_source=Entity&hybrid_search_source=Entity&hybrid_search_extra={"sourceType"%3A"answer"%2C"sourceId"%3A1139906712})，保存到一个.bat 文件里并放到 VSCode 目录中，双击运行：
 
 ```bat
 @ECHO OFF
@@ -34,7 +34,7 @@ if /I "%ST%"=="d" goto Remove
 reg add "HKEY_CLASSES_ROOT\*\shell\VSCode"         /t REG_SZ /v "" /d "&VSCode"   /f
 reg add "HKEY_CLASSES_ROOT\*\shell\VSCode"         /t REG_EXPAND_SZ /v "Icon" /d "%~dp0Code.exe" /f
 reg add "HKEY_CLASSES_ROOT\*\shell\VSCode\command" /t REG_SZ /v "" /d "%~dp0Code.exe \"%%1\"" /f
- 
+
 exit
 :Remove
 reg delete "HKEY_CLASSES_ROOT\*\shell\VSCode" /f
@@ -87,17 +87,17 @@ exit
 
    - 使用 `wget` 或 `curl`
 
-      从能联网的机器上运行下述命令下载 VS Code Server。例如：
+     从能联网的机器上运行下述命令下载 VS Code Server。例如：
 
      ```shell
      wget https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<architecture>/stable -O vscode-server.tar.gz
      # 这个 URL 包含了具体的 `commit_id`、`platform` 和 `architecture` 信息。
-     
+
      # 例子：
      wget https://update.code.visualstudio.com/commit:f1e16e1e6214d7c44d078b1f0607b2388f29d729/server-linux-x64/stable -O vscode-server.tar.gz
      ```
 
-     下载完成之后，把软件包拷贝到不能联网的远程服务器。可以使用scp命令或者winscp等ftp工具。
+     下载完成之后，把软件包拷贝到不能联网的远程服务器。可以使用 scp 命令或者 winscp 等 ftp 工具。
 
 2. **解压下载的文件**：
 
@@ -127,11 +127,6 @@ exit
 
 ## 插件
 
-### 系统安装
-
-- MinGw
-- Operator Mono 字体
-
 ### 软件安装
 
 - vscode-icons: Icons for Visual Studio Code
@@ -144,30 +139,136 @@ exit
 
 #### icon 图标
 
-- vscode-icons：目录树图标主题，风格硬朗
-- Material Icon Theme：与 vscode-icons 差不多，风格卡通一点
+- **vscode-icons**：目录树图标主题，风格硬朗。
+- **Material Icon Theme**：与 vscode-icons 差不多，风格卡通一点。**推荐**。
 
-#### 主题
+#### 主题插件
 
-- One Dark Pro：偏灰色的主题，用着不错
-- Atom One Dark Theme：也还行，感觉字体颜色没有上面的多
+- **One Dark Pro**：偏灰色的主题，用着不错
+- **Atom One Dark Theme**：也还行，感觉字体颜色没有上面的多
+- **Dracula Theme Official**：吸血鬼主题配色，写代码颜色区分清晰，**推荐**。
+- **Material Theme — Free**：偏灰绿，有多种可选。
 
-#### markdown
+#### markdown 插件
 
-- Markdown All in One：
-- plantuml：markdown中支持 UML 类图
-- Markdown Table Prettifier：
+- **Markdown Preview Enhanced**：超级强大的 Markdown 插件，预览滑动同步、Pandoc、自定义预览 css、TOC、Latex、渲染代码运行结果（配置复杂）。
+- **Markdown All in One**：Markdown 所需的一切（键盘快捷键、目录、自动预览、数学公式、列表编辑、自动补全等）。
+- **PlantUML**：提供 UML 支持。如要在 markdown 中渲染，需配置 Markdown Preview Enhanced。
+- **Markdown Table Prettifier**：编辑/格式化表格，将 csv 文本转化为表格。
 
-#### 代码风格规范
+#### 代码风格规范插件
 
-- Prettier - Code formatter：主要支持前端语言，JavaScript、[JSX](https://facebook.github.io/jsx/)、[Angular](https://angular.io/)、[Vue](https://vuejs.org/)、[Flow](https://flow.org/)、[TypeScript](https://www.typescriptlang.org/)、CSS, [Less](http://lesscss.org/), and [SCSS](https://sass-lang.com/)、[HTML](https://en.wikipedia.org/wiki/HTML)、[Ember/Handlebars](https://handlebarsjs.com/)、[JSON](https://json.org/)、[GraphQL](https://graphql.org/)、[Markdown](https://commonmark.org/), including [GFM](https://github.github.com/gfm/) and [MDX v1](https://mdxjs.com/)、[YAML](https://yaml.org/)
-- Better Align：无论是否选择**任何语言**，任何字符或单词都可以实现更好的**垂直对齐**。
-- indent-rainbow：用颜色填充缩进，非常直观，如果有缩进错误还会变成红色。对写 `Python` 用处极大。
+- **Prettier - Code formatter**：主要支持前端语言，JavaScript、[JSX](https://facebook.github.io/jsx/)、[Angular](https://angular.io/)、[Vue](https://vuejs.org/)、[Flow](https://flow.org/)、[TypeScript](https://www.typescriptlang.org/)、CSS, [Less](http://lesscss.org/), and [SCSS](https://sass-lang.com/)、[HTML](https://en.wikipedia.org/wiki/HTML)、[Ember/Handlebars](https://handlebarsjs.com/)、[JSON](https://json.org/)、[GraphQL](https://graphql.org/)、[Markdown](https://commonmark.org/), including [GFM](https://github.github.com/gfm/) and [MDX v1](https://mdxjs.com/)、[YAML](https://yaml.org/)
+- **Better Align**：无论是否选择**任何语言**，任何字符或单词都可以实现更好的**垂直对齐**。
+- **indent-rainbow**：用颜色填充缩进，非常直观，如果有缩进错误还会变成红色。**对写 `Python` 用处极大**。
 
 > 参考网址：
 >
 > - vs-code“实用插件”：<https://hailangya.com/articles/2021/03/15/vs-code-plugins/>
 > - 10 款 VS Code 插件神器，第 7 款超级实用！：<https://cloud.tencent.com/developer/article/1889258>
+
+## 插件配置
+
+### PlantUML && MPE
+
+在 VSCode 中使用 Markdown 编写 UML 图，通常使用的是 `PlantUML` 插件。以下是配置环境和书写代码的步骤：
+
+1. 安装 VSCode 插件
+
+   首先需要在 VSCode 中安装相关插件：
+
+   - `PlantUML`：这是一个可以让你在 Markdown 中使用 PlantUML 语法绘制 UML 图的插件。需要安装 java。
+   - `Markdown All in One`：支持 Markdown(键盘快捷键、目录、自动预览等)。
+   - `Markdown Preview Enhanced`：可以对 Markdown 做增强预览, 比如支持各种绘图等。
+
+2. 下载 plantuml jar 包
+
+   从 **[PlantUML](https://plantuml.com/zh/download)** 直接下载集成 Graphviz 的 jar 包。
+   LGPL 协议的 jar 包不集成 Graphviz。
+
+3. 安装 Java
+
+   PlantUML 依赖 Java 运行环境。如果你没有安装 Java，需要安装一个。你可以从 **[Oracle 官方](https://www.oracle.com/java/technologies/javase-downloads.html)** 或者 **[OpenJDK](https://openjdk.java.net/)** 安装最新版本的 JDK。
+
+   确保 Java 安装成功后，你可以通过命令行执行以下命令来验证：
+
+   ```bash
+   java -version
+   ```
+
+4. 安装 Graphviz
+
+   PlantUML 需要 Graphviz 来生成图表。你可以从 **[Graphviz 官网](https://graphviz.org/)** 下载并安装。
+
+   安装成功后，也可以通过命令行验证安装：
+
+   ```bash
+   dot -version
+   ```
+
+5. 配置 VSCode 设置
+
+   如果是**在 Markdown 文件中嵌入 UML 代码**，预览时需要配置 `markdown-preview-enhanced` 插件，下面配置一个就可以。
+
+   - 方法一：使用 PlantUML 官网提供的 `plantuml.jar` 包（需要本地安装 JDK 并配置 java 系统环境变量）
+   - 方法二：直接使用 plantumlServer。只有联网才能用。
+
+   ```json
+   "markdown-preview-enhanced.plantumlJarPath": "D:\\Program Files\\plantuml-lgpl-1.2024.7.jar",
+   "markdown-preview-enhanced.plantumlServer": "https://kroki.io/plantuml/svg/",
+   ```
+
+   如果不配置，则报错如下：
+
+   ```log
+   Error: plantuml.jar file not found: ""
+
+   Please download plantuml.jar from https://plantuml.com/download.
+
+   If you are using VSCode or coc.nvim, then please set the setting "markdown-preview-enhanced.plantumlJarPath" to the absolute path of plantuml.jar file.
+
+   If you don't want to use plantuml.jar, then you can use the online plantuml server
+   by setting the setting "markdown-preview-enhanced.plantumlServer" to the URL of the online plantuml server, for example: https://kroki.io/plantuml/svg/
+   ```
+
+   如果是**直接新建 plantuml 文件编写代码**，则需要对 `PlantUML` 插件进行配置：
+
+   - 实测配置了 java 和 Graphviz 的系统环境变量后，不进行下述配置也可以。如果不行请再配置。
+
+   ```json
+   "plantuml.java": "C:/path/to/java",  // Java 路径
+   "plantuml.jar": "C:/path/to/plantuml.jar",  // PlantUML 的 jar 包路径
+   "plantuml.exportFormat": "png",  // 导出格式，常用的有 png, svg
+   ```
+
+6. 编写 UML 代码
+
+   你可以在 Markdown 文件中嵌入 UML 代码，用于生成图表。PlantUML 支持各种 UML 图，例如类图、时序图、用例图等。
+   `@startuml` 和 `@enduml` 之间的内容是你的 UML 代码：
+
+   ```plantuml
+   @startuml
+   Alice -> Bob: Hello
+   Bob --> Alice: Hi
+   @enduml
+   ```
+
+   或者新建 plantuml 文件，支持格式 `*.wsd`, `*.pu`, `*.puml`, `*.plantuml`, `*.iuml`，然后把上面的代码拷贝到文件中（注意不能含头尾```）。
+
+7. 预览 UML 图
+   在 VSCode 中，右键点击包含 UML 代码的 Markdown 文件，可以选择 "Preview" 选项来查看生成的图形。`PlantUML` 插件会自动渲染图表。
+
+   你也可以通过 `Ctrl+P` 打开命令面板，搜索 `PlantUML: Preview` 来预览。
+
+8. 导出图表
+   使用 `PlantUML` 插件，你可以右键 UML 代码块，选择“Export Current Diagram”来导出图片格式，如 PNG、SVG 或 PDF。
+
+9. 总结
+
+   1. 安装 PlantUML 插件。
+   2. 安装并配置 Java 和 Graphviz。
+   3. 在 Markdown 中使用 `plantuml` 代码块编写 UML 代码。
+   4. 预览和导出图表。
 
 ## 配置
 
@@ -336,29 +437,29 @@ exit
 
 1. 使用内置的 "Problems" 面板：
 
-    VS Code 默认会在 "Problems" 面板中显示错误和警告。虽然这不是直接显示在代码末尾，但它提供了一个集中的错误查看位置。
+   VS Code 默认会在 "Problems" 面板中显示错误和警告。虽然这不是直接显示在代码末尾，但它提供了一个集中的错误查看位置。
 
 2. 安装 **Error Lens** 扩展：
 
-    - 在扩展市场中搜索 `Error Lens` 并安装。
+   - 在扩展市场中搜索 `Error Lens` 并安装。
 
-    - `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
+   - `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
 
-    - 安装后，可以**根据需要**进行配置。打开设置文件（`settings.json`），添加或修改以下配置项：
+   - 安装后，可以**根据需要**进行配置。打开设置文件（`settings.json`），添加或修改以下配置项：
 
-      ```json
-      "errorLens.enabled": true,
-      "errorLens.fontWeight": "normal",
-      "errorLens.fontStyle": "normal",
-      "errorLens.italic": false,
-      "errorLens.fontSize": "12px",
-      "errorLens.messageBackgroundMode": "message",
-      "errorLens.messageBackgroundColor": "rgba(255,255,255,0.1)",
-      "errorLens.errorForeground": "#ff0000",
-      "errorLens.warningForeground": "#ffa500",
-      "errorLens.infoForeground": "#0000ff",
-      "errorLens.hintForeground": "#008000",
-      ```
+     ```json
+     "errorLens.enabled": true,
+     "errorLens.fontWeight": "normal",
+     "errorLens.fontStyle": "normal",
+     "errorLens.italic": false,
+     "errorLens.fontSize": "12px",
+     "errorLens.messageBackgroundMode": "message",
+     "errorLens.messageBackgroundColor": "rgba(255,255,255,0.1)",
+     "errorLens.errorForeground": "#ff0000",
+     "errorLens.warningForeground": "#ffa500",
+     "errorLens.infoForeground": "#0000ff",
+     "errorLens.hintForeground": "#008000",
+     ```
 
 ## 使用技巧
 
@@ -486,8 +587,6 @@ exit
 >
 > - **Windows**：使用反斜杠 `\`，需要转义为双反斜杠 `\\`，例如 `C:\\my\\new\\path`。
 > - **Unix/Linux/macOS**：使用正斜杠 `/`，例如 `/my/new/path`。
-
-
 
 ### vscode 设置调试器当前工作路径
 
@@ -700,106 +799,6 @@ Specifies the current working directory for the debugger, which is the base fold
 
 通过仔细阅读这些文档和资源，您应该能够全面了解 `c_cpp_properties.json` 文件的配置选项，以及如何根据您的项目需求进行最佳设置。如果您在配置过程中遇到任何具体问题，欢迎随时询问。
 
-## PlantUML
-
-在 VSCode 中使用 Markdown 编写 UML 图，通常使用的是 `PlantUML` 插件。以下是配置环境和书写代码的步骤：
-
-1. 安装 VSCode 插件
-
-   首先需要在 VSCode 中安装相关插件：
-
-   - `PlantUML`：这是一个可以让你在 Markdown 中使用 PlantUML 语法绘制 UML 图的插件。需要安装 java。
-   - `Markdown All in One`：支持 Markdown(键盘快捷键、目录、自动预览等)。
-   - `Markdown Preview Enhanced`：可以对 Markdown 做增强预览, 比如支持各种绘图等。
-
-2. 下载 plantuml jar 包
-
-   从 **[PlantUML](https://plantuml.com/zh/download)** 直接下载集成 Graphviz 的 jar 包。
-   LGPL 协议的 jar 包不集成 Graphviz。
-
-3. 安装 Java
-
-   PlantUML 依赖 Java 运行环境。如果你没有安装 Java，需要安装一个。你可以从 **[Oracle 官方](https://www.oracle.com/java/technologies/javase-downloads.html)** 或者 **[OpenJDK](https://openjdk.java.net/)** 安装最新版本的 JDK。
-
-   确保 Java 安装成功后，你可以通过命令行执行以下命令来验证：
-
-   ```bash
-   java -version
-   ```
-
-4. 安装 Graphviz
-
-   PlantUML 需要 Graphviz 来生成图表。你可以从 **[Graphviz 官网](https://graphviz.org/)** 下载并安装。
-
-   安装成功后，也可以通过命令行验证安装：
-
-   ```bash
-   dot -version
-   ```
-
-5. 配置 VSCode 设置
-
-   如果是**在 Markdown 文件中嵌入 UML 代码**，预览时需要配置 `markdown-preview-enhanced` 插件，下面配置一个就可以。
-   - 方法一：使用 PlantUML 官网提供的 `plantuml.jar` 包（需要本地安装 JDK 并配置 java 系统环境变量）
-   - 方法二：直接使用 plantumlServer。只有联网才能用。
-
-   ```json
-   "markdown-preview-enhanced.plantumlJarPath": "D:\\Program Files\\plantuml-lgpl-1.2024.7.jar",
-   "markdown-preview-enhanced.plantumlServer": "https://kroki.io/plantuml/svg/",
-   ```
-
-   如果不配置，则报错如下：
-
-   ```log
-   Error: plantuml.jar file not found: ""
-
-   Please download plantuml.jar from https://plantuml.com/download.  
-
-   If you are using VSCode or coc.nvim, then please set the setting "markdown-preview-enhanced.plantumlJarPath" to the absolute path of plantuml.jar file.
-
-   If you don't want to use plantuml.jar, then you can use the online plantuml server 
-   by setting the setting "markdown-preview-enhanced.plantumlServer" to the URL of the online plantuml server, for example: https://kroki.io/plantuml/svg/
-   ```
-
-   如果是**直接新建 plantuml 文件编写代码**，则需要对 `PlantUML` 插件进行配置：
-   - 实测配置了 java 和 Graphviz 的系统环境变量后，不进行下述配置也可以。如果不行请再配置。
-
-   ```json
-   "plantuml.java": "C:/path/to/java",  // Java 路径
-   "plantuml.jar": "C:/path/to/plantuml.jar",  // PlantUML 的 jar 包路径
-   "plantuml.exportFormat": "png",  // 导出格式，常用的有 png, svg
-   ```
-
-6. 编写 UML 代码
-
-   你可以在 Markdown 文件中嵌入 UML 代码，用于生成图表。PlantUML 支持各种 UML 图，例如类图、时序图、用例图等。
-   `@startuml` 和 `@enduml` 之间的内容是你的 UML 代码：
-
-   ```plantuml
-   @startuml
-   Alice -> Bob: Hello
-   Bob --> Alice: Hi
-   @enduml
-   ```
-
-   或者新建 plantuml 文件，支持格式 `*.wsd`, `*.pu`, `*.puml`, `*.plantuml`, `*.iuml`，然后把上面的代码拷贝到文件中（注意不能含头尾```）。
-
-7. 预览 UML 图
-   在 VSCode 中，右键点击包含 UML 代码的 Markdown 文件，可以选择 "Preview" 选项来查看生成的图形。`PlantUML` 插件会自动渲染图表。
-
-   你也可以通过 `Ctrl+P` 打开命令面板，搜索 `PlantUML: Preview` 来预览。
-
-8. 导出图表
-   使用 `PlantUML` 插件，你可以右键 UML 代码块，选择“Export Current Diagram”来导出图片格式，如 PNG、SVG 或 PDF。
-
-9. 总结
-
-   1. 安装 PlantUML 插件。
-   2. 安装并配置 Java 和 Graphviz。
-   3. 在 Markdown 中使用 `plantuml` 代码块编写 UML 代码。
-   4. 预览和导出图表。
-
-
 # CLion （Windows）
 
 > 参考：[IntelliJ IDEA 中最被低估的快捷键](https://blog.jetbrains.com/zh-hans/idea/2022/11/intellij-idea-3/)
@@ -828,12 +827,12 @@ https-proxy=http://user:password@proxy.huawei.com:8080/
 
 > **密码中特殊字符的处理**
 > 如果密码中有@等特殊字符，会出错，此时要对其中的特殊符号进行处理，使用百分比编码(Percent-encoding)对特殊字符进行转换，转换列表如下：
-> ! --> %21  # --> %23  $ --> %24  & --> %26  ' --> %27
-> ( --> %28  ) --> %29  * --> %2A  + --> %2B  , --> %2C
-> / --> %2F  : --> %3A  ; --> %3B  = --> %3D  ? --> %3F
-> @ --> %40  [ --> %5B  ] --> %5D
+> ! --> %21 # --> %23 $ --> %24 & --> %26 ' --> %27
+> ( --> %28 ) --> %29 \* --> %2A + --> %2B , --> %2C
+> / --> %2F : --> %3A ; --> %3B = --> %3D ? --> %3F
+> @ --> %40 [ --> %5B ] --> %5D
 >
-> 例如：密码是12#，转义之后就是12%23
+> 例如：密码是 12#，转义之后就是 12%23
 
 ## 离线安装
 
