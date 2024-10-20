@@ -1,7 +1,5 @@
 [toc]
 
-
-
 # shell 编程
 
 ## 正则表达式
@@ -32,7 +30,6 @@
 - **兼容性与未来性**：尽管BRE在历史上很重要，现代文本处理越来越多地支持ERE和PCRE，后者尤其在程序设计领域受欢迎，因为其强大的功能和灵活性。
   总结来说，选择哪种正则表达式主要依赖于任务的复杂性及所使用工具的支持度。对于简单的文本匹配，BRE和ERE足够用了；而对于要求更高的模式匹配，尤其是涉及到复杂文本处理的场合，PCRE则是更好的选择。
 
-
 ## "通配符"和"正则表达式"的区别
 
 > [正则表达式和通配符的区别](https://blog.csdn.net/bytxl/article/details/8801304)
@@ -54,8 +51,6 @@
 当你使用能够**支持正则表达式的工具软件进行字符串处理**时你就可以使用正则表达式。你还可以在支持正则表达式的语言中使用正则表达式，比如perl, java... C++中也有专门用于支持正则表达式的库。正则表达式总是和“使用什么工具软件或者语言”相关。相对来说，不同的工具和语言对正则表达式的支持程度不同，*nix里面将这些工具软件的对正则表达式的支持分类，因此也就有了“基础正则表达式”和“扩展正则表达式”。
 
 不同的工具对正则表达式的支持，其实有些许的微妙不同；但是总体来说，使用正则还是基本按照标准来的。这些不同的工具支持程度，被称之为“正则流派”。而工具软件中支持这种匹配模式的那部分代码，称之为“正则引擎”。由于perl对正则表达式的支持非常到位，其正则引擎也比较优秀，因此perl语言算是正则的一大流派，目前大部分对正则的支持都或多或少参考了perl语言中的标准。
-
-
 
 **通配符**：
 
@@ -93,11 +88,9 @@
 
   [Perldoc浏览器](https://perldoc.perl.org/perlre)
 
-
 > 注意:
 >
 > - 通配的`*`和正则里面的`*`是不一样的含义。
-
 
 ## shell 中转义字符$
 
@@ -255,6 +248,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
    ```
 
 总结
+
 - `>`：将标准输出重定向到文件（覆盖文件内容）。
 - `>>`：将标准输出追加到文件末尾。
 - `2>`：将标准错误输出重定向到文件。
@@ -262,7 +256,6 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 - `/dev/null`：丢弃输出。
 - `|`：将一个命令的输出作为下一个命令的输入。
 - `Here Document (<<)`：用于传递多行输入。
-
 
 ## shell 中 `;` `|` `()` `{}` `&&` `||` `!`
 
@@ -522,8 +515,6 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 >
 > - shell脚本中常用的环境变量有：`IFS`是shell内部字段分隔符的环境变量；`RANDOM`环境变量是bash的伪随机数生成器。
 > - shell脚本中高频次的几个命令：[read](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#readll)：获取用户输入；[echo](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#echoll)：打印输出；[printf](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#printfll)：打印输出；[shift](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#shiftll)：剔除位置参数。
-
-
 
 要点记录：
 
@@ -1170,19 +1161,3 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 ## Bash基本功能（多命令顺序执行)
 
 <https://www.cnblogs.com/liuyuelinfighting/p/16082830.html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
