@@ -362,62 +362,62 @@ git push -u origin "master"
 
 `.gitmodules` 是一个位于 Git 仓库根目录的文本文件，它用于跟踪 Git 子模块（submodule）的信息。子模块是一个 Git 仓库中的嵌套 Git 仓库，允许你在一个项目中包含另一个独立的 Git 仓库。通过子模块，你可以管理和引用外部库或代码仓库，使其作为你项目的一部分，同时保持这些外部库的独立性。
 
-#### `.gitmodules` 文件的作用
+1. `.gitmodules` 文件的作用
 
-`.gitmodules` 文件包含子模块的相关配置，每个子模块通常包含以下信息：
+   `.gitmodules` 文件包含子模块的相关配置，每个子模块通常包含以下信息：
 
-1. **路径** (`path`): 子模块在主项目中的存储路径。这个路径是相对于主项目的根目录的。
-2. **URL** (`url`): 子模块仓库的远程 URL。这是子模块代码的来源。
-3. **名称** (`name`): 子模块的名称，用于标识子模块。
+   1. **路径** (`path`): 子模块在主项目中的存储路径。这个路径是相对于主项目的根目录的。
+   2. **URL** (`url`): 子模块仓库的远程 URL。这是子模块代码的来源。
+   3. **名称** (`name`): 子模块的名称，用于标识子模块。
 
-#### `.gitmodules` 文件的基本结构
+2. `.gitmodules` 文件的基本结构
 
-一个典型的 `.gitmodules` 文件看起来如下：
+   一个典型的 `.gitmodules` 文件看起来如下：
 
-```ini
-[submodule "submodule_name"]
-    path = path/to/submodule
-    url = https://example.com/remote-repo.git
-```
-
-- `"submodule_name"` 是子模块的标识符。
-- `path` 指定了子模块在主仓库中的位置。
-- `url` 指定了子模块的远程仓库地址。
-
-#### 使用子模块的常见操作
-
-1. **添加子模块**: 可以使用 `git submodule add` 命令添加一个子模块。例如：
-
-   ```bash
-   git submodule add https://example.com/remote-repo.git path/to/submodule
+   ```ini
+   [submodule "submodule_name"]
+       path = path/to/submodule
+       url = https://example.com/remote-repo.git
    ```
 
-   这会将子模块添加到主仓库中，并在 `.gitmodules` 文件中记录子模块的信息。
+   - `"submodule_name"` 是子模块的标识符。
+   - `path` 指定了子模块在主仓库中的位置。
+   - `url` 指定了子模块的远程仓库地址。
 
-2. **初始化子模块**: 克隆包含子模块的仓库后，需要初始化和更新子模块：
+3. 使用子模块的常见操作
 
-   ```bash
-   git submodule init
-   git submodule update
+   1. **添加子模块**: 可以使用 `git submodule add` 命令添加一个子模块。例如：
 
-   # 或者可以使用一条命令同时完成这两个操作：
-   git submodule update --init
-   ```
+      ```bash
+      git submodule add https://example.com/remote-repo.git path/to/submodule
+      ```
 
-3. **更新子模块**: 当子模块的远程仓库有更新时，可以使用以下命令将子模块更新到最新版本：
+      这会将子模块添加到主仓库中，并在 `.gitmodules` 文件中记录子模块的信息。
 
-   ```bash
-   git submodule update --remote
-   ```
+   2. **初始化子模块**: 克隆包含子模块的仓库后，需要初始化和更新子模块：
 
-- **优点**:
-  - 允许在一个项目中包含独立的外部库或其他项目代码。
-  - 子模块保持独立的 Git 历史和版本控制。
-- **缺点**:
-  - 子模块的使用和管理比普通文件复杂，可能需要额外的 Git 命令和配置。
-  - 当项目包含多个子模块时，管理和同步这些子模块的版本可能变得复杂。
+      ```bash
+      git submodule init
+      git submodule update
 
-使用 `.gitmodules` 和子模块功能，可以有效地管理和复用代码库，但同时也要考虑其复杂性带来的潜在维护成本。
+      # 或者可以使用一条命令同时完成这两个操作：
+      git submodule update --init
+      ```
+
+   3. **更新子模块**: 当子模块的远程仓库有更新时，可以使用以下命令将子模块更新到最新版本：
+
+      ```bash
+      git submodule update --remote
+      ```
+
+   - **优点**:
+     - 允许在一个项目中包含独立的外部库或其他项目代码。
+     - 子模块保持独立的 Git 历史和版本控制。
+   - **缺点**:
+     - 子模块的使用和管理比普通文件复杂，可能需要额外的 Git 命令和配置。
+     - 当项目包含多个子模块时，管理和同步这些子模块的版本可能变得复杂。
+
+   使用 `.gitmodules` 和子模块功能，可以有效地管理和复用代码库，但同时也要考虑其复杂性带来的潜在维护成本。
 
 ## 常用 git 命令
 
