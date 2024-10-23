@@ -221,10 +221,13 @@ dot -Tpng class_diagram.dot -o class_diagram.png
 
 ## 命令行参数解析库
 
-`gflags` 是一个用于**解析命令行参数的库**，最初由 Google 开发，支持 C++ 和 Python。它允许开发者轻松定义命令行标志（flags），并提供了一种灵活、结构化的方式来解析和使用这些命令行参数。
+> 参考：
+>
+> 1. [使用 Google gflags 解析命令行参数](https://senlinzhan.github.io/2017/10/07/gflags/)
+> 2. GitHub 仓库(包含完整文档):<https://github.com/gflags/gflags>
+> 3. API 参考手册:<https://gflags.github.io/gflags/>
 
-GitHub 仓库(包含完整文档):<https://github.com/gflags/gflags>
-API 参考手册:<https://gflags.github.io/gflags/>
+`gflags` 是一个用于**解析命令行参数的库**，最初由 Google 开发，支持 C++ 和 Python。它允许开发者轻松定义命令行标志（flags），并提供了一种灵活、结构化的方式来解析和使用这些命令行参数。
 
 ### `gflags` 的主要功能和特点
 
