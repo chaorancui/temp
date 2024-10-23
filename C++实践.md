@@ -223,6 +223,9 @@ dot -Tpng class_diagram.dot -o class_diagram.png
 
 `gflags` 是一个用于**解析命令行参数的库**，最初由 Google 开发，支持 C++ 和 Python。它允许开发者轻松定义命令行标志（flags），并提供了一种灵活、结构化的方式来解析和使用这些命令行参数。
 
+GitHub 仓库(包含完整文档):<https://github.com/gflags/gflags>
+API 参考手册:<https://gflags.github.io/gflags/>
+
 ### `gflags` 的主要功能和特点
 
 1. **命令行标志定义**： `gflags` 允许开发者为程序定义多种类型的命令行标志，包括布尔类型、整型、浮点型和字符串类型。这些标志可以通过命令行传递，直接影响程序的行为。
