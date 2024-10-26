@@ -427,9 +427,11 @@ print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}
 
 ### `.npy` 文件
 
-`.npy` 文件是 NumPy 库中的一种专有文件格式，用于高效地存储 NumPy 数组。与常见的文本文件（如 `.csv`）不同，`.npy` 是二进制文件，保存了数组的形状、数据类型以及实际的数据内容，因此比普通的文本格式更快、更节省空间。
+文件扩展名 `.npy` 是 NumPy 二进制文件格式的默认扩展，用于高效地存储 NumPy 数组，可以使用 `numpy.save` 和 `numpy.load` 来读写二进制文件。
 
-要打开 `.npy` 文件，可以使用 Python 中的 NumPy 库。下面是一个示例代码，演示如何读取和保存 `.npy` 文件：
+与常见的文本文件（如 `.csv`）不同，`.npy` 是二进制文件，保存了数组的形状、数据类型以及实际的数据内容，因此比普通的文本格式更快、更节省空间。
+
+下面是一个示例代码，演示如何读取和保存 `.npy` 文件：
 
 #### 打开并读取 `.npy` 文件
 
@@ -464,3 +466,113 @@ array = np.array([1, 2, 3, 4, 5])
 np.save('文件路径.npy', array)
 ```
 
+### `.npz` 文件
+
+`.npz` 文件是 NumPy 的一种用于存储多个数组的压缩文件格式。使用 `.npz` 文件可以将多个 NumPy 数组保存到一个文件中，方便数据的组织和管理。每个数组在 `.npz` 文件中都会以键值对的形式存储，可以单独读取其中的每个数组。
+
+#### 保存多个数组到 `.npz` 文件
+
+可以使用 `numpy.savez` 或 `numpy.savez_compressed` 保存多个数组。`savez_compressed` 会进行压缩，可以减小文件大小。
+
+- **`numpy.savez`**：保存多个数组，不进行压缩。
+- **`numpy.savez_compressed`**：保存多个数组，并进行压缩。
+
+**示例**：
+
+```python
+import numpy as np
+
+# 创建多个示例数组
+array1 = np.array([1, 2, 3])
+array2 = np.array([[4, 5, 6], [7, 8, 9]])
+
+# 保存为 .npz 文件
+np.savez("arrays.npz", arr1=array1, arr2=array2)
+
+# 保存为压缩的 .npz 文件
+np.savez_compressed("arrays_compressed.npz", arr1=array1, arr2=array2)
+```
+
+#### 从 `.npz` 文件读取数据
+
+可以使用 `numpy.load` 函数加载 `.npz` 文件，并通过键名访问其中的每个数组。加载后的 `.npz` 文件是一个类似字典的对象，可以通过数组的键名访问。
+
+**示例**：
+
+```python
+import numpy as np
+
+# 加载 .npz 文件
+data = np.load("arrays.npz")
+
+# 访问其中的数组
+array1 = data['arr1']
+array2 = data['arr2']
+
+print("array1:", array1)
+print("array2:", array2)
+```
+
+#### `.npz` 文件的优点
+
+1. **便捷**：可以将多个数组存储在一个文件中，便于组织。
+2. **压缩**：可以选择压缩文件，减少磁盘空间使用。
+3. **快速访问**：加载 `.npz` 文件不需要解压，可以快速访问其中的每个数组。
+
+`.npz` 文件是保存和管理多个数组的好方法，尤其适合需要经常读取的大规模数据。
+
+### `.bin` 文件
+
+`.bin` 文件通常是指包含二进制数据的文件，未指定特定格式。与 `.npy` 或 `.npz` 文件不同，**`.bin` 文件不包含任何元数据（例如数组的形状、数据类型等），只包含原始的二进制数据**。因此，`.bin` 文件在读取和写入时，需要提前知道数据的格式（形状和数据类型），并手动指定这些信息。
+
+#### 保存数组到 `.bin` 文件
+
+可以使用 `numpy.ndarray.tofile` 方法将 NumPy 数组直接保存为 `.bin` 文件：
+
+```python
+import numpy as np
+
+# 创建数组
+array = np.array([[1, 2, 3], [4, 5, 6]], dtype=np.int32)
+
+# 保存为 .bin 文件
+array.tofile("array_data.bin")
+```
+
+**说明**：
+
+- `tofile` 方法会将数组按顺序保存为二进制数据，不包含任何关于数组的形状、数据类型等元信息。
+- 可以通过指定 `dtype`，来选择要保存的数据类型，例如 `np.int32`, `np.float64` 等。
+
+#### 从 `.bin` 文件读取数据
+
+使用 `numpy.fromfile` 方法从 `.bin` 文件中读取数据：
+
+```python
+import numpy as np
+
+# 从 .bin 文件中读取数据，指定数据类型
+loaded_array = np.fromfile("array_data.bin", dtype=np.int32)
+
+# 如果需要，还可以手动指定形状
+loaded_array = loaded_array.reshape((2, 3))
+
+print("读取的数组：")
+print(loaded_array)
+```
+
+**说明**：
+
+- `fromfile` 函数加载二进制文件，需要手动指定数据类型（如 `np.int32`）。
+- 如果文件中存储的是多维数组数据，加载后需用 `.reshape` 方法手动恢复原始形状。
+
+#### `.bin` 文件的优缺点
+
+- **优点**：
+  - 文件简单，保存和读取效率高，适合保存大量的数据（如图像、音频信号等）。
+  - 可以使用任意编程语言读取和写入（只要知道数据格式）。
+- **缺点**：
+  - 没有元数据，无法记录数据的形状、数据类型等信息。
+  - 读取数据时需要事先知道数据格式（如数据类型、数组形状）。
+
+`.bin` 文件适合简单、高效的数据存储应用，但由于缺少元信息，不适合复杂的数据结构保存。例如，需要保存多个数组或需要在数据中记录元信息时，`.npz` 文件更合适。
