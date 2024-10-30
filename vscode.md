@@ -142,6 +142,10 @@ exit
 
 - **CMake Tools**：CMake Tools 为原生开发人员提供了针对 Visual Studio Code 中基于 CMake 的**项目**的功能齐全、便捷且强大的工作流程。可直接查看/配置项目。
 
+### 反汇编插件
+
+- x86 and x86_64 Assembly：
+
 ### python 插件
 
 - **Python**：提供对 IntelliSense（Pylance）、调试（Python 调试器）、格式化、linting、代码导航、重构、变量资源管理器、测试资源管理器等的支持！
