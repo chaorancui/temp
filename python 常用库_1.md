@@ -576,3 +576,57 @@ print(loaded_array)
   - 读取数据时需要事先知道数据格式（如数据类型、数组形状）。
 
 `.bin` 文件适合简单、高效的数据存储应用，但由于缺少元信息，不适合复杂的数据结构保存。例如，需要保存多个数组或需要在数据中记录元信息时，`.npz` 文件更合适。
+
+### `.txt` 输出原始数据
+
+在 NumPy 中，可以使用 `numpy.savetxt` 函数将 `ndarray` 的值格式化输出到文本文件中。`savetxt` 允许我们指定文件名、分隔符以及数据格式，非常灵活。
+
+1. **使用 `numpy.savetxt` 保存数组到文本文件**
+
+   ```shell
+   numpy.savetxt(fname, X, fmt='%.18e', delimiter=' ', newline='\n', header='', footer='', comments='# ', encoding=None)
+   ```
+
+   `numpy.savetxt` 的主要参数如下：
+
+   - `fname`：文件名，或者文件对象。
+   - `X`：要保存的数组。
+   - `fmt`：数据格式，默认是 `'%.18e'`，支持以下格式化控制。可以指定不同的格式化字符串，如 `'%.2f'`（保留两位小数）。
+     - `%.nf`：控制小数点后 `n` 位。
+     - `%d`：格式化为整数。
+     - `%e`：科学计数法表示。
+   - `delimiter`：分隔符，默认是空格，可以设定为逗号、制表符等。
+
+   **示例代码**：
+
+   ```python
+   import numpy as np
+
+   # 创建一个数组
+   array = np.array([[1.23456, 2.34567, 3.45678], [4.56789, 5.67890, 6.78901]])
+
+   # 保存到文本文件，格式化为小数点后两位，逗号分隔
+   np.savetxt("array_data.txt", array, fmt="%.2f", delimiter=",")
+   ```
+
+2. **使用 `numpy.array2string` 将数组格式化为字符串（不保存文件）**
+
+   如果希望将 `ndarray` 转换为字符串格式，可以使用 `numpy.array2string`：
+
+   ```python
+   import numpy as np
+
+   # 创建一个数组
+   array = np.array([[1.23456, 2.34567, 3.45678], [4.56789, 5.67890, 6.78901]])
+
+   # 转换为字符串格式，保留两位小数
+   array_str = np.array2string(array, precision=2, separator=",")
+   print("格式化后的数组字符串：")
+   print(array_str)
+   ```
+
+**总结**：
+
+- **保存到文本文件**：使用 `numpy.savetxt`，可以指定格式和分隔符。
+- **转换为字符串**：使用 `numpy.array2string`，灵活控制精度和分隔符。
+
