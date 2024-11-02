@@ -1,5 +1,8 @@
 # 无卵用的记录
 
+### 伪代码
+https://lennybai.cn/2016/12/02/%E7%AE%97%E6%B3%95%E5%AF%BC%E8%AE%BA1/
+
 ### evil
 https://evil-huawei.github.io/evil-huawei/events/%E5%8D%8E%E4%B8%BA%E5%9B%9B%E5%A4%A7%E5%90%8D%E8%91%97/
 
