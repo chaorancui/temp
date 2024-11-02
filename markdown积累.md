@@ -9,9 +9,9 @@
 ### VNote
 
 [github 仓库连接](https://github.com/vnotex/vnote)。
-VNote是一款基于 Qt 的免费开源笔记应用，**目前专注于 Markdown 语言**。VNote 旨在为用户提供一个愉悦的笔记平台和极佳的编辑体验。
-VNote不仅仅是一个简单的 Markdown 编辑器。通过提供**笔记管理功能**，VNote 让 Markdown 笔记变得更简单。未来，VNote 将支持除 Markdown 之外的更多格式。
-利用 Qt，VNote 可以在Linux、Windows和macOS上运行。
+VNote 是一款基于 Qt 的免费开源笔记应用，**目前专注于 Markdown 语言**。VNote 旨在为用户提供一个愉悦的笔记平台和极佳的编辑体验。
+VNote 不仅仅是一个简单的 Markdown 编辑器。通过提供**笔记管理功能**，VNote 让 Markdown 笔记变得更简单。未来，VNote 将支持除 Markdown 之外的更多格式。
+利用 Qt，VNote 可以在 Linux、Windows 和 macOS 上运行。
 
 优点（已体验）：笔记方式管理，支持带格式粘贴，可以同时显示文件和目录。
 缺点（已体验）：markdown 特性支持较少，latex 支持都不太全。
@@ -167,6 +167,37 @@ VNote不仅仅是一个简单的 Markdown 编辑器。通过提供**笔记管理
   :pushpin: ​**重要**：这是重要的强调信息，提示隐藏的关键内容。code：`:pushpin:`
 
   :zap: **强调**：请注意这个特别标注的信息。code：`:zap:`
+
+### Unicode
+
+在 Markdown 中，可以通过直接输入 Unicode 字符的编号来显示特定字符。方法如下：
+
+1. **直接复制粘贴 Unicode 字符**：
+   如果知道需要的字符，可以直接从 [Unicode 表](https://unicode-table.com/) 等资源网站上复制字符，然后粘贴到 Markdown 文档中。例如，复制并粘贴 Unicode 字符 `␣` (U+2423) 代表“空格符号”。
+
+2. **使用 HTML 十六进制或十进制代码**：
+   在 Markdown 中，使用 HTML 的十六进制（`&#x...;`）或十进制代码（`&#...;`）来表示 Unicode 字符。例如：
+
+   - 十六进制写法：
+
+     ```markdown
+     &#x2423; <!-- 会显示为␣ -->
+     ```
+
+     如：==x&#x2423;\_pos==。
+
+   - 十进制写法：
+
+     ```markdown
+     &#9251; <!-- 会显示为␣ -->
+     ```
+
+     如：==x&#9251;\_pos==。
+
+3. **使用 LaTeX 语法（适用于支持 LaTeX 的 Markdown 渲染器）**：
+   如果 Markdown 渲染器支持 LaTeX 表达式，某些 Unicode 字符可以通过 LaTeX 语法来呈现，但支持较少，不如直接使用 HTML 代码稳定。
+
+通过这种方式，你可以在 Markdown 中插入任意 Unicode 字符，只要确保你的渲染器或编辑器支持 HTML 编码。
 
 ### 强调
 
