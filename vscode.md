@@ -87,7 +87,7 @@ exit
      ```shell
      wget https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<architecture>/stable -O vscode-server.tar.gz
      # 这个 URL 包含了具体的 `commit_id`、`platform` 和 `architecture` 信息。
-      
+
      # 例子：
      wget https://update.code.visualstudio.com/commit:f1e16e1e6214d7c44d078b1f0607b2388f29d729/server-linux-x64/stable -O vscode-server.tar.gz
      ```
@@ -132,13 +132,13 @@ exit
   - [CMake 工具](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cmake-tools)
 
 - **C/C++**: 此扩展为 Visual Studio Code 添加了对 C/C++ 的语言支持，包括[编辑（IntelliSense）](https://code.visualstudio.com/docs/cpp/cpp-ide)和[调试](https://code.visualstudio.com/docs/cpp/cpp-debug)功能。
-  
+
   > 插件市场链接：[C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)，介绍信息挺有用的。
   > C/C++ 扩展**不包含** C++ **编译器**或**调试器**。您需要安装这些工具或使用计算机上已安装的工具。如 Windows 上可以用 MinGW。
 
 - **C/C++ Themes**：语义着色，提供的较少，且不如直接换主题自由。**觉得意义不大**。
 
-- **CMake**：此扩展为Visual Studio Code 中的[CMake](http://www.cmake.org/)提供支持。提供特性：着色，补全，注释，代码片段，函数快速帮助。
+- **CMake**：此扩展为 Visual Studio Code 中的[CMake](http://www.cmake.org/)提供支持。提供特性：着色，补全，注释，代码片段，函数快速帮助。
 
 - **CMake Tools**：CMake Tools 为原生开发人员提供了针对 Visual Studio Code 中基于 CMake 的**项目**的功能齐全、便捷且强大的工作流程。可直接查看/配置项目。
 
@@ -164,22 +164,22 @@ exit
 编写 shell 脚本，有以下插件可以选择：
 
 1. shellman - Remisa
-   智能提示和自动补全，shellman全部搞定
+   智能提示和自动补全，shellman 全部搞定
 
 2. shellcheck - Timon Wong
-   语法错误检查
+      语法错误检查
 
 3. shell-format - foxundermoon
    快捷键：Ctrl + Shift + I
 
 到这里，刀就已经磨好了，去劈柴吧少年~
 
-> 本文转载自：[VScode 打造shell脚本IDE](https://zhuanlan.zhihu.com/p/199187317)
+> 本文转载自：[VScode 打造 shell 脚本 IDE](https://zhuanlan.zhihu.com/p/199187317)
 
 ### 代码编辑插件
 
-- **Vim**: VSCodeVim 是Visual Studio Code的 Vim 模拟器。
-- **VSCode Neovim**：Neovim是 Vim 的一个分支，可实现更高的可扩展性和集成性。此扩展使用完全嵌入的 Neovim 实例，不再是半成品 Vim 模拟！VSCode 的本机功能用于插入模式和编辑器命令，从而充分利用这两个编辑器。
+- **Vim**: VSCodeVim 是 Visual Studio Code 的 Vim 模拟器。
+- **VSCode Neovim**：Neovim 是 Vim 的一个分支，可实现更高的可扩展性和集成性。此扩展使用完全嵌入的 Neovim 实例，不再是半成品 Vim 模拟！VSCode 的本机功能用于插入模式和编辑器命令，从而充分利用这两个编辑器。
 
 ### icon 图标插件
 
@@ -625,6 +625,24 @@ exit
         "editor.lineHighlightBackground": "#ffd00033"
     },
 ```
+
+### 文件标签栏多行显示
+
+**方法一**：
+打开 vscode 设置，搜索 `wrapTabs`，会出现 `workbench.editor.wrapTabs` 选项：
+
+- 勾选该设置，多行显示。
+- 取消勾选，单行显示。
+
+**方法二**：
+
+在系统的 `settings.json` 里添加
+
+```json
+    "workbench.editor.wrapTabs": true,
+```
+
+`true`：多行显示。`false`：单行显示。
 
 ### 显示错误和告警
 
