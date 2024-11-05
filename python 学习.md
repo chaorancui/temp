@@ -4,7 +4,7 @@
 
 ## sys.argv
 
-在Python中，`sys.argv`是一个列表，它包含了命令行参数。`sys.argv[0]` 是脚本的名称，而后面的元素是脚本后面跟随的命令行参数。
+在 Python 中，`sys.argv`是一个列表，它包含了命令行参数。`sys.argv[0]` 是脚本的名称，而后面的元素是脚本后面跟随的命令行参数。
 
 下面是一个示例脚本`example.py`，它使用`sys.argv`来获取命令行参数并进行简单处理：
 
@@ -38,12 +38,12 @@ Argument 2: arg2
 Argument 3: arg3
 ```
 
-**使用场景**
+**使用场景**：
 
 1. **获取命令行参数**： `sys.argv`非常适用于需要从命令行获取输入参数的脚本。
 2. **简单的命令行工具**： 使用`sys.argv`可以快速创建简单的命令行工具，处理不同的参数来执行不同的操作。
 
-**注意事项**
+**注意事项**：
 
 1. **参数类型**： `sys.argv`中的所有参数都是字符串类型。如果需要处理整数或浮点数，需要进行类型转换。
 2. **参数个数**： 运行脚本时需要检查`sys.argv`的长度，以避免索引超出范围的错误。
@@ -85,9 +85,9 @@ Parameter 2: 123
 
 ## 负索引
 
-在Python中，列表的负索引（例如 `[-1]`）是一种方便的方式，用于从列表的末尾开始访问元素。具体来说，`-1` 表示列表的最后一个元素，`-2` 表示倒数第二个元素，依此类推。下面是一些关于负索引的示例和用法：
+在 Python 中，列表的负索引（例如 `[-1]`）是一种方便的方式，用于从列表的末尾开始访问元素。具体来说，`-1` 表示列表的最后一个元素，`-2` 表示倒数第二个元素，依此类推。下面是一些关于负索引的示例和用法：
 
-**负索引的基本用法**
+**负索引的基本用法**：
 
 假设我们有一个列表：
 
@@ -105,7 +105,7 @@ print(my_list[-4])  # 输出: 20
 print(my_list[-5])  # 输出: 10
 ```
 
-**负索引和切片**
+**负索引和切片**：
 
 负索引用于切片操作时也非常方便，可以从列表的末尾开始进行切片：
 
@@ -115,7 +115,7 @@ print(my_list[:-2])    # 输出: [10, 20, 30]  从列表开头到倒数第二个
 print(my_list[-4:-1])  # 输出: [20, 30, 40]  从倒数第四个元素到倒数第一个元素之前
 ```
 
-**修改列表元素**
+**修改列表元素**：
 
 负索引也可以用于修改列表中的元素：
 
@@ -127,18 +127,18 @@ my_list[-3] = 60
 print(my_list)  # 输出: [10, 20, 60, 40, 100]
 ```
 
-**示例：循环遍历列表的倒数元素**
+**示例：循环遍历列表的倒数元素**：
 
 你可以使用负索引来循环遍历列表的倒数元素，例如：
 
-```
+```python
 for i in range(1, len(my_list) + 1):
     print(my_list[-i])
 ```
 
 输出：
 
-```
+```log
 100
 40
 60
@@ -146,18 +146,18 @@ for i in range(1, len(my_list) + 1):
 10
 ```
 
-**注意事项**
+**注意事项**：
 
 1. **索引越界**： 使用负索引时，同样需要注意索引越界的问题。如果列表长度小于负索引的绝对值，将会抛出 `IndexError`。
 
-   ```
+   ```python
    my_list = [1, 2, 3]
    print(my_list[-4])  # IndexError: list index out of range
    ```
 
 2. **可读性**： 虽然负索引非常方便，但在使用时要确保代码的可读性。过多使用负索引可能会使代码难以理解。
 
-负索引是Python中一个非常实用的特性，能够简化从列表末尾访问元素的操作，使代码更简洁。
+负索引是 Python 中一个非常实用的特性，能够简化从列表末尾访问元素的操作，使代码更简洁。
 
 ## 范围[)
 
@@ -166,17 +166,17 @@ for i in range(1, len(my_list) + 1):
 如：
 
 1. `range(5)` 生成从 0 到 4 的数字，不包括 5。`np.arange()` 类似。
-2. `lst[1:4]` 选择从索引 1 到索引 3 的元素，不包括索引 4。数组索引从0开始。
+2. `lst[1:4]` 选择从索引 1 到索引 3 的元素，不包括索引 4。数组索引从 0 开始。
 
 ## realpath
 
-在Python中，`realpath` 函数用于获取文件或目录的绝对路径，并解析所有符号链接。这在处理文件路径时特别有用，因为它可以帮助你**确保你访问的是实际的文件位置**，而**不是符号链接指向的路径**。
+在 Python 中，`realpath` 函数用于获取文件或目录的绝对路径，并解析所有符号链接。这在处理文件路径时特别有用，因为它可以帮助你**确保你访问的是实际的文件位置**，而**不是符号链接指向的路径**。
 
 `realpath` 是 `os.path` 模块中的一个函数，因此你需要先导入 `os` 模块，然后才能使用它。
 
 以下是一些示例和用法：
 
-**基本用法**
+**基本用法**：
 
 ```python
 import os
@@ -186,7 +186,7 @@ current_script_path = os.path.realpath(__file__)
 print(current_script_path)
 ```
 
-**示例：解析符号链接**
+**示例：解析符号链接**：
 
 假设有一个符号链接指向某个文件或目录，可以使用 `realpath` 来获取实际路径：
 
@@ -199,7 +199,7 @@ actual_path = os.path.realpath(symlink_path)
 print(actual_path)
 ```
 
-**示例：处理相对路径**
+**示例：处理相对路径**：
 
 `realpath` 也可以用来将相对路径转换为绝对路径：
 
@@ -211,7 +211,7 @@ absolute_path = os.path.realpath(relative_path)
 print(absolute_path)
 ```
 
-**结合其他 `os.path` 函数**
+**结合其他 `os.path` 函数**：
 
 可以结合其他 `os.path` 函数使用，以便更好地处理文件路径。例如，**可以使用 `join` 来组合路径**，然后使用 `realpath` 获取绝对路径：
 
@@ -229,12 +229,12 @@ absolute_path = os.path.realpath(combined_path)
 print(absolute_path)
 ```
 
-**示例：跨平台使用**
+**示例：跨平台使用**：
 
 **由于 `os.path` 是跨平台的**，在不同的操作系统上使用 `realpath` 可以确保路径处理的一致性：
 
-```
-python复制代码import os
+```python
+import os
 
 # 在 Windows 上的示例
 windows_path = 'C:\\path\\to\\file'
@@ -247,7 +247,7 @@ absolute_path_unix = os.path.realpath(unix_path)
 print(absolute_path_unix)
 ```
 
-**总结**
+**总结**：
 
 - **功能**：`realpath` 函数返回文件或目录的绝对路径，并解析所有符号链接。
 - **用途**：适用于需要确定文件或目录的实际位置、解析符号链接、将相对路径转换为绝对路径等情况。
@@ -257,9 +257,9 @@ print(absolute_path_unix)
 
 ## f-string
 
-在Python中，`f""` 是一种字符串格式化方法，称为 **f-string**（格式化字符串字面量），引入于Python 3.6。f-string 提供了一种简洁且直观的方式来嵌入表达式和变量到字符串中。
+在 Python 中，`f""` 是一种字符串格式化方法，称为 **f-string**（格式化字符串字面量），引入于 Python 3.6。f-string 提供了一种简洁且直观的方式来嵌入表达式和变量到字符串中。
 
-**基本用法**
+**基本用法**：
 
 要使用 f-string，只需在字符串前面加上字母 `f` 或 `F`，然后在字符串中用花括号 `{}` 包含表达式或变量名。
 
@@ -274,13 +274,13 @@ print(greeting)
 
 输出：
 
-```
+```log
 Hello, Alice. You are 30 years old.
 ```
 
-**表达式嵌入**
+**表达式嵌入**：
 
-f-string 还允许在花括号中嵌入任意的Python表达式：
+f-string 还允许在花括号中嵌入任意的 Python 表达式：
 
 ```python
 a = 5
@@ -293,11 +293,11 @@ print(result)
 
 输出：
 
-```
+```log
 The sum of 5 and 10 is 15.
 ```
 
-**调用函数和方法**
+**调用函数和方法**：
 
 你也可以在 f-string 中调用函数或方法：
 
@@ -316,7 +316,7 @@ print(greeting)
 Hello, Bob! How are you today?
 ```
 
-**格式化选项**
+**格式化选项**：
 
 f-string 支持格式化选项，与 `str.format()` 方法类似。你可以在表达式后面加上 `:` 和格式说明符：
 
@@ -330,11 +330,11 @@ print(formatted_value)
 
 输出：
 
-```
+```log
 Pi is approximately 3.14.
 ```
 
-**多行 f-string**
+**多行 f-string**：
 
 你可以使用三引号（`'''` 或 `"""`）创建多行 f-string：
 
@@ -354,13 +354,13 @@ print(info)
 
 输出：
 
-```
+```log
 Name: Alice
 Age: 30
 Address: Wonderland
 ```
 
-**嵌套引号**
+**嵌套引号**：
 
 在 f-string 中使用引号时，你需要注意嵌套的引号类型。如果 f-string 使用双引号（`"`），那么在花括号内的字符串最好使用单引号（`'`），反之亦然：
 
@@ -376,7 +376,7 @@ print(quote)
 He said, "Hello, Alice!"
 ```
 
-**使用字典和列表**
+**使用字典和列表**：
 
 f-string 也可以用来格式化字典和列表中的值：
 
@@ -392,20 +392,20 @@ print(number_list)
 
 输出：
 
-```
+```log
 Alice is 30 years old.
 The first number is 1.
 ```
 
-**总结**
+**总结**：
 
 f-string 提供了一种简洁且高效的字符串格式化方式。它们不仅可以嵌入变量，还可以嵌入复杂的表达式，并支持各种格式化选项。通过使用 f-string，可以使代码更易读、更直观。
 
 ## with...as
 
-在Python中，`with ... as ...` 语句用于上下文管理（context management）。它提供了一种简洁的方式来**处理资源的分配和释放**，比如**文件操作、锁、网络连接**等。
+在 Python 中，`with ... as ...` 语句用于上下文管理（context management）。它提供了一种简洁的方式来**处理资源的分配和释放**，比如**文件操作、锁、网络连接**等。
 
-**基本用法**
+**基本用法**：
 
 最常见的用法之一是文件操作。在使用文件时，`with` 语句确保文件会被正确地关闭，即使在操作过程中发生异常。
 
@@ -419,7 +419,7 @@ with open('example.txt', 'r') as file:
 
 在上面的示例中，`open('example.txt', 'r')` 返回一个文件对象，并且 `as file` 将该对象赋值给变量 `file`。`with` 语句的作用范围结束时，文件会自动关闭。
 
-**上下文管理器**
+**上下文管理器**：
 
 要实现自定义的上下文管理器，可以定义一个类并实现 `__enter__` 和 `__exit__` 方法。
 
@@ -430,10 +430,10 @@ class MyContextManager:
     def __enter__(self):
         print("Entering the context")
         return self
-    
+
     def __exit__(self, exc_type, exc_value, traceback):
         print("Exiting the context")
-    
+
     def do_something(self):
         print("Doing something")
 
@@ -444,7 +444,7 @@ with MyContextManager() as manager:
 
 输出：
 
-```
+```log
 Entering the context
 Doing something
 Exiting the context
@@ -455,7 +455,7 @@ Exiting the context
 - `__enter__` 方法在进入上下文时被调用，并且其返回值被赋给 `as` 后的变量（这里是 `manager`）。
 - `__exit__` 方法在离开上下文时被调用，它接受三个参数（`exc_type`, `exc_value`, 和 `traceback`），用于处理可能发生的异常。
 
-**处理异常**
+**处理异常**：
 
 `with` 语句在处理异常时也非常有用。`__exit__` 方法可以捕获并处理在上下文块中发生的异常。
 
@@ -466,7 +466,7 @@ class MyContextManager:
     def __enter__(self):
         print("Entering the context")
         return self
-    
+
     def __exit__(self, exc_type, exc_value, traceback):
         if exc_type is not None:
             print(f"An exception occurred: {exc_value}")
@@ -481,7 +481,7 @@ with MyContextManager() as manager:
 
 输出：
 
-```
+```log
 Entering the context
 Inside the context
 An exception occurred: Something went wrong!
@@ -490,7 +490,7 @@ Exiting the context
 
 在上面的示例中，异常 `ValueError` 被抛出，`__exit__` 方法捕获了该异常并进行了处理。通过返回 `True`，`__exit__` 方法告诉解释器异常已被处理，不需要再次抛出。
 
-**使用上下文管理器的内置模块**
+**使用上下文管理器的内置模块**：
 
 Python 的标准库中有许多内置的上下文管理器，如 `threading.Lock` 和 `decimal.localcontext`。
 
@@ -518,9 +518,9 @@ for t in threads:
 
 在这个示例中，`with lock` 确保了在多线程环境中对共享资源的访问是线程安全的。
 
-**总结**
+**总结**：
 
-`with ... as ...` 语句是Python中强大的特性，用于确保资源的正确管理和释放。通过实现 `__enter__` 和 `__exit__` 方法，你可以创建自定义的上下文管理器，从而更好地控制资源的生命周期。标准库中也提供了许多内置的上下文管理器，便于在各种场景中使用。
+`with ... as ...` 语句是 Python 中强大的特性，用于确保资源的正确管理和释放。通过实现 `__enter__` 和 `__exit__` 方法，你可以创建自定义的上下文管理器，从而更好地控制资源的生命周期。标准库中也提供了许多内置的上下文管理器，便于在各种场景中使用。
 
 ## try 和 except
 
@@ -528,7 +528,7 @@ for t in threads:
 
 ### 基本用法
 
-**捕获并处理异常**
+**捕获并处理异常**：
 
 ```python
 try:
@@ -544,7 +544,7 @@ except ZeroDivisionError:
 - `try` 块中的代码尝试执行 `10 / 0`，这将引发 `ZeroDivisionError` 异常。
 - `except` 块捕获并处理该异常，打印错误消息。
 
-**捕获特定异常**
+**捕获特定异常**：
 
 你可以捕获并处理特定类型的异常：
 
@@ -560,7 +560,7 @@ except ValueError:
 - `int("abc")` 会引发 `ValueError` 异常。
 - `except ValueError` 捕获并处理该异常。
 
-**捕获多个异常**
+**捕获多个异常**：
 
 你可以捕获多个不同类型的异常，并对每种异常进行不同的处理：
 
@@ -578,7 +578,7 @@ except TypeError:
 - 如果发生 `ValueError` 异常，将会被第一个 `except` 块捕获并处理。
 - 如果发生 `TypeError` 异常，将会被第二个 `except` 块捕获并处理。
 
-**捕获所有异常**
+**捕获所有异常**：
 
 你可以使用 `except Exception as e` 捕获所有类型的异常。虽然这种方式可以确保捕获所有异常，但不推荐在生产环境中使用，因为它会掩盖所有异常，包括你可能不希望捕获的异常。
 
@@ -734,7 +734,7 @@ except MyCustomError as e:
 
 这些异常类型提供了处理各种错误情况的方法。在编写代码时，可以根据具体的需求选择捕获和处理适当的异常，从而提高程序的健壮性和可靠性。
 
-**示例**
+**示例**：
 
 **捕获 `IndexError`**
 
@@ -784,7 +784,7 @@ except FileNotFoundError as e:
     print(f"FileNotFoundError: {e}")
 ```
 
-### subprocess异常
+### subprocess 异常
 
 在 Python 的 `subprocess` 模块中，有几种常见的异常类型，它们通常在使用子进程执行命令时发生。以下是一些可能会遇到的 `subprocess` 异常及其含义：
 
@@ -840,18 +840,18 @@ except OSError as e:
 
 ## 可变参数
 
-在Python中，可变参数（variadic arguments）允许你编写能够接受可变数量参数的函数。这在编写需要处理不定数量输入的函数时特别有用。Python提供了**两种**主要的可变参数：`*args` 和 `**kwargs`。使 Python 函数具有很高的灵活性和可扩展性。
+在 Python 中，可变参数（variadic arguments）允许你编写能够接受可变数量参数的函数。这在编写需要处理不定数量输入的函数时特别有用。Python 提供了**两种**主要的可变参数：`*args` 和 `**kwargs`。使 Python 函数具有很高的灵活性和可扩展性。
 
 - `*args` 用于传递不定数量的**非关键字参数**（以元组形式传递）。
 - `**kwargs` 用于传递不定数量的**关键字参数**（以字典形式传递）。
-- 可以在函数定义中同时使用 `*args` 和 `**kwargs` 来处理**所有类型**的输入参数。**使用时 `*args` 必须出现在 `**kwargs` 之前**。
+- 可以在函数定义中同时使用 `*args` 和 `**kwargs` 来处理**所有类型**的输入参数。**使用时 `*args` 必须出现在 `**kwargs` 之前\*\*。
 - 在调用函数时，可以使用 `*` 和 `**` 来解包序列和字典，分别作为非关键字和关键字参数传递。
 
 > :bulb:注意：
 >
 > `*args` 和 `**kwargs` 只是惯用的命名方式，实际上，`*` 或 `**` 后面的名字可以是任何有效的变量名。
 
-### 1. 使用 `*args` 处理任意数量的非关键字参数
+### 使用 `*args` 处理任意数量的非关键字参数
 
 - `*args` 用于接收不定数量的非关键字参数，并将它们作为元组传递给函数。
 - 当你在定义函数时使用`*args`，可以传入任意数量的参数。
@@ -876,7 +876,7 @@ my_function(1, 2, 3)
 - `*args` 收集所有传入的非关键字参数，并将它们放入一个名为 `args` 的元组中。
 - 在函数内部，你可以**像访问普通元组**那样访问这些参数。
 
-### 2. 使用 `**kwargs` 处理任意数量的关键字参数
+### 使用 `**kwargs` 处理任意数量的关键字参数
 
 - `**kwargs` 用于接收不定数量的关键字参数，并将它们作为字典传递给函数。
 - 当你在定义函数时使用 `**kwargs`，可以传入任意数量的键值对。
@@ -901,7 +901,7 @@ my_function(name="Alice", age=30, city="New York")
 - `**kwargs` 收集所有传入的关键字参数，并将它们放入一个名为 `kwargs` 的字典中。
 - 在函数内部，你可以**像访问普通字典**那样访问这些参数。
 
-### 3. 同时使用 `*args` 和 `**kwargs`
+### 同时使用 `*args` 和 `**kwargs`
 
 你可以在同一个函数中同时使用 `*args` 和 `**kwargs`。这使得该函数能够接受任意数量的非关键字参数和关键字参数。
 
@@ -923,9 +923,9 @@ my_function(1, 2, 3, name="Alice", age=30)
 
 - `*args` 收集所有的非关键字参数并将其作为元组传递。
 - `**kwargs` 收集所有的关键字参数并将其作为字典传递。
-- **在同一个函数中使用这两种参数时，`*args` 必须出现在 `**kwargs` 之前**。
+- **在同一个函数中使用这两种参数时，`*args` 必须出现在 `**kwargs` 之前\*\*。
 
-### 4. 使用 `*args` 和 `**kwargs` 在函数调用时解包参数
+### 使用 `*args` 和 `**kwargs` 在函数调用时解包参数
 
 在调用函数时，你可以使用 `*` 和 `**` 来解包列表、元组或字典中的参数。
 
@@ -986,8 +986,8 @@ print(output)
 
 输出：
 
-```
-plaintext复制代码Hello, Alice!
+```log
+Hello, Alice!
 You have 5 new notifications.
 ```
 
@@ -1020,8 +1020,8 @@ print(output)
 
 输出：
 
-```
-plaintext复制代码<ul>
+```log
+<ul>
     <li>apple</li>
     <li>banana</li>
     <li>cherry</li>
@@ -1096,7 +1096,7 @@ print(output)
 
 输出：
 
-```plaintext
+```log
 <ul>
     <li>Apple</li>
     <li>Banana</li>
@@ -1252,69 +1252,69 @@ Python 中的模板引擎（如 Jinja2 和 Django 模板）提供了丰富的过
 
 1. 使用 Jinja2 模板引擎示例
 
-    ```python
-    from jinja2 import Template
+   ```python
+   from jinja2 import Template
 
-    # 模板内容
-    template_content = """
-    Original: {{ variable }}
-    Upper case: {{ variable | upper }}
-    Lower case: {{ variable | lower }}
-    Capitalized: {{ variable | capitalize }}
-    Default: {{ missing_variable | default:"Default Value" }}
-    Length: {{ list_var | length }}
-    Join: {{ list_var | join:", " }}
-    Date: {{ date_var | date:"Y-m-d" }}
-    """
+   # 模板内容
+   template_content = """
+   Original: {{ variable }}
+   Upper case: {{ variable | upper }}
+   Lower case: {{ variable | lower }}
+   Capitalized: {{ variable | capitalize }}
+   Default: {{ missing_variable | default:"Default Value" }}
+   Length: {{ list_var | length }}
+   Join: {{ list_var | join:", " }}
+   Date: {{ date_var | date:"Y-m-d" }}
+   """
 
-    # 创建模板对象
-    template = Template(template_content)
+   # 创建模板对象
+   template = Template(template_content)
 
-    # 渲染模板，传入上下文数据
-    context = {
-        'variable': 'Hello World',
-        'list_var': ['apple', 'banana', 'cherry'],
-        'date_var': datetime.date(2023, 1, 25)
-    }
+   # 渲染模板，传入上下文数据
+   context = {
+       'variable': 'Hello World',
+       'list_var': ['apple', 'banana', 'cherry'],
+       'date_var': datetime.date(2023, 1, 25)
+   }
 
-    output = template.render(context)
+   output = template.render(context)
 
-    print(output)
-    ```
+   print(output)
+   ```
 
 2. 使用 Django 模板引擎示例
 
-    ```python
-    from django.template import Template, Context
-    from datetime import datetime
-    
-    # 模板内容
-    template_content = """
-    Original: {{ variable }}
-    Upper case: {{ variable | upper }}
-    Lower case: {{ variable | lower }}
-    Capitalized: {{ variable | capitalize }}
-    Default: {{ missing_variable | default:"Default Value" }}
-    Length: {{ list_var | length }}
-    Join: {{ list_var | join:", " }}
-    Date: {{ date_var | date:"Y-m-d" }}
-    """
-    
-    # 创建模板对象
-    template = Template(template_content)
-    
-    # 创建上下文对象
-    context = {
-        'variable': 'Hello World',
-        'list_var': ['apple', 'banana', 'cherry'],
-        'date_var': datetime.now()
-    }
-    
-    # 渲染模板
-    output = template.render(Context(context))
-    
-    print(output)
-    ```
+   ```python
+   from django.template import Template, Context
+   from datetime import datetime
+
+   # 模板内容
+   template_content = """
+   Original: {{ variable }}
+   Upper case: {{ variable | upper }}
+   Lower case: {{ variable | lower }}
+   Capitalized: {{ variable | capitalize }}
+   Default: {{ missing_variable | default:"Default Value" }}
+   Length: {{ list_var | length }}
+   Join: {{ list_var | join:", " }}
+   Date: {{ date_var | date:"Y-m-d" }}
+   """
+
+   # 创建模板对象
+   template = Template(template_content)
+
+   # 创建上下文对象
+   context = {
+       'variable': 'Hello World',
+       'list_var': ['apple', 'banana', 'cherry'],
+       'date_var': datetime.now()
+   }
+
+   # 渲染模板
+   output = template.render(Context(context))
+
+   print(output)
+   ```
 
 ### 总结
 
@@ -1348,7 +1348,7 @@ print(result)
 
 输出：
 
-```
+```log
 Hello, my name is Alice. I am 30 years old. I live in Wonderland and work as a Engineer.
 ```
 
@@ -1378,7 +1378,7 @@ print(result)
 
 输出：
 
-```
+```log
 Hello, my name is Alice. I am 30 years old. I live in Wonderland and work as a Engineer.
 ```
 
@@ -1414,13 +1414,13 @@ print(result)
 
 输出：
 
-```
+```log
 Hello, my name is Alice. I am 30 years old. I live in Wonderland and work as a Engineer.
 ```
 
 在这个示例中，使用了 Jinja2 的 `Template` 类和 `render` 方法，将 `Person` 对象 `data` 传递给模板，然后使用 `{{ person.name }}`、`{{ person.age }}` 等表达式展开模板。
 
-**传递多个对象**
+**传递多个对象**：
 
 ```python
 from jinja2 import Environment, FileSystemLoader
@@ -1456,7 +1456,7 @@ output = template.render(
 print(output)
 ```
 
-# python面向对象
+# python 面向对象
 
 ## 类方法和类函数
 
@@ -1466,7 +1466,7 @@ print(output)
 
 类方法**使用 `@classmethod` 装饰器标识**，并且**第一个参数通常被命名为 `cls`**，表示调用该方法的类本身。类方法可以**通过类名或实例来调用**，但通常建议使用类名调用类方法。
 
-#### 示例
+**示例**：
 
 ```python
 class MyClass:
@@ -1486,7 +1486,7 @@ MyClass.class_method()  # 输出: Class method called with class attribute: 10
 
 普通的类方法是指在类中定义的普通方法，**没有使用 `@classmethod` 装饰器标识**。这些方法**可以通过实例访问**，并且**第一个参数通常是 `self`**，表示调用该方法的实例本身。
 
-#### 示例
+**示例**：
 
 ```python
 class MyClass:
@@ -1516,7 +1516,7 @@ obj.instance_method()  # 输出: Instance method called with instance attribute:
   - 只能通过实例调用。
   - 用于操作或访问实例的属性和方法。
 
-**选择使用类方法还是普通的类方法**
+**选择使用类方法还是普通的类方法**：
 
 - 使用 **类方法**：
   - 当方法需要访问和操作类的属性或者需要在**类级别上进行操作时，应使用类方法**。
@@ -1540,7 +1540,7 @@ obj.instance_method()  # 输出: Instance method called with instance attribute:
 ```python
 class MyClass:
     class_variable = "I am a class variable"
-    
+
     def __init__(self, name):
         self.name = name
 
@@ -1559,12 +1559,12 @@ print(class_variables)
 
 实例变量是在类的 `__init__` 方法中定义的，**依赖于实例**。可以通过实例的 `__dict__` 属性来获取实例变量。
 
-#### 示例
+**示例**：
 
 ```python
 class MyClass:
     class_variable = "I am a class variable"
-    
+
     def __init__(self, name, age):
         self.name = name
         self.age = age
@@ -1599,7 +1599,7 @@ import inspect
 
 class MyClass:
     class_variable = "I am a class variable"
-    
+
     def __init__(self, name, age):
         self.name = name
         self.age = age
@@ -1611,7 +1611,7 @@ print(class_variables)
 
 输出：
 
-```
+```log
 {'class_variable': 'I am a class variable'}
 ```
 
@@ -1622,7 +1622,7 @@ import inspect
 
 class MyClass:
     class_variable = "I am a class variable"
-    
+
     def __init__(self, name, age):
         self.name = name
         self.age = age
@@ -1637,11 +1637,11 @@ print(instance_variables)
 
 输出：
 
-```
+```log
 {'age': 30, 'name': 'Alice'}
 ```
 
-**总结**
+**总结**：
 
 - **获取类变量**：可以通过类的 `__dict__` 属性或 `inspect.getmembers` 来获取。
 - **获取实例变量**：可以通过实例的 `__dict__` 属性或 `inspect.getmembers` 来获取。
@@ -1655,7 +1655,7 @@ import inspect
 
 class MyClass:
     class_variable = "I am a class variable"
-    
+
     def __init__(self, name, age):
         self.name = name
         self.age = age
@@ -1692,7 +1692,7 @@ Instance Variables: {'name': 'Alice', 'age': 30}
 
 ## vars() 函数
 
-在Python中，`vars()`函数可以用于**将对象的属性转换为字典**。这个函数**返回对象的`__dict__`属性**，该属性是一个字典，包含了对象的可变属性（即实例变量）。
+在 Python 中，`vars()`函数可以用于**将对象的属性转换为字典**。这个函数**返回对象的`__dict__`属性**，该属性是一个字典，包含了对象的可变属性（即实例变量）。
 
 **使用`vars()`函数时的注意事项：**
 
@@ -1728,10 +1728,10 @@ print(person_dict)
 {'name': 'Alice', 'age': 30, 'city': 'Wonderland', 'job': 'Engineer', 'hobby': 'Reading'}
 ```
 
-使用`vars()`函数将对象转换为字典后，我们可以将其与模板字符串结合使用，方便地进行字符串格式化。例如，结合前面提到的`string.Template` 和 Jinja2模板引擎。
+使用`vars()`函数将对象转换为字典后，我们可以将其与模板字符串结合使用，方便地进行字符串格式化。例如，结合前面提到的`string.Template` 和 Jinja2 模板引擎。
 
 # PyQt5
 
-## [PyQt5 关于Qt Designer的初步应用和打包过程详解](http://www.codebaoku.com/it-python/it-python-223940.html)
+## [PyQt5 关于 Qt Designer 的初步应用和打包过程详解](http://www.codebaoku.com/it-python/it-python-223940.html)
 
-​    在PyQt中编写UI界面可以直接通过代码来实现，也可以通过Qt Designer来完成。Qt Designer的设计符合MVC的架构，其实现了视图和逻辑的分离，从而实现了开发的便捷。Qt Designer中的操作方式十分灵活，其通过拖拽的方式放置控件可以随时查看控件效果。Qt Designer生成的.ui文件（实质上是XML格式的文件）也可以通过pyuic5工具转换成.py文件。 Qt Designer随PyQt5-tools包一起安装，其安装路径在 “Python安装路径\Lib\site-packages\pyqt5-tools”下。若要启动Qt Designer可以直接到上述目录下，双击designer.exe打开Qt Designer；或将上述路径加入环境变量，在命令行输入designer打开；或在PyCharm中将其配置为外部工具打开。下面以PyCharm为例，讲述PyCharm中Qt Designer的配置方法。
+​ 在 PyQt 中编写 UI 界面可以直接通过代码来实现，也可以通过 Qt Designer 来完成。Qt Designer 的设计符合 MVC 的架构，其实现了视图和逻辑的分离，从而实现了开发的便捷。Qt Designer 中的操作方式十分灵活，其通过拖拽的方式放置控件可以随时查看控件效果。Qt Designer 生成的.ui 文件（实质上是 XML 格式的文件）也可以通过 pyuic5 工具转换成.py 文件。 Qt Designer 随 PyQt5-tools 包一起安装，其安装路径在 “Python 安装路径\Lib\site-packages\pyqt5-tools”下。若要启动 Qt Designer 可以直接到上述目录下，双击 designer.exe 打开 Qt Designer；或将上述路径加入环境变量，在命令行输入 designer 打开；或在 PyCharm 中将其配置为外部工具打开。下面以 PyCharm 为例，讲述 PyCharm 中 Qt Designer 的配置方法。
