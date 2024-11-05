@@ -365,6 +365,84 @@ realpath --relative-to=/home /home/user/mydir
 
 `realpath` 命令非常适用于需要在脚本中确保路径一致性的场景。
 
+## basename命令
+
+`basename` 是一个常用的 Unix/Linux 命令，用于提取文件路径中的文件名部分，或从文件名中去掉指定的后缀。它特别适用于从完整的文件路径中提取文件名。
+
+**基本语法**：
+
+```bash
+basename [OPTION] NAME [SUFFIX]
+```
+
+- `NAME`：指定文件的路径。
+- `SUFFIX`：可选参数，指定要从文件名中移除的后缀（如果文件名以该后缀结尾）。
+
+**主要选项**：
+
+- `-a` 或 `--multiple`：允许同时处理多个路径。
+- `-s` 或 `--suffix=SUFFIX`：指定一个后缀进行删除，相当于直接写在 `basename` 命令的第二个参数位置。
+
+**功能**：
+
+- **去除路径信息**：`basename` 可以去除文件路径，仅保留文件名。
+- **去除后缀**：可以指定一个后缀，`basename` 会去掉文件名中匹配的后缀部分。
+
+**使用示例**：
+
+1. 从文件路径中提取文件名
+
+   ```bash
+   basename /home/user/docs/file.txt
+   # 输出: file.txt
+   ```
+
+2. 去除文件名中的后缀
+
+   可以指定一个后缀，如果文件名以该后缀结尾，则会被去除：
+
+   ```bash
+   basename /home/user/docs/file.txt .txt
+   # 输出: file
+   basename -s .h include/stdio.h
+   # 输出: stdio
+   basename "file.tar.gz" .tar.gz
+   # 输出：file
+   ```
+
+3. 提取目录名称
+
+   如果你需要提取目录名称而不是文件名，可以结合 `dirname` 和 `basename` 使用。例如，获取文件所属的最上级目录名：
+
+   ```bash
+   dirname /home/user/docs/file.txt | xargs basename
+   # 输出: docs
+   ```
+
+4. 与 `find` 命令结合使用
+
+   结合 `find` 命令，可以提取目录中多个文件的文件名。例如，列出当前目录中所有 `.txt` 文件的文件名：
+
+   ```bash
+   find . -type f -name "*.txt" -exec basename {} \;
+   ```
+
+5. 在脚本中获取当前脚本名：
+
+   ```bash
+   script_name=$(basename "$0")
+   ```
+
+6. 批量处理文件名：
+
+   ```bash
+   # 结合find使用
+   find . -type f | while read file; do
+       name=$(basename "$file")
+       echo "Processing $name"
+   done
+   ```
+
 # 文件显示命令
 
 ## cat
@@ -498,6 +576,118 @@ cat [filename] | tail -n +1000 | head -n 3000
 # 显示1000行到3000行
 cat [filename] | head -n 3000 | tail -n +1000
 ```
+
+# 命令行命令
+
+## xargs 命令
+
+`xargs` 是 Linux 和 Unix 系统中的一个常用命令，用于将标准输入（例如管道或文件中的内容）转换为命令行参数。它允许你将其他命令的输出作为参数传递给指定的命令，特别适合处理多个输入，并将其批量传递给其他命令执行。
+
+**基本语法**：
+
+```bash
+command | xargs [options] [command [initial-arguments]]
+```
+
+**常用选项**：
+
+- `-n`：每次传递给命令的参数数目。
+
+  ```shell
+  echo "a b c" | xargs -n 1
+  # 输出：
+  # a
+  # b
+  # c
+  ```
+
+- `-d`: 自定义分隔符
+
+  ```shell
+  echo "a:b:c" | xargs -d ":" -n 1
+  ```
+
+- `-I`：指定占位符，用于替换输入。
+
+  ```shell
+  echo "file1 file2" | xargs -I {} cp {} backup/    # 每个文件拷贝到backup文件夹下
+  ```
+
+- `-P`：并行处理
+
+  ```shell
+  find . -type f | xargs -P 4 -I {} gzip {}  # 4个并行进程
+  ```
+
+- `-p`：提示用户确认执行每条命令。
+
+  ```shell
+  echo "a b c" | xargs -n 1 -p
+  ```
+
+- `-t`：打印每个命令（用于调试）。
+
+  ```shell
+  echo "a b c" | xargs -n 1 -t
+  ```
+
+- `-0`：配合 `find ... -print0` 使用，用于处理文件名中的空格或特殊字符。
+
+**`xargs` 的主要功能**：
+
+- **批量传递参数**：`xargs` 可以将多个输入拼接成一个命令的参数列表，以便一次性处理。
+- **自动分批执行**：如果参数太多导致命令长度超限，`xargs` 会自动将其分批执行。
+- **结合管道使用**：`xargs` 常与 `find`、`grep`、`cat` 等命令结合，通过管道传递数据，完成复杂任务。
+
+**常见示例**：
+
+1. `xargs` 批量删除文件：
+   假设要删除当前目录下 `.tmp` 结尾的所有文件，可以使用 `find` 和 `xargs` 组合：
+
+   ```bash
+   find . -name "*.tmp" | xargs rm
+   ```
+
+   这里，`find` 会找到所有 `.txt` 文件并传递给 `xargs`，然后 `xargs` 执行 `rm` 命令来删除它们。
+
+2. `xargs` 批量重命名：
+
+   ```bash
+   ls *.txt | xargs -I {} mv {} {}.bak
+   ```
+
+3. `xargs` 批量压缩：
+
+
+   ```bash
+   find . -name "*.log" | xargs gzip
+   ```
+
+4. 安全处理：
+   处理包含空格的文件名：
+
+   ```bash
+   find . -type f -print0 | xargs -0 command
+   ```
+
+5. 使用 `xargs` 将单行转换为多行
+
+   `xargs` 默认将输入按空格分隔为一行输出，即**前面命令的所有输出当成一行作为其他命令的参数**：
+
+   ```bash
+   echo "a b c d" | xargs
+   # 输出: a b c d
+   ```
+
+6. 使用 `xargs` 和 `-I` 替换字符串
+
+   `-I` 选项指定一个占位符（如 `{}`），`xargs` 将每个输入替换到占位符位置。当后面的命令有多个参数时使用，可以组装出更复杂的命令。例如：
+
+   ```bash
+   echo "file1 file2" | xargs -I {} mv {} /new_directory/
+   ```
+
+   这里 `{}` 是占位符，每个输入会替换 `{}`，然后执行 `mv` 命令将 `file1` 和 `file2` 移动到 `/new_directory/`。
 
 # 系统设备命令
 
