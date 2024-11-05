@@ -5,6 +5,7 @@
 ## 正则表达式
 
 <https://blog.csdn.net/dgwxligg/article/details/138875027>
+正则表达式全集：<https://tool.oschina.net/uploads/apidocs/jquery/regexp.html>
 
 当探讨Linux文本处理时，**基础正则表达式**（Basic Regular Expressions, BRE）、**扩展正则表达式**（Extended Regular Expressions, ERE）和**Perl兼容正则表达式**（Perl-Compatible Regular Expressions, PCRE）这三种正则表达式非常重要。它们在功能和语法上有所区别，并由不同的工具和命令支持。
 
@@ -37,6 +38,24 @@
    在正则表达式中，`|` 两边的空格会被视为正则表达式的一部分，而不是忽略它们。因此，如果在 `|` 两边加了空格如 `(x | y)_pos`，正则表达式将会匹配包含空格的字符串，
    即：`x␣_pos`（x 后面有一个空格）和 `␣y_pos`（y 前面有一个空格）。
    如果你不希望匹配到空格，那么在 `|` 两边不要添加空格，即使用 `(x|y)_pos`，会匹配 `x_pos` 或 `y_pos`。
+
+## 正则表达式需要转义的字符
+
+正则表达式中有些字符具有特殊的含义，如果在匹配中要用到它本来的含义，需要进行转义（在其前面加一个\\）。下面总结了常见的一些需要转义的特殊字符：
+
+1. `$`：匹配输入字符串的结尾位置。如果设置了 RegExp 对象的 Multiline 属性，则 `$` 也匹配，如 `\n` 或 `\r`。
+2. `()`：标记一个子表达式的开始和结束位置。子表达式可以获取供以后使用。要匹配这些字符。
+3. `*`：匹配前面的子表达式零次或多次。
+4. `+`：匹配前面的子表达式一次或多次。
+5. `.`：匹配除换行符 `\n` 之外的任何单字符。
+6. `[]`：标记一个中括号表达式的开始。
+7. `?`：匹配前面子表达式零次或一次，或指明一个非贪婪限定符
+8. `\`：将下一个字符标记为或特殊字符或原意字符或后向引用或八进制转义符。例如：`n` 匹配字符 `n`，而 `\n` 匹配换行符。序列 `\\` 匹配 `\`。
+9. `^`：匹配输入字符串的开始位置，除非在方括号表达式中使用，此时他表示不接受该字符集合。
+10. `{}`：标记限定符表达式的开始。
+11. `|`：指明两项之间的一个选择。
+
+**总结**：`* . ? + $ ^ [ ] ( ) { } | \ /`
 
 ## "通配符"和"正则表达式"的区别
 
@@ -156,7 +175,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
      ```shell
      command >> filename
-
+     
      echo "Hello again!" >> output.txt
      # 这会将 "Hello again!" 追加到 output.txt 的末尾，而不会覆盖之前的内容。
      ```
@@ -168,7 +187,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
      ```shell
      command 2> errorfile.txt
-
+     
      ls non_existent_file 2> error.txt
      # 这会将 ls 命令的错误信息保存到 error.txt 文件中。
      ```
@@ -181,7 +200,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
      command &> outputfile.txt
      # 或
      command > outputfile.txt 2>&1
-
+  
      ls /nonexistent_directory &> all_output.txt
      # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
      ```
@@ -212,7 +231,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
      ```shell
      command1 | command2
-
+     
      ls -l | grep "^d"
      这会将 ls -l 的输出传递给 grep 命令，只显示目录条目。
      ```
