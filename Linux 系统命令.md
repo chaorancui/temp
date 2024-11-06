@@ -577,6 +577,405 @@ cat [filename] | tail -n +1000 | head -n 3000
 cat [filename] | head -n 3000 | tail -n +1000
 ```
 
+## tee 命令
+
+`tee` 是一个在 Unix/Linux 系统中常用的命令行工具，用于读取标准输入并将其内容写入标准输出和一个或多个文件。它的名称来源于字母 "T"，因为它的作用类似于一个 "T" 型分流器。
+
+**基本语法**：
+
+```bash
+tee [OPTION]... [FILE]...
+```
+
+- **OPTION**：可选参数，用于修改 `tee` 的行为。
+- **FILE**：要写入的一个或多个文件名。如果不指定文件，则输出到标准输出。
+
+**常用选项**：
+
+- `-a` 或 `--append`：追加内容到指定文件，而不是覆盖。
+- `-i` 或 `--ignore-interrupts`：在信号中断时忽略中断。
+- `--help`：显示帮助信息。
+- `--version`：显示版本信息。
+
+**常见用法**：
+
+1. 基本使用
+
+   将命令的输出同时写入到文件和标准输出：
+
+   ```bash
+   echo "Hello, World!" | tee output.txt
+   ```
+
+   这条命令会将 "Hello, World!" 打印到屏幕上，同时写入到 `output.txt` 文件中。
+
+2. 追加内容
+
+   使用 `-a` 选项可以将内容追加到文件末尾，而不是覆盖文件：
+
+   ```bash
+   echo "Hello again!" | tee -a output.txt
+   ```
+
+   如果 `output.txt` 已存在，这条命令会在文件末尾添加 "Hello again!"。
+
+3. 多个文件
+
+   可以将输出同时写入多个文件：
+
+   ```bash
+   echo "Logging data" | tee file1.txt file2.txt
+   ```
+
+   这会将 "Logging data" 同时写入 `file1.txt` 和 `file2.txt`。
+
+4. 结合其他命令
+
+   `tee` 常用于将输出流中的数据分流给多个命令。例如，可以将一个命令的输出保存到文件，同时将其传递给另一个命令：
+
+   ```bash
+   ps aux | tee processes.txt | grep bash
+   ```
+
+   这会将当前运行的所有进程信息保存到 `processes.txt` 文件中，同时筛选出包含 "bash" 的行并显示在屏幕上。
+
+5. 在脚本中使用
+
+   ```shell
+   #!/bin/bash
+   # 记录脚本执行过程
+   {
+       echo "Starting process..."
+       date
+       some_command
+       echo "Process completed."
+   } | tee process.log
+   ```
+
+6. 追加模式插入空行
+
+```shell
+echo "First line" | tee -a output.txt
+echo -e "\n\n\n" | tee -a output.txt  # 输出3个空行
+echo "Second line" | tee -a output.txt
+```
+
+**示例**：
+
+1. 输出到文件并显示
+
+   ```bash
+   df -h | tee disk_usage.txt
+   ```
+
+   这条命令会显示当前的磁盘使用情况，并将其写入到 `disk_usage.txt` 文件中。
+
+2. 与管道结合
+
+   ```bash
+   cat /var/log/syslog | tee syslog_copy.txt | grep error
+   ```
+
+   这会将系统日志文件的内容输出到标准输出并写入 `syslog_copy.txt`，同时筛选出包含 "error" 的行。
+
+**总结**：
+
+`tee` 命令是一个非常有用的工具，特别是在处理数据流时，可以有效地将输出分流到多个目的地。它在脚本编写、日志记录和调试过程中非常有用，能够帮助用户同时查看和存储命令的输出。
+
+## printf 命令
+
+`printf` 是一个在 Unix/Linux 系统中广泛使用的命令行工具，用于格式化输出文本。它比 `echo` 更强大和灵活，能够提供更复杂的格式控制，特别是在处理数字和字符串时。
+
+**基本语法**：
+
+```bash
+printf FORMAT_STRING [ARGUMENTS...]
+```
+
+- **FORMAT_STRING**：指定输出的格式，可以包含普通文本和格式说明符。
+- **ARGUMENTS**：要格式化输出的值。
+
+**常见格式说明符**：
+
+- `%s`：字符串
+- `%d`：十进制整数
+- `%f`：浮点数
+- `%x`：十六进制整数
+- `%o`：八进制整数
+- `%c`：字符
+- `%p`：指针（地址）
+
+**常见用法**：
+
+1. 格式化输出数字
+
+   格式化整数和浮点数：
+
+   ```bash
+   printf "Integer: %d\n" 42
+   printf "Float: %.2f\n" 3.14159
+   ```
+
+   - `%.2f` 表示输出浮点数并保留两位小数。
+
+2. 输出多个参数
+
+   可以一次性输出多个参数：
+
+   ```bash
+   printf "Name: %s, Age: %d\n" "Alice" 30
+   ```
+
+   这将输出 `Name: Alice, Age: 30`。
+
+3. 设定宽度和对齐方式
+
+   可以设定输出的宽度：
+
+   ```bash
+   printf "|%10s|%5d|\n" "Item" 123
+   ```
+
+   - `%10s` 表示字符串占用 10 个字符宽，右对齐。
+   - `%5d` 表示整数占用 5 个字符宽，右对齐。
+
+   左对齐可以使用负号：
+
+   ```bash
+   printf "|%-10s|%-5d|\n" "Item" 123
+   ```
+
+4. 使用转义字符
+
+   `printf` 也支持转义字符，比如换行符 `\n` 和制表符 `\t`：
+
+   ```bash
+   printf "Column1\tColumn2\nValue1\tValue2\n"
+   ```
+
+5. 生成多个重复字符
+
+   ```shell
+   printf '=%.0s' {1..20}
+   ```
+
+   - 格式字符串 `'=%.0s'`
+
+     在这里，格式字符串是 `'=%.0s'`。这个格式字符串可以分解为以下部分：
+
+     - **`=`**：这是要输出的字符。由于 `printf` 在处理格式字符串时，会将每个格式说明符与对应的参数结合起来输出，因此这里的 `=` 是固定的，它会被输出 20 次。
+     - **`%.0s`**：这是格式说明符，表示以字符串形式输出。具体来说：
+       - **`%s`** 表示输出字符串。
+       - **`.0`** 是一个精度修饰符，表示不输出字符串的内容，而是仅仅输出字符串的“空字符”。因此，`%.0s` 实际上不会输出任何字符，但会使得 `printf` 进行相应次数的调用。
+
+   - `{1..20}`
+
+     这是一个 Bash 的序列扩展（Brace Expansion），用于生成一个从 1 到 20 的序列。这里，它实际上并不使用这些数字的值，而是仅仅用来确定输出多少次格式字符串。
+
+**示例**：
+
+以下是一个完整的示例，演示 `printf` 的各种功能：
+
+```bash
+#!/bin/bash
+
+# 输出字符串
+printf "Hello, World!\n"
+
+# 输出整数和浮点数
+printf "Integer: %d\n" 42
+printf "Float: %.2f\n" 3.14159
+
+# 输出多个参数
+name="Alice"
+age=30
+printf "Name: %s, Age: %d\n" "$name" "$age"
+
+# 设置宽度和对齐
+printf "|%10s|%5d|\n" "Item" 123
+printf "|%-10s|%-5d|\n" "Item" 123
+
+# 使用转义字符
+printf "Column1\tColumn2\nValue1\tValue2\n"
+```
+
+运行这个脚本将输出如下内容：
+
+```log
+Hello, World!
+Integer: 42
+Float: 3.14
+Name: Alice, Age: 30
+|      Item|  123|
+|Item      |123  |
+Column1   Column2
+Value1    Value2
+```
+
+总结
+
+`printf` 是一个非常强大的工具，适用于需要格式化输出的场合。它能够提供丰富的格式控制选项，帮助用户创建更易读和专业的输出结果。与 `echo` 相比，`printf` 更加灵活，适合在脚本中处理复杂的输出需求。
+
+# 文本操作命令
+
+## sed 命令
+
+`sed`（Stream Editor）是一个强大的文本处理工具，主要用于对文本流进行**过滤和转换**。它常用于 Unix/Linux 系统中，可以对文件内容或标准输入流进行文本替换、插入、删除和其他处理。
+
+**基本语法**：
+
+```bash
+sed [OPTIONS] 'command' file
+```
+
+- **OPTIONS**：选项，可以影响 `sed` 的行为。
+- **command**：要执行的命令，通常包括地址和操作。
+- **file**：要处理的文件名，可以是一个或多个文件。
+
+**常见功能和用法**：
+
+1. 文本替换
+
+   使用 `s` 命令进行替换：
+
+   ```bash
+   sed 's/old-text/new-text/' filename
+   ```
+
+   - 默认只替换第一处匹配的文本。
+   - 添加 `g` 可以替换所有匹配的文本：
+
+   ```bash
+   sed 's/old-text/new-text/g' filename
+   ```
+
+2. 在行首/行尾添加文本
+
+   - 在每行的开头添加文本：
+
+   ```bash
+   sed 's/^/new-text /' filename
+   ```
+
+   - 在每行的末尾添加文本：
+
+   ```bash
+   sed 's/$/ new-text/' filename
+   ```
+
+3. 删除行
+
+   - 删除特定行：
+
+   ```bash
+   sed '3d' filename   # 删除第三行
+   ```
+
+   - 删除包含特定模式的行：
+
+   ```bash
+   sed '/pattern/d' filename
+   ```
+
+4. 选择特定行
+
+   - 仅显示特定行：
+
+   ```bash
+   sed -n '2p' filename   # 只打印第二行
+   ```
+
+   - 打印范围行：
+
+   ```bash
+   sed -n '2,5p' filename   # 打印第2到第5行
+   ```
+
+5. 使用正则表达式
+
+   `sed` 支持基本正则表达式和扩展正则表达式：
+
+   - 基本正则表达式（BRE）：
+
+   ```bash
+   sed 's/[0-9]/X/' filename   # 将数字替换为 X
+   ```
+
+   - 扩展正则表达式（ERE），需要使用 `-E` 选项：
+
+   ```bash
+   sed -E 's/[a-zA-Z]+/WORD/' filename   # 将单词替换为 "WORD"
+   ```
+
+6. 直接编辑文件
+
+   使用 `-i` 选项可以直接修改文件而不输出到标准输出：
+
+   ```bash
+   sed -i 's/old-text/new-text/g' filename
+   ```
+
+   - 注意：直接编辑文件前最好备份原文件。
+
+**使用示例**：
+
+1. 替换文件中的文本
+
+   假设有一个文本文件 `example.txt` 内容如下：
+
+   ```bash
+   Hello World
+   This is a test file.
+   Goodbye World
+   ```
+
+   要将所有的 "World" 替换为 "Everyone"，可以使用：
+
+   ```bash
+   sed 's/World/Everyone/g' example.txt
+   ```
+
+   输出：
+
+   ```bash
+   Hello Everyone
+   This is a test file.
+   Goodbye Everyone
+   ```
+
+2. 删除特定行
+
+   要删除第二行：
+
+   ```bash
+   sed '2d' example.txt
+   ```
+
+   输出：
+
+   ```bash
+   Hello World
+   Goodbye World
+   ```
+
+3. 在每行前添加文本
+
+   要在每行前添加 "Line: "：
+
+   ```bash
+   sed 's/^/Line: /' example.txt
+   ```
+
+   输出：
+
+   ```bash
+   Line: Hello World
+   Line: This is a test file.
+   Line: Goodbye World
+   ```
+
+`sed` 是一个非常灵活且强大的文本处理工具，适用于各种文本编辑任务。通过组合不同的命令和选项，可以完成复杂的文本处理工作。
+
 # 命令行命令
 
 ## xargs 命令
