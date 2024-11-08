@@ -200,7 +200,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
      command &> outputfile.txt
      # 或
      command > outputfile.txt 2>&1
-  
+    
      ls /nonexistent_directory &> all_output.txt
      # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
      ```
@@ -462,6 +462,66 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
     - **`&& ||`** 用于命令执行顺序控制，用来根据前一个命令的执行结果来决定是否执行后续命令。
 
 这些符号和操作符是 Shell 脚本中的基础工具，用于控制命令执行顺序和条件逻辑，帮助我们构建复杂的命令逻辑。
+
+## 单/双/反引号
+
+在 Shell 中，单引号 `' '`, 双引号 `" "`, 和反引号 ``` `` ``` 用于不同的目的，尤其是在处理字符串和命令替换时。它们的功能如下：
+
+1. 单引号 `' '`
+
+   - **功能**：将字符串完全保留为字面值，不进行变量和命令替换。
+
+   - **用途**：当你想确保字符串中的特殊字符（如 `$`, `*`, `\` 等）不被解释或替换时，使用单引号。
+
+   - 示例：
+
+     ```bash
+     echo 'Hello $USER'
+     ```
+
+     输出：`Hello $USER`（`$USER` 不会被解析）
+
+2. 双引号 `" "`
+
+   - **功能**：允许变量替换和命令替换，但保留大多数其他字符的字面意义。
+
+   - **用途**：当需要字符串保留特殊字符（如空格）并希望进行变量替换或命令替换时，使用双引号。
+
+   - 示例：
+
+     ```bash
+     echo "Hello $USER"
+     ```
+
+     输出：`Hello your_username`（`$USER` 被替换成实际的用户名）
+
+3. 反引号 ``` `` ``` 或 `$(...)`（推荐）
+
+   - **功能**：用于**命令替换**，即执行括号中的命令，并将结果插入到外部命令中。
+
+   - **用途**：当你需要将命令的输出用作另一个命令的参数时，使用反引号或 `$()`。
+
+   - 示例：
+
+     ```bash
+     echo "Today is `date`"
+     ```
+
+     或者：
+
+     ```bash
+     echo "Today is $(date)"
+     ```
+
+     两者输出相同，例如：`Today is Fri Nov 8 15:30:00 UTC 2024`
+
+   > **注意**：推荐使用 `$()` 语法，因为它支持嵌套，而反引号不支持。
+
+**小结**:
+
+- **单引号**：完全保留字符串内容。
+- **双引号**：允许变量替换和命令替换，但保留大多数字符。
+- **反引号或 `$()`**：用于命令替换，将命令的输出作为参数传递。
 
 # shell 编程学习
 
@@ -1188,3 +1248,24 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 ## Bash基本功能（多命令顺序执行)
 
 <https://www.cnblogs.com/liuyuelinfighting/p/16082830.html>
+
+# shell 脚本实践
+
+## 执行二进制命令
+
+shell 中执行二进制命令，并根据二进制命令设置 shell 脚本的返回值
+
+```shell
+# Execute command
+ls -la .
+
+# Check exit status and print error if failed
+if [ $? -ne 0 ]; then
+    echo "Error: xxx command failed. Exiting..."
+    exit 1  # Exit with a non-zero status to indicate failure
+fi
+
+# If no error, continue with the script
+echo "xxx command executed successfully."
+exit 0  # Exit with status 0 if everything is okay
+```
