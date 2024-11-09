@@ -2,7 +2,7 @@
 
 # Linux 命令
 
-> [ Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh-cn/latest/base/index.html)
+> [Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh-cn/latest/base/index.html)
 
 # 系统版本命令
 
@@ -365,7 +365,7 @@ realpath --relative-to=/home /home/user/mydir
 
 `realpath` 命令非常适用于需要在脚本中确保路径一致性的场景。
 
-## basename命令
+## basename 命令
 
 `basename` 是一个常用的 Unix/Linux 命令，用于提取文件路径中的文件名部分，或从文件名中去掉指定的后缀。它特别适用于从完整的文件路径中提取文件名。
 
@@ -978,6 +978,204 @@ sed [OPTIONS] 'command' file
 
 # 命令行命令
 
+## eval 命令
+
+`eval` 是 Shell 中的一个内建命令，用于**将一段字符串解析为命令并执行**。它通常用于将字符串形式的命令转换为可执行的命令，特别是在需要动态构建和运行复杂命令时。
+
+**语法**：
+
+```bash
+eval [命令字符串]
+```
+
+**工作原理**：
+
+`eval` 会对提供的命令字符串进行两次解析：
+
+1. **第一次解析**：解释字符串中的变量和命令替换。
+2. **第二次解析**：将解析后的内容作为命令执行。
+
+因此，`eval` 对于动态生成命令非常有用，可以在运行时生成复杂的命令行。
+
+**使用场景和示例**：
+
+eval 命令用于计算并执行包含 shell 命令的字符串。有几个重要的应用场景：
+
+1. 变量的间接引用
+
+   ```bash
+   # 根据变量名的内容来访问不同的变量值
+   var_name="path"
+   path="/usr/local/bin"
+   eval echo \$$var_name  # /usr/local/bin
+
+   # 动态设置变量
+   key="my_var"
+   value="hello"
+   eval "$key='$value'"  # 相当于 my_var='hello'
+   ```
+
+   **说明**：`\$$var_name` 经过两次解析后变成了 `$path`，最终输出 `/usr/local/bin`。
+
+2. 动态生成和执行命令
+
+   ```bash
+   # 根据条件构建命令
+   options="-l -h"
+   cmd="ls $options"
+   eval $cmd
+
+   # 构建带参数的复杂命令
+   port=8080
+   host="localhost"
+   eval "curl -X POST http://$host:$port/api"
+
+   # 多个命令组合成一个字符串进行一次性执行
+   cmd1="echo Hello"
+   cmd2="echo World"
+   eval "$cmd1; $cmd2"  # 输出2行，Hello 和 World
+   ```
+
+3. 环境变量的展开
+
+   ```bash
+   # 展开环境变量字符串
+   path_var='$HOME/documents'
+   eval echo $path_var  # 将输出实际的home路径
+   ```
+
+4. 处理命令行参数
+
+   ```bash
+   # 处理带引号的参数
+   args='"arg1 with space" arg2'
+   eval set -- $args
+   echo $1  # 输出: arg1 with space
+   ```
+
+5. 配置文件处理
+
+   ```bash
+   # 读取配置文件中的变量定义
+   config_line="export JAVA_HOME=/usr/lib/java"
+   eval $config_line
+   ```
+
+6. 处理复杂的命令组合
+
+   ```bash
+   eval "for i in {1..3}; do echo \$i; done"
+   ```
+
+**注意事项**：
+
+- **安全性**：由于 `eval` 会执行传入的所有内容，因此要注意不要用 `eval` 直接运行来自不可信源的输入，避免安全风险。
+- **调试难度**：因为 `eval` 会两次解析内容，所以可能会导致调试较复杂的命令困难。
+- 避免直接执行来自用户输入的命令，可能存在安全风险
+- 在使用 `eval` 前应该检查用户输入和对特殊字符进行转义
+- 优先考虑使用数组或其他内置命令
+- 谨慎处理包含空格或特殊字符的字符串
+- 尽可能使用其他更安全的替代方法
+
+### `eval` 后跟命令/字符串
+
+在 `eval` 中，我们可以直接跟字符串，也可以跟其他命令（如 `echo` 等），它们的执行结果会有所不同。
+
+1. `eval` 后面直接跟字符串
+
+   当 `eval` 后面直接跟字符串时，`eval` 会把这个字符串当作命令执行。通常，我们会把这个字符串放在**双引号**中，来确保变量替换和命令替换正常进行。
+
+   ```bash
+   cmd="echo Hello $USER"
+   eval "$cmd"
+   ```
+
+   这里，`eval` 会首先解析 `$cmd` 的内容，把它变成 `echo Hello your_username`，然后执行这个命令。最终输出 `Hello your_username`。
+
+2. `eval` 后面跟 `echo`
+
+   当 `eval` 后面跟 `echo` 时，`eval` 会先解析其后面的内容，然后执行它。`echo` 只会把内容打印出来，而不真正执行任何命令。
+
+   ```bash
+   cmd="echo Hello $USER"
+   eval echo "$cmd"
+   ```
+
+   在这个例子中，`eval` 会解析 `"$cmd"`，将其内容变为 `echo Hello your_username`，然后执行这个 `echo` 命令。最终输出的结果是：`echo Hello your_username`
+
+   > **总结**：
+   > - **`eval "$cmd"`**：会把 `cmd` 中的内容当作命令来执行。
+   > - **`eval echo "$cmd"`**：只是将 `$cmd` 的内容打印出来，但不执行。
+
+3. `eval` 后面跟其他命令
+
+   `eval` 也可以跟任何其他有效的 Shell 命令，不只是字符串或 `echo`，如 `ls`、`cat` 等命令。一般来说，`eval` 会先对整个命令进行一次预处理（如变量解析、命令替换等），然后再执行。
+
+   假设我们有文件路径变量 `path` 和文件名变量 `filename`：
+
+   ```bash
+   path="/usr/local"
+   filename="bin"
+   eval "ls $path/$filename"  # 效果与 eval ls "$path/$filename" 一样
+   ```
+
+   `eval` 会将 `ls $path/$filename` 解析为 `ls /usr/local/bin`，然后执行 `ls /usr/local/bin`，列出该目录内容。
+
+### `eval` 后跟单/双/反引号
+
+`eval` 后面跟不同类型的引号效果不同：
+
+1. 双引号 (")：
+
+   - 变量会在 eval 执行前展开
+   - 允许变量和命令替换
+
+   ```bash
+   name="John"
+   eval "echo Hello $name"  # 输出：Hello John
+   ```
+
+2. 单引号 (')：
+
+   - 变量不会被展开
+   - 内容会被原样解释
+
+   ```bash
+   name="John"
+   eval 'echo Hello $name'  # 输出：Hello $name
+   ```
+
+3. 反引号 (`) 或 $()：
+
+   - 用于命令替换
+   - 命令会被执行并返回结果
+
+   ```bash
+   eval `echo "ls -l"`    # 执行 ls -l
+   eval $(echo "ls -l")   # 同上，更现代的写法
+   ```
+
+**示例**：
+
+ ```bash
+ # 双引号使用场景
+ var="world"
+ eval "message='Hello $var'"  # 变量会被展开
+
+ # 单引号使用场景
+ eval 'echo $PATH'  # $PATH 会在eval执行时才被展开
+
+ # 命令替换使用场景
+ eval `date "+now='%Y-%m-%d'"`
+ eval $(date "+now='%Y-%m-%d'")
+ ```
+
+**建议**：
+
+- 优先使用双引号，便于变量展开
+- 需要延迟变量展开时使用单引号
+- 命令替换优先使用 $() 语法，更清晰易读
+
 ## xargs 命令
 
 `xargs` 是 Linux 和 Unix 系统中的一个常用命令，用于将标准输入（例如管道或文件中的内容）转换为命令行参数。它允许你将其他命令的输出作为参数传递给指定的命令，特别适合处理多个输入，并将其批量传递给其他命令执行。
@@ -1056,7 +1254,6 @@ command | xargs [options] [command [initial-arguments]]
    ```
 
 3. `xargs` 批量压缩：
-
 
    ```bash
    find . -name "*.log" | xargs gzip
@@ -1217,12 +1414,12 @@ OPTIONS={ -V[ersion] | -s[tatistics] | -d[etails] | -r[esolve] | -h[uman-readabl
 
 ```shell
 # 实例
-ip link show                    # 显示网络接口信息
-ip link list    				# 用 ip 命令显示网络设备的运行状态：
-ip -s link list					# 显示更加详细的设备信息：
-ip addr show     				# 显示网卡IP信息
-ip route list 					# 显示核心路由表：
-ip link | grep -E '^[0-9]' | awk -F: '{print $2}'	# 获取主机所有网络接口：
+ip link show         # 显示网络接口信息
+ip link list         # 用 ip 命令显示网络设备的运行状态：
+ip -s link list      # 显示更加详细的设备信息：
+ip addr show         # 显示网卡IP信息
+ip route list        # 显示核心路由表：
+ip link | grep -E '^[0-9]' | awk -F: '{print $2}'  # 获取主机所有网络接口：
 ```
 
 ## ifconfig 命令
@@ -1360,7 +1557,7 @@ iwconfig [interface]
 
 ```shell
 # 实例
-iwconfig		# 显示无线网络配置
+iwconfig    # 显示无线网络配置
 ```
 
 ## wpa_supplicant 工具
