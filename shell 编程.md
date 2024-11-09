@@ -200,7 +200,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
      command &> outputfile.txt
      # 或
      command > outputfile.txt 2>&1
-    
+      
      ls /nonexistent_directory &> all_output.txt
      # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
      ```
@@ -522,6 +522,142 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 - **单引号**：完全保留字符串内容。
 - **双引号**：允许变量替换和命令替换，但保留大多数字符。
 - **反引号或 `$()`**：用于命令替换，将命令的输出作为参数传递。
+
+## shell 命令展开
+
+Shell命令的展开是单次展开，按照固定顺序进行一次性展开。每种展开类型只会执行一次。不是递归展开。
+
+举例说明：
+
+1. 变量展开不会递归
+
+   ```bash
+   a='$b'
+   b='$c'
+   c='hello'
+   echo $a  # 输出 $b，而不是递归展开到 hello
+   ```
+
+2. 命令替换不会递归
+
+   ```bash
+   cmd1='$(echo $cmd2)'
+   cmd2='$(echo hello)'
+   echo $(echo $cmd1)  # 输出 $(echo $cmd2)，不会继续展开
+   ```
+
+3. 要实现多次展开，需要使用eval
+
+   ```bash
+   # 使用eval实现递归展开
+   a='$b'
+   b='$c'
+   c='hello'
+   eval echo $a  # 输出 $c
+   eval eval echo $a  # 输出 hello
+   ```
+
+4. 实际应用示例
+
+   ```bash
+   # 单次展开
+   var1="world"
+   var2='$var1'
+   echo $var2  # 输出: $var1
+   
+   # 使用eval强制多次展开
+   eval echo $var2  # 输出: world
+   
+   # 命令替换也是单次
+   cmd='$(echo "$(date)")'
+   echo $cmd  # 输出: $(echo "$(date)")
+   eval echo $cmd  # 输出: 当前日期
+   ```
+
+**重要说明**：
+
+- shell 的标准展开是单次的
+- 需要多次展开时必须显式使用 eval
+- 过多的展开层次会使代码**难以维护和理解**
+- 应尽量**避免复杂的多层展开**
+
+## shell 命令展开优先级
+
+Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低）：
+
+- Brace expansion（大括号展开）
+- Tilde expansion（波浪号展开）
+- Parameter and variable expansion（参数和变量展开）
+- Command substitution（命令替换）
+- Arithmetic expansion（算术展开）
+- Word splitting（词分割）
+- Pathname expansion（路径名展开/通配符展开）
+
+1. 大括号展开
+
+   ```bash
+   echo th{i,a}t  # 展开为 thit that
+   ```
+
+2. 波浪号展开 (~)
+
+   ```bash
+   echo ~/dir  # 展开为 /home/user/dir
+   ```
+
+3. 参数和变量展开
+
+   ```bash
+   name="John"
+   echo $name    # 展开为 John
+   echo ${name}  # 同上
+   ```
+
+4. 命令替换
+
+   ```bash
+   echo $(date)  # 执行date命令并替换结果
+   echo `date`   # 同上
+   ```
+
+5. 算术展开
+
+   ```bash
+   echo $((2 + 2))  # 展开为 4
+   ```
+
+6. 单词分割(IFS)
+
+   ```bash
+   var="a b c"
+   echo $var     # 分割为三个单词：a b c
+   echo "$var"   # 保持为一个单词："a b c"
+   ```
+
+7. 路径名展开(通配符)
+
+   ```bash
+   echo *.txt    # 展开为所有.txt文件
+   ```
+
+**示例**：
+
+   ```bash
+   # 展开顺序示例
+   user="john"
+   echo ~/${user}_file{1,2}.{txt,log}
+
+   # 展开步骤：
+   # 1. 大括号展开：~/john_file1.txt ~/john_file1.log ~/john_file2.txt ~/john_file2.log
+   # 2. 波浪号展开：/home/user/john_file1.txt ...
+   # 3. 变量展开：已在步骤1中完成
+   ```
+
+**注意事项**：
+
+- 展开顺序是固定的，不可更改
+- 引号会影响展开行为
+- 展开结果会作为命令的参数
 
 # shell 编程学习
 
