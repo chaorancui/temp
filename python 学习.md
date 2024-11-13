@@ -266,35 +266,11 @@ print(absolute_path_unix)
 ```python
 name = "Alice"
 age = 30
+a = 5
 
 # 使用 f-string 进行字符串格式化
-greeting = f"Hello, {name}. You are {age} years old."
-print(greeting)
-```
-
-输出：
-
-```log
-Hello, Alice. You are 30 years old.
-```
-
-**表达式嵌入**：
-
-f-string 还允许在花括号中嵌入任意的 Python 表达式：
-
-```python
-a = 5
-b = 10
-
-# 在 f-string 中嵌入表达式
-result = f"The sum of {a} and {b} is {a + b}."
-print(result)
-```
-
-输出：
-
-```log
-The sum of 5 and 10 is 15.
+greeting = f"Hello, {name}. You are {age + a} years old."
+print(greeting)  # 输出："Hello, Alice. You are 35 years old."
 ```
 
 **调用函数和方法**：
@@ -307,32 +283,54 @@ def greet(name):
 
 name = "Bob"
 greeting = f"{greet(name)} How are you today?"
-print(greeting)
+print(greeting)  # 输出: "Hello, Bob! How are you today?"
 ```
 
-输出：
+**格式化数字**：
 
-```
-Hello, Bob! How are you today?
-```
+你可以在 f-string 中在表达式后面加上 `:` 和格式说明符，来控制数字的显示格式。例如，浮动小数点数字的精度、填充宽度、对齐方式等。
 
-**格式化选项**：
 
-f-string 支持格式化选项，与 `str.format()` 方法类似。你可以在表达式后面加上 `:` 和格式说明符：
+- `:.2f` 表示保留两位小数。
+- `:05` 表示总宽度为 5，空位填充 0。
+- `:,` 会自动为数字添加千位分隔符。
+- `<` 表示左对齐。
+- `>` 表示右对齐。
+- `^` 表示居中对齐。
+- `10` 表示宽度为 10，空白部分根据对齐规则填充。
+
 
 ```python
-value = 3.14159
+pi = 3.14159265358979
+print(f"Value of Pi to 2 decimal places: {pi:.2f}")  # 输出: "Value of Pi to 2 decimal places: 3.14"
 
-# 保留两位小数
-formatted_value = f"Pi is approximately {value:.2f}."
-print(formatted_value)
+number = 42
+print(f"Number padded with leading zeros: {number:05}")  # 输出: "Number padded with leading zeros: 00042"
+
+number = 1000000
+print(f"Formatted number: {number:,}")  # 输出: "Formatted number: 1,000,000"
+
+name = "Alice"
+print(f"{name:<10}")  # 输出: "Alice     "  (左对齐)
+print(f"{name:>10}")  # 输出: "     Alice"  (右对齐)
+print(f"{name:^10}")  # 输出: "  Alice   "  (居中对齐)
 ```
 
-输出：
 
-```log
-Pi is approximately 3.14.
+
+**日期和时间格式化**：
+
+你可以在 f-string 中使用 `strftime()` 格式化日期和时间。
+
+```python
+from datetime import datetime
+
+now = datetime.now()
+print(f"Current date and time: {now:%Y-%m-%d %H:%M:%S}")
+# 输出: "Current date and time: 2024-11-13 12:34:56"
 ```
+
+- `%Y-%m-%d %H:%M:%S` 是日期和时间的格式化字符串。
 
 **多行 f-string**：
 
@@ -367,13 +365,7 @@ Address: Wonderland
 ```python
 name = "Alice"
 quote = f'He said, "Hello, {name}!"'
-print(quote)
-```
-
-输出：
-
-```
-He said, "Hello, Alice!"
+print(quote) # 输出: He said, "Hello, Alice!"
 ```
 
 **使用字典和列表**：
@@ -386,15 +378,23 @@ numbers = [1, 2, 3, 4, 5]
 
 info = f"{person['name']} is {person['age']} years old."
 number_list = f"The first number is {numbers[0]}."
-print(info)
-print(number_list)
+print(info) # 输出: Alice is 30 years old.
+print(number_list) # 输出: The first number is 1.
 ```
 
-输出：
+**使用对象的属性**：
 
-```log
-Alice is 30 years old.
-The first number is 1.
+f-string 也可以直接访问对象的属性：
+
+```python
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+person = Person("John", 25)
+message = f"Name: {person.name}, Age: {person.age}"
+print(message)  # 输出: "Name: John, Age: 25"
 ```
 
 **总结**：
@@ -944,6 +944,222 @@ kwargs = {'a': 10, 'b': 20, 'c': 30}
 my_function(**kwargs)  # 输出: 10 20 30
 ```
 
+## 内置字符串
+
+Python 的字符串（`str` 类型）提供了许多内置方法，用于处理文本数据。以下是一些常用的字符串方法及其功能。
+
+1. `str.capitalize()`
+
+   将字符串的第一个字符转为大写，其余字符转为小写。
+
+   ```python
+   s = "hello"
+   print(s.capitalize())  # 输出: "Hello"
+   ```
+
+2. `str.lower()`
+
+   将字符串中的所有字符转换为小写。
+
+   ```python
+   s = "HELLO"
+   print(s.lower())  # 输出: "hello"
+   ```
+
+3. `str.upper()`
+
+   将字符串中的所有字符转换为大写。
+
+   ```python
+   s = "hello"
+   print(s.upper())  # 输出: "HELLO"
+   ```
+
+4. `str.title()`
+
+   将字符串中的每个单词的首字母转为大写，其他字母转为小写。
+
+   ```python
+   s = "hello world"
+   print(s.title())  # 输出: "Hello World"
+   ```
+
+5. `str.strip()`
+
+   移除字符串两端的空白字符（包括空格、换行符等）。
+
+   ```python
+   s = "  hello  "
+   print(s.strip())  # 输出: "hello"
+   ```
+
+6. `str.lstrip()` 和 `str.rstrip()`
+
+   - `str.lstrip()` 移除字符串左边的空白字符。
+   - `str.rstrip()` 移除字符串右边的空白字符。
+
+   ```python
+   s = "  hello  "
+   print(s.lstrip())  # 输出: "hello  "
+   print(s.rstrip())  # 输出: "  hello"
+   ```
+
+7. `str.replace(old, new, count)`
+
+   替换字符串中的指定子字符串。如果提供了 `count`，则只替换前 `count` 次出现的子字符串。
+
+   ```python
+   s = "hello world"
+   print(s.replace("world", "Python"))  # 输出: "hello Python"
+   ```
+
+8. `str.split(sep, maxsplit)`
+
+   将字符串根据指定的分隔符 `sep` 切割成多个子字符串。如果指定了 `maxsplit`，则最多切割 `maxsplit` 次。
+
+   ```python
+   s = "apple,banana,orange"
+   print(s.split(","))  # 输出: ['apple', 'banana', 'orange']
+   print(s.split(",", 1))  # 输出: ['apple', 'banana,orange']
+   ```
+
+9. `str.join(iterable)`
+
+   将可迭代对象（如列表或元组）中的元素连接成一个新的字符串，并使用字符串作为分隔符。
+
+   ```python
+   words = ["hello", "world"]
+   print(" ".join(words))  # 输出: "hello world"
+   ```
+
+10. `str.find(sub)`
+
+    返回子字符串 `sub` 在字符串中第一次出现的位置，如果未找到返回 `-1`。
+
+    ```python
+    s = "hello world"
+    print(s.find("world"))  # 输出: 6
+    print(s.find("Python"))  # 输出: -1
+    ```
+
+11. `str.index(sub)`
+
+    与 `find` 类似，但如果未找到子字符串，`index` 会抛出 `ValueError` 异常。
+
+    ```python
+    s = "hello world"
+    print(s.index("world"))  # 输出: 6
+    # print(s.index("Python"))  # 会抛出 ValueError
+    ```
+
+12. `str.count(sub)`
+
+    返回子字符串 `sub` 在字符串中出现的次数。
+
+    ```python
+    s = "hello hello world"
+    print(s.count("hello"))  # 输出: 2
+    ```
+
+13. `str.startswith(prefix)`
+
+    判断字符串是否以 `prefix` 开头，返回布尔值。
+
+    ```python
+    s = "hello world"
+    print(s.startswith("hello"))  # 输出: True
+    print(s.startswith("world"))  # 输出: False
+    ```
+
+14. `str.endswith(suffix)`
+
+    判断字符串是否以 `suffix` 结尾，返回布尔值。
+
+    ```python
+    s = "hello world"
+    print(s.endswith("world"))  # 输出: True
+    print(s.endswith("hello"))  # 输出: False
+    ```
+
+15. `str.isdigit()`
+
+    判断字符串是否只包含数字字符，如果是，返回 `True`，否则返回 `False`。
+
+    ```python
+    s = "12345"
+    print(s.isdigit())  # 输出: True
+    print("hello".isdigit())  # 输出: False
+    ```
+
+16. `str.isalpha()`
+
+    判断字符串是否只包含字母字符。
+
+    ```python
+    s = "hello"
+    print(s.isalpha())  # 输出: True
+    print("hello123".isalpha())  # 输出: False
+    ```
+
+17. `str.isalnum()`
+
+    判断字符串是否只包含字母或数字字符。
+
+    ```python
+    s = "hello123"
+    print(s.isalnum())  # 输出: True
+    print("hello!".isalnum())  # 输出: False
+    ```
+
+18. `str.islower()` 和 `str.isupper()`
+
+    - `str.islower()` 判断字符串是否全部为小写字母。
+    - `str.isupper()` 判断字符串是否全部为大写字母。
+
+    ```python
+    s = "hello"
+    print(s.islower())  # 输出: True
+    print(s.isupper())  # 输出: False
+    ```
+
+19. `str.isnumeric()`
+
+    判断字符串是否只包含数字字符。
+
+    ```python
+    s = "123"
+    print(s.isnumeric())  # 输出: True
+    ```
+
+20. `str.zfill(width)`
+
+    将字符串填充到指定的宽度 `width`，并在左侧填充零。如果字符串长度大于或等于 `width`，则返回原字符串。
+
+    ```python
+    s = "42"
+    print(s.zfill(5))  # 输出: "00042"
+    ```
+
+21. `str.rjust(width, fillchar)` 和 `str.ljust(width, fillchar)`
+
+    - `str.rjust(width, fillchar)` 将字符串右对齐，左侧填充 `fillchar`，直到达到指定宽度。
+    - `str.ljust(width, fillchar)` 将字符串左对齐，右侧填充 `fillchar`，直到达到指定宽度。
+
+    ```python
+    s = "42"
+    print(s.rjust(5, "0"))  # 输出: "00042"
+    print(s.ljust(5, "0"))  # 输出: "42000"
+    ```
+
+22. `str.partition(sep)`
+
+    将字符串按照分隔符 `sep` 分为三部分：分隔符前的部分、分隔符本身和分隔符后的部分，返回一个元组。如果找不到分隔符，返回原字符串和两个空字符串。
+
+    ```python
+    s = "apple,banana,orange"
+    print(s.partition(","))  # 输出: ('apple', ',', 'banana,orange')
+    ```
+
 # python 模板
 
 ## Python 模板引擎
@@ -1287,7 +1503,7 @@ Python 中的模板引擎（如 Jinja2 和 Django 模板）提供了丰富的过
    ```python
    from django.template import Template, Context
    from datetime import datetime
-
+   
    # 模板内容
    template_content = """
    Original: {{ variable }}
@@ -1299,20 +1515,20 @@ Python 中的模板引擎（如 Jinja2 和 Django 模板）提供了丰富的过
    Join: {{ list_var | join:", " }}
    Date: {{ date_var | date:"Y-m-d" }}
    """
-
+   
    # 创建模板对象
    template = Template(template_content)
-
+   
    # 创建上下文对象
    context = {
        'variable': 'Hello World',
        'list_var': ['apple', 'banana', 'cherry'],
        'date_var': datetime.now()
    }
-
+   
    # 渲染模板
    output = template.render(Context(context))
-
+   
    print(output)
    ```
 
@@ -1551,7 +1767,7 @@ print(class_variables)
 
 输出：
 
-```
+```log
 {'class_variable': 'I am a class variable'}
 ```
 
@@ -1583,7 +1799,7 @@ print(instance.gen_param_dict()) # 调用函数
 
 输出：
 
-```
+```log
 {'age': 30, 'name': 'Alice'}
 {'age': 30, 'name': 'Alice'}
 ```
@@ -1617,7 +1833,7 @@ print(class_variables)
 
 #### 获取实例变量
 
-```
+```python
 import inspect
 
 class MyClass:
@@ -1650,7 +1866,7 @@ print(instance_variables)
 
 以下是一个完整的示例代码，展示如何获取类变量和实例变量：
 
-```
+```python
 import inspect
 
 class MyClass:
@@ -1685,7 +1901,7 @@ print("Instance Variables:", instance_variables)
 
 运行结果：
 
-```
+```log
 Class Variables: {'class_variable': 'I am a class variable'}
 Instance Variables: {'name': 'Alice', 'age': 30}
 ```
@@ -1724,7 +1940,7 @@ print(person_dict)
 
 输出：
 
-```
+```log
 {'name': 'Alice', 'age': 30, 'city': 'Wonderland', 'job': 'Engineer', 'hobby': 'Reading'}
 ```
 
@@ -1734,4 +1950,4 @@ print(person_dict)
 
 ## [PyQt5 关于 Qt Designer 的初步应用和打包过程详解](http://www.codebaoku.com/it-python/it-python-223940.html)
 
-​ 在 PyQt 中编写 UI 界面可以直接通过代码来实现，也可以通过 Qt Designer 来完成。Qt Designer 的设计符合 MVC 的架构，其实现了视图和逻辑的分离，从而实现了开发的便捷。Qt Designer 中的操作方式十分灵活，其通过拖拽的方式放置控件可以随时查看控件效果。Qt Designer 生成的.ui 文件（实质上是 XML 格式的文件）也可以通过 pyuic5 工具转换成.py 文件。 Qt Designer 随 PyQt5-tools 包一起安装，其安装路径在 “Python 安装路径\Lib\site-packages\pyqt5-tools”下。若要启动 Qt Designer 可以直接到上述目录下，双击 designer.exe 打开 Qt Designer；或将上述路径加入环境变量，在命令行输入 designer 打开；或在 PyCharm 中将其配置为外部工具打开。下面以 PyCharm 为例，讲述 PyCharm 中 Qt Designer 的配置方法。
+ 在 PyQt 中编写 UI 界面可以直接通过代码来实现，也可以通过 Qt Designer 来完成。Qt Designer 的设计符合 MVC 的架构，其实现了视图和逻辑的分离，从而实现了开发的便捷。Qt Designer 中的操作方式十分灵活，其通过拖拽的方式放置控件可以随时查看控件效果。Qt Designer 生成的.ui 文件（实质上是 XML 格式的文件）也可以通过 pyuic5 工具转换成.py 文件。 Qt Designer 随 PyQt5-tools 包一起安装，其安装路径在 “Python 安装路径\Lib\site-packages\pyqt5-tools”下。若要启动 Qt Designer 可以直接到上述目录下，双击 designer.exe 打开 Qt Designer；或将上述路径加入环境变量，在命令行输入 designer 打开；或在 PyCharm 中将其配置为外部工具打开。下面以 PyCharm 为例，讲述 PyCharm 中 Qt Designer 的配置方法。
