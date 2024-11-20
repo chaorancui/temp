@@ -61,12 +61,14 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 3. **创建单层目录**
 
    ```python
+   # 注意提前判断路径为空的异常场景
    os.mkdir('/path/to/new/directory')
    ```
 
 4. **递归创建多层目录**
 
    ```python
+   # 注意提前判断路径为空的异常场景
    os.makedirs('/path/to/new/directory/with/multiple/levels', exist_ok=True)
    ```
 
@@ -225,7 +227,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
 4. **获取路径的目录名和文件名**
 
-   - `os.path.dirname(path)`: 返回路径的目录名（不包括文件名）。
+   - `os.path.dirname(path)`: 返回路径的目录名（不包括文件名）。<span style="color: blue; font-weight: bold;">注意目录名可能为空，创建文件夹要处理此异常场景。</span>
 
    - `os.path.basename(path)`: 返回路径的基本名称（即文件名或目录名，不包括目录路径）。
 
@@ -374,8 +376,8 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      normalized_path = os.path.normpath(path)
 
-     print(f"Original path: {path}")
-     print(f"Normalized path: {normalized_path}")
+     print(f"Original path: {path}") # 输出："/path/to/../file.txt"
+     print(f"Normalized path: {normalized_path}") # 输出："/path/file.txt"
      ```
 
 6. **检查路径是否相同**
@@ -415,6 +417,21 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
    - `folder_path` 是你要查找的文件夹路径。
    - `os.listdir(folder_path)` 列出文件夹中的所有文件。
    - `f.endswith('.bin')` 用于过滤以 `.bin` 结尾的文件。
+
+2. 创建输出文件目录
+   Python 命令参数中经常会同时指定输入文件路径和输出文件路径，而输出文件路径有时候可能不存在，需要新创建。代码示例如下：
+
+   ```shell
+   import os
+
+   output_file = "example.txt"  # 替换为你的实际文件路径
+
+   directory = os.path.dirname(output_file)
+   if not directory: # 如果 directory 为空，设置为当前目录
+       directory = "."
+
+   os.makedirs(directory, exist_ok=True) # directory 为空，此命令会报错
+   ```
 
 ## 打开文件
 
@@ -1319,7 +1336,7 @@ mode_string = stat.filemode(file_stat.st_mode)
 print(f"File mode string: {mode_string}")
 ```
 
-**总结**
+**总结**：
 
 `stat` 模块在处理文件和目录的状态信息时非常有用。通过结合使用 `os` 模块和 `stat` 模块，可以方便地获取文件的详细信息并执行各种检查。无论是查看文件权限、确定文件类型还是获取文件的时间戳信息，`stat` 模块都提供了便捷的方法来实现这些操作。
 
@@ -1380,7 +1397,7 @@ print(f"File mode string: {mode_string}")
    - `%(levelname)s` 表示日志级别名称
    - `%(message)s` 表示日志消息
 
-**示例**
+**示例**：
 
 ```python
 import logging
@@ -1398,7 +1415,7 @@ logging.critical('This is a critical message')
 
 运行上述示例，会输出类似以下内容的日志信息：
 
-```
+```log
 2024-07-10 12:00:00,000 - DEBUG - This is a debug message
 2024-07-10 12:00:00,001 - INFO - This is an info message
 2024-07-10 12:00:00,002 - WARNING - This is a warning message
@@ -1485,7 +1502,7 @@ Python 中的 `struct` 模块用于在**字节串和 Python 原生数据类型�
 
 ### 示例
 
-#### 1. 打包和解包整数
+#### 打包和解包整数
 
 ```python
 import struct
@@ -1499,7 +1516,7 @@ unpacked_data = struct.unpack('i', packed_data)
 print(f'Unpacked Data: {unpacked_data[0]}') # Unpacked Data: 42
 ```
 
-#### 2. 打包和解包多个值
+#### 打包和解包多个值
 
 ```python
 # 打包数据
@@ -1511,14 +1528,14 @@ unpacked_data = struct.unpack('i4sh', packed_data)
 print(f'Unpacked Data: {unpacked_data}') # Unpacked Data: (42, b'test', 7)
 ```
 
-#### 3. 计算结构大小
+#### 计算结构大小
 
 ```python
 size = struct.calcsize('i4sh')
 print(f'Structure Size: {size} bytes') # Structure Size: 10 bytes
 ```
 
-**示例解释**
+**示例解释**：
 
 1. **打包和解包整数**：我们使用 `struct.pack('i', 42)` 将整数 42 打包成二进制数据，并使用 `struct.unpack('i', packed_data)` 将其解包回整数。
 2. **打包和解包多个值**：我们将一个整数、一个字符串和一个短整数打包在一起，并解包成原始值。
@@ -1526,7 +1543,7 @@ print(f'Structure Size: {size} bytes') # Structure Size: 10 bytes
 
 ### 进阶用法
 
-#### 1. 处理字节序
+#### 处理字节序
 
 默认情况下，`struct` 按照本地字节序处理数据。你可以在格式字符串前添加字符来指定字节序：
 
@@ -1546,7 +1563,7 @@ packed_data = struct.pack('>i', 42)
 print(f'Big Endian Packed Data: {packed_data}')
 ```
 
-#### 2. 处理浮点数
+#### 处理浮点数
 
 ```python
 # 打包浮点数
@@ -1558,7 +1575,7 @@ unpacked_data = struct.unpack('f', packed_data)
 print(f'Unpacked Float Data: {unpacked_data[0]}')
 ```
 
-**总结**
+**总结**：
 
 `struct` 模块提供了一种高效的方法来处理二进制数据。通过指定格式字符串，你可以灵活地在 Python 值和二进制数据之间进行转换。这在**处理网络协议、文件格式或其他低级别数据处理任务时**非常有用。
 
