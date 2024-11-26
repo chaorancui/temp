@@ -175,17 +175,17 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
 
    ```cpp
    #include <concepts>
-
+   
    template <typename T>
    concept Printable = requires(T t) {
        { t.to_string() } -> std::convertible_to<std::string>;
    };
-
+   
    template <Printable T>
    void print(const T& value) {
        std::cout << value.to_string() << std::endl;
    }
-
+   
    template <typename T>
    void print(const T& value) requires (!Printable<T>) {
        std::cout << value << std::endl;
@@ -343,26 +343,26 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
    ```cpp
    #include <concepts>
    #include <iostream>
-
+   
    template<typename T>
    concept Numeric = std::integral<T> || std::floating_point<T>;
-
+   
    template<typename T>
    concept Printable = requires(T t) {
        { std::cout << t } -> std::same_as<std::ostream&>;
    };
-
+   
    template<Numeric T>
    void process(T value) {
        std::cout << "Processing numeric value: " << value << std::endl;
    }
-
+   
    template<Printable T>
    void process(T value) {
        std::cout << "Processing printable value: ";
        std::cout << value << std::endl;
    }
-
+   
    int main() {
        process(42);     // 输出：Processing numeric value: 42
        process(3.14);   // 输出：Processing numeric value: 3.14
@@ -390,6 +390,17 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
 
 C++ 中的 Two-Phase Translation（两阶段翻译）是模板编译的一个核心机制，特别是在标准 C++（如 C++98）中首次引入。它规定模板的实例化分为两个阶段，模板定义阶段和模板实例化阶段，以确保编译器能够正确解析模板代码。
 
+1. **第一阶段**（模板定义时）：
+   - 检查模板的基本语法
+   - 检查与模板参数无关的静态断言
+   - 进行名称查找（name lookup）和函数重载解析
+2. **第二阶段**（模板实例化时）：
+   - 检查依赖于模板参数的代码
+   - 类型检查
+   - 进行最终的代码生成
+
+详细展开：
+
 1. 定义阶段检查
    在这个阶段，编译器检查模板的整体结构，但**不涉及依赖于模板参数**的部分。主要检查内容包括：
 
@@ -414,6 +425,7 @@ C++ 中的 Two-Phase Translation（两阶段翻译）是模板编译的一个核
      进行全面的语义分析，包括重载解析、访问控制等。
    - 特化和偏特化的检查：
      检查是否存在适用的特化或偏特化版本。
+   - 进行最终的代码生成。
 
 3. 示例
 
@@ -899,7 +911,7 @@ C++ 模板中，不能同时使用 `if constexpr` 和 `static_assert(false)`，�
 `if constexpr` 是 C++17 引入的一个特性，用于在编译时进行条件分支。它的主要目的是根据模板参数或其他编译时常量来选择性地编译代码块。
 `static_assert` 是一个编译时断言，用于在编译期间检查条件是否为真。如果条件为假，编译器会产生一个错误。
 
-同时使用 `fi constexpr` 和 `static_assert(false)` 时，会出现编译错误。例如：
+同时使用 `if constexpr` 和 `static_assert(false)` 时，会出现编译错误。例如：
 
 ```cpp
 template <typename T>
@@ -907,18 +919,53 @@ void func() {
     if constexpr (std::is_integral_v<T>) {
         // 整数类型的代码
     } else {
-        static_assert(false, "Not supported for this type");
+        static_assert(false, "Not supported for this type");  // 在第一阶段就会失败
     }
 }
 ```
 
-这段代码的问题在于，即使 if constexpr 的条件为真（即 T 是整数类型），static_assert(false) 仍然会被实例化和检查，导致编译错误。具体分析：
+这段代码的问题在于，即使 if constexpr 的条件为真（即 T 是整数类型），static_assert(false) 仍然会被实例化和检查，导致编译错误。
 
-a. 模板的完整实例化：当模板被实例化时，编译器会检查整个模板定义，包括所有分支，即使是 if constexpr 中的未选中分支。
+这与 C++ 模板的两阶段编译（Two-Phase Translation）特性有关：
 
-b. static_assert 的即时求值：static_assert 是在编译时立即求值的，不会等到运行时。
+1. **第一阶段**（模板定义时）：
+   - 检查模板的基本语法
+   - 检查与模板参数无关的静态断言
+   - 进行名称查找（name lookup）和函数重载解析
+2. **第二阶段**（模板实例化时）：
+   - 检查依赖于模板参数的代码
+   - 类型检查
+   - 进行最终的代码生成
 
-c. 两阶段名称查找：在模板实例化过程中，编译器会进行两阶段名称查找，这意味着即使在未选中的 if constexpr 分支中的代码也会被部分处理。
+关键点在于：`static_assert(false)` 是非依赖性表达式（non-dependent expression），它在第一阶段就会被求值。而 `if constexpr` 的分支消除发生在第二阶段。
+**分支消除是第二阶段最优先进行的操作，这保证了被消除分支中的代码不会参与后续的编译过程。(来自 Claude-3.5-Sonnet)**
+
+上面的例子，即使我们用整数类型调用 `func<int>()`：
+
+1. 在第一阶段，编译器看到 `static_assert(false)` 时就会报错，因为这是个非依赖表达式。
+2. `if constexpr` 的**分支消除要等到第二阶段才会发生，这时已经太晚了**。
+
+而这个版本就没问题：
+
+```cpp
+template<typename T>
+void func() {
+    if constexpr (std::is_integral_v<T>) {
+        // 整数类型的处理
+    } else {
+        static_assert(std::is_integral_v<T>, "error");  // 依赖于T，第二阶段才求值
+    }
+}
+```
+
+因为 `std::is_integral_v<T>` 是依赖性表达式，它的求值会推迟到第二阶段，这时 `if constexpr` 的分支消除已经发生。
+
+这就是为什么我们需要使用依赖于模板参数的表达式来做静态断言，比如：
+
+- `static_assert(std::is_integral_v<T>)`
+- `static_assert(always_false<T>::value)`
+
+而不能直接使用 `static_assert(false)`。
 
 ## 函数模板**重载**中使用省略号（...）
 
@@ -943,7 +990,7 @@ c. 两阶段名称查找：在模板实例化过程中，编译器会进行两�
    // 2-1. 使用 int 参数版本，调用时用 has_getValue<T>(0)。也可用 double/string 等参数版本，对应调用时做修改即可。
    template <typename T>
    auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{});
-
+   
    // 2-2. 使用 ... 参数版本作为回退，它也可以匹配无参数的调用，因此上面不能没有参数
    template <typename T>
    std::false_type has_getValue(...);
@@ -974,7 +1021,7 @@ c. 两阶段名称查找：在模板实例化过程中，编译器会进行两�
       ```cpp
       template <typename T>
       auto has_value_type(int) -> typename std::enable_if<sizeof(typename T::value_type) >= 0, std::true_type>::type;
-
+      
       template <typename T>
       std::false_type has_value_type(...);
       ```
@@ -990,666 +1037,6 @@ c. 两阶段名称查找：在模板实例化过程中，编译器会进行两�
    - C++20 引入了概念（Concepts），提供了一种更清晰、更强大的方式来实现类似的功能。
 
 通过使用这种"回退"机制，我们可以创建强大而灵活的模板代码，能够适应各种不同的类型，同时保持**类型安全**和**编译时检查**的优势。这是 C++ 模板元编程中一个非常有用和常用的技巧，特别是在实现类型特征（type traits）和条件编译时。
-
-# 常见元模板
-
-## std::enable_if
-
-`std::enable_if` 是 C++ 模板元编程中一个非常有用的工具，主要用于在**编译时根据条件选择性地启用或禁用函数模板或类模板的特化**。
-
-### `<type_traits>` 定义
-
-> cppreference: [std::enable_if](https://zh.cppreference.com/w/cpp/types/enable_if)
-
-```cpp
-template< bool B, class T = void >
-struct enable_if;
-// (C++11 起)
-```
-
-若 B 为 true，则 std::enable_if 拥有等同于 T 的公开成员 typedef type；**否则，无成员 typedef**。
-此元函数是在 C++20 的概念可用前，活用 SFINAE 的便利方法，尤其是基于类型特征从候选集中条件性地移除函数，并对不同类型特征提供分离的函数重载与特化。
-
-std::enable_if 有多种用法，包括：
-
-- 用作**额外的函数实参**（不适用于大多数运算符重载）
-- 用作**返回类型**（不适用于构造函数与析构函数）
-- 用作**类模板或函数模板形参**。
-  如果程序添加了 std::enable_if 的特化，那么行为未定义。
-
-C++14 之后的别名模板：
-
-```cpp
-template< bool B, class T = void >
-using enable_if_t = typename enable_if<B,T>::type;
-```
-
-可能的实现
-
-```cpp
-template<bool B, class T = void>
-struct enable_if {};
-
-template<class T>
-struct enable_if<true, T> { typedef T type; };
-```
-
-工作原理：
-
-- 如果 `condition` 为 true，`std::enable_if<condition, type>::type` 会被定义为 `type`（**默认是 void**）。
-- 如果 `condition` 为 false，`std::enable_if<condition, type>::type` **不会被定义**，导致 SFINAE，使得这个模板实例化失败。
-- 由于这是一个默认模板参数，失败不会导致编译错误，而是使**编译器继续查找其他可能匹配的重载或特化**。
-
-### 常见用法
-
-以下是 `std::enable_if` 的几种常见用法：
-
-1. 作为**函数模板的返回类型**
-
-   这是最常见的用法之一，用于根据模板参数的特性来启用或禁用特定的函数重载。
-
-   ```cpp
-   #include <type_traits>
-   #include <iostream>
-
-   // 只对整数类型启用这个函数
-   template<typename T>
-   typename std::enable_if<std::is_integral<T>::value, void>::type
-   printTypeInfo(T value) {
-       std::cout << "Integral type: " << value << std::endl;
-   }
-
-   // 只对浮点类型启用这个函数
-   template<typename T>
-   typename std::enable_if<std::is_floating_point<T>::value, void>::type
-   printTypeInfo(T value) {
-       std::cout << "Floating point type: " << value << std::endl;
-   }
-
-   int main() {
-       printTypeInfo(42);    // 输出：Integral type: 42
-       printTypeInfo(3.14);  // 输出：Floating point type: 3.14
-       return 0;
-   }
-   ```
-
-2. 作为**模板参数的默认值**
-
-   这种方法可以用来在**不改变函数签名**的情况下应用 SFINAE。
-
-   ```cpp
-   #include <type_traits>
-   #include <iostream>
-
-   // 对整数类型使用这个重载
-   template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-   void process(T value) {
-       std::cout << "Processing integer: " << value << std::endl;
-   }
-
-   // 对非整数类型使用这个重载
-   template<typename T, typename = typename std::enable_if<!std::is_integral<T>::value>::type>
-   void process(T value) {
-       std::cout << "Processing non-integer: " << value << std::endl;
-   }
-
-   int main() {
-       process(42);     // 输出：Processing integer: 42
-       process(3.14);   // 输出：Processing non-integer: 3.14
-       process("Hello"); // 输出：Processing non-integer: Hello
-       return 0;
-   }
-   ```
-
-   > 说明：
-   > 『在不改变函数签名的情况下应用 SFINAE』意思是：
-   > 使用 `template<typename T, typename = typename std::enable_if<condition, type>::type>` 这种语法，可以在**不改变函数的参数列表和返回类型**的情况下应用 SFINAE（Substitution Failure Is Not An Error）。
-   >
-   > - typename T: 主模板参数
-   > - typename = ...: **默认模板参数**
-   > - std::enable_if<condition, type>::type: SFINAE 条件
-   >
-   > 传统的 SFINAE 方法： 传统上，我们可能会这样使用 SFINAE：
-   >
-   > ```cpp
-   > template<typename T>
-   > typename std::enable_if<std::is_integral<T>::value, void>::type
-   > func(T value) {
-   >     // 函数实现
-   > }
-   > ```
-   >
-   > 在这种情况下，SFINAE 条件是函数返回类型的一部分。
-   > 使用默认模板参数的方法： 使用我们讨论的语法，可以这样写：
-   >
-   > ```cpp
-   > template<typename T, typename = typename std::enable_if<std::is_integral<T>::value>::type>
-   > void func(T value) {
-   >     // 函数实现
-   > }
-   > ```
-   >
-   > 比较两种方法：
-   > 在第一种方法中，SFINAE 条件是函数签名的一部分（它出现在返回类型中）。
-   > 在第二种方法中，SFINAE 条件被移到了模板参数列表中，函数的签名（返回类型和参数列表）保持不变。
-   >
-   > 为什么这很重要：
-   > 代码清晰度：第二种方法使函数签名更加清晰，更容易理解函数的基本结构。
-   > 重载友好：当你有多个重载版本的函数时，保持相同的函数签名可以使重载更加直观。
-   > 接口一致性：在设计库或 API 时，保持一致的函数签名可以提高接口的清晰度和可用性。
-   > 更容易维护：如果你需要修改 SFINAE 条件，你只需要修改模板参数，而不需要改变函数签名。
-
-3. 在类模板中使用
-
-   `std::enable_if` 也可以用在类模板中，以根据条件启用或禁用某些特化。
-
-   ```cpp
-   #include <type_traits>
-   #include <iostream>
-
-   template<typename T, typename Enable = void>
-   class MyClass {
-   public:
-       void display() { std::cout << "General template" << std::endl; }
-   };
-
-   template<typename T>
-   class MyClass<T, typename std::enable_if<std::is_integral<T>::value>::type> {
-   public:
-       void display() { std::cout << "Specialization for integral types" << std::endl; }
-   };
-
-   int main() {
-       MyClass<double> d;
-       d.display();  // 输出：General template
-
-       MyClass<int> i;
-       i.display();  // 输出：Specialization for integral types
-
-       return 0;
-   }
-   ```
-
-4. 结合 C++14 的**别名模板**
-
-   C++14 引入了 `std::enable_if_t`，这是一个别名模板，可以使代码更简洁。
-
-   ```cpp
-   #include <type_traits>
-   #include <iostream>
-
-   template<typename T>
-   std::enable_if_t<std::is_integral_v<T>, void>
-   printNumber(T value) {
-       std::cout << "Integral number: " << value << std::endl;
-   }
-
-   template<typename T>
-   std::enable_if_t<std::is_floating_point_v<T>, void>
-   printNumber(T value) {
-       std::cout << "Floating point number: " << value << std::endl;
-   }
-
-   int main() {
-       printNumber(42);    // 输出：Integral number: 42
-       printNumber(3.14);  // 输出：Floating point number: 3.14
-       return 0;
-   }
-   ```
-
-5. 与 `decltype` 结合使用
-
-   `std::enable_if` 经常与 `decltype` 结合使用，用于更复杂的类型检测。
-
-   ```cpp
-   #include <type_traits>
-   #include <iostream>
-
-   // 检测是否有 size() 方法
-   template<typename T>
-   auto getSize(const T& container)
-       -> std::enable_if_t<
-           std::is_same_v<decltype(std::declval<T>().size()), size_t>,
-           size_t>
-   {
-       return container.size();
-   }
-
-   // 对于没有 size() 方法的类型
-   template<typename T>
-   auto getSize(const T&)
-       -> std::enable_if_t<
-           !std::is_same_v<decltype(std::declval<T>().size()), size_t>,
-           size_t>
-   {
-       return 0;
-   }
-
-   int main() {
-       std::vector<int> vec{1, 2, 3};
-       std::cout << "Vector size: " << getSize(vec) << std::endl;  // 输出：Vector size: 3
-
-       int x = 10;
-       std::cout << "Int size: " << getSize(x) << std::endl;       // 输出：Int size: 0
-
-       return 0;
-   }
-   ```
-
-### 总结
-
-1. 可读性：过度使用 `std::enable_if` 可能导致代码难以理解。在适当的时候，考虑使用 `if constexpr`（C++17）或概念（Concepts）（C++20）来提高代码可读性。
-2. 编译时间：复杂的 SFINAE 表达式可能增加编译时间。
-3. 错误信息：使用 SFINAE 可能导致复杂的编译错误信息，这可能使调试变得困难。
-4. C++17 和 C++20 的替代方案：在较新的 C++ 标准中，一些 `std::enable_if` 的用例可以被 `if constexpr` 或概念（Concepts）替代，这些新特性通常能提供更清晰和更易于理解的代码。
-
-总的来说，`std::enable_if` 是一个强大的工具，可以在编译时基于类型特性进行函数重载和模板特化。但它应该谨慎使用，并在可能的情况下考虑更现代的 C++ 特性。
-
-## std::declval
-
-### `<utility>` 定义
-
-> cppreference: [std::declval](https://zh.cppreference.com/w/cpp/utility/declval)
-
-```cpp
-template< class T >
-typename std::add_rvalue_reference<T>::type declval() noexcept;
-// (C++11 起)
-```
-
-将**任意类型 T 转换成引用类型（实现上返回右值引用 T&&）**，使得在 decltype 说明符的操作数中**不必经过构造函数就能使用成员函数**。
-`std::declval` 通常用于模板中，其中可接受的**模板参数**可能**没有共同的构造函数**，但具有需要其**返回类型的相同成员函数**。如 stl 库不同容器构造函数不同，但 `.size()` 成员返回值类型都为 `size_t`。
-
-注意，`std::declval` **只能用于不求值语境**，且不要求有定义；求值包含此函数的表达式是错误的。正式的说法是，ODR 式使用此函数的程序非良构。
-此函数不能被调用，因此不会返回值。**返回类型是 T&&，除非 T 是（可有 cv 限定的）void，此时返回类型是 T**。
-
-目的：`std::declval` 允许你在不实际构造 T 类型对象的情况下创建 T 类型的右值。这在模板元编程和 SFINAE（Substitution Failure Is Not An Error）上下文中特别有用，因为你**需要在不要求类型完全定义或可构造的情况下检查类型或表达式的属性**。
-
-可能的实现
-
-```cpp
-template<typename T>
-typename std::add_rvalue_reference<T>::type declval() noexcept
-{
-    static_assert(false, "declval 不允许出现于求值语境");
-}
-```
-
-### 常见用法
-
-通常，在模板元编程中，你可能会想要检查某个表达式是否合法、类型是否满足某些特性，或者一个类是否能够调用某些成员函数，但实际构造这些类型的对象可能会带来很多限制：
-
-- 某些类型没有默认构造函数。
-- 某些类型的构造函数可能是私有的，或具有其他限制。
-- 某些类型可能是抽象类，无法实例化。
-
-为了避免实际构造对象，而又能够访问类型的成员函数或操作符，std::declval 提供了一种**编译时方法**来**模拟创建**某个类型的对象。
-
-> :bulb: Note：
->
-> - `std::declval<T>()` 本质就是 T 的右值引用，其提供的编译时模拟创建对象功能**本质是右值引用的功能**。
-> - `std::declval` 和 `decltype` 通常一起使用 `decltype(std::declval<T>())`，在**编译时不实际构造类对象的情况下推导类型**。
-
-1. 获取成员函数返回值类型
-   在不实际构造类对象的情况下，获取成员函数的返回值类型。
-
-   ```cpp
-   #include <iostream>
-   #include <utility>
-
-   struct Default
-   {
-       int foo() const { return 1; }
-   };
-
-   struct NonDefault
-   {
-       NonDefault() = delete;
-       int foo() const { return 1; }
-   };
-
-   int main()
-   {
-       decltype(Default().foo()) n1 = 1;                   // n1 的类型是 int
-   //  decltype(NonDefault().foo()) n2 = n1;               // 错误：无默认构造函数
-       decltype(std::declval<NonDefault>().foo()) n2 = n1; // n2 的类型是 int
-       std::cout << "n1 = " << n1 << '\n'
-                 << "n2 = " << n2 << '\n';
-   }
-   ```
-
-2. 检查类的成员函数
-   在不实际构造类对象的情况下，检查一个类是否具有特定的成员函数。
-
-   ```cpp
-   #include <type_traits>
-   #include <utility>
-
-   struct Foo {
-       int getValue() { return 42; }
-   };
-
-   struct Bar {};
-
-   /*
-    * 1. 通过 decltype 和逗号表达式返回 std::true_type 来确认 T 是否具备 getValue() 方法。
-    * 2. 下面的 has_getValue 实现属于函数模板重载，因此函数签名要不同，不能都用 typename T 和 has_getValue()。
-    */
-   // 2-1. 使用 int 参数版本，调用时用 has_getValue<T>(0)。也可用 double/string 等参数版本，对应调用时做修改即可。
-   template <typename T>
-   auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{});
-
-   // 2-2. 使用 ... 参数版本作为回退，它也可以匹配无参数的调用，因此上面不能没有参数
-   template <typename T>
-   std::false_type has_getValue(...);
-
-   // 定义一个 trait 来封装 has_getValue 的结果
-   template <typename T>
-   struct has_getValue_trait : decltype(has_getValue<T>(0)) {};
-
-   int main() {
-       static_assert(has_getValue_trait<Foo>::value, "Foo has getValue");
-       static_assert(!has_getValue_trait<Bar>::value, "Bar doesn't have getValue");
-   }
-   ```
-
-   这里使用了 `std::declval<T>()` 来模拟 T 类型对象，从而能够在编译时检查 T 是否有 `getValue()` 成员函数。
-
-3. SFINAE 和表达式推导
-   在 SFINAE 中，编译器会尝试替换模板参数，如果替换失败则不会报错，而是选择其他可行的模板实现。`std::declval` 可以帮助我们在不需要实际构造对象的情况下推导表达式的合法性：
-
-   ```cpp
-   template <typename T>
-   auto is_addable(int) -> decltype(std::declval<T>() + std::declval<T>(), std::true_type{}) {
-       return std::true_type{};
-   }
-
-   template <typename T>
-   std::false_type is_addable(...) {
-       return std::false_type{};
-   }
-
-   int main() {
-       static_assert(is_addable<int>(0)::value, "int can be added");
-       static_assert(!is_addable<std::string>(0)::value, "std::string can't be added using '+'");
-   }
-   ```
-
-   在这个例子中，`std::declval<T>() + std::declval<T>()` 用于测试 T 类型对象能否相加，而不需要实际创建 T 类型的实例。
-
-4. 为什么 std::declval 必须返回右值引用？
-   在模板元编程中，右值引用（T&&）能够匹配到更多的类型，包括可修改的左值（通过引用折叠规则），这使得 std::declval 可以更加灵活地用于不同类型的推导和表达式合法性的判断。
-
-### 总结
-
-- `std::declval` 是用于模板元编程和 SFINAE 的编译时工具，它允许你在不构造类型对象的情况下模拟对该类型的操作。
-- 它通常用于检查类型的成员函数、操作符、表达式合法性等。
-- 由于 `std::declval` 不能用于运行时，它仅仅是编译期工具，因此可以避免构造不必要或非法的类型实例。
-- 在复杂的模板元编程中，`std::declval` 提供了非常有用的工具，可以帮助推导出类型的特性和能力。
-
-### decltype
-
-decltype 是 C++11 中的一个关键字，它在不求值表达式的情况下返回表达式的类型。
-
-- 目的：它用于在编译时确定表达式的类型。这对于编写类型安全的代码、推断返回类型和模板元编程非常有用。
-
-- 语法：decltype(expression) 给出 expression 的类型。
-
-## std::integral_constant
-
-> cppreference: [integral_constant](https://zh.cppreference.com/w/cpp/types/integral_constant)
-
-### 逐行解析
-
-```cpp
-template< class T, T v >
-struct integral_constant {
-    static constexpr T value = v;
-    typedef T value_type;
-    typedef integral_constant type;
-    constexpr operator value_type() const noexcept { return value; }
-    constexpr value_type operator()() const noexcept { return value; }
-};
-```
-
-1. **模板参数**
-
-   ```cpp
-   template< class T, T v >
-   ```
-
-   - `class T`：这是一个类型模板参数。`T` 可以是任何类型，如 `int`, `bool`, `char`, `double` 等。
-   - `T v`：这是一个非类型模板参数，它的类型是上面定义的 `T`，`v` 是一个常量值。
-
-2. **静态常量成员**
-
-   ```cpp
-   static constexpr T value = v;
-   ```
-
-   - `static`：这是一个静态成员变量，意味着所有 `integral_constant` 的实例共享同一个 `value`。
-   - `constexpr`：这确保 `value` 是一个常量表达式，并且可以在编译时计算。
-   - `T value`：类型为 `T` 的静态常量成员变量。
-   - `= v`：初始化为模板参数 `v`。
-
-3. **类型定义**
-
-   ```cpp
-   typedef T value_type;
-   ```
-
-   - `typedef T value_type`：定义一个别名 `value_type`，其实际类型为 `T`。这在某些模板元编程上下文中会用到。
-
-     ```cpp
-     typedef integral_constant type;
-     ```
-
-   - `typedef integral_constant type`：定义一个别名 `type`，其实际类型为 `integral_constant<T, v>`。这允许在模板元编程中递归定义和处理类型。
-
-4. **转换运算符**
-
-   ```cpp
-   constexpr operator value_type() const noexcept { return value; }
-   ```
-
-   - `constexpr`：声明该函数是一个常量表达式函数，可以在编译时求值。
-
-   - `operator value_type() const`：定义一个类型转换运算符，使得 `integral_constant` 可以隐式转换为 `value_type`，即 `T` 类型。
-
-   - `noexcept`：表示此函数不会抛出异常。
-
-   - `{ return value; }`：返回静态常量 `value` 的值。
-
-     这个运算符使得 `integral_constant` 的实例可以像 `T` 类型的值一样使用。例如：
-
-     ```cpp
-     integral_constant<int, 5> five;
-     int x = five;  // 隐式转换，x 的值为 5
-     ```
-
-5. **函数调用运算符**
-
-   ```cpp
-   constexpr value_type operator()() const noexcept { return value; }
-   ```
-
-   - `constexpr`：声明该函数是一个常量表达式函数，可以在编译时求值。
-
-   - `value_type operator()() const`：定义一个函数调用运算符，使得 `integral_constant` 的实例可以像函数一样被调用，返回 `value_type`，即 `T` 类型。
-
-   - `noexcept`：表示此函数不会抛出异常。
-
-   - `{ return value; }`：返回静态常量 `value` 的值。
-
-     这个运算符使得 `integral_constant` 的实例可以像一个返回 `T` 类型值的无参函数一样被调用。例如：
-
-     ```cpp
-     integral_constant<int, 5> five;
-     int y = five();  // 调用函数运算符，y 的值为 5
-     ```
-
-### 用途
-
-1. **标准库中的应用**
-
-   在 C++标准库中，`integral_constant` 常用于定义类型常量和进行模板元编程。例如，`std::true_type` 和 `std::false_type` 是 `integral_constant` 的特例：
-
-   ```cpp
-   typedef integral_constant<bool, true> true_type;
-   typedef integral_constant<bool, false> false_type;
-   ```
-
-   - `true_type` 和 `false_type` 分别表示布尔常量 `true` 和 `false`。
-
-2. **类型特性检测**
-
-   `integral_constant` 常用于类型特性检测，例如 `std::is_same`：
-
-   ```cpp
-   template <typename T, typename U>
-   struct is_same : false_type {};
-
-   template <typename T>
-   struct is_same<T, T> : true_type {};
-   ```
-
-   - 如果 `T` 和 `U` 不同，`is_same<T, U>` 继承自 `false_type`，即 `value` 为 `false`。
-   - 如果 `T` 和 `U` 相同，`is_same<T, T>` 继承自 `true_type`，即 `value` 为 `true`。
-
-### 总结
-
-- `integral_constant` 是一个模板类，用于封装一个常量值和其类型。
-
-- 它定义了静态常量成员 `value`，类型别名 `value_type` 和 `type`，以及两个运算符（类型转换运算符和函数调用运算符），使得其实例可以像常量值或函数一样使用。
-
-- `integral_constant` 在模板元编程中非常有用，广泛用于定义类型常量和进行类型特性检测。
-
-  > 注：`typedef integral_constant type` 与 `typedef integral_constant<T, v> type` 是等价的
-  >
-  > `typedef integral_constant type` 这条语句定义了一个名为 `type` 的类型别名，表示的是 `integral_constant` 本身。由于它在 `integral_constant` 结构体内部，并且是一个模板类，所以 `integral_constant` 实际上是 `integral_constant<T, v>`。
-
-## std::remove_cv
-
-## std::remove_reference
-
-## std::conditional
-
-# 记录元模板
-
-## std::aligned_storage
-
-> cppreference: [std::aligned_storage](https://zh.cppreference.com/w/cpp/types/aligned_storage)
-
-`std::aligned_storage` 是 C++ 标准库中定义的一种模板类，提供了一种方法来**创建具有特定对齐要求且大小合适的未初始化内存存储**。它主要用于在需要手动管理对象的创建和销毁，或者在需要严格控制内存对齐时使用。
-
-### `<type_traits>` 的定义
-
-```cpp
-template< std::size_t Len, std::size_t Align = /* 默认对齐 */ >
-struct aligned_storage;
-// (C++11 起)
-// (C++23 中弃用)
-```
-
-提供嵌套类型 _`type`_，它满足[_平凡类型(TrivialType)_](https://zh.cppreference.com/w/cpp/named_req/TrivialType)和[_标准布局类型(StandardLayoutType)_](https://zh.cppreference.com/w/cpp/named_req/StandardLayoutType)，适于作为大小至多为 `Len` 且[对齐要求](https://zh.cppreference.com/w/cpp/language/object#.E5.AF.B9.E9.BD.90)为 `Align` 的因数的任意对象的未初始化存储。
-
-`Align` 的默认值是大小至多为 `Len` 的任意对象的最强（最大）对齐要求。若不使用默认值，则 `Align` 对于某类型 `T` 必须为 alignof(T) 的值，否则行为未定义。
-
-若 Len == 0 则行为未定义。
-
-是否支持任何[扩展对齐](https://zh.cppreference.com/w/cpp/language/object#.E5.AF.B9.E9.BD.90)是实现定义的。
-
-如果程序添加了 `std::aligned_storage` 的特化，那么行为未定义。
-
-> 弃用：[Why is std::aligned_storage to be deprecated in C++23 and what to use instead?](https://stackoverflow.com/questions/71828288/why-is-stdaligned-storage-to-be-deprecated-in-c23-and-what-to-use-instead)
->
-> `aligned_*`对代码库有害，不应使用。从高层次来看：
->
-> - 使用`aligned_*`会调用未定义的行为（该类型无法提供存储。）
-> - 保证是不正确的（标准只要求类型至少与要求的一样大，但没有对大小设置上限。）
-> - 由于多种原因，该 API 是错误的（请参阅*“关于 API”*）。
-> - 由于 API 错误，几乎所有使用都涉及相同的重复前期工作（参见“现有用法”。）
->
-> 标准中有一条注释**aligned_storage<Len, Align>::type 的使用可以被用 alignas(Align) 声明的数组 std::byte[Len] 替换。**
-
-### 注解
-
-`std::aligned_storage<>::type` 所定义的类型能用于创建适合保有给定类型对象的未初始化内存块，可选地进行比其自然对齐要求更严格的对齐，例如在缓存或页的边界上。
-
-同任何其他未初始化存储，**使用[布置 new](https://zh.cppreference.com/w/cpp/language/new) 创建对象，并以显式的析构函数调用销毁它们**。
-
-### 可能的实现
-
-除了默认实参，`aligned_storage` 也能通过 `alignas` 表达：
-
-```cpp
-template<std::size_t Len, std::size_t Align /* 未实现默认对齐 */>
-struct aligned_storage {
-    struct type
-    {
-        alignas(Align) unsigned char data[Len];
-    };
-};
-```
-
-### 使用场景
-
-`std::aligned_storage` 通常用于以下场景：
-
-- **手动控制对象的生命周期**：在某些情况下，可能需要手动构造和析构对象，而不是依赖 C++ 的自动管理。在这种情况下，可以使用 `std::aligned_storage` 来分配合适的未初始化内存块。
-- **对齐要求**：当你需要分配一块内存，但要确保它对齐到特定的边界时，可以使用 `std::aligned_storage`。
-
-### 注意事项
-
-- **未初始化内存**：`std::aligned_storage` 提供的内存块是未初始化的，使用前必须通过 placement new 或者其他方法初始化，否则会导致未定义行为。
-- **手动管理对象生命周期**：使用 `std::aligned_storage` 通常需要手动管理对象的构造和析构，这是非常低级别的操作，需要谨慎使用。
-
-### 示例代码
-
-假设我们有一个类 `MyClass`，并且我们希望手动管理它的内存：
-
-```cpp
-#include <iostream>
-#include <type_traits>
-
-class MyClass {
-public:
-    MyClass(int x) : x(x) {
-        std::cout << "MyClass constructed with x = " << x << std::endl;
-    }
-
-    ~MyClass() {
-        std::cout << "MyClass destructed with x = " << x << std::endl;
-    }
-
-    void display() const {
-        std::cout << "x = " << x << std::endl;
-    }
-
-private:
-    int x;
-};
-
-int main() {
-    // 使用 std::aligned_storage 来分配合适大小和对齐的未初始化内存
-    std::aligned_storage<sizeof(MyClass), alignof(MyClass)>::type storage;
-
-    // 构造对象在这块内存中
-    MyClass* myClassPtr = new (&storage) MyClass(42); // 在指定的内存位置构造对象
-
-    // 使用对象
-    myClassPtr->display();
-
-    // 手动析构对象
-    myClassPtr->~MyClass();
-
-    return 0;
-}
-```
-
-- **`std::aligned_storage<sizeof(MyClass), alignof(MyClass)>::type storage`**：这里我们使用 `std::aligned_storage` 分配了一块未初始化的内存，它的大小与 `MyClass` 类相同，并且满足 `MyClass` 的对齐要求。这块内存是未初始化的，因此不会自动调用 `MyClass` 的构造函数。
-- **`new (&storage) MyClass(42)`**：在 `storage` 所指向的内存位置上手动调用 `MyClass` 的构造函数。这种用法被称为**“placement new”**。
-- **`myClassPtr->~MyClass()`**：显式调用析构函数来销毁 `MyClass` 对象，因为内存是手动管理的，不会自动销毁对象。
 
 # C++ 元模版编程
 
@@ -2444,15 +1831,15 @@ int main() {
 > [C++学习之可变参数的函数与模板](https://songlee24.github.io/2014/07/22/cpp-changeable-parameter/)
 
 
-     ```cpp
-     return_type function_name(parameter_list, ...);
-     ```
+```cpp
+return_type function_name(parameter_list, ...);
+```
 
-     使用 `<cstdarg>` 头文件中的宏来处理可变参数。
-     只能出现在形参列表的最后一个位置.
-     需要显式指定参数数量或使用某种约定来确定参数数量。
-     类型不安全，容易出错。
-     在现代 C++ 中，通常推荐使用更安全的替代方案，如可变参数模板。
+使用 `<cstdarg>` 头文件中的宏来处理可变参数。
+只能出现在形参列表的最后一个位置.
+需要显式指定参数数量或使用某种约定来确定参数数量。
+类型不安全，容易出错。
+在现代 C++ 中，通常推荐使用更安全的替代方案，如可变参数模板。
 
 ## 检查类是否有特定的**成员函数**，有几种方式
 
