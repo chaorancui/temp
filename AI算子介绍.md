@@ -247,6 +247,121 @@ MM 和 GEMM 都是大模型中常用的矩阵运算，但它们在数学上有�
 
    Gather 算子在 TensorFlow、PyTorch 等深度学习框架中都有实现，并且常用于高效的数据索引和提取操作。
 
+
+## Scatter算子
+
+`scatter`算子在深度学习中是一种常用的操作，用于**将数据按特定的索引写入到目标张量的特定位置**。它主要通过指定索引（indices）和数据（updates），在目标张量（tensor）中以原地方式进行更新。
+
+**Scatter算子的作用**：
+
+1. **数据写入与更新**：
+   - 将输入数据（`updates`）按照索引（`indices`）写入到目标张量的指定位置（`tensor`）。
+   - 支持不同的更新方式（如替换、加法等）。
+2. **张量的稀疏更新**：
+   - 用于对某些特定位置进行更新，而无需重新生成整个张量，适合稀疏数据操作。
+3. **索引操作的反向操作**：
+   - 类似于`gather`算子的反向操作，它通过索引将数据写回目标张量。
+
+**常用场景**：
+
+1. **深度学习模型的梯度更新**：
+   - 在一些分布式计算或稀疏梯度场景下，用`scatter`算子对特定权重的梯度进行更新。
+2. **数据增强与处理**：
+   - 根据特定规则对数据或特征进行置换或填充。
+3. **图神经网络（Graph Neural Networks, GNN）**：
+   - 计算节点特征聚合时，用于将消息分发到节点或边上。
+   - 在实现Message Passing机制时，`scatter`算子通常用于归约和消息更新。
+4. **自然语言处理（NLP）**：
+   - 在Transformer等模型中，用于按位置更新词嵌入或处理mask操作。
+5. **稀疏数据处理**：
+   - 对于稀疏数据，按需更新非零位置，而不需要操作整个张量。
+
+**示例代码**：
+
+以PyTorch的`scatter`为例：
+
+```python
+import torch
+
+# 初始化目标张量，设置 dtype 为 int64 以匹配 updates 的数据类型
+tensor = torch.zeros(3, 5, dtype=torch.int64)
+
+# 索引位置
+indices = torch.tensor([[0, 1, 2], [3, 4, 0]])
+
+# 更新值
+updates = torch.tensor([[5, 6, 7], [8, 9, 10]], dtype=torch.int64)
+
+# 按索引进行更新
+tensor.scatter_(dim=1, index=indices, src=updates)
+
+print(tensor)
+'''输出：
+tensor([[ 5,  6,  7,  0,  0],
+        [10,  0,  0,  8,  9],
+        [ 0,  0,  0,  0,  0]])
+'''
+```
+
+dim 参数的作用：
+
+- dim=0：按行更新，即沿着第0维（行）进行操作。每一行独立地被处理，indices 的每一行中索引的值，更新到 input 的每一行。
+- dim=1：按列更新，即沿着第1维（列）进行操作。每一列独立地被处理，indices 的每一列中索引的值，更新到 input 的每一列。
+- 更高维度：对于高维张量，dim 指定了更新的哪个轴。
+
+**结果解释**：
+
+- 在 `dim=1`（列方向）更新，每一行独立地被处理，indices 的每一行中的值更新到 input 的每一行：
+
+  - 第1行，第`indices[0][0]=0`位置赋值为`updates[0][0]=5`。
+  - 依次更新其它位置。
+
+```python
+import torch
+tensor = torch.zeros(5, 3, dtype=torch.int64)
+indices = torch.tensor([[0, 1, 2], [3, 4, 0]])
+updates = torch.tensor([[5, 6, 7], [8, 9, 10]])
+
+# 按行（dim=0）进行更新
+tensor.scatter_(dim=0, index=indices, src=updates)
+print(tensor)
+'''output: 
+tensor([[ 5,  0, 10],
+        [ 0,  6,  0],
+        [ 0,  0,  7],
+        [ 8,  0,  0],
+        [ 0,  9,  0]])
+'''
+
+tensor = torch.zeros(2, 3, 4)
+indices = torch.tensor([[[1, 2, 0], [0, 1, 2]], [[1, 0, 2], [2, 1, 0]]])
+updates = torch.ones(2, 2, 3)
+
+# 按 dim=2 更新
+tensor.scatter_(dim=2, index=indices, src=updates)
+print(tensor)
+'''output: 
+tensor([[[1., 1., 1., 0.],
+         [1., 1., 1., 0.],
+         [0., 0., 0., 0.]],
+
+        [[1., 1., 1., 0.],
+         [1., 1., 1., 0.],
+         [0., 0., 0., 0.]]])
+'''
+```
+
+**结果解释**：
+
+dim=0 表示按行操作，每一列独立地被处理。
+第一列：
+
+- `indices[0][0]=0`，因此第 0 行被赋值为 `updates[0][0]=5`。
+- `indices[1][0]=3`，因此第 3 行被赋值为 `updates[1][0]=8`。
+- 其他列以此类推。
+
+dim=2 指定了更新操作发生在第3个轴（最后一个维度）。
+
 ## RoPe 算子
 
 RoPE（Rotary Position Embedding，旋转位置编码）是一种用于大模型中的位置编码方法，最早由论文《RoFormer: Enhanced Transformer with Rotary Position Embedding》中提出。**RoPE 通过对自注意力机制中的输入向量应用旋转变换来嵌入位置信息**，主要目的是克服传统位置编码方式的局限性，使得模型能够**更好地处理长序列问题**。
