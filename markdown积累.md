@@ -236,6 +236,10 @@ Markdown 中定位标记使你可以跳至同一页面上的指定锚点。用�
 
 例如：[点击跳转到文件开头](#markdown-编辑器)，其代码为 `[点击跳转到文件开头](#markdown-编辑器)`。
 
+### plantuml
+
+<https://pdf.plantuml.net/PlantUML_Language_Reference_Guide_zh.pdf>
+
 ### 使用 VSCode 编辑 MarkDown 文件（vditor 所见及所得）
 
 <https://www.cnblogs.com/springsnow/p/16256915.html>
