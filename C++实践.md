@@ -49,7 +49,7 @@ C++ 编译器的主要作用是将 C++ 源代码翻译成可执行程序的工�
 
 Doxygen 是一个强大的工具，用于从 C++ 代码中生成文档，并且可以生成类的调用关系图。下面是如何使用 Doxygen 的步骤：
 
-### 1. 安装 Doxygen 和 Graphviz
+### 1 - 安装 Doxygen 和 Graphviz
 
 首先，需要确保你已经安装了 Doxygen 和 Graphviz，因为 Doxygen 依赖 Graphviz 来生成类图。
 
@@ -67,7 +67,7 @@ Doxygen 是一个强大的工具，用于从 C++ 代码中生成文档，并且�
 
 - **在 Windows 上**: 可以从 [Doxygen 官方网站](https://www.doxygen.nl/) 和 [Graphviz 官方网站](https://graphviz.org/) 下载并安装。
 
-### 2. 生成 Doxygen 配置文件
+### 2 - 生成 Doxygen 配置文件
 
 Doxygen 通过一个配置文件（通常称为 `Doxyfile`）来控制文档的生成。
 
@@ -77,7 +77,7 @@ doxygen -g
 
 这个命令会在当前目录下生成一个默认的 `Doxyfile`。
 
-### 3. 配置 `Doxyfile`
+### 3 - 配置 `Doxyfile`
 
 打开生成的 `Doxyfile` 并根据你的需求进行修改。以下是一些重要的配置选项：
 
@@ -133,7 +133,7 @@ doxygen -g
   CALLER_GRAPH = YES
   ```
 
-### 4. 生成文档
+### 4 - 生成文档
 
 配置完成后，可以使用以下命令生成文档：
 
@@ -143,11 +143,11 @@ doxygen Doxyfile
 
 这个命令会在指定的输出目录中生成 HTML 和/或 LaTeX 文档。类之间的调用关系图会自动包含在生成的 HTML 文档中。
 
-### 5. 查看生成的文档
+### 5 - 查看生成的文档
 
 打开生成的 HTML 文件（通常在 `html/index.html`）以查看项目的文档和类的调用关系图。
 
-### 6. 使用 Graphviz 生成图
+### 6 - 使用 Graphviz 生成图
 
 如果你想单独生成类图，可以使用 Graphviz 将 Doxygen 生成的 `.dot` 文件转换为图形格式。例如：
 
