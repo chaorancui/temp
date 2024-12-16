@@ -1,5 +1,8 @@
 # windows玩机
 
+### Total Commander
+[【Win10软件】Total Commander基本配置及使用（整理）](https://www.cnblogs.com/sjsea/p/13213210.html)
+
 ### WSL 安装与使用
 https://docs.eesast.com/docs/tools/wsl
 
