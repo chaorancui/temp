@@ -606,12 +606,47 @@ print(loaded_array)
    array = np.array([[1.23456, 2.34567, 3.45678], [4.56789, 5.67890, 6.78901]])
 
    # 保存到文本文件，格式化为小数点后两位，逗号分隔
-   np.savetxt("array_data.txt", array, fmt="%.2f", delimiter=",")
+   np.savetxt("array_data.txt", array, fmt="%-10.4f", delimiter=",")
    ```
+
+   **大于2维的数组写入文件函数**：
+
+   ```python
+   def save_to_txt(input_array, file_name):
+       dims = input_array.shape
+       dim_num = len(dims)
+       # 1、只支持 <= 4 维数据写入文件
+       assert dim_num <= 4, f"input_array's shape({dim_num})is larger than 4, not supported!!"
+       # 2、<= 2 维的数据直接写入
+       if dim_num <= 2:
+           with open(file_name, 'w') as f:
+               f.write(f"dims: {dims}\n")
+               np.savetxt(f, input_array, fmt="%-10.4f", delimiter=",")
+           print(f"数组已保存至: {file_name}")
+           return
+       # 3、2 < dim_num <= 4 维的数据循环写入
+       with open(file_name, 'w') as f:
+           f.write(f"dims: {dims}\n")
+           loop_arr = dims[0:-2] # 包含多少个二维数组
+           ranges = [] # 生成循环索引
+           for i in loop_arr:
+               ranges.append(range(i))
+           print(ranges)
+           for indices in itertools.product(*ranges):
+               idx = list(indices) # .extend([slice(None), slice(None)])
+               idx.extend([slice(None), slice(None)])
+               # print(input_array[tuple(idx)])
+               np.savetxt(f, input_array[tuple(idx)], fmt="%-10.4f", delimiter=",")
+
+   save_to_txt(arr_hw, "formatted_array.txt")
+   ```
+
 
 2. **使用 `numpy.array2string` 将数组格式化为字符串（不保存文件）**
 
    如果希望将 `ndarray` 转换为字符串格式，可以使用 `numpy.array2string`：
+
+   > 注：跟直接print到屏幕一样，输出长内容会隐藏内容
 
    ```python
    import numpy as np
