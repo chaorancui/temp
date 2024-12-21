@@ -175,17 +175,17 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
 
    ```cpp
    #include <concepts>
-   
+
    template <typename T>
    concept Printable = requires(T t) {
        { t.to_string() } -> std::convertible_to<std::string>;
    };
-   
+
    template <Printable T>
    void print(const T& value) {
        std::cout << value.to_string() << std::endl;
    }
-   
+
    template <typename T>
    void print(const T& value) requires (!Printable<T>) {
        std::cout << value << std::endl;
@@ -343,26 +343,26 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
    ```cpp
    #include <concepts>
    #include <iostream>
-   
+
    template<typename T>
    concept Numeric = std::integral<T> || std::floating_point<T>;
-   
+
    template<typename T>
    concept Printable = requires(T t) {
        { std::cout << t } -> std::same_as<std::ostream&>;
    };
-   
+
    template<Numeric T>
    void process(T value) {
        std::cout << "Processing numeric value: " << value << std::endl;
    }
-   
+
    template<Printable T>
    void process(T value) {
        std::cout << "Processing printable value: ";
        std::cout << value << std::endl;
    }
-   
+
    int main() {
        process(42);     // 输出：Processing numeric value: 42
        process(3.14);   // 输出：Processing numeric value: 3.14
@@ -974,6 +974,7 @@ void func() {
 
 1. 省略号（`...`）的作用
    在 C++ 中，省略号有两个主要用途：
+
    - 表示**可变参数函数**，允许函数接受任意数量的参数。
    - 在模板中作为**通用参数匹配器**，作为一种"捕获所有"的机制，用于匹配任何类型和数量的参数。
 
@@ -990,7 +991,7 @@ void func() {
    // 2-1. 使用 int 参数版本，调用时用 has_getValue<T>(0)。也可用 double/string 等参数版本，对应调用时做修改即可。
    template <typename T>
    auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{});
-   
+
    // 2-2. 使用 ... 参数版本作为回退，它也可以匹配无参数的调用，因此上面不能没有参数
    template <typename T>
    std::false_type has_getValue(...);
@@ -1006,6 +1007,7 @@ void func() {
    第二个重载（...版本）总是可以匹配，所以它作为"回退"选项，返回 std::false_type。
 
 3. 常见用法：
+
    1. 检查类是否有特定的**成员函数**：
 
       ```cpp
@@ -1021,12 +1023,13 @@ void func() {
       ```cpp
       template <typename T>
       auto has_value_type(int) -> typename std::enable_if<sizeof(typename T::value_type) >= 0, std::true_type>::type;
-      
+
       template <typename T>
       std::false_type has_value_type(...);
       ```
 
 4. 优点：
+
    - 这种技术允许我们在**编译时检查类型特征**，而不会导致编译错误。
    - 它提供了一种**优雅的方式**来处理"类型不满足某种条件"的情况。
    - 回退版本确保了即使第一个版本失败，我们仍然有一个有效的函数可以调用。
@@ -1760,7 +1763,6 @@ void foo(Iter iter) {
 
 从这个例子中，我们可以看到，概念和类型特性在 C++编程中各有其用。概念提供了一种明确、简洁的方式来表达我们对模板参数的要求，而类型特性则可以提供更多的类型信息。结合使用它们，可以让我们的程序更加强大、更加灵活。
 
-
 # 技巧
 
 ## 用于校验的模板无需实现函数体
@@ -1830,7 +1832,6 @@ int main() {
 
 > [C++学习之可变参数的函数与模板](https://songlee24.github.io/2014/07/22/cpp-changeable-parameter/)
 
-
 ```cpp
 return_type function_name(parameter_list, ...);
 ```
@@ -1841,5 +1842,181 @@ return_type function_name(parameter_list, ...);
 类型不安全，容易出错。
 在现代 C++ 中，通常推荐使用更安全的替代方案，如可变参数模板。
 
-## 检查类是否有特定的**成员函数**，有几种方式
+## 模板模板参数
 
+### 介绍与对比
+
+在 C++ 中，模板参数通常有三种类型：**类型参数**、**非类型参数** 和 **模板参数**。其中，模板参数作为参数有两种形式：**模板作为参数** 和 **模板本身作为参数**。它们的区别主要体现在它们如何在模板中使用以及它们所代表的具体含义。
+
+- 接受已经实例化的模板作为参数，叫做**模板参数（Template Parameter）**。
+- 接受模板本身作为参数，叫做**模板模板参数（Template Template Parameter）**。
+
+1. **模板作为参数（Template as a Parameter）**：
+
+   “模板作为参数”指的是将一个**已经实例化的模板类型作为参数**传递给另一个模板。在这种情况下，传递的是模板的实例化类型，而不是模板的模板定义本身。
+
+   例子：
+
+   ```cpp
+   #include <iostream>
+
+   // 定义一个模板结构体 MyType，接受类型 T 并存储一个 T 类型的值
+   template <typename T>
+   struct MyType {
+       T value;
+   };
+
+   // 定义一个函数模板 printValue，接受 MyType<T> 类型的对象，并打印其值
+   template <typename T>
+   void printValue(MyType<T> obj) {
+       std::cout << obj.value << std::endl;
+   }
+
+   int main() {
+       // 创建一个 MyType<int> 类型的对象，初始化值为 42
+       MyType<int> obj = {42};
+
+       // 调用 printValue 函数打印 obj 的值
+       printValue(obj);  // 这里传递的是 MyType<int> 类型的对象
+
+       return 0;
+   }
+   ```
+
+   **代码解析**：
+
+   - `MyType` 是一个模板结构体，接受一个类型 `T`。
+   - `printValue` 是一个模板函数，接受一个 `MyType<T>` 类型的对象 `obj`。
+   - `MyType<int>` 是模板 `MyType` 被实例化后的类型（`MyType<int>` 是一种类型），它被作为 `printValue` 函数的参数传递。也就是说，`printValue` 的参数是 `MyType<int>` 类型的对象，而不是模板本身。
+
+2. **模板本身作为参数（Template Itself as a Parameter）**：
+
+   “模板本身作为参数”指的是将模板的模板定义作为参数传递给另一个模板。在这种情况下，传递的是模板的定义，而不是已经实例化后的类型。
+
+   **例子**：
+
+   ```cpp
+   #include <iostream>
+
+   // 定义一个模板模板 MyType，用于根据传递的类型定义一个类型成员 value
+   template <typename T>
+   struct MyType {
+       T value;
+   };
+
+   // 定义一个模板函数 printValue，接受一个模板 MyType，并打印其 value 成员
+   template <template <typename> class TEMPL, typename T>
+   void printValue(TEMPL<T> obj) {
+       std::cout << obj.value << std::endl;
+   }
+
+   int main() {
+       // 创建一个 MyType<int> 类型的对象，并初始化其 value 成员为 42
+       MyType<int> obj = {42};
+
+       // 调用 printValue 函数，传递 MyType 作为模板模板参数
+       printValue<MyType>(obj);  // 传递模板类型 MyType 和模板实例化类型 int
+
+       return 0;
+   }
+   ```
+
+   **代码解析**：
+
+   - `MyType` 仍然是一个模板，接受一个类型 `T`。
+   - `printValue` 是一个接受模板模板参数 `TEMPL` 和类型 `T` 的模板函数。**`TEMPL` 是一个模板，它接受一个类型参数并定义一个类型（例如 `MyType` 模板）**。该函数接收 `TEMPL<T>` 类型的对象。
+   - `printValue` 函数接受了一个模板模板参数 `TEMPL`，并且我们通过传递 `MyType` 模板以及类型 `T` 来实现更灵活的调用。
+   - 通过 `MyType<int>` 类型的 `obj` 对象，推导 `printValue<MyType>` 对象的类型。
+
+3. **区别**：
+
+   1. **传递的内容不同**：
+      - **模板作为参数**：传递的是一个已经实例化的模板类型（如 `MyType<int>`）。
+      - **模板本身作为参数**：传递的是一个模板定义（如 `MyPolicy`），可以用于进一步实例化或操作。
+   2. **使用方式不同**：
+      - **模板作为参数**：你直接传递模板实例化后的类型（如 `MyType<int>`）作为参数传递给函数或类模板。
+      - **模板本身作为参数**：你传递一个模板的模板定义（如 `TEMPL`）作为参数传递给另一个模板，允许你在模板中进一步实例化或操作它。
+   3. **语法差异**：
+      - **模板作为参数**：传递的是模板实例化后的类型，通常用于普通模板函数或类中作为参数。
+      - **模板本身作为参数**：传递的是模板模板类型，通常用于那些能够根据传递的模板类型进行行为调整的更高级的模板设计。
+
+   这两者的区别在于传递的是模板实例化后的类型还是模板定义本身。在模板编程中，模板本身作为参数提供了更大的灵活性，能够让你根据不同的模板定义来控制模板的行为。
+
+4. **模板模板参数的使用场景**：
+
+   1. **泛型容器和算法**：通过将模板模板参数用于容器类型（如 `std::vector`、`std::list` 等），可以实现更加通用和灵活的算法或数据结构。
+   2. **嵌套模板的传递**：当一个模板类或函数内部需要使用其他模板类或函数时，模板模板参数提供了一种简洁的传递方式。
+   3. **库设计**：比如在设计通用库时，可以使用模板模板参数来支持不同类型的容器和策略模式。
+   4. **优化和定制化**：通过模板模板参数，用户可以灵活定制所使用的容器或算法模板，从而针对不同的需求进行优化。
+   5. **策略模式**：我们可以传入不同的 `Policy` 模板来影响 `Navigator` 类的行为。例如，传入一个不同的 `Policy` 模板来决定 `Controller` 类型，达到一个策略模板，用于处理基本类型的矩阵乘法，另一个策略模板用于处理复杂类型或多线程环境下的矩阵乘法的目的。
+
+      ```cpp
+      template <typename IMPL>
+      struct BasicPolicy {
+          using Controller = int;  // 基础的控制类型
+      };
+
+      template <typename IMPL>
+      struct AdvancedPolicy {
+          using Controller = double;  // 更复杂的控制类型
+      };
+
+      template <typename A_TYPE, typename B_TYPE, typename C_TYPE, template <typename ...> class POLICY = BasicPolicy>
+      class Navigator {
+      public:
+          using Controller = typename POLICY<Navigator<A_TYPE, B_TYPE, C_TYPE>>::Controller;
+
+          void compute() {
+              Controller c;
+              // 根据 c 的类型执行不同的逻辑
+          }
+      };
+
+      // 使用不同的策略
+      Navigator<int, int, int, BasicPolicy> basicNavigator;   // 使用 BasicPolicy，Controller 为 int
+      Navigator<int, int, int, AdvancedPolicy> advancedNavigator;  // 使用 AdvancedPolicy，Controller 为 double
+      ```
+
+使用模板模板参数的场景
+
+1. **策略模式**：我们可以传入不同的 `Policy` 模板来影响 `Navigator` 类的行为。例如，传入一个不同的 `Policy` 模板来决定 `Controller` 类型。
+
+   ```cpp
+   template <typename IMPL>
+   struct PolicySpecialized {
+       using Controller = double;  // 更复杂的类型
+   };
+
+   Navigator<int, float, double, PolicySpecialized> Navigator;  // 使用 PolicySpecialized
+   ```
+
+### 进阶记录
+
+1. 标准写法
+   使用模板模板参数时（如 `template <typename> class POLICY`），`typename` 后无需添加具体类型名称如 `T1`。因为其中的 `typename` 并不是定义一个类型名字，而是定义一个**类型参数的占位符**。具体来说，`template <typename> class POLICY` 是一个模板模板参数，它表示一个模板类型，而该模板模板参数接受一个类型参数（例如 `T1`）。
+   但 `typename` 后加上具体类型名，功能也是等价的。
+   - `template <typename> class POLICY = MyPolicy` 是模板模板参数的标准写法。
+   - `template <typename T1> class POLICY = MyPolicy` 也能工作，但在语法上它看起来更像是一个普通的模板类定义。
+2. 可变参数模板 `typename...` 在模板模板参数中的应用
+   `typename...` 也可以用于模板模板参数中，允许你**传递一个任意数量的类型参数给模板**。
+
+   ```cpp
+   template <typename... Ts>
+   struct MyPolicy {
+       // 模板接受多个类型参数
+       using Controller = std::tuple<Ts...>;
+   };
+
+   template <typename T, template <typename...> class POLICY = MyPolicy>
+   class Navigator {
+   public:
+       using Controller = typename POLICY<T>::Controller;
+   };
+   ```
+
+   在这个例子中，`MyPolicy` 接受多个类型参数（`typename... Ts`），并将这些类型打包成一个 `std::tuple` 类型。`Navigator` 类模板的模板模板参数 `POLICY` 就是一个可以接受多个类型参数的模板。
+
+   - `POLICY` 是一个接受多个类型参数的模板模板参数。
+   - `POLICY<T>` 会被实例化成一个具体的类型，在这个例子中是 `MyPolicy<T>`，它的 `Controller` 成员是一个包含所有类型的元组（`std::tuple<Ts...>`）。
+
+## 检查类是否有特定的**成员函数**，有几种方式
