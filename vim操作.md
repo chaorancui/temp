@@ -897,3 +897,7 @@ Windows 系统下一些不错的 GUI 客户端有 [Neovim Qt](https://github.com
    win32yank 错误：确保 win32yank.exe 位于系统路径中（如 C:\Windows\System32），并且没有被防病毒软件拦截或删除。
 
 ### 基础配置
+
+## reference
+
+【neovimBeginCpp | 看起来还行】：<https://github.com/jiaxinaoliao/neovimBeginCpp>
