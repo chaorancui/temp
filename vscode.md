@@ -206,6 +206,10 @@ exit
 - **Better Align**：无论是否选择**任何语言**，任何字符或单词都可以实现更好的**垂直对齐**。
 - **indent-rainbow**：用颜色填充缩进，非常直观，如果有缩进错误还会变成红色。**对写 `Python` 用处极大**。
 
+### 告警提示插件
+
+- **Error Lens**： 扩展能够将错误和警告信息直接显示在相应的代码行末。不装本插件 vscode 默认会在 "Problems" 面板中显示错误和警告。参见 [显示错误和告警](#显示错误和告警) 章节。
+
 ### 其他插件
 
 - LeetCode: Solve LeetCode problems in VS Code
@@ -216,7 +220,9 @@ exit
 > - vs-code“实用插件”：<https://hailangya.com/articles/2021/03/15/vs-code-plugins/>
 > - 10 款 VS Code 插件神器，第 7 款超级实用！：<https://cloud.tencent.com/developer/article/1889258>
 
-## 插件配置
+## 插件必要配置
+
+> 某些插件安装后，其基础功能需要配置一下才好用。
 
 ### prettier 插件
 
@@ -463,7 +469,9 @@ exit
    3. 在 Markdown 中使用 `plantuml` 代码块编写 UML 代码。
    4. 预览和导出图表。
 
-## 软件配置
+## 软件功能配置
+
+> 此部分记录是可以提升使用体验的功能配置，一般通过修改 json 文件或通过插件实现。
 
 首先输入：`command + p`，然后输入：`Settings`，接下来，选择：`Preferences: Open Settings (UI)`，就进入了快捷键文件 `settings.json` 编辑页面。
 
@@ -473,87 +481,82 @@ exit
 
 ```json
 {
-    // leetcode
-    "leetcode.endpoint": "leetcode-cn",
-    "leetcode.defaultLanguage": "cpp",
-    "leetcode.showDescription": "Both",
-    "leetcode.showLocked": true,
-    
-    // 信任区域
-    "security.workspace.trust.banner": "never",
-    "security.workspace.trust.untrustedFiles": "open",
-    
-    // markdown 插件
-    "markdown-preview-enhanced.codeBlockTheme": "solarized-dark.css",
-    "markdown-preview-enhanced.previewTheme": "solarized-dark.css",
-    
-    // editor
-    "editor.minimap.enabled": false,
-    "editor.lineNumbers": "relative",
-    "workbench.iconTheme": "vscode-icons",
-    "C_Cpp.clang_format_fallbackStyle": " { BasedOnStyle: Visual Studio,  ColumnLimit: 120 }",
-    // "editor.fontFamily": "Fira Code, Consolas, 'Courier New', monospace",
-    // "editor.fontLigatures": true,
-    "editor.fontFamily": "Operator Mono",
-    "editor.fontLigatures": true, // 这个控制是否启用字体连字，true启用，false不启用，这里选择启用
-    "editor.tokenColorCustomizations": {
-        "textMateRules": [
-            {
-                "name": "italic font",
-                "scope": [
-                    "comment",
-                    "keyword",
-                    "storage",
-                    "keyword.control.import",
-                    "keyword.control.default",
-                    "keyword.control.from",
-                    "keyword.operator.new",
-                    "keyword.control.export",
-                    "keyword.control.flow",
-                    "storage.type.class",
-                    "storage.type.function",
-                    "storage.type",
-                    "storage.type.class",
-                    "variable.language",
-                    "variable.language.super",
-                    "variable.language.this",
-                    "meta.class",
-                    "meta.var.expr",
-                    "constant.language.null",
-                    "support.type.primitive",
-                    "entity.name.method.js",
-                    "entity.other.attribute-name",
-                    "punctuation.definition.comment",
-                    "text.html.basic entity.other.attribute-name.html",
-                    "text.html.basic entity.other.attribute-name",
-                    "tag.decorator.js entity.name.tag.js",
-                    "tag.decorator.js punctuation.definition.tag.js",
-                    "source.js constant.other.object.key.js string.unquoted.label.js",
-                ],
-                "settings": {
-                    "fontStyle": "italic",
-                }
-            },
-        ]
-    },
-    "editor.fontSize": 16,
-    "terminal.integrated.cursorStyle": "line",
-    "terminal.integrated.defaultProfile.windows": "Git Bash",
-    "[cpp]": {
-        "editor.defaultFormatter": "NextCode.nextcode-check"
-    },
-    "vim.insertModeKeyBindings": [
-        {
-            "before": [
-              "j",
-              "j"
-            ],
-            "after": [
-              "<Esc>"
-            ]
-        },
-      ],
-    "vim.vimrc.enable": true
+  // leetcode
+  "leetcode.endpoint": "leetcode-cn",
+  "leetcode.defaultLanguage": "cpp",
+  "leetcode.showDescription": "Both",
+  "leetcode.showLocked": true,
+
+  // 信任区域
+  "security.workspace.trust.banner": "never",
+  "security.workspace.trust.untrustedFiles": "open",
+
+  // markdown 插件
+  "markdown-preview-enhanced.codeBlockTheme": "solarized-dark.css",
+  "markdown-preview-enhanced.previewTheme": "solarized-dark.css",
+
+  // editor
+  "editor.minimap.enabled": false,
+  "editor.lineNumbers": "relative",
+  "workbench.iconTheme": "vscode-icons",
+  "C_Cpp.clang_format_fallbackStyle": " { BasedOnStyle: Visual Studio,  ColumnLimit: 120 }",
+  // "editor.fontFamily": "Fira Code, Consolas, 'Courier New', monospace",
+  // "editor.fontLigatures": true,
+  "editor.fontFamily": "Operator Mono",
+  "editor.fontLigatures": true, // 这个控制是否启用字体连字，true启用，false不启用，这里选择启用
+  "editor.tokenColorCustomizations": {
+    "textMateRules": [
+      {
+        "name": "italic font",
+        "scope": [
+          "comment",
+          "keyword",
+          "storage",
+          "keyword.control.import",
+          "keyword.control.default",
+          "keyword.control.from",
+          "keyword.operator.new",
+          "keyword.control.export",
+          "keyword.control.flow",
+          "storage.type.class",
+          "storage.type.function",
+          "storage.type",
+          "storage.type.class",
+          "variable.language",
+          "variable.language.super",
+          "variable.language.this",
+          "meta.class",
+          "meta.var.expr",
+          "constant.language.null",
+          "support.type.primitive",
+          "entity.name.method.js",
+          "entity.other.attribute-name",
+          "punctuation.definition.comment",
+          "text.html.basic entity.other.attribute-name.html",
+          "text.html.basic entity.other.attribute-name",
+          "tag.decorator.js entity.name.tag.js",
+          "tag.decorator.js punctuation.definition.tag.js",
+          "source.js constant.other.object.key.js string.unquoted.label.js"
+        ],
+        "settings": {
+          "fontStyle": "italic"
+        }
+      }
+    ]
+  },
+  "editor.fontSize": 16,
+  "terminal.integrated.cursorStyle": "line",
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "[cpp]": {
+    "editor.defaultFormatter": "NextCode.nextcode-check"
+  },
+  "vim.insertModeKeyBindings": [
+    {
+      "before": ["j", "j"],
+      "after": ["<Esc>"]
+    }
+  ],
+  "vim.vimrc.enable": true
 }
 ```
 
@@ -568,26 +571,26 @@ exit
 ```json
 // 将键绑定放在此文件中以覆盖默认值
 [
-    {
-        "key": "ctrl+f",
-        "command": "cursorRight",
-        "when": "editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode == 'Insert'"
-    },
-    {
-        "key": "ctrl+b",
-        "command": "cursorLeft",
-        "when": "editorTextFocus && vim.active && vim.use<C-b> && !inDebugRepl && vim.mode == 'Insert'"
-    },
-    {
-        "key": "ctrl+p",
-        "command": "cursorUp",
-        "when": "editorTextFocus && vim.active && vim.use<C-p> && !inDebugRepl && vim.mode == 'Insert'"
-    },
-    {
-        "key": "ctrl+n",
-        "command": "cursorDown",
-        "when": "editorTextFocus && vim.active && vim.use<C-n> && !inDebugRepl && vim.mode == 'Insert'"
-    },
+  {
+    "key": "ctrl+f",
+    "command": "cursorRight",
+    "when": "editorTextFocus && vim.active && vim.use<C-f> && !inDebugRepl && vim.mode == 'Insert'"
+  },
+  {
+    "key": "ctrl+b",
+    "command": "cursorLeft",
+    "when": "editorTextFocus && vim.active && vim.use<C-b> && !inDebugRepl && vim.mode == 'Insert'"
+  },
+  {
+    "key": "ctrl+p",
+    "command": "cursorUp",
+    "when": "editorTextFocus && vim.active && vim.use<C-p> && !inDebugRepl && vim.mode == 'Insert'"
+  },
+  {
+    "key": "ctrl+n",
+    "command": "cursorDown",
+    "when": "editorTextFocus && vim.active && vim.use<C-n> && !inDebugRepl && vim.mode == 'Insert'"
+  }
 ]
 ```
 
@@ -598,19 +601,18 @@ exit
 ```json
 // Place your key bindings in this file to override the defaults
 [
-    { "key": "ctrl+1",                "command": "workbench.action.terminal.focusAtIndex1", "when": "terminalFocus" },
-    { "key": "ctrl+2",                "command": "workbench.action.terminal.focusAtIndex2", "when": "terminalFocus" },
-    { "key": "ctrl+3",                "command": "workbench.action.terminal.focusAtIndex3", "when": "terminalFocus" },
-    { "key": "ctrl+4",                "command": "workbench.action.terminal.focusAtIndex4", "when": "terminalFocus" },
-    { "key": "ctrl+5",                "command": "workbench.action.terminal.focusAtIndex5", "when": "terminalFocus" },
-    { "key": "ctrl+6",                "command": "workbench.action.terminal.focusAtIndex6", "when": "terminalFocus" },
-    { "key": "ctrl+7",                "command": "workbench.action.terminal.focusAtIndex7", "when": "terminalFocus" },
-    { "key": "ctrl+8",                "command": "workbench.action.terminal.focusAtIndex8", "when": "terminalFocus" },
-    { "key": "ctrl+9",                "command": "workbench.action.terminal.focusAtIndex9", "when": "terminalFocus" },
-    { "key": "ctrl+t",                "command": "workbench.action.terminal.new", "when": "terminalFocus" },
-    { "key": "ctrl+p",                "command": "cursorup", "when": "terminalFocus" },
-    { "key": "ctrl+n",                "command": "cursordown", "when": "terminalFocus" }
-
+  { "key": "ctrl+1", "command": "workbench.action.terminal.focusAtIndex1", "when": "terminalFocus" },
+  { "key": "ctrl+2", "command": "workbench.action.terminal.focusAtIndex2", "when": "terminalFocus" },
+  { "key": "ctrl+3", "command": "workbench.action.terminal.focusAtIndex3", "when": "terminalFocus" },
+  { "key": "ctrl+4", "command": "workbench.action.terminal.focusAtIndex4", "when": "terminalFocus" },
+  { "key": "ctrl+5", "command": "workbench.action.terminal.focusAtIndex5", "when": "terminalFocus" },
+  { "key": "ctrl+6", "command": "workbench.action.terminal.focusAtIndex6", "when": "terminalFocus" },
+  { "key": "ctrl+7", "command": "workbench.action.terminal.focusAtIndex7", "when": "terminalFocus" },
+  { "key": "ctrl+8", "command": "workbench.action.terminal.focusAtIndex8", "when": "terminalFocus" },
+  { "key": "ctrl+9", "command": "workbench.action.terminal.focusAtIndex9", "when": "terminalFocus" },
+  { "key": "ctrl+t", "command": "workbench.action.terminal.new", "when": "terminalFocus" },
+  { "key": "ctrl+p", "command": "cursorup", "when": "terminalFocus" },
+  { "key": "ctrl+n", "command": "cursordown", "when": "terminalFocus" }
 ]
 // 这就设置好了基础的配置。ctrl+1-9 用于切换终端， ctrl+t 用于创建新终端。
 ```
@@ -672,6 +674,44 @@ exit
      "errorLens.hintForeground": "#008000",
      ```
 
+### c++ 条件编译高亮与变暗
+
+在 VSCode 中，C++ 的条件编译指令区域不会自动高亮或变暗，通常是因为默认的语法高亮插件没有启用对预处理器指令（如 `#ifdef`, `#endif` 等）区域的特别处理。可以通过**安装 C/C++ 插件**解决这个问题。这个插件由 Microsoft 提供，并可以提供对 C++ 代码的智能提示、语法高亮以及预处理指令的支持。
+
+1. **C/C++ 插件配置**：
+   安装插件后，要保证以下配置项是正确的（配置项功能可以阅读描述）：
+
+   ```json
+    "C_Cpp.intelliSenseEngine": "Default",  // intelliSense 提供方 设置为 Default
+    "C_Cpp.dimInactiveRegions": true,  // 活动/非活动代码段不同高亮，依赖 intelliSense 打开
+    "C_Cpp.enhancedColorization": "Enabled",  // 非必须，基于 intelliSense 代码高亮，依赖 intelliSense 设置为 Default
+   ```
+
+2. **添加编译选项宏**：
+   正常做完上述配置后，`#ifdef` 和 `#endif` 等指令区域应该会显示为灰色的背景或其他变暗效果。但有时候代码里会有些宏是编译器定义的，代码中无法正确拿到这些宏定义的值，可以通过在 `c_cpp_properties.json` 文件中配置这些宏，让 **C/C++ 插件** 正常高亮条件编译指令。
+   - **修改 `defines` 这一项，在里面添加宏**。下面例子添加了 MY_MACRO 和 DEBUG 宏。
+   - 其余的都是默认配置，暂无修改诉求。
+
+```json
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": ["${workspaceFolder}/**", "/usr/include", "/usr/local/include"],
+      "defines": ["MY_MACRO=1", "DEBUG"],
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "browse": {
+        "path": ["${workspaceFolder}/**"]
+      }
+    }
+  ]
+}
+```
+
 ## 使用技巧
 
 ### 查找匹配行，存至文件
@@ -709,24 +749,21 @@ exit
 
 ```json
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "args": [
-                "./xxx/xxx.yaml",
-                "--xxx=xxx"
-            ]
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "args": ["./xxx/xxx.yaml", "--xxx=xxx"]
+    }
+  ]
 }
 ```
 
@@ -784,21 +821,21 @@ Specifies the current working directory for the debugger, which is the base fold
 
 ```json
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal",
-            "justMyCode": true,
-            "cwd": "xxx/xxx"
-        }
-    ]
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Python: Current File",
+      "type": "python",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": true,
+      "cwd": "xxx/xxx"
+    }
+  ]
 }
 ```
 
@@ -835,21 +872,21 @@ Specifies the current working directory for the debugger, which is the base fold
 
    ```json
    {
-       "configurations": [
-           {
-               "name": "Win32",
-               "includePath": [
-                   "${workspaceFolder}/src",   // 仅包含 src 目录
-                   "${workspaceFolder}/include" // 仅包含 include 目录
-               ],
-               "defines": [],
-               "compilerPath": "C:/path/to/your/compiler",
-               "cStandard": "c11",
-               "cppStandard": "c++17",
-               "intelliSenseMode": "gcc-x64"
-           }
-       ],
-       "version": 4
+     "configurations": [
+       {
+         "name": "Win32",
+         "includePath": [
+           "${workspaceFolder}/src", // 仅包含 src 目录
+           "${workspaceFolder}/include" // 仅包含 include 目录
+         ],
+         "defines": [],
+         "compilerPath": "C:/path/to/your/compiler",
+         "cStandard": "c11",
+         "cppStandard": "c++17",
+         "intelliSenseMode": "gcc-x64"
+       }
+     ],
+     "version": 4
    }
    ```
 
@@ -868,14 +905,14 @@ Specifies the current working directory for the debugger, which is the base fold
 
    ```json
    {
-       "files.exclude": {
-           "**/test/**": true,        // 排除所有 test 目录
-           "**/*.tmp": true           // 排除所有 .tmp 文件
-       },
-       "search.exclude": {
-           "**/test/**": true,        // 在搜索时排除 test 目录
-           "**/*.tmp": true           // 在搜索时排除 .tmp 文件
-       }
+     "files.exclude": {
+       "**/test/**": true, // 排除所有 test 目录
+       "**/*.tmp": true // 排除所有 .tmp 文件
+     },
+     "search.exclude": {
+       "**/test/**": true, // 在搜索时排除 test 目录
+       "**/*.tmp": true // 在搜索时排除 .tmp 文件
+     }
    }
    ```
 
@@ -889,12 +926,12 @@ Specifies the current working directory for the debugger, which is the base fold
 
    ```json
    {
-       "C_Cpp.files.exclude": {
-           "**/build/**": true,
-           "**/third_party/**": true,
-           "**/test/**": true,
-           "**/CMakeFiles/**": true
-       }
+     "C_Cpp.files.exclude": {
+       "**/build/**": true,
+       "**/third_party/**": true,
+       "**/test/**": true,
+       "**/CMakeFiles/**": true
+     }
    }
    ```
 
@@ -918,28 +955,22 @@ Specifies the current working directory for the debugger, which is the base fold
 
    ```json
    {
-       "configurations": [
-           {
-               "name": "Win32",
-               "includePath": [
-                   "${workspaceFolder}/src",
-                   "${workspaceFolder}/include"
-               ],
-               "browse": {
-                   "path": [
-                       "${workspaceFolder}/src",
-                       "${workspaceFolder}/include"
-                   ],
-                   "limitSymbolsToIncludedHeaders": true
-               },
-               "defines": [],
-               "compilerPath": "C:/path/to/your/compiler",
-               "cStandard": "c11",
-               "cppStandard": "c++17",
-               "intelliSenseMode": "gcc-x64"
-           }
-       ],
-       "version": 4
+     "configurations": [
+       {
+         "name": "Win32",
+         "includePath": ["${workspaceFolder}/src", "${workspaceFolder}/include"],
+         "browse": {
+           "path": ["${workspaceFolder}/src", "${workspaceFolder}/include"],
+           "limitSymbolsToIncludedHeaders": true
+         },
+         "defines": [],
+         "compilerPath": "C:/path/to/your/compiler",
+         "cStandard": "c11",
+         "cppStandard": "c++17",
+         "intelliSenseMode": "gcc-x64"
+       }
+     ],
+     "version": 4
    }
    ```
 
