@@ -689,28 +689,29 @@ exit
 
 2. **添加编译选项宏**：
    正常做完上述配置后，`#ifdef` 和 `#endif` 等指令区域应该会显示为灰色的背景或其他变暗效果。但有时候代码里会有些宏是编译器定义的，代码中无法正确拿到这些宏定义的值，可以通过在 `c_cpp_properties.json` 文件中配置这些宏，让 **C/C++ 插件** 正常高亮条件编译指令。
+
    - **修改 `defines` 这一项，在里面添加宏**。下面例子添加了 MY_MACRO 和 DEBUG 宏。
    - 其余的都是默认配置，暂无修改诉求。
 
-```json
-{
-  "version": 4,
-  "configurations": [
-    {
-      "name": "Linux",
-      "includePath": ["${workspaceFolder}/**", "/usr/include", "/usr/local/include"],
-      "defines": ["MY_MACRO=1", "DEBUG"],
-      "intelliSenseMode": "gcc-x64",
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "c11",
-      "cppStandard": "c++17",
-      "browse": {
-        "path": ["${workspaceFolder}/**"]
-      }
-    }
-  ]
-}
-```
+   ```json
+   {
+     "version": 4,
+     "configurations": [
+       {
+         "name": "Linux",
+         "includePath": ["${workspaceFolder}/**", "/usr/include", "/usr/local/include"],
+         "defines": ["MY_MACRO=1", "DEBUG"],
+         "intelliSenseMode": "gcc-x64",
+         "compilerPath": "/usr/bin/gcc",
+         "cStandard": "c11",
+         "cppStandard": "c++17",
+         "browse": {
+           "path": ["${workspaceFolder}/**"]
+         }
+       }
+     ]
+   }
+   ```
 
 ## 使用技巧
 
