@@ -87,7 +87,7 @@ exit
      ```shell
      wget https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<architecture>/stable -O vscode-server.tar.gz
      # 这个 URL 包含了具体的 `commit_id`、`platform` 和 `architecture` 信息。
-
+  
      # 例子：
      wget https://update.code.visualstudio.com/commit:f1e16e1e6214d7c44d078b1f0607b2388f29d729/server-linux-x64/stable -O vscode-server.tar.gz
      ```
@@ -337,9 +337,9 @@ exit
 
       ```markdown
       Here is an inline formula: $E = mc^2$
-
+   
       Here is a block formula:
-
+   
       $$
       a^2 + b^2 = c^2
       $$
@@ -690,6 +690,7 @@ exit
 2. **添加编译选项宏**：
    正常做完上述配置后，`#ifdef` 和 `#endif` 等指令区域应该会显示为灰色的背景或其他变暗效果。但有时候代码里会有些宏是编译器定义的，代码中无法正确拿到这些宏定义的值，可以通过在 `c_cpp_properties.json` 文件中配置这些宏，让 **C/C++ 插件** 正常高亮条件编译指令。
 
+   - 通过从命令面板（Ctrl+Shift+P）中选择的 **C/C++ 编辑配置(JSON)** 来创建 `c_cpp_properties.json` 文件。或者通过从命令面板（Ctrl+Shift+P）中选择**C/C++: 编辑配置(UI)** 中直接设置选项（会自动生成文件）。参考：[vscode C/C++ 官方文档](https://vscode.js.cn/docs/cpp/configure-intellisense)。
    - **修改 `defines` 这一项，在里面添加宏**。下面例子添加了 MY_MACRO 和 DEBUG 宏。
    - 其余的都是默认配置，暂无修改诉求。
 
