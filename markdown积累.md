@@ -48,7 +48,7 @@ VNote 不仅仅是一个简单的 Markdown 编辑器。通过提供**笔记管�
    添加 `prettier-ignore` 注释，下面的两行都不会被格式化。直至遇见空行。
    对于两个矩阵 $ A_{m \times p} $ 和 $ B_{p \times n} $，它们的乘积 $ C_{m \times n} = AB $ 是一个 $ m \times n $ 的矩阵。
    $$ C_{(i, j)} = \Sigma_{k=1}^n A_{(i, k)} \times B_{(k, j)} $$
-
+   
    上面有空行，这里以及下面的代码会被格式化。
    $$ C*{(i, j)} = \Sigma*{k=1}^n A*{(i, k)} \times B*{(k, j)} $$
    ```
@@ -235,6 +235,14 @@ Markdown 中定位标记使你可以跳至同一页面上的指定锚点。用�
 - 如果标题的自动生成的定位点与同一文档中的早期定位点相同，那么通过追加连字符和自动递增整数来生成唯一标识符。
 
 例如：[点击跳转到文件开头](#markdown-编辑器)，其代码为 `[点击跳转到文件开头](#markdown-编辑器)`。
+
+### 图片居中且调整比例
+
+```markdown
+<div style="text-align: center">
+<img src="xxx.png" style="width: 70%">
+</div>
+```
 
 ### plantuml
 
