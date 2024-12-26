@@ -1054,6 +1054,9 @@ struct Simple {
 void bar() {
     Simple::Type x;  // 不需要typename，因为Simple不是模板
 }
+
+// 示例3：如果不使用typename，编译器可可能误以为 Type 是静态成员
+static int Type;  // 而不是类型别名或嵌套类型
 ```
 
 如果没有它的话，在某些情况下会**出现模棱两可**的情况，比如下面这种情况：
