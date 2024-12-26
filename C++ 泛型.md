@@ -175,17 +175,17 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
 
    ```cpp
    #include <concepts>
-
+   
    template <typename T>
    concept Printable = requires(T t) {
        { t.to_string() } -> std::convertible_to<std::string>;
    };
-
+   
    template <Printable T>
    void print(const T& value) {
        std::cout << value.to_string() << std::endl;
    }
-
+   
    template <typename T>
    void print(const T& value) requires (!Printable<T>) {
        std::cout << value << std::endl;
@@ -343,26 +343,26 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
    ```cpp
    #include <concepts>
    #include <iostream>
-
+   
    template<typename T>
    concept Numeric = std::integral<T> || std::floating_point<T>;
-
+   
    template<typename T>
    concept Printable = requires(T t) {
        { std::cout << t } -> std::same_as<std::ostream&>;
    };
-
+   
    template<Numeric T>
    void process(T value) {
        std::cout << "Processing numeric value: " << value << std::endl;
    }
-
+   
    template<Printable T>
    void process(T value) {
        std::cout << "Processing printable value: ";
        std::cout << value << std::endl;
    }
-
+   
    int main() {
        process(42);     // 输出：Processing numeric value: 42
        process(3.14);   // 输出：Processing numeric value: 3.14
@@ -392,7 +392,7 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
 
 1. **模板的声明和定义**：
 
-   - 当编译器在编译过程中遇到了模板的定义（例如，模板类或模板函数的实现）时，编译器会**将模板代码解析并记录模板类型（或函数）和相关的语法信息**，但并不会生成实际的代码。模板定义必须是可见的，才能在后续实例化阶段使用。
+   - 当编译器在编译过程中遇到了模板的定义（例如，模板类或模板函数的实现）时，**模板的声明和定义（如模板类、模板函数）会在编译器的符号表中进行记录**。但并不会生成实际的代码。模板定义必须是可见的，才能在后续实例化阶段使用。
 
      例如，一个模板函数的定义可能是这样的：
 
@@ -496,7 +496,7 @@ int main() {
      void foo(T x) {
          std::cout << x << std::endl;
      }
-
+  
      int main() {
          foo(42);    // 隐式实例化 foo<int>
          foo(3.14);  // 隐式实例化 foo<double>
@@ -515,11 +515,11 @@ int main() {
      // 声明
      template<typename T>
      void foo(T x);
-
+     
      // 显式实例化
      template void foo<int>(int);
      template void foo<double>(double);
-
+     
      int main() {
          foo(42);    // 不会再实例化模板，只调用已经显式实例化的代码
          foo(3.14);  // 同上
@@ -656,6 +656,11 @@ C++ 中的 Two-Phase Translation（两阶段翻译）是模板编译的一个核
 
 4. 编译器实现的差异
    不同的编译器可能会在两个阶段之间的边界上有略微不同的行为。一些编译器可能会尝试在第一阶段做更多的检查，而其他编译器可能会推迟更多的检查到第二阶段。
+
+## 宏展开和模板编译
+
+- 在预处理阶段，所有的宏都会被展开，无论它们是否出现在模板的上下文中。因此，**宏的展开总是在模板编译之前**进行。
+- 在**模板实例化时，宏已被展开**，模板代码本身已经被预处理过。如果模板代码中含有宏定义，它们也会在实例化时被再次处理，但这时已经是宏展开后的内容。
 
 ## 模板零碎知识
 
@@ -1183,7 +1188,7 @@ void func() {
    // 2-1. 使用 int 参数版本，调用时用 has_getValue<T>(0)。也可用 double/string 等参数版本，对应调用时做修改即可。
    template <typename T>
    auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{});
-
+   
    // 2-2. 使用 ... 参数版本作为回退，它也可以匹配无参数的调用，因此上面不能没有参数
    template <typename T>
    std::false_type has_getValue(...);
@@ -1215,7 +1220,7 @@ void func() {
       ```cpp
       template <typename T>
       auto has_value_type(int) -> typename std::enable_if<sizeof(typename T::value_type) >= 0, std::true_type>::type;
-
+   
       template <typename T>
       std::false_type has_value_type(...);
       ```
@@ -1425,23 +1430,23 @@ return_type function_name(parameter_list, ...);
       struct BasicPolicy {
           using Controller = int;  // 基础的控制类型
       };
-
+      
       template <typename IMPL>
       struct AdvancedPolicy {
           using Controller = double;  // 更复杂的控制类型
       };
-
+      
       template <typename A_TYPE, typename B_TYPE, typename C_TYPE, template <typename ...> class POLICY = BasicPolicy>
       class Navigator {
       public:
           using Controller = typename POLICY<Navigator<A_TYPE, B_TYPE, C_TYPE>>::Controller;
-
+      
           void compute() {
               Controller c;
               // 根据 c 的类型执行不同的逻辑
           }
       };
-
+      
       // 使用不同的策略
       Navigator<int, int, int, BasicPolicy> basicNavigator;   // 使用 BasicPolicy，Controller 为 int
       Navigator<int, int, int, AdvancedPolicy> advancedNavigator;  // 使用 AdvancedPolicy，Controller 为 double
@@ -1456,7 +1461,7 @@ return_type function_name(parameter_list, ...);
    struct PolicySpecialized {
        using Controller = double;  // 更复杂的类型
    };
-
+   
    Navigator<int, float, double, PolicySpecialized> Navigator;  // 使用 PolicySpecialized
    ```
 
@@ -1476,7 +1481,7 @@ return_type function_name(parameter_list, ...);
        // 模板接受多个类型参数
        using Controller = std::tuple<Ts...>;
    };
-
+   
    template <typename T, template <typename...> class POLICY = MyPolicy>
    class Navigator {
    public:
