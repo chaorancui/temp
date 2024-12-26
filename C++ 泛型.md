@@ -175,17 +175,17 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
 
    ```cpp
    #include <concepts>
-   
+
    template <typename T>
    concept Printable = requires(T t) {
        { t.to_string() } -> std::convertible_to<std::string>;
    };
-   
+
    template <Printable T>
    void print(const T& value) {
        std::cout << value.to_string() << std::endl;
    }
-   
+
    template <typename T>
    void print(const T& value) requires (!Printable<T>) {
        std::cout << value << std::endl;
@@ -343,26 +343,26 @@ SFINAE 是 "Substitution Failure Is Not An Error" 的缩写，它是 C++ 模板�
    ```cpp
    #include <concepts>
    #include <iostream>
-   
+
    template<typename T>
    concept Numeric = std::integral<T> || std::floating_point<T>;
-   
+
    template<typename T>
    concept Printable = requires(T t) {
        { std::cout << t } -> std::same_as<std::ostream&>;
    };
-   
+
    template<Numeric T>
    void process(T value) {
        std::cout << "Processing numeric value: " << value << std::endl;
    }
-   
+
    template<Printable T>
    void process(T value) {
        std::cout << "Processing printable value: ";
        std::cout << value << std::endl;
    }
-   
+
    int main() {
        process(42);     // 输出：Processing numeric value: 42
        process(3.14);   // 输出：Processing numeric value: 3.14
@@ -496,7 +496,7 @@ int main() {
      void foo(T x) {
          std::cout << x << std::endl;
      }
-  
+
      int main() {
          foo(42);    // 隐式实例化 foo<int>
          foo(3.14);  // 隐式实例化 foo<double>
@@ -515,11 +515,11 @@ int main() {
      // 声明
      template<typename T>
      void foo(T x);
-     
+
      // 显式实例化
      template void foo<int>(int);
      template void foo<double>(double);
-     
+
      int main() {
          foo(42);    // 不会再实例化模板，只调用已经显式实例化的代码
          foo(3.14);  // 同上
@@ -857,7 +857,7 @@ int main() {
 
 类模板和函数模板的声明方式是一样的，在类定义/模板定义之前声明模板参数列表。例如：
 
-```c++
+```cpp
 // 类模板
 template <class T1, class T2>
 class A{
@@ -876,7 +876,7 @@ T max(const T lhs, const T rhs){
 
 通过[全特化](http://en.cppreference.com/w/cpp/language/template_specialization)一个模板，可以对一个特定参数集合自定义当前模板，类模板和函数模板都可以全特化。 **全特化的模板参数列表应当是空的，并且应当给出"模板实参"列表**：
 
-```c++
+```cpp
 // 全特化类模板
 template <>
 class A<int, double>{
@@ -897,7 +897,7 @@ int max(const int lhs, const int rhs){
 
 上述函数模板不需指定"模板实参"是因为编译器可以通过函数签名来推导，但有时这一过程是有歧义的：
 
-```c++
+```cpp
 template <class T>
 void f(){ T d; }
 
@@ -913,7 +913,7 @@ error: no function template matches function template specialization 'f'
 
 这时我们便需要显式指定"模板实参"：
 
-```c++
+```cpp
 template <class T>
 void f(){ T d; }
 
@@ -925,7 +925,7 @@ void f<int>(){ int d; }
 
 类似于全特化，偏特化也是为了给自定义一个参数集合的模板，但偏特化后的模板需要进一步的实例化才能形成确定的签名。 **值得注意的是函数模板不允许偏特化**，这一点在[Effective C++: Item 25](https://harttle.land/2015/08/23/effective-cpp-25.html)中有更详细的讨论。 偏特化也是以`template`来声明的，需要给出剩余的"模板形参"和必要的"模板实参"。例如：
 
-```c++
+```cpp
 template <class T2>
 class A<int, T2>{
     ...
@@ -934,7 +934,7 @@ class A<int, T2>{
 
 函数模板是不允许偏特化的，下面的声明会编译错：
 
-```c++
+```cpp
 template <class T1, class T2>
 void f(){}
 
@@ -944,7 +944,7 @@ void f<int, T2>(){}
 
 但函数允许重载，声明另一个函数模板即可替代偏特化的需要：
 
-```c++
+```cpp
 template <class T2>
 void f(){}              // 注意：这里没有"模板实参"
 ```
@@ -957,19 +957,19 @@ void f(){}              // 注意：这里没有"模板实参"
 
 用过 C++ 的同学对 typename 和 typedef 相信并不是很陌生，但是当我看到下面这段代码的时候仍然无法理解：
 
-```c++
+```cpp
 typedef typename std::vector<T>::size_type size_type;
 ```
 
 按理来说 typedef 一般不是用来定义一种类型的别名，如下：
 
-```
+```cpp
 typedef int SpeedType;
 ```
 
 定义了一个 int 的别名是 SpeedType，那么我就可以这样用：
 
-```c++
+```cpp
 int main(void)
 {
     SpeedType s = 10;
@@ -986,7 +986,7 @@ int main(void)
 
 - 用作同时声明指针型的多个对象
 
-```c++
+```cpp
 // pa、pb两个变量都声明为字符串，但是这样只能成功声明了一个
 char* pa, pb;
 cout << typeid(pa).name() << endl; //Pc
@@ -1001,7 +1001,7 @@ cout << typeid(pb).name() << endl; //Pc
 
 - 为结构体取别名
 
-```c++
+```cpp
 // 在声明变量的时候，需要带上struct，即像下面这样使用：
 typedef struct info
 {
@@ -1014,7 +1014,7 @@ Info var;
 
 - 用来定义与平台无关的类型
 
-```c++
+```cpp
 // 比如定义一个叫 REAL 的浮点类型，在目标平台一上，让它表示最高精度的类型为：
 typedef long double REAL;
 // 在不支持 long double 的平台二上，改为：
@@ -1025,22 +1025,40 @@ typedef double REAL;
 
 #### typename
 
-typename 关键字用于引入一个模板参数，这个关键字用于指出模板声明（或定义）中的非独立名称（dependent names）**是类型名，而非变量名**：
+typename 关键字用于引入一个模板参数，这个关键字用于指出模板声明（或定义）中的非独立名称（dependent names）**是类型名，而不是一个静态成员变量或其他非类型成员**：
 
-```c++
+这是因为：
+
+- 当使用依赖于模板参数的嵌套类型时（称为依赖类型/dependent type），需要使用 typename 关键字
+- 编译器在不使用 typename 的情况下，默认认为 :: 后的标识符是一个静态成员
+
+举例说明：
+
+```cpp
+// 示例1：需要typename的情况
 template <typename T>
-const T& max(const T& x, const T& y)
-{
-  if (y < x) {
-    return x;
-  }
-  return y;
+struct Outer {
+    typedef int Type;  // 嵌套类型定义
+};
+
+template <typename T>
+void foo() {
+    typename Outer<T>::Type x;  // 必须使用typename，因为Type依赖于模板参数T
+}
+
+// 示例2：不需要typename的情况
+struct Simple {
+    typedef int Type;
+};
+
+void bar() {
+    Simple::Type x;  // 不需要typename，因为Simple不是模板
 }
 ```
 
-typename 在这里的意思表明 T 是一个类型。如果没有它的话，在某些情况下会**出现模棱两可**的情况，比如下面这种情况：
+如果没有它的话，在某些情况下会**出现模棱两可**的情况，比如下面这种情况：
 
-```c++
+```cpp
 template <class T>
 void foo() {
     T::iterator * iter;
@@ -1050,7 +1068,7 @@ void foo() {
 
 作者想定义一个指针`iter`，它指向的类型是包含在类作用域`T`中的`iterator`。可能存在这样一个包含`iterator`类型的结构：
 
-```c++
+```cpp
 struct ContainsAType {
     struct iterator { /*...*/ };
 };
@@ -1064,7 +1082,7 @@ struct ContainsAType {
 
 所以如果是下面这样的情况：
 
-```c++
+```cpp
 struct ContainsAnotherType {
     static int iterator;
     // ...
@@ -1073,7 +1091,7 @@ struct ContainsAnotherType {
 
 那 `T::iterator * iter;`被编译器实例化为`ContainsAnotherType::iterator * iter;`，变成了一个静态数据成员乘以 iter ，这样编译器会找不到另一个变量 `iter` 的定义 。所以为了避免这样的歧义，我们加上 typename，表示 `T::iterator` 一定要是个类型才行。
 
-```c++
+```cpp
 template <class T>
 void foo() {
     typename T::iterator * iter;
@@ -1083,7 +1101,7 @@ void foo() {
 
 我们回到一开始的例子，对于 `vector::size_type`，我们可以知道：
 
-```c++
+```cpp
 template <class T,class Alloc=alloc>
 class vector{
 public:
@@ -1188,7 +1206,7 @@ void func() {
    // 2-1. 使用 int 参数版本，调用时用 has_getValue<T>(0)。也可用 double/string 等参数版本，对应调用时做修改即可。
    template <typename T>
    auto has_getValue(int) -> decltype(std::declval<T>().getValue(), std::true_type{});
-   
+
    // 2-2. 使用 ... 参数版本作为回退，它也可以匹配无参数的调用，因此上面不能没有参数
    template <typename T>
    std::false_type has_getValue(...);
@@ -1220,7 +1238,7 @@ void func() {
       ```cpp
       template <typename T>
       auto has_value_type(int) -> typename std::enable_if<sizeof(typename T::value_type) >= 0, std::true_type>::type;
-   
+
       template <typename T>
       std::false_type has_value_type(...);
       ```
@@ -1430,23 +1448,23 @@ return_type function_name(parameter_list, ...);
       struct BasicPolicy {
           using Controller = int;  // 基础的控制类型
       };
-      
+
       template <typename IMPL>
       struct AdvancedPolicy {
           using Controller = double;  // 更复杂的控制类型
       };
-      
+
       template <typename A_TYPE, typename B_TYPE, typename C_TYPE, template <typename ...> class POLICY = BasicPolicy>
       class Navigator {
       public:
           using Controller = typename POLICY<Navigator<A_TYPE, B_TYPE, C_TYPE>>::Controller;
-      
+
           void compute() {
               Controller c;
               // 根据 c 的类型执行不同的逻辑
           }
       };
-      
+
       // 使用不同的策略
       Navigator<int, int, int, BasicPolicy> basicNavigator;   // 使用 BasicPolicy，Controller 为 int
       Navigator<int, int, int, AdvancedPolicy> advancedNavigator;  // 使用 AdvancedPolicy，Controller 为 double
@@ -1461,7 +1479,7 @@ return_type function_name(parameter_list, ...);
    struct PolicySpecialized {
        using Controller = double;  // 更复杂的类型
    };
-   
+
    Navigator<int, float, double, PolicySpecialized> Navigator;  // 使用 PolicySpecialized
    ```
 
@@ -1481,7 +1499,7 @@ return_type function_name(parameter_list, ...);
        // 模板接受多个类型参数
        using Controller = std::tuple<Ts...>;
    };
-   
+
    template <typename T, template <typename...> class POLICY = MyPolicy>
    class Navigator {
    public:
