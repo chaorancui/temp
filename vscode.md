@@ -1054,7 +1054,7 @@ Specifies the current working directory for the debugger, which is the base fold
 - `Alt+Shift+↑/↓`：移动行
 - `Alt+Shift+鼠标左键`：多个光标
 - `Alt+Shift+Insert`：切换为块模式，然后鼠标框选
-- ``Ctrl+Shift+Alt+鼠标框选`：标选则多行文本
+- `Ctrl+Shift+Alt+鼠标框选`：标选则多行文本
 - `Alt+j`：选择多次出现的内容
 
 # Nodejs
