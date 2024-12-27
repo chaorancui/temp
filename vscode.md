@@ -87,7 +87,7 @@ exit
      ```shell
      wget https://update.code.visualstudio.com/commit:<commit_id>/server/<platform>/<architecture>/stable -O vscode-server.tar.gz
      # 这个 URL 包含了具体的 `commit_id`、`platform` 和 `architecture` 信息。
-  
+
      # 例子：
      wget https://update.code.visualstudio.com/commit:f1e16e1e6214d7c44d078b1f0607b2388f29d729/server-linux-x64/stable -O vscode-server.tar.gz
      ```
@@ -197,6 +197,7 @@ exit
 
 - **Markdown Preview Enhanced**：超级强大的 Markdown 插件，预览滑动同步、Pandoc、自定义预览 css、TOC、Latex、渲染代码运行结果（配置复杂）。
 - **Markdown All in One**：Markdown 所需的一切（键盘快捷键、目录、自动预览、数学公式、列表编辑、自动补全等）。
+- **markdownlint**：markdown lint 和风格检查。
 - **PlantUML**：提供 UML 支持。如要在 markdown 中渲染，需配置 Markdown Preview Enhanced。
 - **Markdown Table Prettifier**：编辑/格式化表格，将 csv 文本转化为表格。
 
@@ -337,9 +338,9 @@ exit
 
       ```markdown
       Here is an inline formula: $E = mc^2$
-   
+
       Here is a block formula:
-   
+
       $$
       a^2 + b^2 = c^2
       $$
@@ -468,6 +469,25 @@ exit
    2. 安装并配置 Java 和 Graphviz。
    3. 在 Markdown 中使用 `plantuml` 代码块编写 UML 代码。
    4. 预览和导出图表。
+
+### markdown lint 检查项
+
+```json
+    "markdownlint.config": {
+        "default": true,
+        "MD004": {
+            "style": "dash"
+        },
+        "MD007": {
+            "indent": 2
+        },
+        "MD012": false,
+        "MD013": false,  // 禁用行长限制规则
+        "MD024": false,  // 禁用重复标题
+        "MD033": false,  // 禁用HTML标签内的警告
+        "MD041": false, // 禁用首行应该为top-level标题
+    },
+```
 
 ## 软件功能配置
 
