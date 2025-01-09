@@ -41,6 +41,32 @@ pip install crashtest==0.3.0
 
 Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用来管理文件和目录、执行命令、获取系统信息等。下面列举了一些常用的 `os` 模块函数及其功能：
 
+### 系统信息和环境
+
+1. **获取环境变量值**
+
+   ```python
+   value = os.getenv('PATH')
+   ```
+
+2. **设置环境变量**
+
+   ```python
+   os.environ['CUSTOM_VAR'] = 'value'
+   ```
+
+3. **获取操作系统名称**
+
+   ```python
+   os_name = os.name  # 返回 'posix' 或 'nt'，表示 Unix 或 Windows 系统
+   ```
+
+4. **获取系统平台信息**
+
+   ```python
+   platform = os.uname()  # 返回一个包含系统信息的元组，仅在 Unix 系统上可用
+   ```
+
 ### 文件和目录操作
 
 1. **获取当前工作目录**
@@ -112,31 +138,74 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
     files = os.listdir('/path/to/directory')
     ```
 
-### 系统信息和环境
+### 文件和目录检查
 
-1. **获取环境变量值**
+1. **检查路径是否为文件或目录**
 
-   ```python
-   value = os.getenv('PATH')
-   ```
+   - `os.path.isfile(path)`: 判断路径是否为文件。
 
-2. **设置环境变量**
+   - `os.path.isdir(path)`: 判断路径是否为目录。
 
-   ```python
-   os.environ['CUSTOM_VAR'] = 'value'
-   ```
+     ```python
+     path_file = '/path/to/file.txt'
+     path_directory = '/path/to/directory'
 
-3. **获取操作系统名称**
+     is_file = os.path.isfile(path_file)
+     is_directory = os.path.isdir(path_directory)
 
-   ```python
-   os_name = os.name  # 返回 'posix' 或 'nt'，表示 Unix 或 Windows 系统
-   ```
+     print(f"{path_file} is a file:", is_file)
+     print(f"{path_directory} is a directory:", is_directory)
+     ```
 
-4. **获取系统平台信息**
+2. **检查路径是否存在**
 
-   ```python
-   platform = os.uname()  # 返回一个包含系统信息的元组，仅在 Unix 系统上可用
-   ```
+   - `os.path.exists(path)`: 判断路径是否存在。
+
+     ```python
+     path = '/path/to/file_or_directory'
+
+     if os.path.exists(path):
+         print(f"{path} exists!")
+     else:
+         print(f"{path} does not exist!")
+     ```
+
+3. **获取路径的属性**
+
+   - `os.path.getsize(path)`: 返回指定路径文件的大小（字节数）。
+
+   - `os.path.getmtime(path)`: 返回指定路径文件的最后修改时间（时间戳）。
+
+   - `os.path.getctime(path)`: 返回指定路径文件的创建时间（时间戳）。
+
+     ```python
+     import time
+
+     path = '/path/to/file.txt'
+
+     size = os.path.getsize(path)
+     last_modified = os.path.getmtime(path)
+     creation_time = os.path.getctime(path)
+
+     print(f"Size of {path}: {size} bytes")
+     print(f"Last modified: {time.ctime(last_modified)}")
+     print(f"Created on: {time.ctime(creation_time)}")
+     ```
+
+4. **判断路径是否是绝对路径**
+
+   - `os.path.isabs(path)`: 判断路径是否为绝对路径。
+
+     ```python
+     path_absolute = '/absolute/path/to/file.txt'
+     path_relative = 'relative/path/to/file.txt'
+
+     is_absolute = os.path.isabs(path_absolute)
+     is_relative = os.path.isabs(path_relative)
+
+     print(f"{path_absolute} is absolute:", is_absolute)
+     print(f"{path_relative} is absolute:", is_relative)
+     ```
 
 ### 文件路径操作
 
@@ -259,75 +328,6 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      filename, extension = os.path.splitext(path)
      print("Filename:", filename)    # 输出: /path/to/file
      print("Extension:", extension)  # 输出: .txt
-     ```
-
-### 文件和目录检查
-
-1. **检查路径是否为文件或目录**
-
-   - `os.path.isfile(path)`: 判断路径是否为文件。
-
-   - `os.path.isdir(path)`: 判断路径是否为目录。
-
-     ```python
-     path_file = '/path/to/file.txt'
-     path_directory = '/path/to/directory'
-
-     is_file = os.path.isfile(path_file)
-     is_directory = os.path.isdir(path_directory)
-
-     print(f"{path_file} is a file:", is_file)
-     print(f"{path_directory} is a directory:", is_directory)
-     ```
-
-2. **检查路径是否存在**
-
-   - `os.path.exists(path)`: 判断路径是否存在。
-
-     ```python
-     path = '/path/to/file_or_directory'
-
-     if os.path.exists(path):
-         print(f"{path} exists!")
-     else:
-         print(f"{path} does not exist!")
-     ```
-
-3. **获取路径的属性**
-
-   - `os.path.getsize(path)`: 返回指定路径文件的大小（字节数）。
-
-   - `os.path.getmtime(path)`: 返回指定路径文件的最后修改时间（时间戳）。
-
-   - `os.path.getctime(path)`: 返回指定路径文件的创建时间（时间戳）。
-
-     ```python
-     import time
-
-     path = '/path/to/file.txt'
-
-     size = os.path.getsize(path)
-     last_modified = os.path.getmtime(path)
-     creation_time = os.path.getctime(path)
-
-     print(f"Size of {path}: {size} bytes")
-     print(f"Last modified: {time.ctime(last_modified)}")
-     print(f"Created on: {time.ctime(creation_time)}")
-     ```
-
-4. **判断路径是否是绝对路径**
-
-   - `os.path.isabs(path)`: 判断路径是否为绝对路径。
-
-     ```python
-     path_absolute = '/absolute/path/to/file.txt'
-     path_relative = 'relative/path/to/file.txt'
-
-     is_absolute = os.path.isabs(path_absolute)
-     is_relative = os.path.isabs(path_relative)
-
-     print(f"{path_absolute} is absolute:", is_absolute)
-     print(f"{path_relative} is absolute:", is_relative)
      ```
 
 ### 其他常用函数
