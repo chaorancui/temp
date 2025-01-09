@@ -447,6 +447,7 @@ print(array)
 # 输出数据的形状和数据类型
 print("数据形状:", array.shape)
 print("数据类型:", array.dtype)
+print(f"name: {str('文件路径.npy')+',':<20} dtype: {str(array.dtype)+',':<10} shape: {str(array.shape)+',':<15} nbytes: {str(array.nbytes)+',':<15}")
 # 打印内存排布信息
 print(array.flags)
 ```
