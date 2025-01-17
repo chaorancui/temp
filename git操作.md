@@ -710,6 +710,10 @@ git status
 git stash push -m "save message"
 # git stash save 会逐渐弃用
 
+# 把暂存区的修改（staged changes）stash，而不影响工作区的修改（unstaged changes）
+git stash push --staged
+git stash push --staged -m "save message"
+
 # 查看贮藏的东西
 git stash list
 
