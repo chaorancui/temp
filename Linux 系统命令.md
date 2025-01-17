@@ -1789,7 +1789,7 @@ ssh -p 22 my@127.0.0.1
 
 2. 上传公钥到服务器
 
-   在本地机器上生成秘钥对之后，需要将公钥 `id_rsa_user@host.pub` 中的内容放到对应服务器上的 `~/.ssh/authorized_keys` 文件中，此步有 2 中方式：
+   在本地机器上生成秘钥对之后，需要将公钥 `id_rsa_user@host.pub` 中的内容放到对应服务器上的 `~/.ssh/authorized_keys` 文件中，此步有 2 种方式：
 
    ```shell
    # 1.通过 ssh-copy-id 命令，命令有点类似 scp，需要输入密码
