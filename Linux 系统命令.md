@@ -1,8 +1,9 @@
 [toc]
 
-# Linux 命令
+# Linux 相关网址记录
 
-> [Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh-cn/latest/base/index.html)
+1. [Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh-cn/latest/base/index.html)
+2. [中科大镜像源 | mirrors.ustc.edu.cn](https://mirrors.ustc.edu.cn/repogen/)
 
 # 系统版本命令
 
@@ -1104,6 +1105,7 @@ eval 命令用于计算并执行包含 shell 命令的字符串。有几个重�
    在这个例子中，`eval` 会解析 `"$cmd"`，将其内容变为 `echo Hello your_username`，然后执行这个 `echo` 命令。最终输出的结果是：`echo Hello your_username`
 
    > **总结**：
+   >
    > - **`eval "$cmd"`**：会把 `cmd` 中的内容当作命令来执行。
    > - **`eval echo "$cmd"`**：只是将 `$cmd` 的内容打印出来，但不执行。
 
@@ -1157,18 +1159,18 @@ eval 命令用于计算并执行包含 shell 命令的字符串。有几个重�
 
 **示例**：
 
- ```bash
- # 双引号使用场景
- var="world"
- eval "message='Hello $var'"  # 变量会被展开
+```bash
+# 双引号使用场景
+var="world"
+eval "message='Hello $var'"  # 变量会被展开
 
- # 单引号使用场景
- eval 'echo $PATH'  # $PATH 会在eval执行时才被展开
+# 单引号使用场景
+eval 'echo $PATH'  # $PATH 会在eval执行时才被展开
 
- # 命令替换使用场景
- eval `date "+now='%Y-%m-%d'"`
- eval $(date "+now='%Y-%m-%d'")
- ```
+# 命令替换使用场景
+eval `date "+now='%Y-%m-%d'"`
+eval $(date "+now='%Y-%m-%d'")
+```
 
 **建议**：
 
