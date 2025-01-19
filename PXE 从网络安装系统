@@ -1,0 +1,72 @@
+# PXE 从网络安装系统
+
+> 参考资料：
+>
+> [1]. [从零开始：搭建 PXE 远程批量安装服务器](https://asterfusion.com/a20240424-pxe/?srsltid=AfmBOorqWNykCeAY6kI0SmUZASD2hvsAfRplOzGzCj_qgWz91xSlcXA_) > [2]. [自动化批量安装系统：PXE 服务器搭建](https://blog.gpx.moe/2023/02/09/pxe-server/) > [3]. [一步步搭建 PXE 网络装机](https://yunfwe.github.io/2018/06/03/2018/%E4%B8%80%E6%AD%A5%E6%AD%A5%E6%90%AD%E5%BB%BAPXE%E7%BD%91%E7%BB%9C%E8%A3%85%E6%9C%BA/)
+
+## PXE 介绍
+
+在大规模服务器部署时，面对成百上千台服务器，通过手动插入光盘或者 USE 驱动器来安装操作系统无比繁琐，让大量工程师在现场挨个安装系统也不切实际，PXE 的出现使得网络远程批量自动安装和配置操作系统成为现实。
+
+### 什么是 PXE
+
+PXE（Pre-boot Execution Environment，预启动执行环境）是由 Intel 设计的协议，它允许计算机通过网络启动。这个协议工作在 Client/Server 模式下，允许客户机通过网络从远程服务器下载引导镜像，并加载安装文件或整个操作系统。
+
+相比其他工具，PXE 更好地解决了以下问题：
+
+- 自动化：PXE 允许自动安装和配置操作系统，减少了手动操作的工作量。
+- 远程实现：通过网络远程安装操作系统，无需物理介质，方便管理远程服务器。
+- 规模化：特别适用于大规模服务器部署，可以同时装配多台服务器。。
+
+### PXE 工作原理和配置
+
+工作原理
+
+1. PXE 启动：当终端进入网卡启动时，会发送一个特殊的 PXE 启动请求到本地网络上的 DHCP 服务器。
+2. DHCP 服务：DHCP 服务器收到 PXE 启动请求后，会向计算机发送 DHCP 响应，DHCP 响应包含了计算的网络配置信息，以及 PXE 引导服务器的 IP 地址——TFTP Server（Trivial File Transfer Protocol）。
+3. TFTP 传输：计算机收到 DHCP 响应后，会使用 TFTP 从 Server 下载引导文件——pxelinux.0 或者 bootx64.efi。
+4. 加载引导文件：计算机加载并执行从 TFTP 下载的引导文件。引导文件通常是一个小型的 Linux 内核，能够连接到 PXE 服务器并获取操作系统镜像。
+5. 获取配置信息：引导文件连接到 PXE 服务器后，会通过 TFTP 发送请求以获取更多的配置信息。
+6. 获取操作系统镜像：PXE 服务器根据计算机的请求，将系统镜像发送给计算机。
+7. 操作系统加载：一旦操作系统映像文件下载完成，计算机会加载并执行该映像文件。此时，计算机将完全从网络上运行操作系统，而无需本地硬盘上的安装。
+
+![](https://asterfusion.com/wp-content/uploads/2024/04/%E5%85%AC%E4%BC%97%E5%8F%B7%E6%96%87%E7%AB%A0-%E3%80%8APXE%E3%80%8B-%E9%85%8D%E5%9B%BE2-20240424.jpeg)
+
+注意：虽然 PXE 很好用，但启动时也需要满足以下条件
+
+1. 网卡支持 PXE，目前新出的网卡基本都支持，同时需要完成 BIOS 的启动项配置。
+2. 传统启动模式（Legacy）下，PXE 客户端会请求 pxelinux.0；UEFI 启动会请求 bootx64.efi。
+3. 也可以采用 nfsboot 方式，该流程采用的是 ISO 镜像下载再安装的方式。
+
+## Linux 下搭建 PXE 服务器
+
+PXE 对运行环境没有什么需求，只需能提供 tftp, dhcp, http 等服务的系统即可。这里使用 Linux 环境来搭建 PXE 服务。
+
+### dnsmasq + Nginx
+
+使用 dnsmasq 这个小巧玲珑的软件提供 tftp 和 dhcp 服务，使用 Nginx 来提供 http 服务。
+
+#### 安装配置 dnsmasq
+
+> 参考链接：
+>
+> 1. [ubuntu22.04 安装 dnsmasq 最详细易懂](https://blog.csdn.net/zwjzone/article/details/137114806)
+> 2. [ubuntu 安装 dnsmasq 做 dns 服务器](https://blog.csdn.net/weixin_42833423/article/details/141815079?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=13)
+> 3.
+
+**一、安装**
+
+> ubuntu 22 版本默认自带 dnsmasq，要么直接使用，要么关闭自带的 dns 服务后再启用安装 dnsmasq 软件包，否则就会产生冲突。
+> Ubuntu 22.04 默认使用 systemd-resolved 管理 dns，可用如下命令禁用：
+>
+> ```bash
+> systemctl stop systemd-resolved
+> systemctl disable systemd-resolved
+> ```
+
+最好在 root 账户下操作，没有设置 root 密码的，可以执行下边的操作：
+
+
+可以首先从 Linux 发行版的官方仓库中找找有没有 dnsmasq 的软件包，如果没有可以下载编译。
+
+## Windows 下搭建 PXE 服务器
