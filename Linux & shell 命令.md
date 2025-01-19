@@ -217,7 +217,7 @@ exit
 
 在非登录 shell 里，只读取 `~/.bashrc` （和 `/etc/bash.bashrc`、`/etc/bashrc` ）文件，不同的发行版里面可能有所不同，如 RHEL6.3 中非登录 shell 仅执行了“~/.bashrc”文件（没有执行/etc/bashrc），而 KUbuntu10.04 中却依次执行了/etc/bash.bashrc 和 ~/.bashrc 文件。
 
-## 用户无法自动加载 .bashrc 的问题
+## 无法自动加载 .bashrc
 
 今天遇到一个问题，linux 下某用户登陆后无法加在其自身的 `.bashrc`，通过 `source .bashrc` 发现 `.bashrc` 是没有问题的，文件的权限也是没有问题的。
 
@@ -256,6 +256,92 @@ if [ -d "$HOME/.local/bin" ] ; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 ```
+
+## 切换到 root 用户
+
+### 四种方式
+
+1. `sudo -i`
+
+   ```bash
+   sudo -i
+   ```
+
+   特点：
+
+   - 模拟 root 用户正常登录
+   - 需要输入当前用户的密码
+   - 会加载 root 的环境变量
+   - 切换到 root 的 home 目录(/root)
+   - 使用 root 的配置文件
+
+2. `sudo -s`
+
+   ```bash
+   sudo -s
+   ```
+
+   特点：
+
+   - 保留当前用户的环境变量
+   - 需要输入当前用户的密码
+   - 不会切换目录
+   - 继承当前用户的环境设置
+
+3. `sudo su`
+
+   ```bash
+   sudo su
+   ```
+
+   > 效果与 `sudo -s` 一样。
+
+   特点：
+
+   - 保留原用户的环境变量
+   - 需要输入当前用户的密码
+   - 切换后提示符为 #
+   - 继承当前用户的环境设置
+
+4. `su`
+
+   ```bash
+   su
+   ```
+
+   特点：
+
+   - 需要输入 root 密码（默认 Ubuntu root 账户是锁定的）
+   - 不加载环境变量
+   - 不推荐使用，因为需要启用 root 账户
+
+### 主要区别
+
+**环境变量**：
+
+- sudo -i：使用 root 的环境变量
+- sudo su/sudo -s：保留当前用户的环境变量
+
+**工作目录**：
+
+- sudo -i：切换到/root
+- sudo -s/sudo su：保持在当前目录
+
+**安全性**：
+
+- sudo 命令更安全，可以通过/etc/sudoers 控制权限
+- 直接使用 su 需要启用 root 账户，安全性较低
+
+**日志记录**：
+
+- sudo 命令会记录日志
+- su 命令不会记录日志
+
+### 建议
+
+- 推荐使用 sudo -i，这是最标准的 root 切换方式
+- 日常使用建议用 sudo 执行单个命令，而不是切换到 root
+- 不建议启用 root 账户，保持默认禁用状态
 
 ## shell 脚本执行方式
 
@@ -925,7 +1011,7 @@ curl: (7) Failed to connect to raw.githubusercontent.com port 443: Connection re
    185.199.108.133 user-images.githubusercontent.com
    185.199.108.133 avatars2.githubusercontent.com
    185.199.108.133 avatars1.githubusercontent.com
-   
+
    # The following lines are desirable for IPv6 capable hosts
    ::1     ip6-localhost ip6-loopback
    fe00::0 ip6-localnet
