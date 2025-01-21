@@ -258,7 +258,9 @@ Excel 中，行高所使用单位为`磅`，列宽使用单位为`1/10英寸`。
 
 内容拆分至多个单元格 / 内容合并至一个单元格
 
-### [文本合并](https://support.microsoft.com/zh-cn/office/%E5%B0%86%E4%B8%A4%E4%B8%AA%E6%88%96%E6%9B%B4%E5%A4%9A%E4%B8%AA%E5%8D%95%E5%85%83%E6%A0%BC%E7%9A%84%E6%96%87%E6%9C%AC%E5%90%88%E5%B9%B6%E5%88%B0%E4%B8%80%E4%B8%AA%E5%8D%95%E5%85%83%E6%A0%BC-81ba0946-ce78-42ed-b3c3-21340eb164a6)
+### 文本合并
+
+[文本合并](https://support.microsoft.com/zh-cn/office/%E5%B0%86%E4%B8%A4%E4%B8%AA%E6%88%96%E6%9B%B4%E5%A4%9A%E4%B8%AA%E5%8D%95%E5%85%83%E6%A0%BC%E7%9A%84%E6%96%87%E6%9C%AC%E5%90%88%E5%B9%B6%E5%88%B0%E4%B8%80%E4%B8%AA%E5%8D%95%E5%85%83%E6%A0%BC-81ba0946-ce78-42ed-b3c3-21340eb164a6)
 
 #### CONCAT 函数合并
 
@@ -279,7 +281,9 @@ Excel 中，行高所使用单位为`磅`，列宽使用单位为`1/10英寸`。
 3. 键入“**&**”，然后使用引号（中间有一个空格）。
 4. 选择要合并的下一个单元格，然后按 Enter。 示例公式可能是“**=A2&" "&B2**”。
 
-### [分列](https://support.microsoft.com/zh-cn/office/%E6%8B%86%E5%88%86%E5%8D%95%E5%85%83%E6%A0%BC-f1804d0c-e180-4ed0-a2ae-973a0b7c6a23)
+### 分列
+
+[分列](https://support.microsoft.com/zh-cn/office/%E6%8B%86%E5%88%86%E5%8D%95%E5%85%83%E6%A0%BC-f1804d0c-e180-4ed0-a2ae-973a0b7c6a23)
 
 1. 选择要拆分其内容的一个单元格或多个单元格。
 
