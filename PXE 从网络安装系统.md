@@ -5,13 +5,12 @@
 [2]. [自动化批量安装系统：PXE 服务器搭建](https://blog.gpx.moe/2023/02/09/pxe-server/)
 [3]. [一步步搭建 PXE 网络装机](https://yunfwe.github.io/2018/06/03/2018/%E4%B8%80%E6%AD%A5%E6%AD%A5%E6%90%AD%E5%BB%BAPXE%E7%BD%91%E7%BB%9C%E8%A3%85%E6%9C%BA/)
 [4]. [dnsmasq 部署 pxe 服务器脚本](https://developer.aliyun.com/article/529076)
-[5]. [使用dnsmasq从网络PXE引导安装Arch/Debian/Suse Linux系统](https://blog.csdn.net/weixin_43869959/article/details/90146987?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7Ebaidujs_baidulandingword%7ECtr-2-90146987-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7Ebaidujs_baidulandingword%7ECtr-2-90146987-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=3)
-[ubuntu安装dnsmasq 做dns服务器](https://blog.csdn.net/weixin_42833423/article/details/141815079?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=13)
-[在centos7上部署pxe服务器](https://zhuanlan.zhihu.com/p/623516185)
+[5]. [使用 dnsmasq 从网络 PXE 引导安装 Arch/Debian/Suse Linux 系统](https://blog.csdn.net/weixin_43869959/article/details/90146987?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7Ebaidujs_baidulandingword%7ECtr-2-90146987-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7Ebaidujs_baidulandingword%7ECtr-2-90146987-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=3)
+[ubuntu 安装 dnsmasq 做 dns 服务器](https://blog.csdn.net/weixin_42833423/article/details/141815079?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2~default~BlogCommendFromBaidu~Rate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=13)
+[在 centos7 上部署 pxe 服务器](https://zhuanlan.zhihu.com/p/623516185)
 [https://www.myfreax.com/how-to-install-nginx-on-ubuntu-22-04/](https://www.myfreax.com/how-to-install-nginx-on-ubuntu-22-04/)
-[PXE网络安装系统之基于dnsmasq的环境搭建](https://lemubei.com/p/pxe%E7%BD%91%E7%BB%9C%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F%E4%B9%8B%E5%9F%BA%E4%BA%8Ednsmasq%E7%9A%84%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/)
-[JimmyXu的小站](https://xujimmy.com/2019/07/21/pxe-install-os.html)
-
+[PXE 网络安装系统之基于 dnsmasq 的环境搭建](https://lemubei.com/p/pxe%E7%BD%91%E7%BB%9C%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F%E4%B9%8B%E5%9F%BA%E4%BA%8Ednsmasq%E7%9A%84%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/)
+[JimmyXu 的小站](https://xujimmy.com/2019/07/21/pxe-install-os.html)
 
 ## PXE 介绍
 
@@ -66,9 +65,14 @@ PXE 对运行环境没有什么需求，只需能提供 tftp, dhcp, http 等服�
 **一、安装**
 
 > ubuntu 22 版本默认自带 dnsmasq，要么直接使用，要么关闭自带的 dns 服务后再启用自己安装 dnsmasq 软件包，否则就会产生冲突。
-> Ubuntu 22.04 默认使用 systemd-resolved 管理自带的 dns，可用如下命令禁用：
+> Ubuntu 22.04 默认使用 systemd-resolved 管理自带的 dns，可用如下命令查看状态和禁用：
 >
 > ```bash
+> # 禁用前请安装好所有的软件，否则 apt 安装软件时无法解析 DNS 会报错。
+>
+> # 查看状态
+> systemctl status systemd-resolved
+> # 禁用
 > systemctl stop systemd-resolved
 > systemctl disable systemd-resolved
 > ```
@@ -265,8 +269,8 @@ sudo apt install nginx
 参考链接：
 
 1. [windows tftpd64 软件的 TFTP service 使用](https://blog.csdn.net/m0_46141595/article/details/137144085)
-2. [Windows系统下搭建PXE Server](https://blog.csdn.net/u010438035/article/details/134590199)
-3. 
+2. [Windows 系统下搭建 PXE Server](https://blog.csdn.net/u010438035/article/details/134590199)
+3.
 
 ## 各种服务常用端口
 

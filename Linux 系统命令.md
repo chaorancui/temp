@@ -3,11 +3,107 @@
 # Linux 相关网址记录
 
 1. [Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh-cn/latest/base/index.html)
-2. [中科大镜像源 | mirrors.ustc.edu.cn](https://mirrors.ustc.edu.cn/repogen/)
 
-# 系统版本命令
+# 系统
 
-## 查看 Linux 发行版本名和版本号
+## 软件源
+
+### 更换软件源
+
+1. 备份软件源
+
+   ```bash
+   sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
+   ```
+
+2. 更换软件源
+   根据 ubuntu 系统版本，从下面网站中找到相应的软件源，然后更新到 `/etc/apt/sources.list` 或 `/etc/apt/sources.list.d/ubuntu.sources` 文件中，更改文件后再运行 `sudo apt-get update` 更新索引以生效。
+   - [[中科大镜像源 | mirrors.ustc.edu.cn]](https://mirrors.ustc.edu.cn/repogen/)
+   - [[清华镜像源 | mirrors.tuna.tsinghua.edu.cn]](https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/)
+
+   ```bash
+   sudo vim /etc/apt/sources.list
+   # 修改内容 xxxx
+   sudo apt-get update
+   ```
+
+**无内置编辑器**
+
+ubuntu 最小安装时，可能会遇到没有内置的编辑器的情况，vi/vim/emacs/nano/gedit(一个 GUI 的文本编辑器，Ubuntu 默认安装)。这时候无法编辑软件源，可以使用如下方法：
+
+1. `sources.list` 格式
+
+   ```bash
+   # 备份
+   sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
+
+   # 更新默认源
+   # 从 http://archive.ubuntu.com/ 替换为 http://mirrors.ustc.edu.cn/ 即可。
+   sudo sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list
+
+   # 更新安全源，因镜像站同步有延迟，可能会导致生产环境系统不能及时检查、安装上最新的安全更新，不建议替换 security 源。
+   # 从 http://security.ubuntu.com/ 替换为 https://mirrors.ustc.edu.cn/ 即可。
+   sudo sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+   ```
+
+2. `DEB822` 格式
+
+   ```bash
+   # 备份
+   sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
+
+   # 更新默认源
+   # 从 http://archive.ubuntu.com/ 替换为 http://mirrors.ustc.edu.cn/ 即可。
+   sudo sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources
+
+   # 更新安全源，因镜像站同步有延迟，可能会导致生产环境系统不能及时检查、安装上最新的安全更新，不建议替换 security 源。
+   # 从 http://security.ubuntu.com/ 替换为 https://mirrors.ustc.edu.cn/ 即可。
+   sudo sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/ubuntu.sources
+   ```
+
+> Tip:
+> 使用 HTTPS 可以有效避免国内运营商的缓存劫持。可以运行以下命令替换：
+>
+> ```bash
+> sudo sed -i 's/http:/https:/g' /etc/apt/sources.list   # sources.list
+> sudo sed -i 's/http:/https:/g' /etc/apt/sources.list.d/ubuntu.sources    # deb822
+> ```
+
+### 传统 & deb822
+
+在 Ubuntu 24.04 之前，Ubuntu 的软件源配置文件使用传统的 One-Line-Style，路径为 `/etc/apt/sources.list`；
+从 Ubuntu 24.04 开始，Ubuntu 的软件源配置文件变更为 DEB822 格式，路径为 `/etc/apt/sources.list.d/ubuntu.source`。
+
+> 什么是 DEB822 (.sources) 文件格式？
+>
+> 自新版本的 Debian 与 Ubuntu 起，例如：
+>
+> - Debian 12 的容器镜像
+> - Ubuntu 24.04
+>
+> 默认预装的系统中 APT 的系统源配置文件不再是传统的 `/etc/apt/sources.list`。传统格式（又被称为 One-Line-Style 格式）类似如下：
+>
+> ```bash
+> deb http://mirrors.ustc.edu.cn/debian/ bookworm main contrib
+> ```
+>
+> 新的 DEB822 格式自 APT 1.1（2015 年发布）起支持，后缀为 `.sources`，存储在 `/etc/apt/sources.list.d/` 目录下，格式类似如下：
+>
+> ```txt
+> Types: deb
+> URIs: https://mirrors.ustc.edu.cn/debian
+> Suites: bookworm
+> Components: main contrib
+> Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+> ```
+>
+> 在切换软件源时，**需要根据实际情况选择对应的格式进行修改**。
+>
+> 关于 DEB822 格式的设计考虑，可以参考[官方文档](https://repolib.readthedocs.io/en/latest/deb822-format.html)（英文）。
+
+## 系统版本
+
+### 发行版本名和版本号
 
 如果你加入了一家新公司，要为开发团队安装所需的软件并重启服务，这个时候首先要弄清楚它们运行在什么发行版以及哪个版本的系统上，你才能正确完成后续的工作。作为系统管理员，充分了解系统信息是首要的任务。
 
@@ -89,7 +185,7 @@
    Linux version 4.12.14-300.fc26.x86_64 ([email protected]) (gcc version 7.2.1 20170915 (Red Hat 7.2.1-2) (GCC) ) #1 SMP Wed Sep 20 16:28:07 UTC 2017
    ```
 
-## SUSE 的包管理工具 zypper
+### SUSE 包管理 zypper
 
 > [zypper 命令使用示例](https://www.linuxprobe.com/zypper-commands-examples.html)
 
