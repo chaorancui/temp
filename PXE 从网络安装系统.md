@@ -60,7 +60,9 @@ PXE 对运行环境没有什么需求，只需能提供 tftp, dhcp, http 等服�
 >
 > 1. [ubuntu22.04 安装 dnsmasq 最详细易懂](https://blog.csdn.net/zwjzone/article/details/137114806)
 > 2. [ubuntu 安装 dnsmasq 做 dns 服务器](https://blog.csdn.net/weixin_42833423/article/details/141815079?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=13)
-> 3.
+> 3. [Dnsmasq 安装配置](https://yunfwe.github.io/2016/04/06/2016/dnsmasq%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/)
+> 4. [dnsmasq 详解及配置](https://e-mailky.github.io/2018-07-14-dnsmasq#%E4%BD%BF%E7%94%A8dhcpcd)
+> 5. []
 
 **一、安装**
 
@@ -122,7 +124,7 @@ port=0
 
 ## enable dhcp
 dhcp-range=192.168.4.10,192.168.4.200,12h # DHCP 地址范围
-dhcp-option=3,192.168.4.254 # 默认网关
+dhcp-option=option:router,192.168.4.254 # 默认网关
 dhcp-option=option:dns-server,114.114.114.114,119.29.29.29 # 114/腾讯
 
 # dhcp-boot=pxelinux.0 # bios 引导
@@ -137,11 +139,13 @@ enable-tftp
 tftp-root=/data/pxeboot
 ```
 
+> 1. dhcp 服务选项可以通过如下命令查看：`ndsmasq --help dhcp`
+
 分析：
 
 - `port=0`：此配置项禁用 DNS 服务。默认情况下，`dnsmasq` 会监听 53 端口来提供 DNS 服务。通过设置 `port=0`，`dnsmasq` 将不启动 DNS 功能。
 - `dhcp-range=192.168.4.10,192.168.4.200,12h`：指定 DHCP 服务分配的 IP 地址范围。这里是从 `192.168.4.10` 到 `192.168.4.200`，并且租期为 12 小时。客户端会从这个范围内获取 IP 地址。
-- `dhcp-option=3,192.168.4.254`：设置 DHCP 选项 3（即默认网关）。客户端将收到 `192.168.4.254` 作为默认网关，意味着所有发送到非本地网络的流量都会通过该网关转发。
+- `dhcp-option=option:router,192.168.4.254`：设置 DHCP 选项 3（即默认网关）。客户端将收到 `192.168.4.254` 作为默认网关，意味着所有发送到非本地网络的流量都会通过该网关转发。
 - `dhcp-option=option:dns-server,114.114.114.114,119.29.29.29`：设置 DHCP 选项 6（即 DNS 服务器）。在客户端获得 IP 地址的同时，它们也会得到 `114.114.114.114` 和 `119.29.29.29` 作为 DNS 服务器地址。这里提供的是两个公共 DNS 服务器：一个是 114DNS（由中国电信提供），另一个是腾讯的 DNS。
 - `dhcp-boot=undionly.kpxe`：这是配置 PXE 引导的部分。`undionly.kpxe` 是一个用于 PXE 启动的文件，通常用于网络启动。PXE 是一种通过网络引导操作系统的方式，这里使用的是 `undionly.kpxe` 文件，它是适用于没有 UEFI 支持的 BIOS 系统。如果你使用的是 UEFI 系统，可能会使用 `grubx64.efi` 文件。
 - `interface=ens8u2u4u1`：如果需要指定 `dnsmasq` **只在某个特定的网络接口上监听**，可以取消注释并设置此项。这里的 `ens8u2u4u1` 是一个网络接口的名称（可用 `lshw -C network` 或 `ifconfig` 查看），代表 `dnsmasq` 只会在此接口上工作。由于这一行被注释掉，`dnsmasq` 将监听所有网络接口。
@@ -284,3 +288,67 @@ sudo apt install nginx
 8. SMTP Simple Mail Transfer Protocol (E-mail）：`25/tcp`
 9. POP3 Post Office Protocol (E-mail) ：`110/tcp`
 10. TOMCAT 服务：`8080`
+
+# dnsmasq
+
+## 启动方式
+
+`dnsmasq` 可以用 2 种方式启动：**命令行方式启动**和**作为服务运行**，但是**无法同时以这两种方式并行工作**。
+**原因**：
+两个实例都在监听同一个端口（比如 53 端口），系统会报错，因为一个端口只能由一个进程绑定。所以，理论上来说，只有一个 `dnsmasq` 实例能在该端口上运行，另一个实例会因为端口冲突无法启动。如果你希望同时启动两者，需要确保它们使用不同的端口或接口。
+
+### 优先级问题
+
+- **服务启动（`systemd` 管理）**：当 `dnsmasq` 作为系统服务运行时，它会在系统启动时自动加载并启动。通常它会以系统配置文件（如 `/etc/dnsmasq.conf`）为基础进行配置。
+- **命令行启动**：如果你通过命令行手动启动 `dnsmasq`，它会覆盖服务启动的行为，因为它是以手动执行的进程形式运行的。这时，如果没有特殊指定，命令行启动的 `dnsmasq` 会优先使用命令行中提供的选项（比如指定的配置文件或端口）。
+
+因此，如果你希望命令行启动 `dnsmasq` 且不影响系统服务，可以：
+
+1. **停止服务**：手动启动时，先停止 `dnsmasq` 服务，这样就不会有冲突。
+
+   ```bash
+   sudo systemctl stop dnsmasq
+   ```
+
+2. **使用不同端口**：如果你希望两者同时运行，可以在命令行启动时指定不同的端口（例如，命令行启动 `dnsmasq` 使用端口 5353，服务仍使用 53）。
+
+   ```bash
+   sudo dnsmasq -C /path/to/your/dnsmasq.conf -p 5353
+   ```
+
+## 配置文件
+
+dnsmasq 默认的配置文件路径为：`/etc/dnsmasq.conf`。如果想使用自定义的配置文件，比如 `~/dnsmasq.conf`），主要有两种方式：
+
+1. 通过命令行指定自定义配置文件
+
+   可以通过 `dnsmasq` 命令行参数来指定自定义配置文件。假设你的配置文件是 `/path/to/your/dnsmasq.conf`，那么你可以使用以下命令启动 `dnsmasq`：
+
+   ```bash
+   sudo dnsmasq -C /path/to/your/dnsmasq.conf
+   ```
+
+   这里的 `-C` 参数用于指定配置文件路径。**还可以通过`-d` 让 `dnsmasq` 在前台运行（适用于调试）**。
+
+2. 使用系统服务（如果 `dnsmasq` 是作为系统服务运行）
+
+如果你希望 `dnsmasq` 作为后台服务启动，并且使用自定义配置文件，你需要修改系统的服务配置文件。以下是在一些常见系统中修改的方法：
+
+对于 **Ubuntu/Debian/CentOS** 或 **基于 `systemd` 的系统**：
+
+1. 首先，确保你有一个自定义配置文件 `dnsmasq.conf`，并将其放在合适的路径，比如 `/data/pxeboot/dnsmasq.conf`。
+
+2. 通过编辑 `/etc/default/dnsmasq` 文件中的 `DNSMASQ_OPTS` 选项，指定 `dnsmasq` 服务在启动时使用的配置文件：
+
+   ```bash
+   sudo vim /etc/default/dnsmasq
+
+   # 修改或添加 `DNSMASQ_OPTS` 行，指定自定义配置文件路径：
+   DNSMASQ_OPTS="--conf-file=/path/to/your/dnsmasq.conf"
+   ```
+
+3. 然后重新启动 `dnsmasq` 服务：
+
+   ```bash
+   sudo systemctl restart dnsmasq
+   ```
