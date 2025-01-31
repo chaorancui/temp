@@ -94,16 +94,32 @@ sudo -i
    sudo apt install dnsmasq
    ```
 
-2. 编译安装
+2. 源码包安装
 
    > 注意：可以更新到最新版本，截止 2025/01/20 最新版本为 2.90.
 
    ```bash
-   cd /usr/local/src/
+   # 下载源码包
    wget http://www.thekelleys.org.uk/dnsmasq/dnsmasq-2.90.tar.xz
-   tar xf dnsmasq-2.90.tar.xz
-   cd dnsmasq-2.90 && make
-   cp src/dnsmasq /usr/local/bin/
+
+   # 源码包解压
+   tar xf dnsmasq-2.90.tar.xz 
+   cd dnsmasq-2.90
+
+   # 配置安装路径
+   vim Makefile # 修改 PREFIX = /usr/local/dnsmasq
+
+   # 编译安装
+   make && make install
+
+   # 生成配置文件
+   cp dnsmasq.conf.example /etc/dnsmasq.conf
+
+   # 生成软连接
+   ln -s /usr/local/dnsmasq/sbin/dnsmasq /usr/sbin/
+
+   # 查看dnsmasq版本
+   dnsmasq --version
    ```
 
    只需要将 dnsmasq 的二进制文件放到系统环境变量就可以了，接下来给它提供一个配置文件来告诉它要启动哪些服务。源码目录下有一个官方提供的配置文件模板，不过我们并不需要这么多的配置。
@@ -290,6 +306,12 @@ sudo apt install nginx
 10. TOMCAT 服务：`8080`
 
 # dnsmasq
+
+1. [dnsmasq详解及配置](https://e-mailky.github.io/2018-07-14-dnsmasq#dnsmasq%E7%9A%84%E8%A7%A3%E6%9E%90%E6%B5%81%E7%A8%8B)
+2. [Dnsmasq安装配置](https://yunfwe.github.io/2016/04/06/2016/dnsmasq%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/)
+3. [dnsmasq 使用教程](https://blog.niekun.net/archives/1869.html)
+4. [利用Dnsmasq搭建本地自有DNS服务器](https://linuxgeeks.github.io/2016/04/07/214147-%E5%88%A9%E7%94%A8Dnsmasq%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0%E8%87%AA%E6%9C%89DNS%E6%9C%8D%E5%8A%A1%E5%99%A8/)
+5. []
 
 ## 启动方式
 
