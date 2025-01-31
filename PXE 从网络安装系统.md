@@ -62,22 +62,10 @@ PXE 对运行环境没有什么需求，只需能提供 tftp, dhcp, http 等服�
 > 2. [ubuntu 安装 dnsmasq 做 dns 服务器](https://blog.csdn.net/weixin_42833423/article/details/141815079?spm=1001.2101.3001.6650.8&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-8-141815079-blog-136810938.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=13)
 > 3. [Dnsmasq 安装配置](https://yunfwe.github.io/2016/04/06/2016/dnsmasq%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/)
 > 4. [dnsmasq 详解及配置](https://e-mailky.github.io/2018-07-14-dnsmasq#%E4%BD%BF%E7%94%A8dhcpcd)
-> 5. []
+> 5. [禁用 Ubuntu 使用 systemd-resolved 进行 DNS 解析](https://www.vvave.net/archives/how-to-disable-systemd-resolved-in-ubuntu.html)
+> 6. []
 
-**一、安装**
-
-> ubuntu 从 16.04 开始默认自带 dnsmasq，要么直接使用，要么关闭自带的 dns 服务后再启用自己安装 dnsmasq 软件包，否则就会产生冲突。
-> Ubuntu 从 16.04 开始默认使用 systemd-resolved 管理自带的 dns，可用如下命令查看状态和禁用：
->
-> ```bash
-> # 禁用前请安装好所有的软件，否则 apt 安装软件时无法解析 DNS 会报错。
->
-> # 查看状态
-> systemctl status systemd-resolved
-> # 禁用
-> systemctl stop systemd-resolved
-> systemctl disable systemd-resolved
-> ```
+**一、安装**：
 
 最好在 root 账户下操作：
 
@@ -85,9 +73,26 @@ PXE 对运行环境没有什么需求，只需能提供 tftp, dhcp, http 等服�
 sudo -i
 ```
 
+> ubuntu 从 16.04 开始默认自带 dnsmasq，要么直接使用，要么关闭自带的 dns 服务后再启用自己安装 dnsmasq 软件包，否则就会产生冲突。
+
+Ubuntu 从 16.04 开始默认使用 systemd-resolved 管理自带的 dns，可用如下命令查看状态和禁用：
+
+```bash
+# 禁用前请安装好所有的软件，否则 apt 安装软件时无法解析 DNS 会报错。
+
+# 查看占用 53 端口的服务
+netstat -lanpt | grep 53   # 需要安装 net-tools
+# 查看服务状态
+systemctl status systemd-resolved
+# 关闭服务
+systemctl stop systemd-resolved
+# 禁止开机自启动
+systemctl disable systemd-resolved
+```
+
 可以首先从 Linux 发行版的官方仓库中找找有没有 dnsmasq 的软件包，如果没有可以下载编译。
 
-1. 直接安装
+1. 包管理工具安装
 
    ```bash
    sudo apt update
@@ -122,9 +127,9 @@ sudo -i
    dnsmasq --version
    ```
 
-   只需要将 dnsmasq 的二进制文件放到系统环境变量就可以了，接下来给它提供一个配置文件来告诉它要启动哪些服务。源码目录下有一个官方提供的配置文件模板，不过我们并不需要这么多的配置。
+   dnsmasq 通过配置文件来决定它要启动哪些服务。源码目录下有一个官方提供的配置文件模板，不过我们并不需要这么多的配置。
 
-**二、配置**
+**二、配置**：
 
 ```bash
 mkdir -p /data/pxeboot          # PXE启动所需要的文件就都放到这里了
@@ -179,7 +184,7 @@ tftp-root=/data/pxeboot
 
 Nginx 是一款高性能的开源 Web 服务器软件，它可以用于反向代理、负载均衡、静态文件服务等。
 
-**一、安装**
+**一、安装**：
 
 ```bash
 # 1.更新系统包列表
@@ -188,7 +193,7 @@ sudo apt update
 sudo apt install nginx
 ```
 
-**二、配置**
+**二、配置**：
 
 1. 检查 Nginx 状态
 
