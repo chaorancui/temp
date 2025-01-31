@@ -694,9 +694,104 @@ iwconfig    # 显示无线网络配置
 
 wpa_supplicant 工具集，包括 wpa_supplicant*、*wpa_passphrase、wpa_cli
 
+## dig
+
+`dig`（Domain Information Groper）是一个用于查询 DNS（域名系统）信息的命令行工具。在 Linux 和其他 Unix-like 系统中，`dig` 是最常用的 DNS 查询工具之一。它可以用于查询域名的各种信息，如 IP 地址、MX 记录、NS 记录等。
+
+`dig` 提供了比传统的 `nslookup` 更强大和灵活的功能，支持更多的查询选项、查询类型以及更详细的输出。
+
+1. **基本语法**
+
+   ```bash
+   dig [@server] [name] [type] [options]
+   ```
+
+   - `@server`：指定要查询的 DNS 服务器。默认情况下，`dig` 会查询系统配置的 DNS 服务器。
+   - `name`：要查询的域名。
+   - `type`：查询类型（例如，A、MX、NS 等）。如果不指定，默认查询 A 记录。
+   - `options`：一些附加选项，用于修改查询的行为或输出。
+
+2. **常见查询类型**
+
+   以下是 `dig` 支持的一些常见查询类型：
+
+   - **A**：查询 IPv4 地址（默认查询类型）。
+   - **AAAA**：查询 IPv6 地址。
+   - **MX**：查询邮件交换记录（Mail Exchange）。
+   - **NS**：查询域名服务器记录（Name Server）。
+   - **CNAME**：查询别名记录（Canonical Name）。
+   - **SOA**：查询授权记录（Start of Authority）。
+   - **PTR**：查询反向 DNS 查找记录。
+   - **TXT**：查询文本记录，常用于域名验证或 SPF 配置。
+
+3. **常用选项**
+
+   - `+short`：仅显示简洁的输出（例如，只显示 IP 地址）。
+   - `+trace`：显示 DNS 查询的完整跟踪路径，查看从根服务器到目标服务器的所有查询过程。
+   - `+all`：显示所有相关信息，包括查询的每个步骤和每个 DNS 记录。
+   - `+noall +answer`：仅显示答案部分，过滤掉不相关的信息。
+   - `+ndots=<num>`：指定域名解析时要求的最小点数，默认是 1。
+
+4. **基本用法**
+
+   1. 查询 A/MX/NS/CNAME/TXT/PTR/SOA 记录
+
+      ```bash
+      dig example.com      # 查询某个域名的 A 记录（IPv4 地址），默认情况下，dig 会查询 A 记录
+      dig example.com MX   # 查询域名的 MX 记录（邮件交换服务器）
+      dig example.com NS   # 查询域名的 NS 记录（域名服务器）
+      dig www.example.com CNAME  # 查询域名的 CNAME 记录（别名记录）
+      dig example.com TXT        # 查询域名的 TXT 记录（文本记录）
+      dig example.com A MX NS    # 可以在同一个命令中查询多个记录， 这将同时查询 A、MX 和 NS 记录。
+      dig -x 8.8.8.8       # 反向查询某个 IP 地址对应的域名，这将查询 IP 地址 8.8.8.8 对应的域名
+      dig example.com SOA  # 查询一个域名的授权记录（SOA）
+      ```
+
+   2. 查询指定的 DNS 服务器
+
+      如果你想要指定某个 DNS 服务器来执行查询，可以使用 `@` 来指定：
+
+      ```bash
+      dig @8.8.8.8 example.com
+      ```
+
+      这会使用 Google 的公共 DNS 服务器 `8.8.8.8` 来查询 `example.com` 的 A 记录。
+
+   3. 选项使用
+
+      ```bash
+      # +trace：使用 `+trace` 查看从根 DNS 服务器到目标服务器的查询路径，这会显示详细的查询过程，包括所有递归查询
+      dig +trace example.com
+      # +short：如果你只关心简洁的输出，可以使用 `+short` 选项，这只会输出 IP 地址或其他查询的简洁结果
+      dig example.com +short
+      # +noall +answer：如果你只想查看答案部分，可以使用 `+noall +answer`，这会过滤掉其他部分，仅显示查询的答案
+      dig example.com +noall +answer
+      ```
+
+5. **输出示例**
+
+   以查询 `example.com` 的 A 记录为例，执行 `dig example.com` 后的输出通常包括以下几部分：
+
+   - **QUESTION SECTION**：显示查询的目标域名和查询类型。
+   - **ANSWER SECTION**：显示查询的结果（例如，`example.com` 的 IP 地址）。
+   - **AUTHORITY SECTION**：显示负责该域名的授权 DNS 服务器。
+   - **ADDITIONAL SECTION**：可能会显示额外的相关信息。
+
+6. **常见用途**
+
+- **检查域名是否解析正常**：使用 `dig` 可以快速确认某个域名是否能够正确解析为 IP 地址。
+- **诊断 DNS 问题**：当出现 DNS 问题时，`dig` 可帮助分析域名解析过程，确认 DNS 配置是否正确。
+- **了解 DNS 记录**：你可以通过 `dig` 查询各类 DNS 记录，获取域名的详细配置信息。
+
+**总结**：
+
+`dig` 是一个非常强大的 DNS 查询工具，适用于从简单的域名解析查询到复杂的 DNS 配置分析。通过灵活的查询类型和选项，它可以帮助你全面了解 DNS 配置、调试 DNS 问题并进行网络故障排查。
+
 # 程序分析命令
 
-## ldd(list dynamic dependencies)
+## ldd
+
+(list dynamic dependencies)
 
 # 网络协议命令
 

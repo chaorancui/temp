@@ -66,8 +66,8 @@ PXE 对运行环境没有什么需求，只需能提供 tftp, dhcp, http 等服�
 
 **一、安装**
 
-> ubuntu 22 版本默认自带 dnsmasq，要么直接使用，要么关闭自带的 dns 服务后再启用自己安装 dnsmasq 软件包，否则就会产生冲突。
-> Ubuntu 22.04 默认使用 systemd-resolved 管理自带的 dns，可用如下命令查看状态和禁用：
+> ubuntu 从 16.04 开始默认自带 dnsmasq，要么直接使用，要么关闭自带的 dns 服务后再启用自己安装 dnsmasq 软件包，否则就会产生冲突。
+> Ubuntu 从 16.04 开始默认使用 systemd-resolved 管理自带的 dns，可用如下命令查看状态和禁用：
 >
 > ```bash
 > # 禁用前请安装好所有的软件，否则 apt 安装软件时无法解析 DNS 会报错。
@@ -103,7 +103,7 @@ sudo -i
    wget http://www.thekelleys.org.uk/dnsmasq/dnsmasq-2.90.tar.xz
 
    # 源码包解压
-   tar xf dnsmasq-2.90.tar.xz 
+   tar xf dnsmasq-2.90.tar.xz
    cd dnsmasq-2.90
 
    # 配置安装路径
@@ -307,10 +307,10 @@ sudo apt install nginx
 
 # dnsmasq
 
-1. [dnsmasq详解及配置](https://e-mailky.github.io/2018-07-14-dnsmasq#dnsmasq%E7%9A%84%E8%A7%A3%E6%9E%90%E6%B5%81%E7%A8%8B)
-2. [Dnsmasq安装配置](https://yunfwe.github.io/2016/04/06/2016/dnsmasq%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/)
+1. [dnsmasq 详解及配置](https://e-mailky.github.io/2018-07-14-dnsmasq#dnsmasq%E7%9A%84%E8%A7%A3%E6%9E%90%E6%B5%81%E7%A8%8B)
+2. [Dnsmasq 安装配置](https://yunfwe.github.io/2016/04/06/2016/dnsmasq%E5%AE%89%E8%A3%85%E9%85%8D%E7%BD%AE/)
 3. [dnsmasq 使用教程](https://blog.niekun.net/archives/1869.html)
-4. [利用Dnsmasq搭建本地自有DNS服务器](https://linuxgeeks.github.io/2016/04/07/214147-%E5%88%A9%E7%94%A8Dnsmasq%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0%E8%87%AA%E6%9C%89DNS%E6%9C%8D%E5%8A%A1%E5%99%A8/)
+4. [利用 Dnsmasq 搭建本地自有 DNS 服务器](https://linuxgeeks.github.io/2016/04/07/214147-%E5%88%A9%E7%94%A8Dnsmasq%E6%90%AD%E5%BB%BA%E6%9C%AC%E5%9C%B0%E8%87%AA%E6%9C%89DNS%E6%9C%8D%E5%8A%A1%E5%99%A8/)
 5. []
 
 ## 启动方式
