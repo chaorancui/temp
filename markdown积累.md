@@ -148,7 +148,7 @@ VNote 不仅仅是一个简单的 Markdown 编辑器。通过提供**笔记管�
 
   :link: **更多内容**：[点击这里查看相关资料](https://gist.github.com/rxaviers/7360908)。code：`:link:`
 
-  :pencil: **分析/总结/附加**：这里是一些可选的分析/总结/附加内容，或总结内容。code：`或`:momo:`
+  :pencil: **分析/总结/附加**：这里是一些可选的分析/总结/附加内容，或总结内容。code：`:pencil:` 或 `:momo:`
 
 - 存疑/进一步确认
 
