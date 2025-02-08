@@ -220,6 +220,87 @@ basename [OPTION] NAME [SUFFIX]
    done
    ```
 
+# 压缩解压命令
+
+## tar 包
+
+`tar` 是 Linux 中常用的打包和压缩工具，可以将多个文件或目录打包成一个归档文件，也可以用于解压这些归档文件。
+
+### 解压 `.tar` 包
+
+如果你有一个 `.tar` 格式的文件，没有经过压缩，只是打包文件，可以使用以下命令：
+
+```bash
+tar -xvf archive.tar
+```
+
+- `x`：表示解压。
+- `v`：显示详细过程（可选，但通常会显示解压过程中的每个文件）。
+- `f`：后面跟的是归档文件名。
+
+总结
+
+- **`.tar` 文件**：`tar -xvf archive.tar`
+- **`.tar.gz` 或 `.tgz` 文件**：`tar -xzvf archive.tar.gz`
+- **`.tar.bz2` 文件**：`tar -xjvf archive.tar.bz2`
+- **`.tar.xz` 文件**：`tar -xJvf archive.tar.xz`
+
+## zip 包
+
+在 Linux 系统中，解压 `.zip` 文件通常使用 `unzip` 命令。如果系统上没有安装 `unzip`，你可以先安装它。
+
+1. `unzip` 解压：
+
+   Debian/Ubuntu 系统上安装：`sudo apt-get install unzip`
+
+   **解压 `.zip` 文件**：
+
+   ```bash
+   # 解压到当前目录中
+   unzip archive.zip
+   ```
+
+   - `x`：表示解压并保持文件夹结构。
+
+   **解压到指定目录**： 如果你想将 `.zip` 文件解压到指定目录，可以使用 `-d` 选项：
+
+   ```bash
+   unzip archive.zip -d /path/to/destination/
+   ```
+
+   **列出 `.zip` 文件内容**（不解压）： 如果你只想查看 `.zip` 文件内包含的文件列表，可以使用：
+
+   ```bash
+   unzip -l archive.zip
+   ```
+
+## rar 包
+
+1. `unrar` 解压：
+
+   `unrar` 是一个开源工具，通常用于解压 `.rar` 文件。Debian/Ubuntu 系统上安装：`sudo apt-get install unrar`
+
+   **解压 `.rar` 文件**：
+
+   ```bash
+   # 解压到当前目录中
+   unrar x archive.rar
+```
+   
+   - `x`：表示解压并保持文件夹结构。
+   
+**解压到指定目录**： 如果你想将 `.rar` 文件解压到指定目录，可以使用 `-d` 选项：
+   
+```bash
+   unrar x archive.rar -d /path/to/extract/directory/
+```
+   
+   **列出 `.rar` 文件内容**（不解压）： 如果你只想查看 `.rar` 文件内包含的文件列表，可以使用：
+   
+```bash
+   unrar l archive.rar
+```
+
 # 文件显示命令
 
 ## cat
