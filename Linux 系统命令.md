@@ -52,11 +52,11 @@ ubuntu 最小安装时，可能会遇到没有内置的编辑器的情况，vi/v
    ```bash
    # 备份
    sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
-
+   
    # 更新默认源
    # 从 http://archive.ubuntu.com/ 替换为 http://mirrors.ustc.edu.cn/ 即可。
    sudo sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources
-
+   
    # 更新安全源，因镜像站同步有延迟，可能会导致生产环境系统不能及时检查、安装上最新的安全更新，不建议替换 security 源。
    # 从 http://security.ubuntu.com/ 替换为 https://mirrors.ustc.edu.cn/ 即可。
    sudo sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/ubuntu.sources
@@ -916,33 +916,94 @@ wpa_supplicant 工具集，包括 wpa_supplicant*、*wpa_passphrase、wpa_cli
 
 ## scp 命令
 
-> 参考：
->
-> ```shell
-> man scp
-> ```
+> [Docs » 工具参考篇 » 18. scp 跨机远程拷贝](https://linuxtools-rst.readthedocs.io/zh-cn/latest/tool/scp.html)
+> 帮助文档：`man scp`
 
-scp 在网络上的主机之间复制文件。
+scp 是 secure copy 的简写，用于在 Linux 下进行远程拷贝文件的命令，和它类似的命令有 cp，不过 cp 只是在本机进行拷贝不能跨服务器，而且 scp 传输是加密的。当你服务器硬盘变为只读 read only system 时，用 scp 可以帮你把文件移出来。
 
-它使用 ssh 进行数据传输，并使用与登录会话相同的身份验证和提供相同的安全性。
+> :page_with_curl: **注解：**
+> 类似的工具有rsync；scp消耗资源少，不会提高多少系统负荷，在这一点上，rsync就远远不及它了。rsync比scp会快一点，但当小文件多的情况下，rsync会导致硬盘I/O非常高，而scp基本不影响系统正常使用。
 
-scp 将要求提供密码或密码短语（如果身份验证需要它们）。
+**命令格式**：
 
-源和目标可以被指定为本地路径名、带有可选路径的远程主机（格式为 `[user@]host:[path]`）或 URI（格式为：
-`scp://[user@]host[:port][/path]`）。可以使用绝对或相对路径名显式指定本地文件名，以避免 scp 处理包含“：”的文件名
-作为主机说明符。
-
-在两个远程主机之间进行复制时，如果使用 URI 格式，则在使用-R 选项的情况下，无法指定目标上的端口。
-
-```js
-scp 【本地要上传文件地址】  [用户名]@[ip地址]：远程地址
-
-//例如我的本地要上传的文件地址是c://user/code/demo/dist,用户名是root，IP地址是192.168.9.25
-scp -r c://user/code/demo/dist root@192.168.9.25:/home/root/demo/fe/
-//如果我当前在c://user/code/demo/下(比如在vscode打开demo项目打开终端)，就可以执行以下命令直接上传
-//-r代表上传的是文件夹以及文件夹里所有的东西
-scp -r dist root@192.168.9.25:/home/root/demo/fe/
+```bash
+scp [参数] [原路径] [目标路径]
 ```
+
+**命令参数**：
+
+- `-1` 强制scp命令使用协议ssh1
+- `-2` 强制scp命令使用协议ssh2
+- `-4` 强制scp命令只使用IPv4寻址
+- `-6` 强制scp命令只使用IPv6寻址
+- `-B` 使用批处理模式（传输过程中不询问传输口令或短语）
+- `-C` 允许压缩。（将-C标志传递给ssh，从而打开压缩功能）
+- `-p` 留原文件的修改时间，访问时间和访问权限。
+- `-q` 不显示传输进度条。
+- `-r` 递归复制整个目录。
+- `-v` 详细方式显示输出。scp和ssh(1)会显示出整个过程的调试信息。这些信息用于调试连接，验证和配置问题。
+- `-c` cipher 以cipher将数据传输进行加密，这个选项将直接传递给ssh。
+- `-F` ssh_config 指定一个替代的ssh配置文件，此参数直接传递给ssh。
+- `-i` identity_file 从指定文件中读取传输时使用的密钥文件，此参数直接传递给ssh。
+- `-l` limit 限定用户所能使用的带宽，以Kbit/s为单位。
+- `-o` ssh_option 如果习惯于使用ssh_config(5)中的参数传递方式，
+- `-P` port 注意是大写的P, port是指定数据传输用到的端口号
+- `-S` program 指定加密传输时所使用的程序。此程序必须能够理解ssh(1)的选项。
+
+**使用示例**：
+
+1. **从本地拷贝文件到远程服务器**：
+
+   ```bash
+   scp /path/to/local/file username@remote_host:/path/to/remote/directory
+   scp /path/to/local/file remote_host:/path/to/remote/directory
+   
+   # 例如，把本地的 `file.txt` 拷贝到远程服务器的 `/home/user/` 目录：
+   scp file.txt user@192.168.1.10:/home/user/
+   ```
+
+   指定了用户名，命令执行后需要输入用户密码；如果不指定用户名，命令执行后需要输入用户名和密码；
+
+2. **从远程服务器拷贝文件到本地**：
+
+   ```bash
+   scp username@remote_host:/path/to/remote/file /path/to/local/directory
+   
+   # 例如，从远程服务器的 `/home/user/` 目录下载 `file.txt` 到本地：
+   scp user@192.168.1.10:/home/user/file.txt /path/to/local/directory
+   ```
+
+3. **递归拷贝目录**： 使用 `-r` 选项，可以拷贝整个目录：
+
+   ```bash
+   scp -r /path/to/local/directory username@remote_host:/path/to/remote/directory
+   ```
+
+4. **指定端口号**： 如果远程服务器的 SSH 服务运行在非标准端口（例如 10086），你可以通过 `-P` 选项指定端口：
+
+   ```bash
+   scp -P 10086 file.txt user@192.168.1.10:/home/user/
+   ```
+
+5. **使用 SSH 密钥文件**： 如果你需要使用 SSH 密钥进行认证，可以使用 `-i` 选项指定密钥文件：
+
+   ```bash
+   scp -i /path/to/private_key file.txt user@192.168.1.10:/home/user/
+   ```
+
+6. **显示详细信息**： 使用 `-v` 选项来查看详细的传输过程：
+
+   ```bash
+   scp -v file.txt user@192.168.1.10:/home/user/
+   ```
+
+7. **启用压缩**： 使用 `-C` 选项来启用压缩，以加快大文件的传输速度：
+
+   ```bash
+   scp -C largefile.zip user@192.168.1.10:/home/user/
+   ```
+
+`scp` 是一个非常方便且安全的工具，适用于快速传输文件。如果你有需要使用 SSH 协议进行文件传输的场景，`scp` 可以高效地帮助你完成工作。
 
 ## ssh 命令
 
