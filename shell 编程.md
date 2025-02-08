@@ -7,30 +7,29 @@
 <https://blog.csdn.net/dgwxligg/article/details/138875027>
 正则表达式全集：<https://tool.oschina.net/uploads/apidocs/jquery/regexp.html>
 
-当探讨Linux文本处理时，**基础正则表达式**（Basic Regular Expressions, BRE）、**扩展正则表达式**（Extended Regular Expressions, ERE）和**Perl兼容正则表达式**（Perl-Compatible Regular Expressions, PCRE）这三种正则表达式非常重要。它们在功能和语法上有所区别，并由不同的工具和命令支持。
+当探讨 Linux 文本处理时，**基础正则表达式**（Basic Regular Expressions, BRE）、**扩展正则表达式**（Extended Regular Expressions, ERE）和**Perl 兼容正则表达式**（Perl-Compatible Regular Expressions, PCRE）这三种正则表达式非常重要。它们在功能和语法上有所区别，并由不同的工具和命令支持。
 
 1. **基础正则表达式 (BRE)**：
-   - BRE是最初在Unix文本工具中使用的正则表达式的简单形式。
-   - 在BRE中，元字符如`?`, `+`, `{`, `|`, `(`, `)`需要被转义（前加反斜杠`\`）才能作为特殊意义解释。否则，它们会被当作普通字符处理。
-   - 常见的使用BRE的工具有`grep`、`sed`等。
+   - BRE 是最初在 Unix 文本工具中使用的正则表达式的简单形式。
+   - 在 BRE 中，元字符如`?`, `+`, `{`, `|`, `(`, `)`需要被转义（前加反斜杠`\`）才能作为特殊意义解释。否则，它们会被当作普通字符处理。
+   - 常见的使用 BRE 的工具有`grep`、`sed`等。
 2. **扩展正则表达式 (ERE)**：
-   - ERE对BRE进行了扩展，添加了一些额外的功能。
-   - ERE不需要转义某些元字符（如`?`, `+`, `|`, `{}`, `()`）。
-   - 使用ERE的工具包括`egrep`（或`grep -E`），还有支持ERE的`sed`版本等。
-   - ERE相对于BRE来说语法更加直观，但在老旧系统和工具中可能不被支持。
-3. **Perl兼容正则表达式 (PCRE)**：
-   - PCRE是一种更加强大和灵活的正则表达式版本，它扩展了传统的正则表达式并加入了许多Perl语言的特性。
-   - 例如，PCRE支持lookahead和lookbehind断言、递归模式、命名捕获组等高级功能，这使得PCRE在处理复杂的模式匹配时异常强大。
-   - PCRE通常被`grep`的`-P`选项和一些编程语言（如PHP，Python的`re`模块等）支持。
+   - ERE 对 BRE 进行了扩展，添加了一些额外的功能。
+   - ERE 不需要转义某些元字符（如`?`, `+`, `|`, `{}`, `()`）。
+   - 使用 ERE 的工具包括`egrep`（或`grep -E`），还有支持 ERE 的`sed`版本等。
+   - ERE 相对于 BRE 来说语法更加直观，但在老旧系统和工具中可能不被支持。
+3. **Perl 兼容正则表达式 (PCRE)**：
+   - PCRE 是一种更加强大和灵活的正则表达式版本，它扩展了传统的正则表达式并加入了许多 Perl 语言的特性。
+   - 例如，PCRE 支持 lookahead 和 lookbehind 断言、递归模式、命名捕获组等高级功能，这使得 PCRE 在处理复杂的模式匹配时异常强大。
+   - PCRE 通常被`grep`的`-P`选项和一些编程语言（如 PHP，Python 的`re`模块等）支持。
      **讨论要点**：
 
-- **兼容性**：某些老旧的系统和工具只支持BRE。
-- **功能性**：**PCRE提供了最丰富**的功能，能够解决更复杂的问题。
-- **性能**：复杂的PCRE表达式可能会比BRE和ERE慢，尤其是在处理大量文本或复杂模式时。
-- **易用性**：ERE和PCRE对初学者更友好，因为它们不需要多余的转义符，且语法更为直观。
-- **兼容性与未来性**：尽管BRE在历史上很重要，现代文本处理越来越多地支持ERE和PCRE，后者尤其在程序设计领域受欢迎，因为其强大的功能和灵活性。
-  总结来说，选择哪种正则表达式主要依赖于任务的复杂性及所使用工具的支持度。对于简单的文本匹配，BRE和ERE足够用了；而对于要求更高的模式匹配，尤其是涉及到复杂文本处理的场合，PCRE则是更好的选择。
-
+- **兼容性**：某些老旧的系统和工具只支持 BRE。
+- **功能性**：**PCRE 提供了最丰富**的功能，能够解决更复杂的问题。
+- **性能**：复杂的 PCRE 表达式可能会比 BRE 和 ERE 慢，尤其是在处理大量文本或复杂模式时。
+- **易用性**：ERE 和 PCRE 对初学者更友好，因为它们不需要多余的转义符，且语法更为直观。
+- **兼容性与未来性**：尽管 BRE 在历史上很重要，现代文本处理越来越多地支持 ERE 和 PCRE，后者尤其在程序设计领域受欢迎，因为其强大的功能和灵活性。
+  总结来说，选择哪种正则表达式主要依赖于任务的复杂性及所使用工具的支持度。对于简单的文本匹配，BRE 和 ERE 足够用了；而对于要求更高的模式匹配，尤其是涉及到复杂文本处理的场合，PCRE 则是更好的选择。
 
 注意事项：
 
@@ -63,7 +62,7 @@
 
 **通配符**：
 
-说白了一般只用于文件名匹配，它是由shell解析的。所谓的系统level的概念非常含糊，什么是系统level的？我们知道shell是一个命令解释器，它是内核的外壳，用于完成操作系统使用者与内核的沟通，因此，**通配符实际上就是一个shell解释器去解析的符号**，它的特殊涵义是由shell这个命令解释器赋予的。通配符的英文名是 **wildcard**，就是万用牌的意思，它相当简单，一般来说，*nix系统上面的shell大多将三个特殊符号当作通配符，它们是 `*` `?` `[...]`， 其中* 表示匹配任意长度的任意字符； ? 表示匹配一个任意字符， 而[...]则表示匹配括号中列出的字符中的任意一个。
+说白了一般只用于文件名匹配，它是由 shell 解析的。所谓的系统 level 的概念非常含糊，什么是系统 level 的？我们知道 shell 是一个命令解释器，它是内核的外壳，用于完成操作系统使用者与内核的沟通，因此，**通配符实际上就是一个 shell 解释器去解析的符号**，它的特殊涵义是由 shell 这个命令解释器赋予的。通配符的英文名是 **wildcard**，就是万用牌的意思，它相当简单，一般来说，_nix 系统上面的 shell 大多将三个特殊符号当作通配符，它们是 `_` `?` `[...]`， 其中\* 表示匹配任意长度的任意字符； ? 表示匹配一个任意字符， 而[...]则表示匹配括号中列出的字符中的任意一个。
 
 **正则表达式**：
 
@@ -71,27 +70,27 @@
 
 **在什么地方使用通配符？**
 
-答案是只要是**shell命令行或者shell脚本**中，你都可以使用通配符；如命令find，ls，cp等等。
+答案是只要是**shell 命令行或者 shell 脚本**中，你都可以使用通配符；如命令 find，ls，cp 等等。
 
 **在什么地方使用正则表达式？**
 
-当你使用能够**支持正则表达式的工具软件进行字符串处理**时你就可以使用正则表达式。你还可以在支持正则表达式的语言中使用正则表达式，比如perl, java... C++中也有专门用于支持正则表达式的库。正则表达式总是和“使用什么工具软件或者语言”相关。相对来说，不同的工具和语言对正则表达式的支持程度不同，*nix里面将这些工具软件的对正则表达式的支持分类，因此也就有了“基础正则表达式”和“扩展正则表达式”。
+当你使用能够**支持正则表达式的工具软件进行字符串处理**时你就可以使用正则表达式。你还可以在支持正则表达式的语言中使用正则表达式，比如 perl, java... C++中也有专门用于支持正则表达式的库。正则表达式总是和“使用什么工具软件或者语言”相关。相对来说，不同的工具和语言对正则表达式的支持程度不同，\*nix 里面将这些工具软件的对正则表达式的支持分类，因此也就有了“基础正则表达式”和“扩展正则表达式”。
 
-不同的工具对正则表达式的支持，其实有些许的微妙不同；但是总体来说，使用正则还是基本按照标准来的。这些不同的工具支持程度，被称之为“正则流派”。而工具软件中支持这种匹配模式的那部分代码，称之为“正则引擎”。由于perl对正则表达式的支持非常到位，其正则引擎也比较优秀，因此perl语言算是正则的一大流派，目前大部分对正则的支持都或多或少参考了perl语言中的标准。
+不同的工具对正则表达式的支持，其实有些许的微妙不同；但是总体来说，使用正则还是基本按照标准来的。这些不同的工具支持程度，被称之为“正则流派”。而工具软件中支持这种匹配模式的那部分代码，称之为“正则引擎”。由于 perl 对正则表达式的支持非常到位，其正则引擎也比较优秀，因此 perl 语言算是正则的一大流派，目前大部分对正则的支持都或多或少参考了 perl 语言中的标准。
 
 **通配符**：
 
-| 符号       |                                                       |
-| ---------- | ----------------------------------------------------- |
-| ？         | 任意一个字符                                          |
-| *          | 0-多个任意字符                                        |
-| [ab]       | 只匹配其中的一个字符                                  |
-| [a-z]      | 只匹配a-z其中的一个字符                               |
-| [^ab]      | 除了a或b                                              |
-| [^a-z]?    | 除了a-z开头后面有一个字符，第一个字符不能是字母开头的 |
-| [a-z][0-9] | 第一个字符是字母，第二个是数字                        |
-| ?*         | 第一个任意字符，后面随意                              |
-| *          | 0-多个任意字符                                        |
+| 符号       |                                                         |
+| ---------- | ------------------------------------------------------- |
+| ？         | 任意一个字符                                            |
+| \*         | 0-多个任意字符                                          |
+| [ab]       | 只匹配其中的一个字符                                    |
+| [a-z]      | 只匹配 a-z 其中的一个字符                               |
+| [^ab]      | 除了 a 或 b                                             |
+| [^a-z]?    | 除了 a-z 开头后面有一个字符，第一个字符不能是字母开头的 |
+| [a-z][0-9] | 第一个字符是字母，第二个是数字                          |
+| ?\*        | 第一个任意字符，后面随意                                |
+| \*         | 0-多个任意字符                                          |
 
 **正则表达式**：
 
@@ -109,11 +108,11 @@
 
   [Docs » 通配机制 » 正则表达式 » 正则表达式语法 » 扩展正则表达式](https://codetoolchains.readthedocs.io/en/latest/5-Wildcard/2-Regular/1-syntax/2-eRegEx.html)
 
-- Perl正则表达式(PCRE)
+- Perl 正则表达式(PCRE)
 
-  [Perl正则匹配和正则表达式](https://dulunar.github.io/2021/01/01/Perl%E6%AD%A3%E5%88%99%E5%8C%B9%E9%85%8D%E5%92%8C%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%89%AF%E6%9C%AC/)
+  [Perl 正则匹配和正则表达式](https://dulunar.github.io/2021/01/01/Perl%E6%AD%A3%E5%88%99%E5%8C%B9%E9%85%8D%E5%92%8C%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%89%AF%E6%9C%AC/)
 
-  [Perldoc浏览器](https://perldoc.perl.org/perlre)
+  [Perldoc 浏览器](https://perldoc.perl.org/perlre)
 
 > 注意:
 >
@@ -121,36 +120,36 @@
 
 ## shell 中转义字符$
 
-在linux shell脚本中经常用到字符`$`，下面是`$`的一些常见用法
+在 linux shell 脚本中经常用到字符`$`，下面是`$`的一些常见用法
 
-| 名称 | 含义                                                                  |
-| ---- | --------------------------------------------------------------------- |
-| $#   | 传给脚本的参数个数                                                    |
-| $0   | 脚本本身的名字                                                        |
-| $1   | 传递给该shell脚本的第一个参数                                         |
-| $2   | 传递给该shell脚本的第二个参数                                         |
-| $@   | 传给脚本的所有参数的列表                                              |
-| $*   | 以一个单字符串显示所有向脚本传递的参数，与位置变量不同，参数可超过9个 |
-| $$   | 脚本运行的当前进程ID号                                                |
-| $?   | 显示最后命令的退出状态，0表示没有错误，其他表示有错误                 |
+| 名称 | 含义                                                                    |
+| ---- | ----------------------------------------------------------------------- |
+| $#   | 传给脚本的参数个数                                                      |
+| $0   | 脚本本身的名字                                                          |
+| $1   | 传递给该 shell 脚本的第一个参数                                         |
+| $2   | 传递给该 shell 脚本的第二个参数                                         |
+| $@   | 传给脚本的所有参数的列表                                                |
+| $\*  | 以一个单字符串显示所有向脚本传递的参数，与位置变量不同，参数可超过 9 个 |
+| $$   | 脚本运行的当前进程 ID 号                                                |
+| $?   | 显示最后命令的退出状态，0 表示没有错误，其他表示有错误                  |
 
 - 文件名`test`
 
 ```shell
-#!/bin/sh 
-echo "number:$#" 
-echo "scname:$0" 
-echo "first :$1" 
-echo "second:$2" 
-echo "argume:$@" 
+#!/bin/sh
+echo "number:$#"
+echo "scname:$0"
+echo "first :$1"
+echo "second:$2"
+echo "argume:$@"
 ```
 
 - 运行结果
 
 ```shell
-number:2   //$# 是传给脚本的参数个数 
-scname:./test //$0 是脚本本身的名字 
-first: aa  //$1是传递给该shell脚本的第一个参数 
+number:2   //$# 是传给脚本的参数个数
+scname:./test //$0 是脚本本身的名字
+first: aa  //$1是传递给该shell脚本的第一个参数
 second:bb  //$2是传递给该shell脚本的第二个参数
 argume:aa bb //$@ 是传给脚本的所有参数的列表
 ```
@@ -200,7 +199,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
      command &> outputfile.txt
      # 或
      command > outputfile.txt 2>&1
-      
+  
      ls /nonexistent_directory &> all_output.txt
      # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
      ```
@@ -312,7 +311,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
    - `ls -l`：以长格式列出文件和目录。
    - `grep ^-`：过滤出文件（忽略目录）。在 ls -l 输出中，文件以 - 开头，目录以 d 开头，符号链接以 l 开头。
-   - `sort -k5 -nr`：按第5列（文件大小）进行数值排序（-n 表示数值排序，-r 表示从大到小排序）。
+   - `sort -k5 -nr`：按第 5 列（文件大小）进行数值排序（-n 表示数值排序，-r 表示从大到小排序）。
 
 3. **`()` (子 shell)**
 
@@ -337,7 +336,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
    ```bash
    { cd ..; ls; }
    # 或
-   { 
+   {
      cd ..
      ls
    }
@@ -366,6 +365,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 6. **`&&` (逻辑与, AND)**
 
    `&&` 是逻辑与操作符，
+
    - 表示前一个命令成功（退出状态码 $? 为 0）时才执行下一个命令。
    - 只要有一个命令失败（退出状态码 $? 为 1），后面的命令就不会被执行。
 
@@ -378,15 +378,17 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
    如果 `mkdir new_dir` 成功，则 `cd new_dir` 会被执行。
 
    > 技巧：
+   >
    > - `cp xx && rm -f xx && echo "copy and rm success!"`，拷贝后删除原文件
 
 7. **`||` (逻辑或, OR)**
 
    `||` 是逻辑或操作符，
+
    - 表示前一个命令失败（退出状态码 $? 非 0）时才执行下一个命令。
    - 只要有一个命令成功（退出状态码 $? 为 0），后面的命令就不会被执行。
 
-   示例1：
+   示例 1：
 
    ```bash
    mkdir new_dir || echo "Failed to create directory"
@@ -399,7 +401,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
    ```shell
    ls dir &> /dev/null && echo"SUCCESS" || echo "FAIL"
    # 如果 dir 目录存在，将输出 SUCCESS 提示信息；否则输出 FAIL 提示信息。
-   
+
    # shell 脚本中常用的组合示例
    echo $BASH | grep -q 'bash' || { exec bash "$0" "$@" || exit 1; }
    # 系统调用exec是以新的进程去代替原来的进程，但进程的PID保持不变。
@@ -465,7 +467,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
 ## 单/双/反引号
 
-在 Shell 中，单引号 `' '`, 双引号 `" "`, 和反引号 ``` `` ``` 用于不同的目的，尤其是在处理字符串和命令替换时。它们的功能如下：
+在 Shell 中，单引号 `' '`, 双引号 `" "`, 和反引号 ` `` ` 用于不同的目的，尤其是在处理字符串和命令替换时。它们的功能如下：
 
 1. 单引号 `' '`
 
@@ -495,7 +497,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
      输出：`Hello your_username`（`$USER` 被替换成实际的用户名）
 
-3. 反引号 ``` `` ``` 或 `$(...)`（推荐）
+3. 反引号 ` `` ` 或 `$(...)`（推荐）
 
    - **功能**：用于**命令替换**，即执行括号中的命令，并将结果插入到外部命令中。
 
@@ -525,7 +527,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
 ## shell 命令展开
 
-Shell命令的展开是单次展开，按照固定顺序进行一次性展开。每种展开类型只会执行一次。不是递归展开。
+Shell 命令的展开是单次展开，按照固定顺序进行一次性展开。每种展开类型只会执行一次。不是递归展开。
 
 举例说明：
 
@@ -546,7 +548,7 @@ Shell命令的展开是单次展开，按照固定顺序进行一次性展开。
    echo $(echo $cmd1)  # 输出 $(echo $cmd2)，不会继续展开
    ```
 
-3. 要实现多次展开，需要使用eval
+3. 要实现多次展开，需要使用 eval
 
    ```bash
    # 使用eval实现递归展开
@@ -583,7 +585,7 @@ Shell命令的展开是单次展开，按照固定顺序进行一次性展开。
 
 ## shell 命令展开优先级
 
-Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低）：
+Shell 命令展开遵循特定的顺序，完整的展开优先级（从高到低）：
 
 - Brace expansion（大括号展开）
 - Tilde expansion（波浪号展开）
@@ -642,16 +644,16 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
 **示例**：
 
-   ```bash
-   # 展开顺序示例
-   user="john"
-   echo ~/${user}_file{1,2}.{txt,log}
+```bash
+# 展开顺序示例
+user="john"
+echo ~/${user}_file{1,2}.{txt,log}
 
-   # 展开步骤：
-   # 1. 大括号展开：~/john_file1.txt ~/john_file1.log ~/john_file2.txt ~/john_file2.log
-   # 2. 波浪号展开：/home/user/john_file1.txt ...
-   # 3. 变量展开：已在步骤1中完成
-   ```
+# 展开步骤：
+# 1. 大括号展开：~/john_file1.txt ~/john_file1.log ~/john_file2.txt ~/john_file2.log
+# 2. 波浪号展开：/home/user/john_file1.txt ...
+# 3. 变量展开：已在步骤1中完成
+```
 
 **注意事项**：
 
@@ -734,7 +736,6 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
    - **`set +o pipefail`**
      关闭 `pipefail` 模式，恢复默认行为。
 
-
 **总结**：
 
 通过 `set`，可以细粒度控制脚本的行为。常见的组合：
@@ -743,13 +744,241 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 - **严格执行**: `set -euo pipefail`
 - **临时关闭选项**: 用 `set +<option>` 在局部关闭某些特性。
 
+## 路径处理
+
+在 shell 脚本中处理路径有几种常用方法：
+
+1. 获取相对路径:
+
+   ```bash
+   # 获取当前脚本所在目录
+   current_dir=$(dirname "$0")
+
+   # 获取当前工作目录
+   pwd_dir=$(pwd)
+   ```
+
+2. 从绝对路径提取部分路径:
+
+   ```bash
+   full_path="/home/user/projects/test/file.txt"
+
+   # 获取目录部分
+   dir_path=$(dirname "$full_path")  # 结果: /home/user/projects/test
+
+   # 获取文件名部分
+   file_name=$(basename "$full_path")  # 结果: file.txt
+
+   # 获取不带扩展名的文件名
+   name_only=$(basename "$full_path" .txt)  # 结果: file
+   ```
+
+3. 使用参数展开:
+
+   ```bash
+   path="/home/user/projects/test/file.txt"
+   
+   # 提取最后一个/之前的内容
+   before_last_slash=${path%/*}  # 结果: /home/user/projects/test
+   
+   # 提取最后一个/之后的内容
+   after_last_slash=${path##*/}  # 结果: file.txt
+   
+   # 提取指定目录之后的路径
+   sub_path=${path#*/user/}  # 结果: projects/test/file.txt
+   ```
+
+   参数展开匹配：
+
+   ```bash
+   file_folder="/home/user/test/project/file.txt"
+
+   # 从开头匹配并删除最短匹配
+   sub_path=${file_folder#*/test/}  # 结果: project/file.txt
+
+   # 从开头匹配并删除最长匹配
+   sub_path=${file_folder##*/test/}  # 结果: project/file.txt
+
+   # 从结尾匹配并删除最短匹配
+   sub_path=${file_folder%/test/*}  # 结果: /home/user
+
+   # 从结尾匹配并删除最长匹配
+   sub_path=${file_folder%%/test/*}  # 结果: /home/user
+   ```
+
+   参数展开操作符说明：
+
+   - `#` - 从开头匹配，删除最短匹配
+   - `##` - 从开头匹配，删除最长匹配
+   - `%` - 从结尾匹配，删除最短匹配
+   - `%%` - 从结尾匹配，删除最长匹配
+
+## 参数展开操作符
+
+**Shell 参数展开操作符的介绍**：
+
+1. 基本的参数展开：`${}`
+
+   ```bash
+   var="hello"
+   echo ${var}        # 等同于 $var
+   echo ${var}world   # 拼接字符串，输出: helloworld
+   ```
+
+2. 长度获取：`#`
+
+   ```bash
+   str="hello"
+   echo ${#str}      # 输出字符串长度: 5
+
+   array=(1 2 3 4 5)
+   echo ${#array[@]} # 输出数组长度: 5
+   ```
+
+3. 从开头删除匹配模式：`#` 和 `##`
+
+   ```bash
+   path="/usr/local/bin/python"
+   # #  从开头删除最短匹配
+   echo ${path#*/}      # 输出: usr/local/bin/python
+   # ## 从开头删除最长匹配
+   echo ${path##*/}     # 输出: python
+
+   # 实际应用：提取文件名
+   filename="script.test.sh"
+   echo ${filename#*.}  # 输出: test.sh
+   echo ${filename##*.} # 输出: sh
+   ```
+
+4. 从结尾删除匹配模式：`%` 和 `%%`
+
+   ```bash
+   path="/usr/local/bin/python"
+   # %  从结尾删除最短匹配
+   echo ${path%/*}      # 输出: /usr/local/bin
+   # %% 从结尾删除最长匹配
+   echo ${path%%/*}     # 输出: (空)
+
+   # 实际应用：删除文件扩展名
+   filename="script.test.sh"
+   echo ${filename%.*}  # 输出: script.test
+   echo ${filename%%.*} # 输出: script
+   ```
+
+5. 替换模式：`/` 和 `//`
+
+   ```bash
+   text="hello hello world"
+   # / 替换第一次匹配
+   echo ${text/hello/hi}   # 输出: hi hello world
+   # // 替换所有匹配
+   echo ${text//hello/hi}  # 输出: hi hi world
+
+   # 实际应用：替换路径分隔符
+   path="C:\Windows\System32"
+   echo ${path//\\/\/}    # 输出: C:/Windows/System32
+   ```
+
+6. 默认值操作符：`:-`、`:=`、`:+`、`:?`
+
+   ```bash
+   # :- 如果变量未设置或为空，则使用默认值
+   echo ${var:-default}   # var未设置，输出: default
+   var=""; echo ${var:-default}  # var为空，输出: default
+   var="value"; echo ${var:-default}  # var有值，输出: value
+
+   # := 如果变量未设置或为空，则设置默认值并返回
+   echo ${var:=default}   # 设置var为default并输出
+
+   # :+ 如果变量设置且非空，则使用替代值
+   var="value"
+   echo ${var:+replaced}  # 输出: replaced
+
+   # :? 如果变量未设置或为空，则显示错误信息并退出
+   echo ${var:?"错误：var未设置"}
+   ```
+
+7. 子字符串提取：`:offset` 和 `:offset:length`
+
+   ```bash
+   str="Hello World"
+   echo ${str:6}      # 输出: World
+   echo ${str:0:5}    # 输出: Hello
+   echo ${str: -5}    # 输出: World (注意空格)
+   echo ${str: -5:2}  # 输出: Wo
+   ```
+
+**典型使用场景**：
+
+1. 文件路径处理
+
+   ```bash
+   # 提取文件目录
+   full_path="/home/user/docs/file.txt"
+   dir=${full_path%/*}         # 输出: /home/user/docs
+
+   # 提取文件名
+   filename=${full_path##*/}   # 输出: file.txt
+
+   # 提取不带扩展名的文件名
+   name=${filename%.*}         # 输出: file
+
+   # 提取扩展名
+   ext=${filename##*.}         # 输出: txt
+   ```
+
+2. URL 处理
+
+   ```bash
+   url="https://example.com/path/to/page.html"
+   # 提取域名
+   domain=${url#*//}
+   domain=${domain%%/*}       # 输出: example.com
+
+   # 提取路径
+   path=${url##*/}           # 输出: page.html
+   ```
+
+3. 批量重命名
+
+   ```bash
+   # 将所有.txt文件重命名为.md文件
+   for file in *.txt; do
+       mv "$file" "${file%.txt}.md"
+   done
+   ```
+
+4. 环境变量处理
+
+   ```bash
+   # 添加路径到PATH，避免重复
+   export PATH="${PATH:+$PATH:}/new/path"
+
+   # 设置默认值
+   TIMEOUT=${TIMEOUT:-30}
+   ```
+
+5. 字符串处理
+
+   ```bash
+   # 移除字符串中的所有空格
+   str="hello world"
+   echo ${str// /}      # 输出: helloworld
+
+   # 将字符串中的下划线替换为空格
+   var="hello_world_test"
+   echo ${var//_/ }     # 输出: hello world test
+   ```
+
+这些操作符在 shell 脚本中非常有用，可以大大简化文本处理和路径操作的代码。需要注意的是，不同的 shell 可能支持的特性略有不同，上述例子主要基于 bash shell。
+
 # shell 编程学习
 
 ## 学习笔记
 
 > 中文：
 >
-> [Bash脚本进阶指南](https://linuxstory.gitbook.io/advanced-bash-scripting-guide-in-chinese)
+> [Bash 脚本进阶指南](https://linuxstory.gitbook.io/advanced-bash-scripting-guide-in-chinese)
 >
 > [ShellScript](https://shellscript.readthedocs.io/zh-cn/latest/#)
 >
@@ -757,7 +986,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 >
 > 英文：
 >
-> [Advanced Bash-Scripting Guide](https://tldp.org/LDP/abs/html/) ---- 非常详细，非常易读，大量example，既可以当入门教材，也可以当做工具书查阅
+> [Advanced Bash-Scripting Guide](https://tldp.org/LDP/abs/html/) ---- 非常详细，非常易读，大量 example，既可以当入门教材，也可以当做工具书查阅
 >
 > [Linux Shell Scripting Tutorial - A Beginner's handbook](http://bash.cyberciti.biz/guide/Main_Page)
 >
@@ -786,7 +1015,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 >   > - 字符条件测试（如 `==`、`-n`、`-z` 等。执行字符条件测试表达式的操作符有 `[ 字符条件测试表达式 ]`、`[[ 字符条件测试表达式 ]]`，**注意前后有空格**）
 >   > - 文件条件测试（如 `-e file`：文件是否存在，`-d directory`： 是否为目录文件等。执行文件条件测试表达式的操作符有 `[ 文件条件测试表达式 ]`、`[[ 文件条件测试表达式 ]]`，**注意前后有空格**）
 >
-> - 逻辑操作符（逻辑与`&&`，逻辑或`||`，逻辑非`!`。**注意：各种编译语言对逻辑真、假的定义不同，在shell中，状态值为0代表真，状态值为非0代表假**）
+> - 逻辑操作符（逻辑与`&&`，逻辑或`||`，逻辑非`!`。**注意：各种编译语言对逻辑真、假的定义不同，在 shell 中，状态值为 0 代表真，状态值为非 0 代表假**）
 >
 > - 括号操作符（`()`，`(())`，`[]`，`[[]]`，`{}`）
 >
@@ -812,53 +1041,53 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 >
 > [ShellScipt：Docs --> 语法基础 --> 知识碎片](https://shellscript.readthedocs.io/zh-cn/latest/1-syntax/7-pieceofkn/index.html)
 >
-> 在编写shell脚本时，需要注意以下几点：
+> 在编写 shell 脚本时，需要注意以下几点：
 >
-> - 标准输出：在编写shell脚本的时候，要考虑下该命令语句是否存在标准输出。有则问是否要输出到标准输出设备上；不需要则输出重定向到`/dev/null`。
+> - 标准输出：在编写 shell 脚本的时候，要考虑下该命令语句是否存在标准输出。有则问是否要输出到标准输出设备上；不需要则输出重定向到`/dev/null`。
 > - 常见逻辑错误：输入为空、字符串大小写、输入是佛存在问题。
 > - 编程思想：脚本输入输出是什么；根据输入可能存在逻辑错误的地方；不能举输出判断使用什么控制流程；在保证功能实现的前提下进行优化精简代码。
 >
 > [ShellScipt：Docs --> 语法基础 --> 常用类库](https://shellscript.readthedocs.io/zh-cn/latest/2-library/0-commonvar/index.html)
 >
-> - shell脚本中常用的环境变量有：`IFS`是shell内部字段分隔符的环境变量；`RANDOM`环境变量是bash的伪随机数生成器。
-> - shell脚本中高频次的几个命令：[read](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#readll)：获取用户输入；[echo](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#echoll)：打印输出；[printf](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#printfll)：打印输出；[shift](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#shiftll)：剔除位置参数。
+> - shell 脚本中常用的环境变量有：`IFS`是 shell 内部字段分隔符的环境变量；`RANDOM`环境变量是 bash 的伪随机数生成器。
+> - shell 脚本中高频次的几个命令：[read](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#readll)：获取用户输入；[echo](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#echoll)：打印输出；[printf](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#printfll)：打印输出；[shift](https://shellscript.readthedocs.io/zh-cn/latest/2-library/1-commoncmd/index.html#shiftll)：剔除位置参数。
 
 要点记录：
 
-- `-x`选项可用来跟踪脚本的执行，是**调试shell脚本**的强有力工具。“-x”选项使shell在执行脚本的过程中把它实际执行的每一个命令行显示出来，并且在行首显示一个"+"号。 "+"号后面显示的是**经过了变量替换之后的命令行**的内容，有助于分析实际执行的是什么命令。 “-x”选项使用起来简单方便，可以轻松对付大多数的shell调试任务,应把其当作首选的调试手段。
+- `-x`选项可用来跟踪脚本的执行，是**调试 shell 脚本**的强有力工具。“-x”选项使 shell 在执行脚本的过程中把它实际执行的每一个命令行显示出来，并且在行首显示一个"+"号。 "+"号后面显示的是**经过了变量替换之后的命令行**的内容，有助于分析实际执行的是什么命令。 “-x”选项使用起来简单方便，可以轻松对付大多数的 shell 调试任务,应把其当作首选的调试手段。
 
-  shell的执行选项除了可以在**启动shell时指定外，亦可在脚本中用set命令来指定**。 "set -参数"表示启用某选项，"set +参数"表示关闭某选项。
+  shell 的执行选项除了可以在**启动 shell 时指定外，亦可在脚本中用 set 命令来指定**。 "set -参数"表示启用某选项，"set +参数"表示关闭某选项。
 
   ```shell
-  set -x  #启动"-x"选项 要跟踪的程序段 
+  set -x  #启动"-x"选项 要跟踪的程序段
   set +x  #关闭"-x"选项
   ```
 
-  set命令同样可以使用调试钩子—DEBUG函数来调用，这样可以避免脚本交付使用时删除这些调试语句的麻烦，如以下脚本片段所示：
+  set 命令同样可以使用调试钩子—DEBUG 函数来调用，这样可以避免脚本交付使用时删除这些调试语句的麻烦，如以下脚本片段所示：
 
   ```shell
-  DEBUG set -x #启动"-x"选项 要跟踪的程序段 
+  DEBUG set -x #启动"-x"选项 要跟踪的程序段
   DEBUG set +x #关闭"-x"选项
   ```
 
   对"-x"选项的增强：
 
-  `$LINENO`：代表shell脚本的当前行号，类似于C语言中的内置宏`__LINE__`
+  `$LINENO`：代表 shell 脚本的当前行号，类似于 C 语言中的内置宏`__LINE__`
 
-  `$FUNCNAME`：  函数的名字，类似于C语言中的内置宏 `__func__`，但宏 `__func__` 只能代表当前所在的函数名，而 `$FUNCNAME` 的功能更强大，它是一个数组变量，其中包含了整个调用链上所有的函数的名字，故变量 `${FUNCNAME[0]}` 代表shell脚本当前正在执行的函数的名字，而变量 `${FUNCNAME[1]}` 则代表调用函数 `${FUNCNAME[0]}` 的函数的名字，余者可以依此类推。
+  `$FUNCNAME`： 函数的名字，类似于 C 语言中的内置宏 `__func__`，但宏 `__func__` 只能代表当前所在的函数名，而 `$FUNCNAME` 的功能更强大，它是一个数组变量，其中包含了整个调用链上所有的函数的名字，故变量 `${FUNCNAME[0]}` 代表 shell 脚本当前正在执行的函数的名字，而变量 `${FUNCNAME[1]}` 则代表调用函数 `${FUNCNAME[0]}` 的函数的名字，余者可以依此类推。
 
-   `$PS4`：主提示符变量 `$PS1` 和第二级提示符变量 `$PS2` 比较常见，但很少有人注意到第四级提示符变量 `$PS4` 的作用。`$PS4` 的值将被显示在 `-x` 选项输出的每一条命令的前面。在Bash Shell中，缺省的$PS4的值是"+"号。现在知道为什么使用"-x"选项时，输出的命令前面有一个"+"号了吧。
+  `$PS4`：主提示符变量 `$PS1` 和第二级提示符变量 `$PS2` 比较常见，但很少有人注意到第四级提示符变量 `$PS4` 的作用。`$PS4` 的值将被显示在 `-x` 选项输出的每一条命令的前面。在 Bash Shell 中，缺省的$PS4 的值是"+"号。现在知道为什么使用"-x"选项时，输出的命令前面有一个"+"号了吧。
 
   ```shell
   # 先执行下面命令，然后再使用“-x”选项来执行脚本，就能在每一条实际执行的命令前面显示其行号以及所属的函数名。
   export PS4='+{$LINENO:${FUNCNAME[0]}}'
   ```
 
-  > [使用sh -x调试shell脚本](http://blog.chinaunix.net/uid-20564848-id-73502.html)
+  > [使用 sh -x 调试 shell 脚本](http://blog.chinaunix.net/uid-20564848-id-73502.html)
 
-- `-c` 如果存在-c选项，则从第一个非选项参数command_string读取命令。  如果command_string后面有参数，则第一个参数被赋值为`$0`，其余的参数被赋值为位置参数。 对 `$0` 的赋值设置了shell的名称，该名称用于警告和错误消息。会启动非交互式shell。
+- `-c` 如果存在-c 选项，则从第一个非选项参数 command_string 读取命令。 如果 command_string 后面有参数，则第一个参数被赋值为`$0`，其余的参数被赋值为位置参数。 对 `$0` 的赋值设置了 shell 的名称，该名称用于警告和错误消息。会启动非交互式 shell。
 
-- 按照惯例，用户编写的Bourne shell脚本应该在文件名后加上`.sh`的扩展名。而那些系统脚本，比如在`/etc/rc.d`中的脚本通常不遵循这种规范。
+- 按照惯例，用户编写的 Bourne shell 脚本应该在文件名后加上`.sh`的扩展名。而那些系统脚本，比如在`/etc/rc.d`中的脚本通常不遵循这种规范。
 
 - exit 正确终止脚本的方式
 
@@ -867,17 +1096,17 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
        # 不带参数的exit返回上一条指令的运行结果。
   ```
 
-- 再重复一次，`#!/bin/sh`调用的是系统默认shell解释器，在Linux系统中默认为`/bin/bash`。
+- 再重复一次，`#!/bin/sh`调用的是系统默认 shell 解释器，在 Linux 系统中默认为`/bin/bash`。
 
 - 这个例子鼓励读者使用模块化的方式编写脚本，并在平时记录和收集一些在以后可能会用到的代码模板。最终你将拥有一个相当丰富易用的代码库。以下的代码可以用来测试脚本被调用时的参数数量是否正确。
 
-- 你可以通过`sh scriptname`或`bash scriptname`来调用它（不推荐使用`sh <scriptname`调用脚本，因为这会禁用脚本从标准输入（stdin）读入数据）。当你使用`sh scriptname`调用*Bash*脚本时，将会禁用与Bash特性相关的功能，脚本有可能会执行失败。
+- 你可以通过`sh scriptname`或`bash scriptname`来调用它（不推荐使用`sh <scriptname`调用脚本，因为这会禁用脚本从标准输入（stdin）读入数据）。当你使用`sh scriptname`调用*Bash*脚本时，将会禁用与 Bash 特性相关的功能，脚本有可能会执行失败。
 
-- 脚本需要同时具有读取和执行的权限，因为shell需要读取脚本执行。
+- 脚本需要同时具有读取和执行的权限，因为 shell 需要读取脚本执行。
 
 - `为什么不直接使用`scriptname`来调用脚本？为什么当工作目录（$PWD）正好是`scriptname`所在目录时也不起作用？因为一些安全原因，当前目录（`./`）并不会被默认添加到用户的$PATH路径中。因此需要用户显式使用`./scriptname`在当前目录下调用脚本。`
 
-- ROOT_UID=0     # UID为0的用户才拥有root权限。
+- ROOT_UID=0 # UID 为 0 的用户才拥有 root 权限。
 
   ```shell
   LOG_DIR=/var/log
@@ -885,7 +1114,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   LINES=50       # 默认保存messages日志文件行数。
   E_XCD=86       # 无法切换工作目录的错误码。
   E_NOTROOT=87   # 非root权限用户执行的错误码。
-  
+
   # 请使用root权限运行。
   if [ "$UID" -ne "$ROOT_UID" ]
   then
@@ -905,7 +1134,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   file1 : A file1 : B file1 : C file2 : A file2 : B file2 : C
   ```
 
-- 通过()括号执行一系列命令会产生一个子shell（subshell）。 括号中的变量，即在子shell中的变量，在脚本的其他部分是不可见的。父进程脚本不能访问子进程（子shell）所创建的变量。
+- 通过()括号执行一系列命令会产生一个子 shell（subshell）。 括号中的变量，即在子 shell 中的变量，在脚本的其他部分是不可见的。父进程脚本不能访问子进程（子 shell）所创建的变量。
 
 - 与由圆括号包裹起来的命令组不同，由花括号包裹起来的代码块不产生子进程。
 
@@ -917,7 +1146,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
   ```shell
   # 如果有空格会发生什么？
-  
+
   #   "VARIABLE =value"
   #            ^
   #% 脚本将会尝试运行带参数 "=value" 的 "VARIABLE " 命令。
@@ -933,7 +1162,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   # ====================================
   # 字符串内引用变量将会保留变量的空白符。
   # ====================================
-  
+
   a=`ls -l`         # 将 'ls -l' 命令的结果赋值给 'a'
   echo $a           # 不带引号引用，将会移除所有的制表符与分行符
   echo
@@ -955,9 +1184,9 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   #  在shell脚本内，Bash 的历史机制默认关闭。
   ```
 
-- Bash 并不区分变量的类型。本质上说，*Bash 变量是字符串*，但在某些情况下，Bash 允许对变量进行算术运算和比较。决定因素则是变量值是否只含有数字。
+- Bash 并不区分变量的类型。本质上说，_Bash 变量是字符串_，但在某些情况下，Bash 允许对变量进行算术运算和比较。决定因素则是变量值是否只含有数字。
 
-- 每当shell启动时，都会创建出与其环境对应的shell环境变量。改变或增加shell环境变量会使shell更新其自身的环境。***子进程*（由父进程执行产生）会继承*父进程*的环境变量**。
+- 每当 shell 启动时，都会创建出与其环境对应的 shell 环境变量。改变或增加 shell 环境变量会使 shell 更新其自身的环境。**_子进程_（由父进程执行产生）会继承*父进程*的环境变量**。
 
   分配给环境变量的空间是有限的。创建过多环境变量或占用空间过大的环境变量有可能会造成问题。
 
@@ -977,7 +1206,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   args=$#           # 传入参数的个数
   lastarg=${!args}
   # 这是 $args 的一种间接引用方式
-  
+
   # 也可以使用:       lastarg=${!#}             (感谢 Chris Monson.)
   # 这是 $# 的一种间接引用方式。
   # 注意 lastarg=${!$#} 是无效的。
@@ -985,7 +1214,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
 - 使用 `shift` 命令步进访问所有的位置参数。
 
-- 引用的一个重用用途是保护Shell中的命令行参数，但仍然允许调用的程序扩展它。
+- 引用的一个重用用途是保护 Shell 中的命令行参数，但仍然允许调用的程序扩展它。
 
 - 使用双引号可以防止字符串被分割。即使参数中拥有很多空白分隔符，被包在双引号中后依旧是算作单一字符。
 
@@ -1014,17 +1243,17 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   
   COMMAND "This is $variable1"  # 带上1个参数执行COMMAND命令：
   # "This is a variable containing five words"
-  
-  
+
+
   variable2=""    # 空值。
-  
+
   COMMAND  $variable2 $variable2 $variable2
                   # 不带参数执行COMMAND命令。
   COMMAND "$variable2" "$variable2" "$variable2"
                   # 带上3个参数执行COMMAND命令。
   COMMAND "$variable2 $variable2 $variable2"
                   # 带上1个参数执行COMMAND命令（2空格）。
-  
+
   # 感谢 Stéphane Chazelas。
   ```
 
@@ -1061,58 +1290,58 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   bar"
   #foo
   #bar
-  
+
   echo
-  
+
   echo 'foo
   bar'    # 没有区别。
   #foo
   #bar
-  
+
   echo
-  
+
   echo foo\
   bar     # 转义换行。
   #foobar
-  
+
   echo
-  
+
   echo "foo\
   bar"     # 没有区别，在弱引用中，\ 转义符仍旧转义了换行。
   #foobar
-  
+
   echo
-  
+
   echo 'foo\
   bar'     # 在强引用中，\ 就按照字面意思来解释了。
   #foo\
   #bar
   ```
 
-- 跟C程序类似，`exit` 命令被用来结束脚本。同时，它也会返回一个值，返回值可以被交给父进程。
+- 跟 C 程序类似，`exit` 命令被用来结束脚本。同时，它也会返回一个值，返回值可以被交给父进程。
 
-  每个命令都会返回一个退出状态（exit status），有时也叫做返回状态（return status）或退出码（exit code）。**命令执行成功返回0，如果返回一个非0值**，通常情况下会被认为是一个错误代码。一个运行状态良好的UNIX命令、程序和工具在正常执行退出后都会返回一个0的退出码，当然也有例外。
+  每个命令都会返回一个退出状态（exit status），有时也叫做返回状态（return status）或退出码（exit code）。**命令执行成功返回 0，如果返回一个非 0 值**，通常情况下会被认为是一个错误代码。一个运行状态良好的 UNIX 命令、程序和工具在正常执行退出后都会返回一个 0 的退出码，当然也有例外。
 
-  同样地，脚本中的函数和脚本本身也会返回一个退出状态。在脚本或者脚本函数中执行的最后的命令会决定它们的退出状态。在脚本中，`exit nnn` 命令将会把nnn退出状态码传递给shell（nnn 必须是 0-255 之间的整型数）。
+  同样地，脚本中的函数和脚本本身也会返回一个退出状态。在脚本或者脚本函数中执行的最后的命令会决定它们的退出状态。在脚本中，`exit nnn` 命令将会把 nnn 退出状态码传递给 shell（nnn 必须是 0-255 之间的整型数）。
 
   当一个脚本以不带参数的 `exit` 来结束时，脚本的退出状态**由脚本最后执行命令决定**（`exit` 命令之前）。
 
-- 在脚本终止后，命令行下键入`$?`会给出脚本的退出状态，即在脚本中最后一条命令执行后的退出状态。一般情况下，0为成功，1-255为失败。
+- 在脚本终止后，命令行下键入`$?`会给出脚本的退出状态，即在脚本中最后一条命令执行后的退出状态。一般情况下，0 为成功，1-255 为失败。
 
   ```shell
   #!/bin/bash
-  
+
   echo hello
   echo $?    # 返回值为0，因为执行成功。
-  
+
   lskdf      # 不认识的命令。
   echo $?    # 返回非0值，因为失败了。
-  
+
   echo
-  
+
   exit 113   # 将返回113给shell
              # 为了验证这些，在脚本结束的地方使用“echo $?”
-  
+
   #  按照惯例，'exit 0' 意味着执行成功，
   #+ 非0意味着错误或者异常情况。
   #  查看附录章节“退出码的特殊含义”
@@ -1122,17 +1351,17 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
 - 结构 [`(( ... ))`](http://tldp.org/LDP/abs/html/dblparens.html) 和 [`let ...`](http://tldp.org/LDP/abs/html/internal.html#LETREF) 根据其执行的**算术表达式的结果**决定退出状态码。这样的 [算术扩展](http://tldp.org/LDP/abs/html/arithexp.html#ARITHEXPREF) 结构可以用来进行 [数值比较](http://tldp.org/LDP/abs/html/comparison-ops.html#ICOMPARISON1)。----- 只能算数表达式，且返回结果。
 
-- 注意，双括号算术扩展表达式的退出状态码不是一个错误的值。**算术表达式为0，返回1；算术表达式不为0，返回0。**
+- 注意，双括号算术扩展表达式的退出状态码不是一个错误的值。**算术表达式为 0，返回 1；算术表达式不为 0，返回 0。**
 
   **"let" 结构**的退出状态与双括号算术扩展的**退出状态是相同的**。
 
   ```shell
   var=-2 && (( var+=2 ))
   echo $?                   # 1
-  
+
   var=-2 && (( var+=2 )) && echo $var
                             # 并不会输出 $var, 因为((var+=2))的状态码为1
-  
+
   (( 200 | 11 ))               # 按位或
   echo $?                      # 0     ***
   # ...
@@ -1140,11 +1369,11 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   echo $num                    # 203
   let "num = (( 200 | 11 ))"
   echo $?                      # 0     ***
-  
+
   # "let" 结构的退出状态与双括号算术扩展的退出状态是相同的。
   ```
 
-- `if/then` 结构是用来检测一系列命令的 [退出状态](http://tldp.org/LDP/abs/html/exit-status.html#EXITSTATUSREF) 是否为0（按 UNIX 惯例,退出码 0 表示命令执行成功），如果为0，则执行接下来的一个或多个命令。即`if` 不仅可以用来测试括号内的条件表达式，**还可以用来测试其他任何命令**。
+- `if/then` 结构是用来检测一系列命令的 [退出状态](http://tldp.org/LDP/abs/html/exit-status.html#EXITSTATUSREF) 是否为 0（按 UNIX 惯例,退出码 0 表示命令执行成功），如果为 0，则执行接下来的一个或多个命令。即`if` 不仅可以用来测试括号内的条件表达式，**还可以用来测试其他任何命令**。
 
   ```shell
   # 下面介绍一个非常实用的 “if-grep" 结构：
@@ -1153,7 +1382,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   # 使用 -q 选项消去 grep 的输出结果
     then echo "File contains at least one occurrence of Bash."
   fi
-      
+
   word=Linux
   letter_sequence=inu
   if echo "$word" | grep -q "$letter_sequence"
@@ -1167,9 +1396,9 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
 - 重定向。
 
-  `scriptname >filename` **将脚本** *scriptname* 的输出重定向到 *filename* 中。如果文件存在，那么覆盖掉文件内容。
+  `scriptname >filename` **将脚本** _scriptname_ 的输出重定向到 _filename_ 中。如果文件存在，那么覆盖掉文件内容。
 
-  `command &>filename` **将命令** *command* 的标准输出(stdout) 和标准错误输出(stderr) 重定向到 *filename*。
+  `command &>filename` **将命令** _command_ 的标准输出(stdout) 和标准错误输出(stderr) 重定向到 _filename_。
 
   重定向在用于清除测试条件的输出时特别有效。如：
 
@@ -1190,8 +1419,8 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   else
     echo "0 is false."
   fi            # 0 为真。
-  
-  
+
+
   # if [ 1 ] # 1 为真。
   # if [ -1 ] # -1 为真。
   # if [ ]  # NULL, 空，为假
@@ -1214,9 +1443,9 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
      command 2
      ...
   fi
-  
+
   # 或
-  
+
   if [ -x "$filename" ]; then
   ```
 
@@ -1243,13 +1472,13 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
   ```shell
   # if test -z "$1"
-  
+
   # if /usr/bin/test -z "$1"      # 等价于内建命令 "test"
   #  ^^^^^^^^^^^^^              # 指定全路径
-  
+
   # if [ -z "$1" ]                # 功能和上面的代码相同。
   #   if [ -z "$1"                理论上可行，但是 Bash 会提示缺失右括号
-  
+
   # if /usr/bin/[ -z "$1" ]       # 功能和上面的代码相同。
   # if /usr/bin/[ -z "$1"       # 理论上可行，但是会报错
   #                             # 已经在 Bash 3.x 版本被修复了
@@ -1261,7 +1490,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
   ```shell
   file=/etc/passwd
-  
+
   if [[ -e $file ]]
   then
     echo "Password file exists."
@@ -1274,14 +1503,14 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   decimal=15
   octal=017   # = 15 (十进制)
   hex=0x0f    # = 15 (十进制)
-  
+
   if [ "$decimal" -eq "$octal" ]
   then
     echo "$decimal equals $octal"
   else
     echo "$decimal is not equal to $octal"       # 15 不等于 017
   fi      # 在单括号 [ ] 之间不会进行进制转换。
-  
+
   if [[ "$decimal" -eq "$octal" ]]
   then
     echo "$decimal equals $octal"                # 15 等于 017
@@ -1294,7 +1523,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
   ```shell
   dir=/home/bozo
-  
+
   if cd "$dir" 2>/dev/null; then   # "2>/dev/null" 重定向消去错误输出。
     echo "Now in $dir."
   else
@@ -1304,15 +1533,15 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
   `if COMMAND` 的退出状态就是`COMMAND` 的退出状态。
 
-- [`(( ))` 结构](http://tldp.org/LDP/abs/html/dblparens.html) 扩展和执行算术表达式。如果执行结果为0，其返回的 [退出状态码](http://tldp.org/LDP/abs/html/exit-status.html#EXITSTATUSREF) 为1（假）。非0表达式返回的退出状态为0（真）。这与上述所使用的 `test` 和 `[ ]` 结构形成鲜明的对比。
+- [`(( ))` 结构](http://tldp.org/LDP/abs/html/dblparens.html) 扩展和执行算术表达式。如果执行结果为 0，其返回的 [退出状态码](http://tldp.org/LDP/abs/html/exit-status.html#EXITSTATUSREF) 为 1（假）。非 0 表达式返回的退出状态为 0（真）。这与上述所使用的 `test` 和 `[ ]` 结构形成鲜明的对比。
 
   ```shell
   # (( ... )) 结构执行并测试算术表达式。
   # 与 [ ... ] 结构的退出状态正好相反。
-  
+
   (( 0 ))
   echo "Exit status of \"(( 0 ))\" is $?."         # 1
-  
+
   (( 1 ))
   echo "Exit status of \"(( 1 ))\" is $?."         # 0
   ```
@@ -1342,52 +1571,52 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
     then
        command
     fi
-    
+
     #  [ "X$string1" = "X$string2" ] 这样写是安全的,<<<<====
     #  这样写可以避免任意一个变量为空时的报错。<<<<==== 实测没遇到报错
     #  (变量前加的"X"字符规避了变量为空的情况)
     ```
-  
+
   - `==`：等于，和 `=` 同义，如 `if [ "$a" == "$b" ]`。**`==` 运算符在双方括号和单方括号里表现不同**。
-  
+
     ```shell
     [[ $a == z* ]]   # $a 以 "z" 开头时为真（模式匹配）
     [[ $a == "z*" ]] # $a 等于 z* 时为真（字符匹配）
-    
+
     [ $a == z* ]     # 发生文件匹配和字符分割。
     [ "$a" == "z*" ] # $a 等于 z* 时为真（字符匹配）
     ```
-  
+
   - 其他如 `!=`，`<`，`>`，`<>`，`-z`，`-n`。注意**使用 `-n` 时字符串必须是在括号中且被引用的**。使用 `! -z` 判断未引用的字符串或者直接判断（样例 7-6）通常可行，但是非常危险。判断字符串时一定要引用。
-  
+
 - 算术比较和字符串比较
 
   ```shell
   a=4
   b=5
-  
+
   # 这里的 "a" 和 "b" 可以是整数也可以是字符串。
   # 因为 Bash 的变量是弱类型的，因此字符串和整数比较有很多相同之处。
-  
+
   # 在 Bash 中可以用处理整数的方式来处理全是数字的字符串。
   # 但是谨慎使用。
-  
+
   echo
-  
+
   if [ "$a" -ne "$b" ]
   then
     echo "$a is not equal to $b"
     echo "(arithmetic comparison)"
   fi
-  
+
   # 在这个例子里 "-ne" 和 "!=" 都可以。
   ```
-  
+
 - 如果字符串未被初始化，则其值是未定义的。这种状态就是空 "null"（并不是 0）。
 
   ```shell
   #!/bin/bash
-  
+
   if [ -n $string1 ]    # 并未声明或是初始化 string1。
   then
     echo "String \"string1\" is not null."
@@ -1395,7 +1624,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
     echo "String \"string1\" is null."
   fi
   # 尽管没有初始化 string1，但是结果显示其非空。
-  
+
   if [ -n "$string1" ]   # 这次引用了 $string1。
   then
     echo "String \"string1\" is not null."
@@ -1415,7 +1644,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
 
 - 算术运算符常用于`expr`或`let`表达式中。
 
-- Bash版本 >= 2.05b, Bash支持了64-bit整型数。注意，Bash并不支持浮点运算，Bash会将带小数点的数看做字符串。如果你想在脚本中使用浮点数运算，借助[bc](http://tldp.org/LDP/abs/html/mathc.html#BCREF)或外部数学函数库吧。
+- Bash 版本 >= 2.05b, Bash 支持了 64-bit 整型数。注意，Bash 并不支持浮点运算，Bash 会将带小数点的数看做字符串。如果你想在脚本中使用浮点数运算，借助[bc](http://tldp.org/LDP/abs/html/mathc.html#BCREF)或外部数学函数库吧。
 
 - 逻辑表达式：`!`，`&&`，`||`
 
@@ -1423,41 +1652,41 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   if [ $condition1 ] && [ $condition2 ]
   #  等同于:  if [ $condition1 -a $condition2 ]
   #  返回true如果 condition1 和 condition2 同时为真...
-  
+
   if [[ $condition1 && $condition2 ]]    # 可行
   #  注意，&& 运算符不能用在[ ... ]结构里。
-  
+
   # || 跟 && 一样。
   ```
 
-- 通常情况下，shell脚本会把数字以十进制整数看待(base 10)，除非数字加了特殊的前缀或标记。 带前缀0的数字是八进制数(base 8)；带前缀0x的数字是十六进制数(base 16)。 内嵌 # 的数字会以 BASE#NUMBER 的方式进行求值（不能超出当前shell支持整数的范围）。
+- 通常情况下，shell 脚本会把数字以十进制整数看待(base 10)，除非数字加了特殊的前缀或标记。 带前缀 0 的数字是八进制数(base 8)；带前缀 0x 的数字是十六进制数(base 16)。 内嵌 # 的数字会以 BASE#NUMBER 的方式进行求值（不能超出当前 shell 支持整数的范围）。
 
   ```shell
   # 八进制数: 带前导'0'的数
   let "oct = 032"
   echo "octal number = $oct"               # 26
   # 结果以 十进制 打印输出了。
-  
+
   # 其他进制数: BASE#NUMBER
   # BASE 范围:  2 - 64
   # NUMBER 必须以 BASE 规定的正确形式书写，如下:
-  
+
   let "bin = 2#111100111001101"
   echo "binary number = $bin"              # 31181
-  
+
   let "b32 = 32#77"
   echo "base-32 number = $b32"             # 231
-  
+
   let "b64 = 64#@_"
   echo "base-64 number = $b64"             # 4031
-  
+
   # 这种表示法只对进制范围(2 - 64)内的 ASCII 字符有效。
   # 10 数字 + 26 小写字母 + 26 大写字母 + @ + _
   ```
 
 - 双圆括号结构
 
-  与`let`命令类似，`(( ... ))` 结构允许**对算术表达式的扩展和求值**。它**是`let`命令的简化形式**。例如，a=$(( 5 + 3 )) 会将变量a赋值成 5 + 3，也就是8。在Bash中，双圆括号结构也允许以C风格的方式操作变量。例如，(( var++ ))。
+  与`let`命令类似，`(( ... ))` 结构允许**对算术表达式的扩展和求值**。它**是`let`命令的简化形式**。例如，a=$(( 5 + 3 )) 会将变量 a 赋值成 5 + 3，也就是 8。在 Bash 中，双圆括号结构也允许以 C 风格的方式操作变量。例如，(( var++ ))。
 
 - **运算符优先级**
 
@@ -1465,7 +1694,7 @@ Shell命令展开遵循特定的顺序，完整的展开优先级（从高到低
   - 复合逻辑运算符，&&, ||, -a, -o 优先级较低
   - 优先级相同的操作按*从左至右*顺序求值
 
-## Bash基本功能（多命令顺序执行)
+## Bash 基本功能（多命令顺序执行)
 
 <https://www.cnblogs.com/liuyuelinfighting/p/16082830.html>
 
