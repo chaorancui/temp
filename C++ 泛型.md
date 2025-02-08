@@ -907,7 +907,7 @@ void f(){ int d; }
 
 此时编译器不知道`f()`是从`f<T>()`特化来的，编译时会有错误：
 
-```
+```log
 error: no function template matches function template specialization 'f'
 ```
 
@@ -951,7 +951,7 @@ void f(){}              // 注意：这里没有"模板实参"
 
 多数情况下函数模板重载就可以完成函数偏特化的需要，一个例外便是`std`命名空间。 `std`是一个特殊的命名空间，用户可以特化其中的模板，但不允许添加模板（**其实任何内容都是禁止添加的**）。 因此在`std`中添加重载函数是不允许的，在[Effective C++: Item 25](https://harttle.land/2015/08/23/effective-cpp-25.html)中给出了一个更详细的案例。
 
-## C++ 中让人头晕的 typedef & typename
+## C++ 中 typedef & typename
 
 > [C++ 中让人头晕的 typedef & typename](https://www.luozhiyun.com/archives/742)
 
@@ -980,7 +980,7 @@ int main(void)
 
 但是 typedef 后面接 typename 表示什么意思呢？typename 不是用来定义模板参数的吗？下面我们分别归纳一下 typedef & typename 的用法。
 
-#### typedef
+### typedef
 
 为特定含义的类型取别名，而不只是简单的宏替换，有编译时类型检查。
 
@@ -1023,7 +1023,7 @@ typedef double REAL;
 
 当跨平台时，只要改下 typedef 本身就行，不用对其他源码做任何修改。
 
-#### typename
+### typename
 
 typename 关键字用于引入一个模板参数，这个关键字用于指出模板声明（或定义）中的非独立名称（dependent names）**是类型名，而不是一个静态成员变量或其他非类型成员**：
 
