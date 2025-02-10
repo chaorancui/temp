@@ -1,5 +1,10 @@
 [toc]
 
+# 大模型概述文章
+
+1. [快速了解生成式AI](https://www.yrunz.com/p/%E5%BF%AB%E9%80%9F%E4%BA%86%E8%A7%A3%E7%94%9F%E6%88%90%E5%BC%8Fai/)
+   [PDF] Generative AI in Action (Final Release) Download：<https://oceanofpdf.com/authors/amit-bahree/pdf-generative-ai-in-action-final-release-download/>
+
 # 大模型相关知识
 
 ## Transformer 中 Q K V
