@@ -610,3 +610,160 @@ RoPE 的核心思想是在注意力计算时，将输入向量的不同维度按
 - 在 TensorFlow 中，`tf.split()` 函数允许你指定分割的数量或大小。
 - 在 PyTorch 中，`torch.split()` 可以指定每个子张量的大小（`split_size_or_sections`）或者分割的数量（`sections`）。
 - 这个操作在模型并行、特征拆分、数据并行等方面非常有用，尤其是在处理大型数据集和模型时。
+
+## 激活函数
+
+在大模型（如深度神经网络）中，激活函数是决定神经元是否激活的数学函数，它在每个神经元的输出中起到**非线性转换**的作用。不同的激活函数对模型的性能和训练过程有着重要影响。
+下面是一些常见的激活函数及其特点：
+
+1. **Sigmoid（S 形函数）**
+
+   - 公式：
+     $$ \sigma(x) = \frac{1}{1 + e^{-x}} $$
+   - 输出范围：$ [0, 1] $
+   - 特点：将输入值压缩到 0 和 1 之间，常用于二分类任务的输出层。
+   - 缺点：容易出现梯度消失问题，特别是在深层网络中。执行指数运算，计算机运行得较慢。
+   <div style="text-align: center">
+   <img src="https://image.jiqizhixin.com/uploads/editor/eeab4bb3-4d22-46fa-9428-142d15c1fc8a/640.png" style="width: 30%">
+   </div>
+
+2. **Tanh（双曲正切函数）**
+
+   - 公式：
+     $$ \text{tanh}(x) = \frac{2}{1 + e^{-2x}} - 1 $$
+   - 输出范围：$ [-1, 1] $
+   - 特点：比 Sigmoid 有更广的输出范围，输出中心对称，适用于隐藏层。
+   - 缺点：同样容易出现梯度消失问题，尤其是对于非常大的输入。
+   <div style="text-align: center">
+   <img src="https://image.jiqizhixin.com/uploads/editor/a25ffd1e-786d-4f69-ae86-4b176009e2bf/640.png" style="width: 30%">
+   </div>
+
+3. **ReLU（Rectified Linear Unit）**
+
+   - 公式：
+     $$ \text{ReLU}(x) = \max(0, x) $$
+   - 输出范围：$ [0, +\infty) $
+   - 特点：计算简单，能够加速收敛。它有效避免了梯度消失问题，广泛应用于隐藏层。
+   - 缺点：对于负输入，ReLU 的梯度为 0，可能导致"死神经元"问题。
+   <div style="text-align: center">
+   <img src="https://image.jiqizhixin.com/uploads/editor/aad549e6-ee38-464c-990c-5992279cc5e0/640.png" style="width: 30%">
+   </div>
+
+4. **Leaky ReLU**
+
+   - 公式：
+     $$ \text{Leaky ReLU}(x) = \begin{cases} x, & x \geq 0 \\ \alpha x, & x < 0 \end{cases} $$
+   - 输出范围：$ [-\infty, +\infty) $
+   - 特点：对负数输入值进行轻微“泄漏”，避免 ReLU 的死神经元问题。
+   - 缺点：需要设定合适的参数 $ \alpha $，通常为 0.01，否则可能无法有效避免问题。
+   <div style="text-align: center">
+   <img src="https://image.jiqizhixin.com/uploads/editor/91a214e0-d773-4ede-be3b-3f046ae5e1d4/640.png" style="width: 30%">
+   </div>
+
+5. **PReLU（Parametric ReLU）**
+
+   - 公式：
+     $$ \text{PReLU}(x) = \begin{cases} x, & x \geq 0 \\ \alpha x, & x < 0 \end{cases} $$
+   - 输出范围：$ [-\infty, +\infty) $
+   - 特点：
+     - PReLU 是 ReLU 的扩展，允许对负值部分的斜率 $ \alpha $ 进行训练，而不是固定为 0。
+     - 这种“参数化”使得模型能动态地调整负半轴的“泄漏”量，从而增强了灵活性。
+   - 优点：
+     - 可以通过学习负半轴的斜率来避免 ReLU 的死神经元问题（即那些始终输出为 0 的神经元）。
+     - 在一些任务中，PReLU 的表现优于 ReLU，尤其是对于那些训练数据分布比较复杂的情况。
+     <div style="text-align: center">
+     <img src="https://image.jiqizhixin.com/uploads/editor/daba35ae-e366-4233-b3ab-294d9a20d5e7/640.png" style="width: 30%">
+     </div>
+
+6. **ELU（Exponential Linear Unit）**
+
+   - 公式：
+     $$ \text{ELU}(x) = \begin{cases} x, & x > 0 \\ \alpha(e^x - 1), & x \leq 0 \end{cases} $$
+   - 输出范围：$ (-\alpha, +\infty) $
+   - 特点：对负值有指数性处理，能够更好地逼近零均值输出，且减少梯度消失问题。
+   - 缺点：相比 ReLU 计算上更复杂，且需要选择合适的 $ \alpha $ 值。
+   <div style="text-align: center">
+   <img src="https://pic2.zhimg.com/v2-fa5b4490dc4a7f698543f9d37e28b6b1_1440w.jpg" style="width: 30%">
+   </div>
+
+7. **GLU（Gated Linear Unit）**
+
+   - 公式：
+     $$ \text{GLU}(x)=x \odot \sigma(g(x)) $$
+     g(x) 表示的是向量 $x$ 经过一层 MLP 或者卷积，$ \odot $表示两个向量逐元素相乘，$ \sigma $ 表示 sigmoid 函数。
+   - 输出范围：$ (-\infty, +\infty) $
+   - 特点：
+     - 当$\sigma(g(x))$趋近于 0 时表示对$x$进行阻断，当$\sigma(g(x))$趋近于 1 时表示允许$x$通过，以此实现门控激活函数的效果。
+   - 优点：
+     - 信息选择性：GLU 通过门控机制，使得模型能够选择性地通过信息，从而提高模型的表达能力。
+     - 非线性增强：GLU 结合了线性变换和非线性激活，从而增强了模型的非线性特性。
+     - 提高模型性能：GLU 在许多任务中表现出色，特别是在自然语言处理（NLP）和序列建模任务中。
+
+8. **Swish / SiLU（Sigmoid Linear Unit）**
+
+   - 公式：
+     $$ \text{Swish}(x) = x \cdot \sigma(\beta x) $$
+   - 输出范围：$ (-\infty, +\infty) $
+   - 特点：
+     - $\beta = 1 $ 时也称为 SiLU，是 Sigmoid 和线性函数的组合。
+     - 与 ReLU 相比，它在负数区域进行平滑处理，避免了死神经元问题。
+     - 它的名字“SiLU”源自其形式上的类似于 Sigmoid 与线性（Linear）函数的结合。
+   - 优点：
+     - SiLU 具有连续的梯度，不容易造成梯度消失问题，适用于较深的网络。
+     - 经过一些实验，SiLU 相比 ReLU 和其他传统激活函数能在某些深度神经网络上提升性能。
+     <div style="text-align: center">
+     <img src="https://image.jiqizhixin.com/uploads/editor/81698e3e-b92a-4695-a06c-aae3d0d11c68/640.png" style="width: 30%">
+     </div>
+
+9. **SwiGLU（Switched Gated Linear Unit）**
+
+   - 公式：
+     $$ \text{SwiGLU}(x) = (xV + b1) \odot swish(xW + b2) $$
+     $W, V$ 表示学习的权重矩阵，$b1, b2$ 是偏置，swish 表示 $ swish(x) = x ⋅ sigmoid(βx) $，$ \odot $ 表示两个向量逐元素相乘。
+   - 输出范围：$ (-\infty, +\infty) $
+   - 特点：
+     - SwiGLU 是 GLU 的一个变体，用 Swish 函数替代了原始 GLU 中的 sigmoid 门控。相比原始 GLU，SwiGLU 在某些任务上表现更好，在 PaLM、GPT-4 等大型语言模型中得到应用。
+     - 是一种复合激活函数，旨在结合两种激活函数的优点：非线性和可控性。
+   - 优点：
+     - 它结合了 ReLU 的稀疏性和 Sigmoid 的平滑性，能够提高网络的表现，尤其是在大型 Transformer 网络中表现优异。
+     - 比较适用于需要对激活进行复杂控制的模型，像自然语言处理任务中的 GPT、BERT 等模型中曾被使用。
+
+10. **GELU（Gaussian Error Linear Unit）**
+
+    - 公式：
+      $$ \text{GELU}(x) = x \cdot \phi(x) $$
+      $$ \text{GELU}(x) = 0.5x \left( 1 + \tanh\left( \sqrt{\frac{2}{\pi}}(x + 0.044715x^3) \right) \right) $$
+    - 输出范围：$ (-\infty, +\infty) $
+    - 特点：
+      - GELU 是基于高斯误差函数的激活函数，能够让负值在接近零时逐渐逼近零（而不是像 ReLU 一样直接截断）。这种“平滑”特性有助于网络的训练和优化。
+      - 比 ReLU 更加平滑且没有死神经元问题，在大规模预训练模型（如 BERT、GPT 系列）中有很好的表现。
+    - 优点：
+      - 相比 ReLU，GELU 对输入的负部分处理更平滑，有助于避免梯度消失或爆炸的问题。
+      - GELU 相比 Swish 在某些任务上表现得更好，尤其是在 NLP 和 Transformer 模型中。
+      <div style="text-align: center">
+      <img src="https://i-blog.csdnimg.cn/blog_migrate/2fe1e7bbb7f876e92f78b992a7a3ef54.png" style="width: 30%">
+      </div>
+
+11. **Softmax**
+
+    - 公式：
+      $$ \text{Softmax}(z_i) = \frac{e^{z_i}}{\sum_j e^{z_j}} $$
+    - 输出范围：$ [0, 1] $，且所有输出加起来为 1
+    - 特点：常用于多分类问题的输出层，能够将网络的输出转换为概率分布。
+    - 缺点：当类别数较多时，计算量较大。
+       <div style="text-align: center">
+       <img src="https://image.jiqizhixin.com/uploads/editor/1c43f7b7-f414-44ca-82f4-d87016ad190a/640.png" style="width: 30%">
+       </div>
+
+12. **总结**
+
+这些激活函数有各自的优势，适用于不同的场景：
+
+- **Sigmoid**和**Tanh**：适用于小范围输出，但容易导致梯度消失。
+- **ReLU**及其变体（如 Leaky ReLU、ELU、PReLU）：更常用于隐藏层，避免了梯度消失的问题，并且计算上非常高效。
+- **SiLU（Swish）**：作为较新的激活函数，常在深度神经网络中取得较好的效果，尤其在大模型中表现较好。
+- **GELU**：在大规模预训练模型（如 Transformer、BERT 等）中表现突出，因为它的平滑特性能有效地避免梯度消失问题，且有助于模型收敛。
+- **SwiGLU**：SwiGLU 是 GLU 的一个变体，用 Swish 函数替代了原始 GLU 中的 sigmoid 门控。相比原始 GLU，SwiGLU 在某些任务上表现更好，在 PaLM、GPT-4 等大型语言模型中得到应用。
+- **Softmax**：主要用于分类问题的输出层。
+
+不同任务和网络结构对激活函数的选择有不同的需求。实际应用中，ReLU 及其变体在许多任务中都表现得较为优秀。
