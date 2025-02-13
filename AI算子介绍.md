@@ -614,7 +614,7 @@ RoPE 的核心思想是在注意力计算时，将输入向量的不同维度按
 ## 激活函数
 
 [激活函数](https://github.com/wdndev/ai_interview_note/blob/main/docs/dl/1.%E6%BF%80%E6%B4%BB%E5%87%BD%E6%95%B0.md)
-[深度学习领域最常用的10个激活函数，一文详解数学原理及优缺点](https://www.jiqizhixin.com/articles/2021-02-24-7)
+[深度学习领域最常用的 10 个激活函数，一文详解数学原理及优缺点](https://www.jiqizhixin.com/articles/2021-02-24-7)
 
 在大模型（如深度神经网络）中，激活函数是决定神经元是否激活的数学函数，它在每个神经元的输出中起到**非线性转换**的作用。不同的激活函数对模型的性能和训练过程有着重要影响。
 下面是一些常见的激活函数及其特点：
@@ -732,10 +732,19 @@ RoPE 的核心思想是在注意力计算时，将输入向量的不同维度按
      - 比较适用于需要对激活进行复杂控制的模型，像自然语言处理任务中的 GPT、BERT 等模型中曾被使用。
 
 10. **GELU（Gaussian Error Linear Unit）**
-
+    [GELU激活函数介绍和笔记](https://blog.csdn.net/kkxi123456/article/details/122694916)
     - 公式：
-      $$ \text{GELU}(x) = x \cdot \phi(x) $$
+      $$ \text{GELU}(x) = x \ast \phi(x) $$
+      $ \phi(x) $ 是高斯分布（正态分布）的累积分布函数（CDF），该函数的具体表达为：
+
+      <!--prettier-ignore-->
+      $$ x \ast P(X \leq x) = x \int_{- \infty}^{x} \frac{e^{- \frac{(X - \mu)^2}{2 \sigma^2}}}{\sqrt{2 \pi} \sigma} dX $$
+      其中 $ \mu $ 和 $ \sigma $ 分别代表正太分布的均值和标准差。由于上面这个函数是无法直接计算的，研究者在研究过程中发现 GELU 函数可以被近似地表示为
+
       $$ \text{GELU}(x) = 0.5x \left( 1 + \tanh\left( \sqrt{\frac{2}{\pi}}(x + 0.044715x^3) \right) \right) $$
+      或者
+      $$ \text{GELU}(x) = x \ast \sigma(1.702x) $$
+
     - 输出范围：$ (-\infty, +\infty) $
     - 特点：
       - GELU 是基于高斯误差函数的激活函数，能够让负值在接近零时逐渐逼近零（而不是像 ReLU 一样直接截断）。这种“平滑”特性有助于网络的训练和优化。
