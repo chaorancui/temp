@@ -408,14 +408,14 @@ exit
 
 5. 配置 VSCode 设置
 
-   如果是**在 Markdown 文件中嵌入 UML 代码**，预览时需要配置 `markdown-preview-enhanced` 插件，下面配置一个就可以。
+   如果是**在 Markdown 文件中嵌入 UML 代码**，预览时需要配置 `markdown-preview-enhanced` 插件，下面<font color=red><b>配置一个就可以</b></font>。
 
    - 方法一：使用 PlantUML 官网提供的 `plantuml.jar` 包（需要本地安装 JDK 并配置 java 系统环境变量）
-   - 方法二：直接使用 plantumlServer。只有联网才能用。
+   - 方法二：直接使用 plantumlServer。只有联网才能用，且意味着你的文件共享在网络上，如果是私密文件请使用本地Server。
 
    ```json
-   "markdown-preview-enhanced.plantumlJarPath": "D:\\Program Files\\plantuml-lgpl-1.2024.7.jar",
-   "markdown-preview-enhanced.plantumlServer": "https://kroki.io/plantuml/svg/",
+    "markdown-preview-enhanced.plantumlJarPath": "D:\\Program Files\\plantuml-1.2025.1.jar",
+    // "markdown-preview-enhanced.plantumlServer": "http://www.plantuml.com/plantuml",
    ```
 
    如果不配置，则报错如下：
