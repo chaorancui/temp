@@ -371,6 +371,8 @@ exit
 
 ### PlantUML && MPE
 
+> [VSCode Markdown Preview Enhanced 启用 PlantumlL 支持](http://152.67.113.27/articles/VSCode+Markdown+Preview+Enhanced%E5%90%AF%E7%94%A8PlantumlL%E6%94%AF%E6%8C%81_10914308_csdn.html)
+
 在 VSCode 中使用 Markdown 编写 UML 图，通常使用的是 `PlantUML` 插件。以下是配置环境和书写代码的步骤：
 
 1. 安装 VSCode 插件
@@ -396,9 +398,11 @@ exit
    java -version
    ```
 
-4. 安装 Graphviz
+4. 安装 Graphviz（可选）
 
-   PlantUML 需要 Graphviz 来生成图表。你可以从 **[Graphviz 官网](https://graphviz.org/)** 下载并安装。
+   > 可以直接下载集成 Graphviz 的 `plantuml.jar` 包，这样就无需安装 Graphviz。
+
+   PlantUML 需要 Graphviz 来生成图表。可以从 **[Graphviz 官网](https://graphviz.org/)** 下载并安装。
 
    安装成功后，也可以通过命令行验证安装：
 
@@ -411,7 +415,7 @@ exit
    如果是**在 Markdown 文件中嵌入 UML 代码**，预览时需要配置 `markdown-preview-enhanced` 插件，下面<font color=red><b>配置一个就可以</b></font>。
 
    - 方法一：使用 PlantUML 官网提供的 `plantuml.jar` 包（需要本地安装 JDK 并配置 java 系统环境变量）
-   - 方法二：直接使用 plantumlServer。只有联网才能用，且意味着你的文件共享在网络上，如果是私密文件请使用本地Server。
+   - 方法二：直接使用 plantumlServer。只有联网才能用，且意味着你的文件共享在网络上，如果是私密文件请使用本地 Server。
 
    ```json
     "markdown-preview-enhanced.plantumlJarPath": "D:\\Program Files\\plantuml-1.2025.1.jar",
