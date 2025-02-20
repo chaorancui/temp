@@ -11,6 +11,7 @@
 [https://www.myfreax.com/how-to-install-nginx-on-ubuntu-22-04/](https://www.myfreax.com/how-to-install-nginx-on-ubuntu-22-04/)
 [PXE 网络安装系统之基于 dnsmasq 的环境搭建](https://lemubei.com/p/pxe%E7%BD%91%E7%BB%9C%E5%AE%89%E8%A3%85%E7%B3%BB%E7%BB%9F%E4%B9%8B%E5%9F%BA%E4%BA%8Ednsmasq%E7%9A%84%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA/)
 [JimmyXu 的小站](https://xujimmy.com/2019/07/21/pxe-install-os.html)
+[基于 ubuntu 部署 PXE Server 用于网络安装 ubuntu](https://blog.csdn.net/u010438035/article/details/128396790#comments_34762875)
 
 ## PXE 介绍
 
