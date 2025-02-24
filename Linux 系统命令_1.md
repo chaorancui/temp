@@ -285,21 +285,21 @@ tar -xvf archive.tar
    ```bash
    # 解压到当前目录中
    unrar x archive.rar
-```
-   
+   ```
+
    - `x`：表示解压并保持文件夹结构。
-   
-**解压到指定目录**： 如果你想将 `.rar` 文件解压到指定目录，可以使用 `-d` 选项：
-   
-```bash
+
+   **解压到指定目录**： 如果你想将 `.rar` 文件解压到指定目录，可以使用 `-d` 选项：
+
+   ```bash
    unrar x archive.rar -d /path/to/extract/directory/
-```
-   
+   ```
+
    **列出 `.rar` 文件内容**（不解压）： 如果你只想查看 `.rar` 文件内包含的文件列表，可以使用：
-   
-```bash
+
+   ```bash
    unrar l archive.rar
-```
+   ```
 
 # 文件显示命令
 
