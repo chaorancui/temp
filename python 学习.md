@@ -476,7 +476,78 @@ with open('example.txt', 'r') as file:
 
 在上面的示例中，`open('example.txt', 'r')` 返回一个文件对象，并且 `as file` 将该对象赋值给变量 `file`。`with` 语句的作用范围结束时，文件会自动关闭。
 
-**上下文管理器**：
+**错误处理**：
+
+如果 `with ... as ...` 语句失败（例如文件不存在、权限不足等），你应该通过异常处理机制来捕获错误，并进行相应的处理。
+
+常用的错误处理方式是使用 `try...except` 来捕获异常。如果 `with ... as ...` 操作失败，Python 会引发相应的异常（如 `FileNotFoundError`、`PermissionError` 等），你可以在 `except` 块中捕获并处理这些错误。
+
+1. **示例：文件打开失败的错误处理**
+
+   假设我们尝试打开一个文件进行读取，如果文件不存在或者没有权限，程序应该捕获异常并打印错误信息。
+
+   ```python
+   try:
+       with open('file.txt', 'r') as f:
+           content = f.read()
+           print(content)
+   except FileNotFoundError:
+       print("错误：文件未找到！")
+   except PermissionError:
+       print("错误：没有权限读取文件！")
+   except Exception as e:
+       # 捕获其他未预料到的异常
+       print(f"发生错误：{e}")
+   ```
+
+   解释：
+
+   1. **`FileNotFoundError`**：当文件不存在时会抛出此异常。
+   2. **`PermissionError`**：当程序没有权限读取文件时会抛出此异常。
+   3. **`Exception`**：这是一个通用异常捕获，表示其他所有类型的异常。它将捕获任何未在前面列出的异常，并打印异常消息。
+
+2. **更复杂的示例：文件写入失败的错误处理**
+
+   如果你尝试写入文件，也可能遇到权限问题或磁盘空间不足等问题，可以按如下方式进行处理：
+
+   ```python
+   try:
+       with open('output.txt', 'w') as f:
+           f.write("这是写入文件的内容")
+   except PermissionError:
+       print("错误：没有权限写入文件！")
+   except IOError as e:
+       print(f"输入/输出错误：{e}")
+   except Exception as e:
+       print(f"发生错误：{e}")
+   ```
+
+3. **其他资源管理中的 `with` 示例**
+
+   `with` 不仅用于文件操作，还广泛应用于其他需要资源管理的场景，比如数据库连接、网络连接等。无论是打开数据库连接、使用网络套接字、获取锁等，都是使用 `with` 语句来管理资源并保证资源释放。
+
+   ```python
+   import sqlite3
+
+   try:
+       with sqlite3.connect('example.db') as conn:
+           cursor = conn.cursor()
+           cursor.execute("SELECT * FROM users")
+           rows = cursor.fetchall()
+           print(rows)
+   except sqlite3.Error as e:
+       print(f"数据库错误：{e}")
+   except Exception as e:
+       print(f"发生错误：{e}")
+   ```
+
+**总结**：
+
+- `with ... as ...` 本身可以保证在块结束时自动释放资源（即使发生异常），但如果操作失败，你需要使用 `try...except` 捕获并处理异常。
+- 通过捕获具体的异常类型（如 `FileNotFoundError` 或 `PermissionError`），你可以提供更明确的错误信息。
+- 使用通用的 `Exception` 捕获未预料的错误，并确保程序能继续运行或给出提示。
+
+## 上下文管理器
 
 要实现自定义的上下文管理器，可以定义一个类并实现 `__enter__` 和 `__exit__` 方法。
 
@@ -671,6 +742,75 @@ finally:
 
 - `10 / 2` 不会引发异常，因此会执行 `else` 块中的代码，打印结果。
 - 无论是否发生异常，`finally` 块中的代码都会执行。
+
+### 终止与继续执行
+
+**如果在 `except` 块中没有调用 `exit()` 或其他显式的终止程序的语句，程序会继续执行后续的代码**。异常捕获后，程序会继续运行 `except` 块之后的代码，除非发生了无法恢复的错误，或者你显式调用了 `exit()`、`sys.exit()` 或者 `raise` 来终止程序。
+
+**具体情况**：
+
+1. **捕获并处理异常后，继续执行剩余代码**
+   如果你在 `except` 块中处理了异常，程序会继续执行 `except` 块之后的代码，而不会停止。
+   <font color=red><b>可以显式调用 `exit()`、`sys.exit()` 或者 `raise` 来终止程序</b></font>。
+
+   ```python
+   def caught_example():
+       print("开始执行")
+       try:
+           result = 10 / 0  # 这里会产生除零错误
+           print("这行不会执行")
+       except ZeroDivisionError:
+           print("捕获到除零错误")
+
+   print("程序继续执行")  # 这行会执行，因为异常被捕获了
+   caught_example()
+
+   # 运行结果:
+   # 开始执行
+   # 捕获到除零错误
+   # 程序继续执行
+   ```
+
+   在这个例子中，尽管发生除 0 错误，但程序通过 `except` 捕获了 `ZeroDivisionError` 异常，因此可以继续执行后续的代码（打印 `程序继续执行`）。
+
+2. **捕获并处理异常后，显示终止程序**
+   如果你在 `except` 块中处理了异常，程序会继续，<font color=red><b>可以显式调用 `exit()`、`sys.exit()` 或者 `raise` 来终止程序</b></font>。
+
+   ```python
+   def caught_example():
+       print("开始执行")
+       try:
+           result = 10 / 0  # 这里会产生除零错误
+           print("这行不会执行")
+       except ZeroDivisionError:
+           print("捕获到除零错误")
+           sys.exit(1)
+
+   print("程序继续执行")  # 这行不会执行，因为程序被显示终止
+   caught_example()
+
+   # 运行结果:
+   # 开始执行
+   # 捕获到除零错误
+   ```
+
+3. **未捕获异常会终止程序**
+   如果你没有捕获异常，程序会被中断。
+
+   ```python
+   def uncaught_example():
+       print("开始执行")
+       # 这里会产生除零错误
+       result = 10 / 0
+       print("这行不会执行")  # 这行代码不会执行，因为上面的异常未被捕获
+
+   print("程序继续")  # 这行也不会执行
+   uncaught_example()
+
+   # 运行结果:
+   # 开始执行
+   # ZeroDivisionError: division by zero
+   ```
 
 ### 实际使用示例
 
@@ -901,7 +1041,7 @@ except OSError as e:
 
 - `*args` 用于传递不定数量的**非关键字参数**（以元组形式传递）。
 - `**kwargs` 用于传递不定数量的**关键字参数**（以字典形式传递）。
-- 可以在函数定义中同时使用 `*args` 和 `**kwargs` 来处理**所有类型**的输入参数。**使用时 `*args` 必须出现在 `**kwargs` 之前**。
+- 可以在函数定义中同时使用 `*args` 和 `**kwargs` 来处理**所有类型**的输入参数。**使用时 `*args` 必须出现在 `**kwargs` 之前\*\*。
 - 在调用函数时，可以使用 `*` 和 `**` 来解包序列和字典，分别作为非关键字和关键字参数传递。
 
 > :bulb:注意：
