@@ -1,6 +1,6 @@
 [toc]
 
-# bash 命令
+# shell 配置
 
 ## shell 配置文件介绍
 
