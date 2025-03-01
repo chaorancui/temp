@@ -7,13 +7,17 @@
 
 2. [《动手学深度学习》](https://zh.d2l.ai/index.html)
 3. [Transformer 和注意力机制](https://caicaijason.github.io/2019/12/09/Transformer%E5%92%8C%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/)
-4. [第三章：注意力机制](https://transformers.run/c1/attention/)
+4. [Transformers快速入门 - 第三章：注意力机制](https://transformers.run/c1/attention/) -- 清晰
+5. [ransformer 大模型详解——transformer模型](http://www.uml.org.cn/ai/202410254.asp)
+6. [youtube How might LLMs store facts | DL7](https://www.youtube.com/watch?v=9-Jl0dxWQs8)
 
 # 大模型相关知识
 
 ## Transformer 中 Q K V
 
 在 Transformer 架构中，**Q**、**K** 和 **V** 分别指 **Query**、**Key** 和 **Value**，它们是 **自注意力机制**（Self-Attention Mechanism）的核心组件。Transformer 模型的成功很大程度上依赖于这种自注意力机制，它能够在处理序列时捕捉全局信息，使得模型可以理解序列中的上下文关系。
+
+![](https://i-blog.csdnimg.cn/blog_migrate/4f5a36e41aec0fcd96b7f23d9f7fe87e.png)
 
 ### 自注意力机制
 
