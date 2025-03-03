@@ -1550,6 +1550,38 @@ Python 的字符串（`str` 类型）提供了许多内置方法，用于处理�
 - 如果你在交互式 Python 环境中，或者你只是想简单地退出，可以使用 `exit()`。
 - 对于更复杂的脚本或程序，尤其是需要在脚本中明确指定退出码或者与其他模块进行交互时，`sys.exit()` 更加常用。
 
+## 字典
+
+假定变量 test_cases 是一个字典，则：
+
+```python
+for k in test_cases:
+    main(**test_cases[k])
+```
+
+等价于：
+
+```python
+for k, v in test_cases.items():
+    main(**v)
+```
+
+- `test_cases` 是一个字典，遍历它时，默认遍历**键**。
+
+- `test_cases[k]` 获取的是对应的值（也是一个字典）。
+
+- `**test_cases[k]` **字典解包**：
+
+  - `**` 操作符用于将字典的键值对作为**关键字参数**传递给函数 `main()`。
+
+  - 例如：
+
+    ```python
+    main(a=3, b=False, c=16, d=128, e=False)
+    ```
+
+  - 这样 `main()` 就能直接接收这些参数，而不需要手动写出 `main(a=3, b=False, ...)`。
+
 # PyQt5
 
 ## [PyQt5 关于 Qt Designer 的初步应用和打包过程详解](http://www.codebaoku.com/it-python/it-python-223940.html)
