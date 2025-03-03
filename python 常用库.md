@@ -122,7 +122,14 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```python
    os.remove('/path/to/file/to/be/deleted')
+   os.unlink("file.txt")  # 删除文件
    ```
+
+   `os.unlink(path, *, dir_fd=None)` 用于**删除指定路径的文件**，它的行为与 `os.remove()` 相同。
+
+   - 如果**文件不存在**，调用 `os.unlink()` 会抛出 `FileNotFoundError`。
+   - 如果 `path` 指向的是一个**目录**，会抛出 `IsADirectoryError`。删除目录应该使用 `os.rmdir()` 或 `shutil.rmtree()`。
+   - 在 Linux 或 macOS 上，`os.unlink()` 也可以用于删除**符号链接**，但不会影响原始文件。
 
 9. **复制文件**
 
@@ -149,10 +156,10 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      ```python
      path_file = '/path/to/file.txt'
      path_directory = '/path/to/directory'
-
+  
      is_file = os.path.isfile(path_file)
      is_directory = os.path.isdir(path_directory)
-
+  
      print(f"{path_file} is a file:", is_file)
      print(f"{path_directory} is a directory:", is_directory)
      ```
@@ -163,7 +170,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      path = '/path/to/file_or_directory'
-
+  
      if os.path.exists(path):
          print(f"{path} exists!")
      else:
@@ -180,13 +187,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      import time
-
+  
      path = '/path/to/file.txt'
-
+  
      size = os.path.getsize(path)
      last_modified = os.path.getmtime(path)
      creation_time = os.path.getctime(path)
-
+  
      print(f"Size of {path}: {size} bytes")
      print(f"Last modified: {time.ctime(last_modified)}")
      print(f"Created on: {time.ctime(creation_time)}")
@@ -199,10 +206,10 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      ```python
      path_absolute = '/absolute/path/to/file.txt'
      path_relative = 'relative/path/to/file.txt'
-
+     
      is_absolute = os.path.isabs(path_absolute)
      is_relative = os.path.isabs(path_relative)
-
+     
      print(f"{path_absolute} is absolute:", is_absolute)
      print(f"{path_relative} is absolute:", is_relative)
      ```
@@ -215,7 +222,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      import os
-
+  
      path = os.path.join('/path/to', 'directory', 'file.txt')
      print(path)  # 输出: /path/to/directory/file.txt
      ```
@@ -241,13 +248,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      >
      >    ```python
      >    import os
-     >
+     >   
      >    # 示例路径片段
      >    path1 = "/home/user"
      >    path2 = ""
      >    path3 = "documents"
      >    path4 = "file.txt"
-     >
+     >   
      >    # 使用 os.path.join 连接路径
      >    full_path = os.path.join(path1, path2, path3, path4)
      >    print(full_path) # /home/user/documents/file.txt
@@ -361,9 +368,9 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      path_link = '/path/to/symlink'
-
+  
      is_link = os.path.islink(path_link)
-
+  
      print(f"{path_link} is a symbolic link:", is_link)
      ```
 
@@ -373,9 +380,9 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      path = '/path/to/../file.txt'
-
+  
      normalized_path = os.path.normpath(path)
-
+  
      print(f"Original path: {path}") # 输出："/path/to/../file.txt"
      print(f"Normalized path: {normalized_path}") # 输出："/path/file.txt"
      ```
@@ -387,9 +394,9 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      ```python
      path1 = '/path/to/file1.txt'
      path2 = '/path/to/file2.txt'
-
+     
      is_same = os.path.samefile(path1, path2)
-
+     
      print(f"{path1} and {path2} point to the same file:", is_same)
      ```
 
@@ -400,13 +407,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```shell
    import os
-
+   
    # 设置要查找的文件夹路径
    folder_path = "/path/to/your/folder"
-
+   
    # 查找文件夹中以 ".bin" 结尾的文件
    files = [f for f in os.listdir(folder_path) if f.endswith('.bin')]
-
+   
    # 打印找到的文件列表
    for file in files:
        print(file)
@@ -423,13 +430,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```shell
    import os
-
+   
    output_file = "example.txt"  # 替换为你的实际文件路径
-
+   
    directory = os.path.dirname(output_file)
    if not directory: # 如果 directory 为空，设置为当前目录
        directory = "."
-
+   
    os.makedirs(directory, exist_ok=True) # directory 为空，此命令会报错
    ```
 
@@ -1452,20 +1459,20 @@ logging.critical('This is a critical message')
   ```python
   logger = logging.getLogger('my_app')
   logger.setLevel(logging.DEBUG)
-
+  
   # 创建一个文件处理程序和一个控制台处理程序
   file_handler = logging.FileHandler('app.log')
   console_handler = logging.StreamHandler()
-
+  
   # 设置日志格式
   formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
   file_handler.setFormatter(formatter)
   console_handler.setFormatter(formatter)
-
+  
   # 添加处理程序到 logger
   logger.addHandler(file_handler)
   logger.addHandler(console_handler)
-
+  
   # 记录日志
   logger.debug('Debug message')
   logger.info('Info message')
