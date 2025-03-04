@@ -425,6 +425,12 @@ quote = f'He said, "Hello, {name}!"'
 print(quote) # 输出: He said, "Hello, Alice!"
 ```
 
+**字符和变量格式化**：
+
+```python
+print(f"{'mean:': <15} shape: {str(mean.shape)+',': <20} nbytes: {str(mean.nbytes)+',': <10} dtype: {str(mean.dtype)+',': <10}")
+```
+
 **使用字典和列表**：
 
 f-string 也可以用来格式化字典和列表中的值：
