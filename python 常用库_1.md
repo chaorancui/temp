@@ -593,10 +593,37 @@ print(loaded_array)
    - `fname`：文件名，或者文件对象。
    - `X`：要保存的数组。
    - `fmt`：数据格式，默认是 `'%.18e'`，支持以下格式化控制。可以指定不同的格式化字符串，如 `'%.2f'`（保留两位小数）。
-     - `%.nf`：控制小数点后 `n` 位。
-     - `%d`：格式化为整数。
-     - `%e`：科学计数法表示。
-   - `delimiter`：分隔符，默认是空格，可以设定为逗号、制表符等。
+     Further explanation of the *fmt* parameter (`%[flag]width[.precision]specifier`):
+
+     - flags:
+
+       `-` : left justify
+       `+` : Forces to precede result with + or -.
+       `0` : Left pad the number with zeros instead of space (see width).
+
+     - width:
+
+       Minimum number of characters to be printed. The value is not truncated if it has more characters.
+
+     - precision:
+
+       For integer specifiers (eg. `d,i,o,x`), the minimum number of digits.
+       For `e, E` and `f` specifiers, the number of digits to print after the decimal point.
+       For `g` and `G`, the maximum number of significant digits.
+       For `s`, the maximum number of characters.
+
+     - specifiers:
+
+       `c` : character
+       `d` or `i` : signed decimal integer
+       `e` or `E` : scientific notation with `e` or `E`.
+       `f` : decimal floating point
+       `g,G` : use the shorter of `e,E` or `f`
+       `o` : signed octal
+       `s` : string of characters
+       `u` : unsigned decimal integer
+       `x,X` : unsigned hexadecimal integer
+   - `delimiter`：分隔符，默认是空格，可以设定为逗号、制表符等。仅对于二维数组生效，一维数组需要 `reshape(1, -1)`。
 
    **示例代码**：
 
@@ -607,7 +634,8 @@ print(loaded_array)
    array = np.array([[1.23456, 2.34567, 3.45678], [4.56789, 5.67890, 6.78901]])
 
    # 保存到文本文件，格式化为小数点后两位，逗号分隔
-   np.savetxt("array_data.txt", array, fmt="%-10.4f", delimiter=",")
+   np.savetxt("array_data.txt", array, fmt="%10.4f", delimiter=",")
+   np.savetxt("array_data_1d.txt", array.reshape(1, -1), fmt="%f", delimiter=',', newline=' ') # delimiter 仅对二维数组有效，因此 reshape(1, -1)
    print(f"{'array:': <15} shape: {str(array.shape)+',': <20} nbytes: {str(array.nbytes)+',': <10} dtype: {str(array.dtype)+',': <10}")
    ```
 
@@ -652,10 +680,10 @@ print(loaded_array)
 
    ```python
    import numpy as np
-
+   
    # 创建一个数组
    array = np.array([[1.23456, 2.34567, 3.45678], [4.56789, 5.67890, 6.78901]])
-
+   
    # 转换为字符串格式，保留两位小数
    array_str = np.array2string(array, precision=2, separator=",")
    print("格式化后的数组字符串：")
