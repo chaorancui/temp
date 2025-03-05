@@ -608,6 +608,7 @@ print(loaded_array)
 
    # 保存到文本文件，格式化为小数点后两位，逗号分隔
    np.savetxt("array_data.txt", array, fmt="%-10.4f", delimiter=",")
+   print(f"{'array:': <15} shape: {str(array.shape)+',': <20} nbytes: {str(array.nbytes)+',': <10} dtype: {str(array.dtype)+',': <10}")
    ```
 
    **大于2维的数组写入文件函数**：
