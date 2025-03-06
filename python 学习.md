@@ -1588,6 +1588,75 @@ for k, v in test_cases.items():
 
   - 这样 `main()` 就能直接接收这些参数，而不需要手动写出 `main(a=3, b=False, ...)`。
 
+## 枚举
+
+Python 提供了 enum 模块，可以使用 Enum 类定义枚举：
+
+此模块定义了四个枚举类，它们可被用来定义名称和值的不重复集合: Enum, IntEnum, Flag 和 IntFlag。 此外还定义了一个装饰器 unique() 和一个辅助类 auto。
+
+- `class enum.Enum`：用于创建枚举型常数的基类。 请参阅 Functional API 小节了解另一种替代性的构建语法。
+
+- `class enum.IntEnum`：用于创建同时也是 int 的子类的枚举型常数的基类。
+
+- `class enum.IntFlag`：此基类用于创建可使用按位运算符进行组合而不会丢失其 IntFlag 成员资格的枚举常量。 IntFlag 成员同样也是 int 的子类。
+
+- `class enum.Flag`：此基类用于创建枚举常量 可使用按位运算符进行组合而不会丢失其 Flag 成员资格的枚举常量。
+
+- `enum.unique()`：此 Enum 类装饰器可确保只将一个名称绑定到任意一个值。
+
+- `class enum.auto`：实例会被替换为一个可作为 Enum 成员的适当的值。 初始值从 1 开始。
+
+- 3.6 新版功能: Flag, IntFlag, auto
+
+**示例：**
+
+```python
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+
+print(Color.RED)       # Color.RED
+print(Color.RED.value) # 1
+print(Color.RED.name)  # 'RED'
+```
+
+特点：
+
+- `Enum` 成员是 **唯一的**，即相同的值不会指向不同的枚举项。
+- 不能修改枚举值（不可变）。
+- 可以通过 `Color(1)` 反向查找枚举项。
+
+**使用 `Enum` 并使用 `is` 进行判等**
+
+```python
+from enum import Enum
+
+class Color(Enum):
+    RED = 1
+    GREEN = 2
+    BLUE = 3
+
+def check_color(color: Color):
+    if color is Color.RED:  # 推荐使用 `is` 进行判等
+        print("Color is RED")
+    elif color is Color.GREEN:
+        print("Color is GREEN")
+    elif color is Color.BLUE:
+        print("Color is BLUE")
+    else:
+        print("Unknown color")
+
+check_color(Color.RED)  # 输出: Color is RED
+```
+
+为什么用 `is` 而不是 `==`？
+
+- `is` **保证是同一个对象**，不会因为 `Enum` 继承类的特殊性导致错误。
+- `==` 也可以使用，但 `is` 更推荐用于 `Enum` 的判等。
+
 # PyQt5
 
 ## [PyQt5 关于 Qt Designer 的初步应用和打包过程详解](http://www.codebaoku.com/it-python/it-python-223940.html)
