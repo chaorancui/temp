@@ -1,11 +1,36 @@
 [toc]
 
-# shell 编程
+# 正则表达式
 
-## 正则表达式
+> [正则表达式全集](https://tool.oschina.net/uploads/apidocs/jquery/regexp.html) --> 介绍每个字符含义
+> [揭开正则表达式的神秘面纱](https://www.regexlab.com/zh/regref.htm) --> 有例子
+> [regular-expressions.info](https://www.regular-expressions.info/) --> 关于正则表达式的首要网站
+>
+> [RegexBuddy 的正则表达式详细教程](https://www.regexbuddy.com/tutorial.html) --> 擦，工具要付费
+>
+> [RegexBuddy.pdf](https://www.balsas-nahuatl.org/mixtec/Programas/JGsoft/RegexBuddy/)
 
-<https://blog.csdn.net/dgwxligg/article/details/138875027>
-正则表达式全集：<https://tool.oschina.net/uploads/apidocs/jquery/regexp.html>
+- 基本正则表达式
+
+  [Docs » 通配机制 » 正则表达式 » 正则表达式语法 » 基本正则表达式](https://codetoolchains.readthedocs.io/en/latest/5-Wildcard/2-Regular/1-syntax/1-bRegEx.html)
+
+- 扩展正则表达式
+
+  [Docs » 通配机制 » 正则表达式 » 正则表达式语法 » 扩展正则表达式](https://codetoolchains.readthedocs.io/en/latest/5-Wildcard/2-Regular/1-syntax/2-eRegEx.html)
+
+- Perl 正则表达式(PCRE)
+
+  [Perl 正则匹配和正则表达式](https://dulunar.github.io/2021/01/01/Perl%E6%AD%A3%E5%88%99%E5%8C%B9%E9%85%8D%E5%92%8C%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%89%AF%E6%9C%AC/)
+
+  [Perldoc 浏览器](https://perldoc.perl.org/perlre)
+
+> 注意:
+>
+> - 通配的`*`和正则里面的`*`是不一样的含义。
+
+## 正则表达式介绍
+
+[Linux文本处理：掌握基础、扩展和Perl正则表达式的威力](https://blog.csdn.net/dgwxligg/article/details/138875027)
 
 当探讨 Linux 文本处理时，**基础正则表达式**（Basic Regular Expressions, BRE）、**扩展正则表达式**（Extended Regular Expressions, ERE）和**Perl 兼容正则表达式**（Perl-Compatible Regular Expressions, PCRE）这三种正则表达式非常重要。它们在功能和语法上有所区别，并由不同的工具和命令支持。
 
@@ -92,31 +117,7 @@
 | ?\*        | 第一个任意字符，后面随意                                |
 | \*         | 0-多个任意字符                                          |
 
-**正则表达式**：
-
-> [regular-expressions.info](https://www.regular-expressions.info/) --> 关于正则表达式的首要网站
->
-> [RegexBuddy 的正则表达式详细教程](https://www.regexbuddy.com/tutorial.html) --> 擦，工具要付费
->
-> [RegexBuddy.pdf](https://www.balsas-nahuatl.org/mixtec/Programas/JGsoft/RegexBuddy/)
-
-- 基本正则表达式
-
-  [Docs » 通配机制 » 正则表达式 » 正则表达式语法 » 基本正则表达式](https://codetoolchains.readthedocs.io/en/latest/5-Wildcard/2-Regular/1-syntax/1-bRegEx.html)
-
-- 扩展正则表达式
-
-  [Docs » 通配机制 » 正则表达式 » 正则表达式语法 » 扩展正则表达式](https://codetoolchains.readthedocs.io/en/latest/5-Wildcard/2-Regular/1-syntax/2-eRegEx.html)
-
-- Perl 正则表达式(PCRE)
-
-  [Perl 正则匹配和正则表达式](https://dulunar.github.io/2021/01/01/Perl%E6%AD%A3%E5%88%99%E5%8C%B9%E9%85%8D%E5%92%8C%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F-%E5%89%AF%E6%9C%AC/)
-
-  [Perldoc 浏览器](https://perldoc.perl.org/perlre)
-
-> 注意:
->
-> - 通配的`*`和正则里面的`*`是不一样的含义。
+# shell 编程
 
 ## shell 中转义字符$
 
