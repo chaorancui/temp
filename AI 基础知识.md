@@ -7,8 +7,8 @@
 
 2. [《动手学深度学习》](https://zh.d2l.ai/index.html)
 3. [Transformer 和注意力机制](https://caicaijason.github.io/2019/12/09/Transformer%E5%92%8C%E6%B3%A8%E6%84%8F%E5%8A%9B%E6%9C%BA%E5%88%B6/)
-4. [Transformers快速入门 - 第三章：注意力机制](https://transformers.run/c1/attention/) -- 清晰
-5. [ransformer 大模型详解——transformer模型](http://www.uml.org.cn/ai/202410254.asp)
+4. [Transformers 快速入门 - 第三章：注意力机制](https://transformers.run/c1/attention/) -- 清晰
+5. [ransformer 大模型详解——transformer 模型](http://www.uml.org.cn/ai/202410254.asp)
 6. [youtube How might LLMs store facts | DL7](https://www.youtube.com/watch?v=9-Jl0dxWQs8)
 
 # 大模型相关知识
@@ -47,7 +47,7 @@ $$ Q = X \cdot W_Q, \quad K = X \cdot W_K, \quad V = X \cdot W_V $$
    - 如果 `Q` 的维度是 $ d_k $，那么 `K` 的维度也必须是 $ d_k $。
    - 这个维度 $ d_k $ 通常是可调参数，它可以比输入向量的维度小一些，以减少计算开销。
 
-   `V`（Value）的维度可以不同于 `Q` 和 `K` 的维度。在注意力机制中，`V` 主要用于存储最终要输出的信息，它并不参与点积运算。因此，`V` 的维度 dvd_vdv 可以和 `Q`、`K` 的维度不同。
+   `V`（Value）的维度可以不同于 `Q` 和 `K` 的维度。在注意力机制中，`V` 主要用于存储最终要输出的信息，它并不参与点积运算。因此，`V` 的维度 $ d_v $ 可以和 `Q`、`K` 的维度不同。
 
    - 通常，`V` 的维度可以设定为与 `Q`、`K` 相同，或者与输入的维度相同。这个维度的大小也是一个可调参数。
 
@@ -93,8 +93,8 @@ Transformer 模型中的注意力机制并不仅仅依赖单个 `Q`、`K` 和 `V
 
 $$ \text{Each head's dimension} = \frac{d\_{\text{model}}}{h} $$
 
-这意味着，每个头都会处理一个更小的维度，计算并捕捉不同的上下文信息。最后，多头注意力机制会将每个头的输出拼接起来，并通过线性变换将其映射回模型的原始维度 $ d*{\text{model}} $。
-假设模型输入的维度为 $ d*{\text{model}} = 512 $，并且有 8 个头的多头注意力机制。那么：
+这意味着，每个头都会处理一个更小的维度，计算并捕捉不同的上下文信息。最后，多头注意力机制会将每个头的输出拼接起来，并通过线性变换将其映射回模型的原始维度 $ d\_{\text{model}} $。
+假设模型输入的维度为 $ d\_{\text{model}} = 512 $，并且有 8 个头的多头注意力机制。那么：
 
 - 每个头的 `Q`、`K` 的维度为 $ \frac{512}{8} = 64 $。
 - 每个头的 `V` 的维度可以是 64，也可以是其他维度（例如 128），具体取决于模型设计中的选择。
