@@ -817,9 +817,193 @@ Column1   Column2
 Value1    Value2
 ```
 
-总结
+**总结：**
 
 `printf` 是一个非常强大的工具，适用于需要格式化输出的场合。它能够提供丰富的格式控制选项，帮助用户创建更易读和专业的输出结果。与 `echo` 相比，`printf` 更加灵活，适合在脚本中处理复杂的输出需求。
+
+## tree 命令
+
+`tree` 是一个非常有用的命令行工具，用于以树状结构显示目录和文件的层次结构。它通过递归地列出目录及其内容，可以帮助用户更直观地查看文件系统的结构。
+
+**1. 基本语法：**
+
+```bash
+tree [选项] [目录...]
+```
+
+- **[选项]**：用于修改 `tree` 输出的格式。
+- **[目录]**：指定要显示结构的目录，默认为当前目录。
+
+**2. 常用选项：**
+
+- `-L <level>` ：限制显示目录的深度，`<level>` 是要显示的目录层级。例如 `-L 2` 只显示两级目录结构。
+- `-d` ：只显示目录，不显示文件。
+- `-a` ：显示所有文件和目录（包括隐藏文件）。
+- `-f` ：在每个文件名前面加上完整的路径（不适用于相对路径）。
+- `-s` ：显示每个文件或目录的大小（以字节为单位）。
+- `-h` ：与 `-s` 配合使用，以可读性较高的方式显示文件大小（如 KB、MB）。
+- `-T` ：在文件或目录的末尾显示与其相关的详细时间戳。
+- `-I <pattern>` ：排除匹配 `<pattern>` 的文件或目录。例如 `-I "*.log"` 排除所有 `.log` 文件。
+- `--noreport` ：不显示报告统计信息（文件数和目录数）。
+- `-v` ：显示详细信息，包括文件的权限和修改时间。
+
+**3. 示例：**
+
+1. 显示当前目录的树形结构
+
+   ```bash
+   tree
+
+   # 输出：
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── file3.txt
+       └── file4.txt
+
+   2 directories, 4 files
+   ```
+
+2. 限制显示深度为 2
+
+   ```bash
+   tree -L 2
+
+   # 输出：
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── file3.txt
+       └── file4.txt
+
+   2 directories, 4 files
+   ```
+
+3. 只显示目录，不显示文件
+
+   ```bash
+   tree -d
+
+   # 输出：
+   └── subdir
+
+   1 directory
+   ```
+
+4. 显示所有文件，包括隐藏文件
+
+   ```bash
+   tree -a
+
+   # 输出：
+   ├── .hiddenfile
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── .hiddenfile
+       ├── file3.txt
+       └── file4.txt
+
+   2 directories, 6 files
+   ```
+
+5. 显示文件和目录大小
+
+   ```bash
+   tree -s
+
+   # 输出：
+   ├── 123 file1.txt
+   ├── 456 file2.txt
+   └── subdir
+       ├── 789 file3.txt
+       └── 101 file4.txt
+
+   2 directories, 4 files
+   ```
+
+6. 显示文件大小以人类可读格式
+
+   ```bash
+   tree -sh
+
+   # 输出：
+   ├── 12K file1.txt
+   ├── 45K file2.txt
+   └── subdir
+       ├── 123K file3.txt
+       └── 56K file4.txt
+
+   2 directories, 4 files
+   ```
+
+7. 排除特定文件类型
+
+   ```bash
+   tree -I "*.log"
+
+   # 输出：
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── file3.txt
+       └── file4.txt
+
+   2 directories, 4 files
+   ```
+
+   （`*.log` 文件被排除）
+
+8. 显示完整路径
+
+   ```bash
+   tree -f
+
+   # 输出：
+   /home/user/file1.txt
+   /home/user/file2.txt
+   /home/user/subdir/file3.txt
+   /home/user/subdir/file4.txt
+   ```
+
+9. 不显示统计报告
+
+   ```bash
+   tree --noreport
+
+   # 输出：
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── file3.txt
+       └── file4.txt
+   ```
+
+**4. 用途：**
+
+- **目录结构查看**：使用 `tree` 可以方便地查看一个目录的层次结构，特别是在文件夹层级很深的情况下，帮助用户了解整个文件系统的布局。
+- **目录内容筛选**：通过排除特定类型的文件或文件夹，用户可以更容易地获取他们需要的信息。
+- **文件大小分析**：通过显示每个文件的大小，可以帮助用户了解哪些文件占用了磁盘空间。
+- **脚本自动化**：在自动化任务中，`tree` 可以生成可视化的目录结构，便于日志记录和处理。
+
+**5. 安装：**
+
+`tree` 不是 Linux 系统的默认工具，但可以通过包管理器进行安装：
+
+```bash
+# Debian/Ubuntu
+sudo apt-get install tree
+
+# RedHat/CentOS
+sudo yum install tree
+
+# macOs（通过 Homebrew）
+brew install tree
+```
+
+**6. 总结：**
+
+`tree` 是一个非常直观的命令行工具，可以以树状结构显示文件系统的层次结构。通过各种选项，用户可以定制输出的内容，例如限制深度、显示文件大小、排除特定类型的文件等。这些功能使得 `tree` 成为文件管理和脚本自动化任务中的一个强大工具。
 
 # 文本操作命令
 
