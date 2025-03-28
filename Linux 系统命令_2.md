@@ -1,3 +1,5 @@
+[toc]
+
 # 系统设备命令
 
 ## lspci 命令
@@ -677,6 +679,204 @@ scp [参数] [原路径] [目标路径]
    ```
 
 `scp` 是一个非常方便且安全的工具，适用于快速传输文件。如果你有需要使用 SSH 协议进行文件传输的场景，`scp` 可以高效地帮助你完成工作。
+
+## rsync 命令
+
+`rsync` 是一个强大的文件同步和传输工具，通常用于在本地或远程主机之间同步文件和目录。它的主要优势是**支持增量备份和高效的数据传输**，能够只传输已更改的部分数据，而不必每次都传输完整的文件。
+
+**基本语法：**
+
+```bash
+rsync [选项] 源路径 目标路径
+```
+
+**常见用法：**
+
+1. **本地文件同步**
+
+   将本地文件或目录同步到另一个本地目录。
+
+   ```bash
+   rsync -av /path/to/source/ /path/to/destination/
+   ```
+
+   - `-a`：归档模式，表示递归复制文件并保持文件的权限、时间戳等属性。
+   - `-v`：显示详细输出。
+
+   例如，将 `/home/user/source/` 目录中的内容同步到 `/home/user/destination/` 目录：
+
+   ```bash
+   rsync -av /home/user/source/ /home/user/destination/
+   ```
+
+2. **远程同步**
+
+   `rsync` 还可以通过 SSH 连接到远程服务器，将文件从本地复制到远程服务器，或将远程服务器的文件同步到本地。
+
+   - 从本地复制到远程服务器：
+
+   ```bash
+   rsync -av /path/to/source/ user@remote_host:/path/to/destination/
+   ```
+
+   - 从远程服务器复制到本地：
+
+   ```bash
+   rsync -av user@remote_host:/path/to/source/ /path/to/destination/
+   ```
+
+   其中：
+
+   - `user`：远程服务器的用户名。
+   - `remote_host`：远程主机的 IP 地址或域名。
+
+3. **增量备份**
+
+   `rsync` 的一个重要功能是增量备份，它只会复制自上次同步以来发生变化的文件。这是通过记录每个文件的修改时间和大小来实现的。
+
+   ```bash
+   rsync -av --delete /path/to/source/ /path/to/destination/
+   ```
+
+   - `--delete`：删除目标目录中在源目录中不存在的文件。这通常用于保持目标目录与源目录的完全一致。
+
+4. **排除某些文件或目录**
+
+   如果你希望同步时排除某些文件或目录，可以使用 `--exclude` 选项。
+
+   ```bash
+   rsync -av --exclude 'pattern' /path/to/source/ /path/to/destination/
+   ```
+
+   例如，要排除 `.git/` 目录：
+
+   ```bash
+   rsync -av --exclude '.git/' /path/to/source/ /path/to/destination/
+   ```
+
+   你还可以使用 `--exclude-from` 选项，指定一个文件，**该文件列出了多个排除模式**。
+
+   ```bash
+   rsync -av --exclude-from 'exclude_list.txt' /path/to/source/ /path/to/destination/
+   ```
+
+5. **同步指定文件**
+
+   如果只想同步特定文件，可以指定文件路径。例如，将某个文件从本地同步到远程服务器：
+
+   ```bash
+   rsync -av /path/to/local/file.txt user@remote_host:/path/to/remote/destination/
+   ```
+
+6. **使用 SSH 进行加密传输**
+
+   `rsync` 默认使用 SSH 协议进行远程文件传输。如果你希望指定一个自定义的 SSH 端口，可以使用 `-e` 选项来设置 SSH 的命令。
+
+   ```bash
+   rsync -av -e 'ssh -p 2222' /path/to/source/ user@remote_host:/path/to/destination/
+   ```
+
+**常见选项：**
+
+| 选项             | 描述                                                 |
+| ---------------- | ---------------------------------------------------- |
+| `-a`             | 归档模式，表示递归复制并保持文件的权限、时间戳等属性 |
+| `-v`             | 显示详细输出                                         |
+| `-z`             | 压缩文件数据，减少传输数据量                         |
+| `-r`             | 递归复制整个目录                                     |
+| `-u`             | 仅复制源文件比目标文件新的文件                       |
+| `-l`             | 保留符号链接                                         |
+| `-t`             | 保留时间戳                                           |
+| `-p`             | 保留文件权限                                         |
+| `-g`             | 保留文件的组信息                                     |
+| `-o`             | 保留文件的拥有者信息                                 |
+| `-x`             | 防止跨文件系统，限制同步到单一文件系统               |
+| `--delete`       | 删除目标目录中源目录没有的文件                       |
+| `--exclude`      | 排除匹配的文件或目录                                 |
+| `--exclude-from` | 从指定文件中读取排除规则                             |
+| `--progress`     | 显示传输进度                                         |
+| `-e`             | 使用自定义远程 shell（例如 SSH）进行传输             |
+| `-h`             | 以易读的格式显示文件大小（例如 KB、MB、GB）          |
+| `--dry-run`      | 模拟同步过程，但不实际执行任何操作                   |
+
+**高级用法：**
+
+1. **限制带宽使用**
+
+   如果你希望限制 `rsync` 使用的带宽，可以使用 `--bwlimit` 选项。例如，限制带宽为 1MB/s：
+
+   ```bash
+   rsync -av --bwlimit=1024 /path/to/source/ user@remote_host:/path/to/destination/
+   ```
+
+2. **比较文件**
+
+   使用 `--itemize-changes` 选项可以显示文件同步时的变化：
+
+   ```bash
+   rsync -av --itemize-changes /path/to/source/ /path/to/destination/
+   ```
+
+   该命令会输出详细的文件变化信息，类似于：
+
+   ```shell
+   >f+++++++++ file1
+   >f+++++++++ file2
+   ```
+
+3. **使用 `rsync` 进行镜像同步**
+
+   如果你想将一个目录完全复制到另一个位置，并删除目标位置中不再存在的文件，可以使用以下命令：
+
+   ```bash
+   rsync -av --delete /path/to/source/ /path/to/destination/
+   ```
+
+4. **只同步文件的元数据**
+
+   如果你只关心文件的时间戳和权限等元数据，不需要同步文件内容，可以使用 `-c`（--checksum）选项，通过比较文件校验和来确定是否需要同步文件。
+
+   ```bash
+   rsync -avc /path/to/source/ /path/to/destination/
+   ```
+
+**例子：**
+
+1. **将本地目录 `/data/` 同步到远程服务器：**
+
+   ```bash
+   rsync -avz /data/ user@remote_host:/backup/
+   ```
+
+   - `-z`：启用数据压缩，以减少传输时间。
+
+2. **从远程服务器同步目录并排除 `.log` 文件：**
+
+   ```bash
+   rsync -av --exclude='*.log' user@remote_host:/data/ /backup/
+   ```
+
+3. **使用 SSH 自定义端口进行同步：**
+
+   ```bash
+   rsync -av -e 'ssh -p 2222' /data/ user@remote_host:/backup/
+   ```
+
+4. **在本地和远程服务器之间进行增量备份：**
+
+   ```bash
+   rsync -av --delete /data/ user@remote_host:/backup/
+   ```
+
+5. **模拟执行而不实际同步：**
+
+   ```bash
+   rsync -av --dry-run /data/ user@remote_host:/backup/
+   ```
+
+**总结：**
+
+`rsync` 是一个非常高效、灵活的工具，适用于文件同步、备份和远程传输。它能够处理本地和远程文件的增量同步，并通过多种选项提供高效的数据传输、压缩、排除和文件比较等功能。通过合理配置和选择选项，`rsync` 可以极大地简化和加速大规模数据的同步任务。
 
 ## ssh 命令
 
