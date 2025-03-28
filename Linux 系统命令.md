@@ -325,6 +325,850 @@ ubuntu 最小安装时，可能会遇到没有内置的编辑器的情况，vi/v
    Ctrl – c ：终止命令
    Ctrl – z ：挂起命令
 
+# 账户操作命令
+
+## useradd 命令
+
+`useradd` 是一个用于在 Linux 系统中创建新用户的命令。它是一个低级命令，没有 `adduser` 那么多交互式功能，因此通常需要手动指定更多的选项，如密码、用户组、家目录等。相比于 `adduser`，`useradd` 更加简洁且灵活，适用于需要脚本化管理用户的场景。
+
+**基本语法：**
+
+```bash
+sudo useradd [选项] <用户名>
+```
+
+**常见选项和用法：**
+
+1. **创建新用户**
+
+   最基本的 `useradd` 命令是创建一个新用户。默认情况下，这个命令会为新用户创建一个家目录，并使用系统默认的 shell。
+
+   ```bash
+   sudo useradd <username>
+   ```
+
+   例如，创建一个名为 `alice` 的新用户： `sudo useradd alice`。
+   此命令会创建用户 `alice`，但不会为其设置密码、全名等。用户的家目录默认会创建在 `/home/alice`，并使用默认的 shell（通常是 `/bin/bash`）。
+
+2. **为用户设置密码**
+
+   `useradd` 命令只负责创建用户，设置密码是一个单独的操作。可以使用 `passwd` 命令来为用户设置密码：
+
+   ```bash
+   sudo passwd <username>
+   ```
+
+   例如，为 `alice` 设置密码：`sudo passwd alice`。 这会提示你输入并确认密码。
+
+3. **指定用户的用户组**
+
+   默认情况下，`useradd` 会为每个新用户创建一个与用户名相同的组，并将该用户添加到该组中。你也可以使用 `-g` 选项指定一个现有的组。
+
+   ```bash
+   sudo useradd -g <groupname> <username>
+   ```
+
+   例如，将 `alice` 添加到 `developers` 组：`sudo useradd -g developers alice`。
+
+4. **为用户设置家目录**
+
+   默认情况下，`useradd` 会在 `/home/` 下创建用户的家目录。如果你想指定一个不同的家目录位置，可以使用 `-d` 选项。
+
+   ```bash
+   sudo useradd -d /path/to/home <username>
+   ```
+
+   例如，将 `alice` 的家目录设置为 `/data/alice`：`sudo useradd -d /data/alice alice`。
+
+5. **为用户设置默认 shell**
+
+   使用 `-s` 选项，可以指定用户的默认 shell。默认情况下，`useradd` 会使用系统默认的 shell（通常是 `/bin/bash`），但你可以通过此选项更改：
+
+   ```bash
+   sudo useradd -s /bin/zsh <username>
+   ```
+
+   例如，将 `alice` 的默认 shell 设置为 `zsh`：`sudo useradd -s /bin/zsh alice`。
+
+6. **为用户指定 UID 和 GID**
+
+   你可以使用 `-u` 和 `-g` 选项来指定用户的 UID（用户 ID）和 GID（组 ID）。这在需要与其他系统共享用户和组 ID 时非常有用。
+
+   ```bash
+   sudo useradd -u <UID> -g <GID> <username>
+   ```
+
+   例如，将 `alice` 的 UID 设置为 `1001`，GID 设置为 `1001`：`sudo useradd -u 1001 -g 1001 alice`。
+
+7. **为用户创建附加组**
+
+   如果你想将用户添加到多个组，可以使用 `-G` 选项。此选项允许将用户添加到一个或多个附加组（以逗号分隔）。
+
+   ```bash
+   sudo useradd -G <group1>,<group2>,<group3> <username>
+   ```
+
+   例如，将 `alice` 添加到 `developers` 和 `admins` 两个附加组：`sudo useradd -G developers,admins alice`。
+
+8. **创建系统用户**
+
+   使用 `-r` 选项可以创建一个系统用户，系统用户通常用于运行系统服务，并且不会有登录权限。
+
+   ```bash
+   sudo useradd -r <username>
+   ```
+
+   例如，创建一个名为 `myservice` 的系统用户：`sudo useradd -r myservice`。
+
+9. **创建用户并指定密码**
+
+   `useradd` 本身不支持直接为用户设置密码，但你可以将 `passwd` 命令与 `useradd` 命令结合使用，在创建用户后立即为其设置密码。
+
+   ```bash
+   sudo useradd <username> && sudo passwd <username>
+   ```
+
+   例如：`sudo useradd alice && sudo passwd alice`。
+
+10. **删除用户**
+
+    `userdel` 命令用于删除用户。使用 `-r` 选项可以删除用户及其家目录。
+
+    ```bash
+    sudo userdel -r <username>
+    ```
+
+    例如，删除用户 `alice` 和其家目录：`sudo userdel -r alice`。
+
+**常见选项总结：**
+
+| 选项 | 描述                                         |
+| ---- | -------------------------------------------- |
+| `-d` | 设置用户的家目录路径                         |
+| `-s` | 设置用户的默认 shell                         |
+| `-u` | 设置用户的 UID（用户 ID）                    |
+| `-g` | 设置用户的主组（GID）                        |
+| `-G` | 设置用户的附加组（以逗号分隔）               |
+| `-r` | 创建一个系统用户，通常没有登录权限           |
+| `-m` | 创建用户时自动创建家目录（默认会创建）       |
+| `-f` | 设置密码过期前的宽限期（指定天数）           |
+| `-p` | 设置用户的密码（通过加密字符串，通常不推荐） |
+
+**示例：**
+
+1. **创建一个新用户 `alice` 并设置其密码**
+
+   ```bash
+   sudo useradd -m -s /bin/bash alice && sudo passwd alice
+   ```
+
+2. **为 `alice` 设置自定义家目录和默认 shell**
+
+   ```bash
+   sudo useradd -d /data/alice -s /bin/zsh -m alice
+   ```
+
+3. **创建系统用户 `myservice`**
+
+   ```bash
+   sudo useradd -r myservice
+   ```
+
+4. **将用户 `alice` 添加到 `developers` 和 `admins` 组**
+
+   ```bash
+   sudo useradd -G developers,admins alice
+   ```
+
+5. **删除用户并同时删除其家目录**
+
+   ```bash
+   sudo userdel -r alice
+   ```
+
+**总结：**
+
+`useradd` 是一个强大且灵活的工具，用于创建和管理用户账户。它适用于需要脚本化或系统化管理用户的场景，允许用户指定更多详细的配置选项（如 UID、GID、家目录、shell 等）。然而，它不像 `adduser` 那样交互式，因此需要手动设置更多的选项来完成用户的创建和配置。
+
+## adduser 交互命令
+
+`adduser` 是一个在 Linux 系统中用来创建新用户的命令。它是 `useradd` 命令的一个更为友好的前端，并提供了更多的交互式选项。与 `useradd` 不同，`adduser` 会自动创建用户的家目录并询问一些额外的设置，比如用户全名、密码等。
+
+**基本语法：**
+
+```bash
+sudo adduser [选项] <用户名>
+```
+
+**常见用法：**
+
+1. **创建一个新用户**
+
+   最基本的使用方式是创建一个新用户。你只需指定用户名，`adduser` 命令会创建一个新的用户账户，**并执行一些初始化操作（如创建家目录、设置默认 shell 等）**：
+
+   ```bash
+   sudo adduser <username>
+   ```
+
+   例如，要创建名为 `alice` 的用户：`sudo adduser alice`。
+
+   在执行此命令时，系统会要求你输入以下信息：
+
+   - 密码（需要输入两次）
+   - 用户全名
+   - 房间号码
+   - 工作电话
+   - 个人电话
+   - 其他信息（可选）
+
+   如果你不想填写某个字段，可以直接按 `Enter` 跳过。创建完成后，`alice` 用户就被添加到系统中，并且其家目录通常是 `/home/alice`。
+
+2. **指定用户的用户组**
+
+   你可以指定用户所在的用户组。`adduser` 命令默认会为新用户创建一个与用户名相同的组，但你可以通过 `--ingroup` 选项指定用户属于的组：
+
+   ```bash
+   sudo adduser <username> --ingroup <groupname>
+   ```
+
+   例如，将 `alice` 用户添加到名为 `developers` 的组：`sudo adduser alice --ingroup developers`。
+
+3. **指定用户的家目录**
+
+   你可以使用 `--home` 选项指定用户的家目录。默认情况下，`adduser` 会将用户的家目录创建在 `/home/` 下，但你可以通过此选项指定其他目录路径：
+
+   ```bash
+   sudo adduser <username> --home /path/to/home
+   ```
+
+   例如，将 `alice` 用户的家目录设置为 `/data/alice`：`sudo adduser alice --home /data/alice`。
+
+4. **禁用用户创建密码**
+
+   如果你不希望用户在创建时设置密码，可以使用 `--disabled-password` 选项：
+
+   ```bash
+   sudo adduser <username> --disabled-password
+   ```
+
+   例如，创建没有密码的 `bob` 用户：`sudo adduser bob --disabled-password`。
+
+   此命令会创建一个用户，但不会设置密码。用户可以通过其他认证方法（如 SSH 密钥）登录。
+
+5. **指定用户的默认 shell**
+
+   你可以使用 `--shell` 选项为用户指定默认 shell：
+
+   ```bash
+   sudo adduser <username> --shell /bin/bash
+   ```
+
+   例如，指定 `alice` 使用 `/bin/zsh` 作为默认 shell：`sudo adduser alice --shell /bin/zsh`。
+
+6. **使用特定的用户 ID 和组 ID**
+
+   通过 `--uid` 和 `--gid` 选项，可以分别指定用户的 UID（用户 ID）和 GID（组 ID）。通常不需要指定这些选项，但如果需要与其他系统共享用户或组 ID，则可以使用这些选项：
+
+   ```bash
+   sudo adduser <username> --uid 1234 --gid 5678
+   ```
+
+7. **创建系统用户**
+
+   你可以通过 `--system` 选项创建一个系统用户。系统用户通常用于运行系统服务和进程，通常不需要登录权限：
+
+   ```bash
+   sudo adduser --system <username>
+   ```
+
+   例如，创建一个名为 `myservice` 的系统用户：`sudo adduser --system myservice`。
+
+8. **删除用户**
+
+   `adduser` 命令本身并没有直接删除用户的选项，删除用户时需要使用 `deluser` 命令。要删除 `alice` 用户，可以使用：
+
+   ```bash
+   sudo deluser alice
+   ```
+
+9. **删除用户及其家目录**
+
+   如果想要在删除用户时一起删除其家目录，可以使用 `--remove-home` 选项：
+
+   ```bash
+   sudo deluser --remove-home alice
+   ```
+
+**总结：**
+
+`adduser` 是一个创建新用户的命令，通常比 `useradd` 更加友好。它会交互式地要求你设置用户的密码、全名等，并自动执行一些任务（如创建家目录和设置默认 shell）。常用选项包括：
+
+- `--ingroup <group>`：指定用户所在的组。
+- `--home <path>`：指定用户的家目录。
+- `--disabled-password`：创建没有密码的用户。
+- `--shell <shell>`：指定用户的默认 shell。
+- `--system`：创建系统用户。
+
+这些选项使得 `adduser` 成为一个非常方便的命令来管理用户账户。
+
+## 新建账户 - root 同权限
+
+在 Ubuntu 中，您可以通过以下步骤创建一个具有与 `root` 相同权限的新账户：
+
+1. **打开终端**：首先，打开一个终端窗口。
+
+2. **创建一个新用户**： 使用 `adduser` 命令创建一个新用户。替换 `<username>` 为您希望创建的用户名：
+
+   ```bash
+   sudo adduser <username>
+   ```
+
+   该命令会提示您输入用户的密码、姓名等信息，可以按需要填写，或者直接按回车跳过。
+
+3. **将新用户添加到 `sudo` 组**： 要让新用户具有与 `root` 相同的权限，需要将该用户添加到 `sudo` 组中。运行以下命令：
+
+   ```bash
+   sudo usermod -aG sudo <username>
+   ```
+
+4. **确认新用户是否具有 `sudo` 权限**： 切换到新用户并验证权限：
+
+   ```bash
+   su - <username>
+   sudo whoami
+   ```
+
+   如果返回 `root`，则表示新用户具有 `root` 权限。
+
+5. **完成**：现在，新账户就有了与 `root` 相同的权限。
+
+## 新用户默认信息
+
+在 Linux 系统中，使用 `useradd` 命令创建一个新用户时，会有一些默认的设置。这些默认设置会根据不同的发行版有所变化，但通常情况下，以下是大多数 Linux 系统的默认值。
+
+1. **默认组 (Primary Group)**
+
+   - 默认情况下，新用户的主组会与用户名相同。这意味着如果你创建一个名为 `alice` 的新用户，系统会自动为该用户创建一个名为 `alice` 的主组，并将该用户添加到该组。
+
+     ```bash
+     sudo useradd alice
+     ```
+
+     这会创建一个用户名为 `alice` 的用户，并将其主组设置为 `alice`。
+
+   - 如果你希望将用户添加到其他组，可以使用 `-g` 选项来指定主组，或者使用 `-G` 来指定附加组。
+
+2. **默认家目录 (Home Directory)**
+
+   - 默认情况下，新用户的家目录位于 `/home/用户名` 下。如果你创建用户 `alice`，那么家目录的默认路径是 `/home/alice`。
+
+   - 如果你希望将用户的家目录设置为其他位置，可以使用 `-d` 选项来指定目录路径。
+
+     ```bash
+     sudo useradd -d /data/alice alice
+     ```
+
+     这会将用户 `alice` 的家目录设置为 `/data/alice`。
+
+   - 如果指定了 `-m` 选项（通常会自动使用），系统会自动创建该目录。如果没有指定 `-m`，则不会自动创建家目录。
+
+3. **默认登录 Shell**
+
+   - 默认情况下，用户的登录 shell 通常是 `/bin/bash`，这是大多数 Linux 系统中的默认 shell。
+
+   - 如果你希望指定其他的登录 shell，可以使用 `-s` 选项。例如，如果你想为用户 `alice` 设置 `zsh` 作为登录 shell，可以这样做：
+
+     ```bash
+     sudo useradd -s /bin/zsh alice
+     ```
+
+4. **默认密码**
+
+   - 默认情况下，新用户不会设置密码，用户必须通过 `passwd` 命令设置密码。你可以为新用户指定一个初始密码：
+
+     ```bash
+     sudo passwd alice
+     ```
+
+     然后输入密码。
+
+5. **默认用户 ID 和组 ID**
+
+   - 系统会为新用户分配一个唯一的用户 ID（UID）和组 ID（GID）。这些 ID 会自动分配，通常从系统中空闲的最小值开始。UID 和 GID 是系统内部用来标识用户和组的唯一数字标识。
+
+6. **默认账户过期**
+
+   - 默认情况下，新用户账户没有过期日期。你可以使用 `-e` 选项来指定过期日期。例如：
+
+     ```bash
+     sudo useradd -e 2025-12-31 alice
+     ```
+
+     这会将用户的账户设置为在 2025 年 12 月 31 日过期。
+
+7. **默认用户目录权限**
+
+   - 默认情况下，新用户的家目录权限为 `755`，即用户对家目录有完全权限，而其他人只能读取和执行该目录。
+
+8. **默认附加组**
+
+   - 默认情况下，新用户只会被添加到其主组中（即与用户名相同的组），没有其他附加组。如果你希望将新用户添加到其他组，可以使用 `-G` 选项。
+
+     ```bash
+     sudo useradd -G sudo,adm alice
+     ```
+
+     这会将用户 `alice` 添加到 `sudo` 和 `adm` 附加组中。
+
+9. **默认用户账户锁定状态**
+
+   - 默认情况下，新创建的用户账户是解锁的。用户可以立即登录。如果你希望禁用账户，可以在创建用户时使用 `-L` 选项来锁定账户，或者创建后使用 `passwd -l <username>` 来锁定用户。
+
+10. **默认登录限制**
+
+    - 默认情况下，用户可以在任何时间登录。如果你希望为用户设置登录时间限制（例如，仅允许在特定时间段内登录），可以使用 `-e` 或 `-f` 选项来设置限制。
+
+11. **默认环境变量**
+
+    - 新创建的用户将继承系统默认的环境变量设置，如 `PATH` 等。这些设置通常在 `/etc/profile` 或 `/etc/bash.bashrc` 中定义。
+
+12. **默认用户的 umask 设置**
+
+    - `umask` 是一种控制文件和目录默认权限的机制。新创建的用户通常会继承 `/etc/profile` 中定义的默认 `umask` 值，通常是 `022`，这意味着创建的新文件会具有 `644` 权限（用户读写，组和其他用户只读），目录会具有 `755` 权限。
+
+**总结：**
+
+当你创建一个新用户时，通常会得到以下默认设置：
+
+- **默认主组**：与用户名相同。
+- **默认家目录**：`/home/<username>`。
+- **默认登录 shell**：`/bin/bash`。
+- **默认密码**：用户没有密码，必须使用 `passwd` 设置。
+- **默认 UID 和 GID**：由系统自动分配。
+- **默认附加组**：无（只属于主组）。
+- **默认账户状态**：解锁状态，可以立即登录。
+
+这些默认设置可以通过 `useradd` 命令的选项进行定制化。
+
+## 查看用户
+
+在 Linux 系统中，有几种方法可以查看当前系统上有哪些用户：
+
+1. **查看 `/etc/passwd` 文件**
+
+   - 系统中的所有用户信息（包括用户名、UID、GID、用户的家目录、默认 shell 等）都存储在 `/etc/passwd` 文件中。
+   - 可以使用 `cat`、`less` 或 `grep` 等命令查看该文件：
+
+     ```bash
+     cat /etc/passwd
+     ```
+
+     `/etc/passwd` 文件中的每一行代表一个用户，字段之间使用冒号（:）分隔，结构如下：
+
+     ```bash
+     username:password:UID:GID:comment:home_directory:shell
+     ```
+
+   - 其中：
+     - `username`：用户名。
+     - `password`：通常是一个占位符（在现代系统中，密码通常存储在 `/etc/shadow` 文件中）。
+     - `UID`：用户 ID。
+     - `GID`：组 ID。
+     - `comment`：通常是用户的全名或描述信息。
+     - `home_directory`：用户的家目录。
+     - `shell`：用户的默认 shell。
+
+2. **使用 `getent` 命令**
+
+   `getent` 命令用于查询系统的各种数据库，包括用户数据库。它从 `/etc/passwd` 获取信息，但也可以查询其他来源，如 LDAP 或 NIS（如果系统配置了这些）。
+
+   ```bash
+   getent passwd
+   ```
+
+   这会列出所有用户，包括系统用户和普通用户。输出的格式与 `/etc/passwd` 文件相同。
+
+3. **查看当前登录的用户**
+
+   如果你只关心当前登录的用户，可以使用以下命令：
+
+   ```bash
+   who
+   ```
+
+   这些命令会列出当前正在登录的用户及其会话信息。
+
+4. **查看系统组信息**
+
+如果你也想查看系统中的所有组（有时用户会加入多个组），可以查看 `/etc/group` 文件：
+
+```bash
+cat /etc/group
+```
+
+**总结：**
+
+- **查看所有用户**：使用 `cat /etc/passwd` 或 `getent passwd`。
+- **列出用户名**：使用 `cut -d: -f1 /etc/passwd`。
+- **查看当前登录的用户**：使用 `who` 或 `w`。
+
+通过这些方法，你可以轻松查看计算机上的所有用户及其相关信息。
+
+## 查看组
+
+要查看 Linux 系统中有哪些组，可以使用以下几种方法：
+
+1. **查看 `/etc/group` 文件**
+
+   - 系统中所有的用户组信息都存储在 `/etc/group` 文件中。可以使用 `cat`、`less` 或 `grep` 等命令查看该文件。
+
+     ```bash
+     cat /etc/group
+     ```
+
+     每一行代表一个组，字段之间使用冒号（:）分隔，结构如下：
+
+     ```bash
+     groupname:password:GID:user_list
+     ```
+
+   - 其中：
+     - `groupname`：组名。
+     - `password`：组密码（通常为空或占位符）。
+     - `GID`：组 ID。
+     - `user_list`：属于该组的用户（用户名之间用逗号分隔）。
+
+2. **使用 `getent` 命令**
+
+   `getent` 命令可以从系统的各种数据库中查询信息，包括组信息。它会从 `/etc/group` 或其他配置了的源（如 LDAP 或 NIS）中获取组信息。
+
+   ```bash
+   getent group
+   ```
+
+   这会列出所有组及其相关信息。
+
+3. **查看当前用户的组**
+
+   如果你想查看某个特定用户属于哪些组，可以使用 `groups` 命令。这个命令会列出当前用户或指定用户所在的所有组。
+
+   ```bash
+   groups <username>
+   ```
+
+   如果不指定用户名，它会列出当前登录用户所在的所有组。
+
+4. **查看当前系统的组和成员**
+
+   你可以使用 `getent group` 命令结合 `grep` 来查找特定的组和组成员：
+
+   ```bash
+   getent group | grep <groupname>
+   ```
+
+   例如，查看 `sudo` 组的成员：
+
+   ```bash
+   getent group | grep sudo
+   ```
+
+**总结：**
+
+- **查看所有组**：使用 `cat /etc/group` 或 `getent group`。
+- **列出所有组名**：使用 `cut -d: -f1 /etc/group`。
+- **查看当前用户所在组**：使用 `groups` 命令。
+- **查看特定组信息**：使用 `getent group | grep <groupname>`。
+
+这些方法可以帮助你快速查看和管理系统中的组信息。
+
+## usermod 命令
+
+`usermod` 是 Linux 系统中的一个命令，用于修改现有用户的属性。它允许你更改用户的各种设置，例如**用户名、用户组、用户的家目录、登录 shell 等**。以下是 `usermod` 命令的一些常见用法和选项。
+
+**基本语法：**
+
+```bash
+usermod [选项] <用户名>
+```
+
+**常见选项：**
+
+1. **`-aG`** (Add to Groups)
+
+   - 这个选项用于将用户添加到一个或多个附加组中，而不会从原有的组中移除该用户。使用时要指定组名。
+
+     ```bash
+     sudo usermod -aG sudo <username>
+     ```
+
+     这会将用户 `<username>` 添加到 `sudo` 组中。
+
+2. **`-d`** (Home Directory)
+
+   - 用于更改用户的家目录。`-d` 后面跟新的家目录路径。
+
+     ```bash
+     sudo usermod -d /home/newhome <username>
+     ```
+
+     这会将用户的家目录更改为 `/home/newhome`。
+
+3. **`-m`** (Move the Home Directory)
+
+   - 这个选项与 `-d` 一起使用，它会把旧的家目录内容移动到新的目录。必须同时指定 `-d` 和新目录路径。
+
+     ```bash
+     sudo usermod -d /home/newhome -m <username>
+     ```
+
+     这会将用户的家目录移动到 `/home/newhome`，并将所有文件从旧目录迁移过去。
+
+4. **`-l`** (Login Name)
+
+   - 用于更改用户的登录名。
+
+     ```bash
+     sudo usermod -l newname oldname
+     ```
+
+     这会将用户名 `oldname` 更改为 `newname`。
+
+5. **`-g`** (Primary Group)
+
+   - 用于更改用户的主组。该组将成为用户的默认组。
+
+     ```bash
+     sudo usermod -g newgroup <username>
+     ```
+
+     这会将用户的主组更改为 `newgroup`。
+
+6. **`-G`** (Supplementary Groups)
+
+   - 用于指定一个或多个附加组。与 `-aG` 不同，使用 `-G` 时会替换用户的附加组，而不是追加。
+
+     ```bash
+     sudo usermod -G group1,group2 <username>
+     ```
+
+     这会将用户 `<username>` 的附加组更改为 `group1` 和 `group2`。
+
+7. **`-s`** (Shell)
+
+   - 用于更改用户的登录 shell。
+
+     ```bash
+     sudo usermod -s /bin/zsh <username>
+     ```
+
+     这会将用户的默认 shell 更改为 `zsh`。
+
+8. **`-e`** (Expire Date)
+
+   - 用于设置用户帐户的过期日期，格式为 `YYYY-MM-DD`。过期日期之后，用户将无法登录。
+
+     ```bash
+     sudo usermod -e 2025-12-31 <username>
+     ```
+
+     这会将用户的帐户设置为在 2025 年 12 月 31 日过期。
+
+9. **`-f`** (Inactive)
+
+   - 用于指定用户账户的非活动期，即账户在登录失败后的多少天将被禁用。
+
+     ```bash
+     sudo usermod -f 30 <username>
+     ```
+
+     这会设置用户在 30 天未活动后账户将被禁用。
+
+10. **`-p`** (Password)
+
+    - 用于更改用户的密码。通常这个选项配合一个加密的密码（使用 `openssl` 或其他工具加密）一起使用。
+
+      ```bash
+      sudo usermod -p '$6$rounds=656000$...' <username>
+      ```
+
+      这会将用户 `<username>` 的密码更改为给定的加密密码。
+
+**注意事项：**
+
+- 必须以 root 或具有适当权限的用户身份执行 `usermod` 命令。
+- 如果更改了用户名或用户的主目录，用户可能需要重新登录，以确保所有更改生效。
+- 使用 `-aG` 时非常重要，因为如果不加 `-a`，会替换用户原有的附加组，导致用户失去访问权限。
+
+**示例：**
+
+1. **将用户添加到多个组**：
+
+   ```bash
+   sudo usermod -aG sudo,adm <username>
+   ```
+
+   这将用户 `<username>` 添加到 `sudo` 和 `adm` 组中，保留该用户原本的其他组。
+
+2. **更改用户登录 shell**：
+
+   ```bash
+   sudo usermod -s /bin/bash <username>
+   ```
+
+   这将用户 `<username>` 的默认 shell 更改为 `bash`。
+
+3. **更改用户的家目录并迁移文件**：
+
+   ```bash
+   sudo usermod -d /home/newhome -m <username>
+   ```
+
+   这将用户 `<username>` 的家目录更改为 `/home/newhome`，并将所有旧目录中的文件迁移到新目录。
+
+## passwd 命令
+
+`passwd` 是一个 Linux 系统中的命令，用于更改用户密码。该命令既可以用来为新用户**设置密码**，也可以**修改**现有用户的密码。管理员可以使用 `passwd` 来管理系统中的用户密码。
+
+**基本语法：**
+
+```bash
+passwd [选项] [用户名]
+```
+
+- **选项**：可以用来修改 `passwd` 命令的行为。
+- **用户名**：指定要更改密码的用户，如果不指定用户名，则默认更改当前用户的密码。
+
+**常见用法和选项**
+
+1. **修改当前用户密码**
+
+   如果你不指定用户名，`passwd` 命令将更改当前登录用户的密码。执行命令后，系统会提示输入当前密码和新密码。
+
+   ```bash
+   passwd
+   ```
+
+   这会要求你输入当前密码，然后输入两次新密码。
+
+2. **为指定用户设置密码**
+
+   作为管理员（root 用户）或具有 `sudo` 权限的用户，可以为其他用户设置或修改密码。
+
+   ```bash
+   sudo passwd <username>
+   ```
+
+   这会为指定的用户 `<username>` 设置或更改密码。系统会要求输入新密码，并确认密码。
+
+3. **禁用用户密码**
+
+   禁用用户的密码，使其无法通过密码登录。你可以使用 `-l` 选项来锁定用户密码。
+
+   ```bash
+   sudo passwd -l <username>
+   ```
+
+   锁定用户的密码后，该用户将无法通过传统的密码身份验证登录。**但仍可通过其他认证方法（如 SSH 密钥）登录**。
+
+4. **解锁用户密码**
+
+   如果一个用户的密码被锁定（例如通过 `passwd -l` 锁定），你可以使用 `-u` 选项来解锁用户的密码：
+
+   ```bash
+   sudo passwd -u <username>
+   ```
+
+   这将解锁指定用户的密码，使其能够重新使用密码登录。
+
+5. **删除用户密码**
+
+   `passwd` 命令提供了 `-d` 选项，用来删除用户的密码，这样用户就没有密码了，从而可以通过其他方式登录（例如使用 SSH 密钥认证）。
+
+   ```bash
+   sudo passwd -d <username>
+   ```
+
+   这条命令会删除 `<username>` 用户的密码，使其无法通过密码进行登录。
+
+6. **设置空密码（无密码登录）**
+
+   通过修改 `/etc/shadow` 文件，你也可以手动删除密码哈希值，使得用户密码为空。
+
+   1. 打开 `/etc/shadow` 文件：
+
+      ```bash
+      sudo nano /etc/shadow
+      ```
+
+   2. 找到目标用户的行，例如：
+
+      ```log
+      alice:$6$abc123$abcdefg:18344:0:99999:7:::
+      ```
+
+   3. 删除密码哈希（即冒号和 `$` 符号之间的内容），使该行变为空密码：
+
+      ```log
+      alice::18344:0:99999:7:::
+      ```
+
+   4. 保存文件并退出。
+
+   这种方法会使用户 `alice` 没有密码，从而可以进行无密码登录。
+
+7. **强制用户下次登录时修改密码**
+
+   你可以使用 `-e` 选项强制用户下次登录时修改密码：
+
+   ```bash
+   sudo passwd -e <username>
+   ```
+
+   这将使得用户下次登录时必须输入新密码。
+
+8. **设置密码过期时间**
+
+   `passwd` 命令还可以用来设置用户密码的过期时间。使用 `-x` 选项可以设置密码的最大使用期限，超过这个时间，用户必须修改密码。
+
+   ```bash
+   sudo passwd -x <days> <username>
+   ```
+
+   其中 `<days>` 是密码的最大有效天数。例如，如果设置为 `30`，那么用户的密码在 30 天后将过期，必须重新设置。
+
+9. **设置密码最小使用期限**
+
+   你可以设置密码修改后用户必须等待的最小天数才能再次更改密码。使用 `-n` 选项来设置最小使用期限：
+
+   ```bash
+   sudo passwd -n <days> <username>
+   ```
+
+   例如，如果设置为 `7`，用户必须等待 7 天才能再次修改密码。
+
+10. **设置密码警告天数**
+
+    `-w` 选项可以设置密码过期前的警告天数。在密码到期之前，系统会提醒用户修改密码。
+
+    ```bash
+    sudo passwd -w <days> <username>
+    ```
+
+    例如，设置为 `7` 表示在密码到期前 7 天开始警告用户。
+
+11. **查看密码过期信息**
+
+    使用 `chage` 命令可以查看用户密码的过期信息，虽然 `passwd` 命令本身不直接提供查看过期信息的功能。
+
+**总结：**
+
+- **新建用户**：使用 `sudo useradd <username>` 创建新用户。
+- **设置用户密码**：使用 `sudo passwd <username>` 设置密码。
+- **修改密码**：同样使用 `sudo passwd <username>` 修改密码。
+- **禁用用户密码**：使用 `sudo passwd -l <username>` 锁定用户密码。
+- **解锁用户密码**：使用 `sudo passwd -u <username>` 解锁密码。
+- **强制用户下次修改密码**：使用 `sudo passwd -e <username>` 强制更改密码。
+
 # 系统设备命令
 
 ## lspci 命令
