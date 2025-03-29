@@ -788,7 +788,11 @@ exit
       "program": "${file}",
       "console": "integratedTerminal",
       "justMyCode": true,
-      "args": ["./xxx/xxx.yaml", "--xxx=xxx"]
+      "cwd": "${fileDirname}",
+      "args": [
+        "./xxx/xxx",
+        "--xxx=xxx"
+      ],
     }
   ]
 }
