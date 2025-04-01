@@ -199,6 +199,56 @@ grep 命令用于在文件中搜索符合条件的字符串，如果需要模糊
 
 ## cp 命令
 
+`cp` 命令是 Linux 中用于复制文件或目录的命令。它是最基本和最常用的命令之一，用于将源文件或源目录复制到目标位置。`cp` 的语法非常简单，但它有一些常用的选项，可以使其更加灵活和强大。
+
+**基本语法：**
+
+```bash
+Usage: cp [OPTION]... [-T] SOURCE DEST
+  or:  cp [OPTION]... SOURCE... DIRECTORY
+  or:  cp [OPTION]... -t DIRECTORY SOURCE...
+```
+
+Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
+
+**常用选项：**
+
+1. **`-r` 或 `--recursive`**：用于递归复制目录。如果源是一个目录，并且你希望复制目录内容及其子目录，那么需要使用这个选项。
+
+   - 示例：`cp -r /home/user/source_dir /home/user/destination_dir`
+
+2. **`-f` 或 `--force`**：强制复制文件，并且如果目标文件无法写入，则会删除目标文件后重新复制。这对于避免覆盖的交互提示非常有用。
+
+   - 示例：`cp -f file1.txt /home/user/destination/`
+
+3. **`-i` 或 `--interactive`**：在目标文件已经存在时，提示用户确认是否覆盖。
+
+   - 示例：`cp -i file1.txt /home/user/destination/`
+
+4. **`-v` 或 `--verbose`**： 显示详细的复制过程，包括源文件和目标文件的路径。
+
+   - 示例：`cp -v file1.txt /home/user/destination/`
+
+5. **`-p` 或 `--preserve`**：保留文件的属性（如修改时间、权限、所有者等）。通常在复制文件时，源文件的权限和时间戳不会被保留，使用该选项可以避免这种情况。
+
+   - 示例：`cp -p file1.txt /home/user/destination/`
+
+6. **`-u` 或 `--update`**：仅在源文件比目标文件更新，或者目标文件不存在时才复制。
+
+   - 示例：`cp -u file1.txt /home/user/destination/`
+
+7. **`-a` 或 `--archive`**：这个选项是 `-dR --preserve=all` 的组合，意味着会复制文件及其所有属性（包括符号链接、文件权限、时间戳等），并且递归地复制目录。
+
+   - 示例：`cp -a source_dir /home/user/destination/`
+
+8. **`-l` 或 `--link`**：创建源文件的硬链接，而不是复制源文件。这意味着多个文件将指向相同的数据块。
+
+   - 示例：`cp -l file1.txt /home/user/destination/`
+
+9. **`--no-clobber`**：如果目标文件已存在，则不复制，不会覆盖目标文件。
+
+   - 示例：`cp --no-clobber file1.txt /home/user/destination/`
+
 ## mv 命令
 
 ## install 命令
