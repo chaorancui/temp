@@ -13,35 +13,41 @@
 
 ### NumPy 标准数据类型
 
-> | 数据类型   | 描述                                                                     |
-> | ---------- | ------------------------------------------------------------------------ |
-> | bool       | 布尔值 bool\_ 别名                                                       |
-> | bool\_     | 布尔值（真、 True 或假、 False） ， 用一个字节存储                       |
-> | int        | int\_ 别名                                                               |
-> | int\_      | 默认整型（类似于 C 语言中的 long， 通常情况下是 int64 或 int32）         |
-> | intc       | 同 C 语言的 int 相同（通常是 int32 或 int64）                            |
-> | intp       | 用作索引的整型（和 C 语言的 ssize_t 相同， 通常情况下是 int32 或 int64） |
-> | int8       | 字节（byte， 范围从–128 到 127）                                         |
-> | int16      | 整型（范围从–32768 到 32767）                                            |
-> | int32      | 整型（范围从–2147483648 到 2147483647）                                  |
-> | int64      | 整型（范围从–9223372036854775808 到 9223372036854775807）                |
-> | uint8      | 无符号整型（范围从 0 到 255）uint16 无符号整型（范围从 0 到 65535）      |
-> | uint32     | 无符号整型（范围从 0 到 4294967295）                                     |
-> | uint64     | 无符号整型（范围从 0 到 18446744073709551615）                           |
-> | float      | float64 的简化形式                                                       |
-> | float\_    | float64 的简化形式                                                       |
-> | float16    | 半精度浮点型：1 符号位，5 比特位指数(exponent)，10 比特位尾数(mantissa)  |
-> | float32    | 单精度浮点型：1 符号位，8 比特位指数，23 比特位尾数                      |
-> | float64    | 双精度浮点型：1 符号位，11 比特位指数，52 比特位尾数                     |
-> | complex\_  | complex128 的简化形式                                                    |
-> | complex64  | 复数， 由两个 32 位浮点数表示                                            |
-> | complex128 | 复数， 由两个 64 位浮点数表示                                            |
+NumPy 支持比 Python 更多种类的数值类型。 下表显示了 NumPy 中定义的不同标量数据类型。
+
+| 数据类型   | 说明                                                             |
+| :--------- | :--------------------------------------------------------------- |
+| bool       | 布尔类型，True 或者 False。                                      |
+| bool\_     | 布尔值（真、 True 或假、 False） ， 用一个字节存储               |
+| int\_      | 默认整型（类似于 C 语言中的 long， 通常情况下是 int64 或 int32） |
+| intc       | 与 C 语言的 int 类型一致，一般是 int32 或者 int64                |
+| intp       | 用于索引的整数，与 C 预言中的 ssize_t 一致，int32 或者 int64     |
+| int8       | 字节长度的整数，取值：[-128, 127]                                |
+| int16      | 16 位长度的整数，取值：[-32768, 32767]                           |
+| int32      | 32 位长度的整数，取值：[-2^31, 2^31-1]                           |
+| int64      | 64 位长度的整数，取值：[-2^^63, 2^63-1]                          |
+| uint8      | 8 位无符号整数，取值：[0, 255]                                   |
+| uint16     | 16 位无符号整数，取值：[0, 65535]                                |
+| uint32     | 32 位无符号整数，取值：[0, 2^32-1]                               |
+| uint64     | 64 位无符号整数，取值：[0, 2^64-1]                               |
+| float16    | 16 位半精度浮点数：1 位符号位，5 位指数，10 位尾数               |
+| float32    | 32 位半精度浮点数：1 位符号位，8 位指数，23 位尾数               |
+| float64    | 64 位半精度浮点数：1 位符号位，11 位指数，52 位尾数              |
+| float      | float64 的简化形式                                               |
+| float\_    | float64 的简化形式                                               |
+| complex64  | 复数类型，实部和虚部都是 32 位浮点数                             |
+| complex128 | 复数类型，实部和虚部都是 64 位浮点数                             |
+
+浮点数：（符号）尾数\*10 指数；
+复数：实部(.real)+虚部 i（.imag）；
+
+NumPy 数字类型是`dtype`（数据类型）对象的实例，每个对象具有唯一的特征。 这些类型可以是`np.bool_`，`np.float32`等。
 
 ### NumPy 数组内存布局
 
 [ndarray.flags](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flags.html#numpy.ndarray.flags)
 
-要打印 NumPy 数组的内存排布，可以使用数组对象的 `flags` 属性。`flags` 包含了有关数组内存布局的各种信息，包括是否是连续的内存布局（C-连续或F-连续）、是否可写、是否拥有自己的数据等。
+要打印 NumPy 数组的内存排布，可以使用数组对象的 `flags` 属性。`flags` 包含了有关数组内存布局的各种信息，包括是否是连续的内存布局（C-连续或 F-连续）、是否可写、是否拥有自己的数据等。
 
 以下是如何读取 `.npy` 文件并查看其内存排布的示例：
 
@@ -454,7 +460,6 @@ print(array.flags)
 
 使用 NumPy 加载 `.npy` 文件时会**自动识别数据的形状和类型**，因此只需要指定文件路径即可。
 
-
 #### 保存数组为 `.npy` 文件
 
 ```python
@@ -593,7 +598,7 @@ print(loaded_array)
    - `fname`：文件名，或者文件对象。
    - `X`：要保存的数组。
    - `fmt`：数据格式，默认是 `'%.18e'`，支持以下格式化控制。可以指定不同的格式化字符串，如 `'%.2f'`（保留两位小数）。
-     Further explanation of the *fmt* parameter (`%[flag]width[.precision]specifier`):
+     Further explanation of the _fmt_ parameter (`%[flag]width[.precision]specifier`):
 
      - flags:
 
@@ -623,6 +628,7 @@ print(loaded_array)
        `s` : string of characters
        `u` : unsigned decimal integer
        `x,X` : unsigned hexadecimal integer
+
    - `delimiter`：分隔符，默认是空格，可以设定为逗号、制表符等。仅对于二维数组生效，一维数组需要 `reshape(1, -1)`。
 
    **示例代码**：
@@ -639,7 +645,7 @@ print(loaded_array)
    print(f"{'array:': <15} shape: {str(array.shape)+',': <20} nbytes: {str(array.nbytes)+',': <10} dtype: {str(array.dtype)+',': <10}")
    ```
 
-   **大于2维的数组写入文件函数**：
+   **大于 2 维的数组写入文件函数**：
 
    ```python
    def save_to_txt(input_array, file_name):
@@ -671,19 +677,18 @@ print(loaded_array)
    save_to_txt(arr_hw, "formatted_array.txt")
    ```
 
-
 2. **使用 `numpy.array2string` 将数组格式化为字符串（不保存文件）**
 
    如果希望将 `ndarray` 转换为字符串格式，可以使用 `numpy.array2string`：
 
-   > 注：跟直接print到屏幕一样，输出长内容会隐藏内容
+   > 注：跟直接 print 到屏幕一样，输出长内容会隐藏内容
 
    ```python
    import numpy as np
-   
+
    # 创建一个数组
    array = np.array([[1.23456, 2.34567, 3.45678], [4.56789, 5.67890, 6.78901]])
-   
+
    # 转换为字符串格式，保留两位小数
    array_str = np.array2string(array, precision=2, separator=",")
    print("格式化后的数组字符串：")
@@ -694,4 +699,3 @@ print(loaded_array)
 
 - **保存到文本文件**：使用 `numpy.savetxt`，可以指定格式和分隔符。
 - **转换为字符串**：使用 `numpy.array2string`，灵活控制精度和分隔符。
-
