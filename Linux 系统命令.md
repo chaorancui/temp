@@ -52,11 +52,11 @@ ubuntu 最小安装时，可能会遇到没有内置的编辑器的情况，vi/v
    ```bash
    # 备份
    sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
-
+   
    # 更新默认源
    # 从 http://archive.ubuntu.com/ 替换为 http://mirrors.ustc.edu.cn/ 即可。
    sudo sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources
-
+   
    # 更新安全源，因镜像站同步有延迟，可能会导致生产环境系统不能及时检查、安装上最新的安全更新，不建议替换 security 源。
    # 从 http://security.ubuntu.com/ 替换为 https://mirrors.ustc.edu.cn/ 即可。
    sudo sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/ubuntu.sources
@@ -72,8 +72,16 @@ ubuntu 最小安装时，可能会遇到没有内置的编辑器的情况，vi/v
 
 ### 传统 & deb822
 
+**Ubuntu：**
+
 在 Ubuntu 24.04 之前，Ubuntu 的软件源配置文件使用传统的 One-Line-Style，路径为 `/etc/apt/sources.list`；
 从 Ubuntu 24.04 开始，Ubuntu 的软件源配置文件变更为 DEB822 格式，路径为 `/etc/apt/sources.list.d/ubuntu.source`。
+
+**Debian：**
+
+大部分 Debian 的软件源配置文件使用传统的 One-Line-Style，路径为 `/etc/apt/sources.list`；
+但是对于容器镜像，从 Debian 12 开始，其软件源配置文件变更为 DEB822 格式，路径为 `/etc/apt/sources.list.d/debian.sources`。
+一般情况下，将对应文件中 Debian 默认的源地址 `http://deb.debian.org/` 替换为镜像地址即可。
 
 > 什么是 DEB822 (.sources) 文件格式？
 >
