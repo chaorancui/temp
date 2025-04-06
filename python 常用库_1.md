@@ -629,8 +629,12 @@ print(loaded_array)
        `u` : unsigned decimal integer
        `x,X` : unsigned hexadecimal integer
 
-   - `delimiter`：分隔符，默认是空格，可以设定为逗号、制表符等。仅对于二维数组生效，一维数组需要 `reshape(1, -1)`。
-
+   - `delimiter`：分隔符，**默认是空格**，可以设定为逗号、制表符等。仅对于二维数组生效，一维数组需要 `reshape(1, -1)`。
+   - `newline`：换行符，分隔行的字符串或字符。**默认是换行**。
+   - `header`标题，将写入文件开头的字符串。。
+   - `footer`：页脚，将被写入文件末尾的字符串。。
+   - `comments`：评论，将被添加到header和footer字符串前面的字符串，以将它们标记为注释。**默认值：'#'**。
+   - `encoding`：编码，用于对输出文件进行编码的编码。不适用于输出流。。
    **示例代码**：
 
    ```python
