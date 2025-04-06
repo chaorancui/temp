@@ -534,7 +534,7 @@ with open('example.txt', 'r') as file:
 
    ```python
    import sqlite3
-
+   
    try:
        with sqlite3.connect('example.db') as conn:
            cursor = conn.cursor()
@@ -767,10 +767,10 @@ finally:
            print("这行不会执行")
        except ZeroDivisionError:
            print("捕获到除零错误")
-
+   
    print("程序继续执行")  # 这行会执行，因为异常被捕获了
    caught_example()
-
+   
    # 运行结果:
    # 开始执行
    # 捕获到除零错误
@@ -791,10 +791,10 @@ finally:
        except ZeroDivisionError:
            print("捕获到除零错误")
            sys.exit(1)
-
+   
    print("程序继续执行")  # 这行不会执行，因为程序被显示终止
    caught_example()
-
+   
    # 运行结果:
    # 开始执行
    # 捕获到除零错误
@@ -809,10 +809,10 @@ finally:
        # 这里会产生除零错误
        result = 10 / 0
        print("这行不会执行")  # 这行代码不会执行，因为上面的异常未被捕获
-
+   
    print("程序继续")  # 这行也不会执行
    uncaught_example()
-
+   
    # 运行结果:
    # 开始执行
    # ZeroDivisionError: division by zero
@@ -1539,13 +1539,13 @@ Python 的字符串（`str` 类型）提供了许多内置方法，用于处理�
 
    ```python
    import sys
-
+   
    try:
        print("程序即将退出...")
        sys.exit(1)
    except SystemExit as e:
        print(f"捕获到退出异常，退出码为：{e.code}")
-
+   
    # 输出：
    # 复制编辑程序即将退出...
    # 捕获到退出异常，退出码为：1
@@ -1656,6 +1656,50 @@ check_color(Color.RED)  # 输出: Color is RED
 
 - `is` **保证是同一个对象**，不会因为 `Enum` 继承类的特殊性导致错误。
 - `==` 也可以使用，但 `is` 更推荐用于 `Enum` 的判等。
+
+## eval()
+
+`eval()` 是 Python 内置函数，用于执行字符串形式的 Python 表达式，并返回表达式的计算结果。它的基本语法是：
+
+```python
+eval(expression, globals=None, locals=None)
+```
+
+- **expression**: 必须是一个字符串，表示要执行的 Python 表达式。
+- **globals** (可选): 一个字典，表示全局命名空间。默认为 `None`，即使用当前的全局命名空间。
+- **locals** (可选): 一个字典，表示局部命名空间。默认为 `None`，即使用当前的局部命名空间。
+
+**用法示例：**
+
+```python
+x = 10
+expression = "x * 2"
+result = eval(expression)  # 结果是 20
+print(result)
+```
+
+**高级用法：**
+
+你可以通过 `globals` 和 `locals` 参数控制作用域。例如：
+
+```python
+x = 5
+globals_dict = {"x": 10}
+locals_dict = {}
+expression = "x + 2"
+
+# 使用自定义的全局作用域
+result = eval(expression, globals_dict, locals_dict)  # 结果是 12
+print(result)
+```
+
+**安全性注意：**
+
+`eval()` 是一个非常强大的功能，但由于它会执行传入的任意代码，因此它有潜在的安全风险。如果用户输入恶意代码，可能会执行不安全的操作。因此，尽量避免使用 `eval()`，尤其是在处理不可信的输入时。如果需要执行字符串中的数学表达式，考虑使用 `ast.literal_eval()`，它更安全，只允许解析常见的字面量数据（如字符串、数字、列表、字典等）。
+
+**总结：**
+
+`eval()` 主要用于动态执行字符串形式的 Python 表达式，但需要谨慎使用，特别是在涉及不受信任的数据时。
 
 # PyQt5
 
