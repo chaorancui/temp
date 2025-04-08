@@ -2,85 +2,71 @@
 
 ## git 技巧
 
-### 导出修改为 patch
+### 导出/应用 patch
 
-如果你想导出多个提交的 patch，可以将 `-1` 替换为数字，表示导出的提交数，例如：
+有时候需要一个代码仓导出差异，然后应用到另一个代码仓。有两种常用的方法可以实现这个需求:
 
-```bash
-git format-patch -3 <commit_id>
-```
-
-这会导出从指定提交开始的最近三个提交的 patch 文件。
-
-此外，你也可以指定输出目录：
-
-```bash
-git format-patch -3 <commit_id> -o /path/to/output/directory
-```
-
-这些命令生成的 `.patch` 文件可以被用来应用到其他 Git 仓库或分享给他人。
-
-假设我们有一个 Git 仓库，并且做了一些修改，我们想要将这些修改导出为 patch 文件。
-
-1. 导出当前工作目录中的修改为 Patch 文件
-
-   假设你在工作目录中修改了文件，想将这些未提交的更改导出为一个 patch 文件：
+1. **普通格式补丁**：使用 git diff 和 git apply
 
    ```bash
-   git diff > xxxx.patch
-   git diff > my_changes.patch
+   # 工作区未提交的更改导出为一个 patch 文件
+   git diff > changes.patch
+
+   # 在目标仓库中应用 patch
+   git apply changes.patch
    ```
 
-   这条命令会将**工作目录中所有未提交的更改**（即暂存区和工作目录的区别）导出为一个 patch 文件 `my_changes.patch`。
-
-2. 导出某个提交的修改为 Patch 文件
-
-   假设你已经提交了一些更改，并且想**导出某个提交的差异**。首先，你需要找到该提交的 ID（哈希值）。然后使用以下命令导出该提交的修改：
+2. **邮件格式补丁**：使用 git format-patch 和 git am
 
    ```bash
-   git format-patch -1 <commit_id>
-   ```
-
-   其中 `<commit_id>` 是你想导出的提交的哈希值，`-1` 表示导出一个提交的 patch。假设你找到的提交 ID 是 `abc1234`，然后使用以下命令导出该提交的修改：
-
-   ```bash
-   git format-patch -1 abc1234
-   ```
-
-   这将导出提交 `abc1234` 的修改为一个 patch 文件，文件名通常是类似 `0001-commit-message.patch` 的形式，里面包含了该提交的差异。
-
-3. 导出多个提交的修改为 Patch 文件
-
-   如果你想导出最近的多个提交的修改，比如最近的 3 个提交，可以使用以下命令：这会导出从指定提交开始的最近三个提交的 patch 文件。
-
-   ```bash
-   # 从指定提交开始的最近三个提交的
+   # 在源仓库生成格式化的 patch
+   git format-patch HEAD~1  # 最近一次提交的改动
+   # 或从指定提交开始的最近三个提交，省略<commit_id>默认为最近的三个提交
    git format-patch -3 <commit_id>
-   # 默认为最近的三个提交
-   git format-patch -3
+   # 或者指定提交范围
+   git format-patch <start-commit>..<end-commit> # 包含头尾
+
+   # 在目标仓库应用改动
+   git am < 0001-commit-message.patch
    ```
 
-   这会导出最近的三个提交为三个独立的 patch 文件，文件名会是类似 `0001-commit-message.patch`、`0002-commit-message.patch`、`0003-commit-message.patch` 的形式。
+   - `-o` 选项指定 patch 保存目录：`git format-patch -3 -o /path/to/patches/`
 
-4. 导出指定范围的提交为 Patch 文件
+git format-patch 相比 git diff 的**优势是可以保留提交信息和作者信息**。
 
-   假设你想导出从提交 `abc1234` 到 `def5678` 之间的所有修改：
+### 应用 patch 冲突
+
+**冲突报错**：
+
+直接应用 patch 有时候会失败，
+
+```log
+warning: xxx.xxx has type xxx, expected xxx
+error: patch failed: xxx
+error: xxx: patch does not apply
+```
+
+原因可能如下：
+
+- 目标文件的内容已经被修改，和补丁中的内容不匹配。
+- 补丁的上下文（即修改所在的行号或内容）发生了变化，导致无法应用。
+
+**解决方法**：
+
+1. 使用 git apply 时可以尝试 --reject 参数
 
    ```bash
-   git format-patch abc1234..def5678
+   git apply --reject xxx.patch
    ```
 
-   这会导出从 `abc1234` 到 `def5678` 之间的所有提交的差异，每个提交会生成一个独立的 patch 文件。
+   这会在冲突文件旁生成 `.rej` 文件，表示无法应用的补丁部分，然后需要手动查看 `.rej` 文件，手动把未应用的部分修改到目标文件上。`.rej` 文件较大时不适用。
 
-5. 导出多个提交到指定目录
+2. wiggle 命令处理 .rej 文件
 
-   如果你想把多个提交的 patch 文件保存到一个指定的目录，可以使用 `-o` 选项：
+   wiggle 是一个用于解决 git apply 生成的 .rej 文件中的冲突并自动合并的工具。它可以帮助你将补丁文件应用到目标文件，并且自动解决冲突，避免手动编辑 .rej 文件的繁琐过程。
 
-   ```bash
-   git format-patch -3 -o /path/to/patches/
-   ```
-
-   这会把最近的三个提交导出的 patch 文件保存到 `/path/to/patches/` 目录中。
+   wiggle 的作用
+   当 git apply 无法应用补丁时，它会生成 .rej 文件，其中包含无法应用的部分。wiggle 的作用就是帮助你自动合并这些无法应用的部分，尤其是在补丁冲突时，能够自动尝试进行三方合并。它会尝试使用文件中的上下文来自动解决冲突，而无需你手动干预。
 
 ### git 仓库忽略大小写
 
