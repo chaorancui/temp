@@ -104,6 +104,116 @@ Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
   - 是否内核支持对应驱动
   - `dmesg` 中是否有设备识别失败的提示
 
+## lshw 命令
+
+`lshw`（**List Hardware**）是 Linux 下一个非常强大的**硬件信息查看工具**，可以详细列出系统中主板、CPU、内存、网卡、磁盘、总线等的硬件型号、序列号、速度、驱动、厂商、固件版本等等。相比 `lscpu`、`lsblk` 等专用工具，`lshw` 更像是一个全能硬件侦探。
+
+**安装方式**：
+
+```bash
+# Debian/Ubuntu
+sudo apt install lshw
+# Arch Linux
+sudo yum install lshw
+# Arch Linux
+sudo yum install lshw
+```
+
+**常用选项总结**：
+
+| 选项            | 说明                                            |
+| --------------- | ----------------------------------------------- |
+| `-short`        | 简洁模式，快速查看硬件                          |
+| `-class [类型]` | 只列出指定类别（如 cpu、memory、disk、network） |
+| `-C [类型]`     | 同 `-class`，大小写敏感更宽容                   |
+| `-sanitize`     | 屏蔽序列号、MAC 等敏感信息                      |
+| `-json`         | 以 JSON 格式输出                                |
+| `-html`         | 输出为 HTML 格式（适合做报告）                  |
+| `-quiet`        | 静默模式，隐藏错误或警告信息                    |
+
+---
+
+**示例用法**：
+
+1. 查看 CPU 信息
+
+   ```bash
+   sudo lshw -class cpu
+
+   # 输出示例：
+     *-cpu
+          description: CPU
+          product: Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz
+          vendor: Intel Corp.
+          physical id: 3
+          bus info: cpu@0
+          width: 64 bits
+   ```
+
+2. 简洁模式查看硬件总览
+
+   ```bash
+   sudo lshw -short
+
+   # 示例输出：
+   H/W path       Device      Class          Description
+   =====================================================
+   /0/0                        memory         64KiB BIOS
+   /0/4                        processor      Intel Core i7
+   /0/100/1f.2    /dev/sda     disk           512GB SSD
+   /0/100/1f.3                 multimedia     Audio device
+   ```
+
+3. 查看内存信息
+
+   ```bash
+   sudo lshw -class memory
+   ```
+
+   可以看到物理内存槽数量、已插入的内存条型号、容量等。
+
+4. 导出为 HTML 或 JSON
+
+   ```bash
+   sudo lshw -html > hardware.html
+   sudo lshw -json > hardware.json
+   ```
+
+   适合文档记录或做硬件审计报告。
+
+**能查看的硬件类型**：
+
+你可以用 `lshw -class [类型]` 查看：
+
+- `cpu` – 处理器
+- `memory` – 内存
+- `disk` – 磁盘设备（HDD、SSD、NVMe）
+- `network` – 网卡
+- `storage` – 控制器（如 SATA/NVMe 控制器）
+- `display` – 显卡
+- `bus` – 总线（如 PCIe、USB 控制器）
+- `battery` – 电池（笔记本）
+- `system` – 主机名、厂商、BIOS
+
+  **注意事项**：
+
+- **必须加 `sudo`** 才能看到最完整的信息，否则很多设备会显示不全。
+- 某些设备（比如 NVMe）可能不会被完全识别，需要搭配 `lsblk` / `nvme list`。
+- 如果你觉得 `lshw` 输出太多，可以搭配 `less` 或 `grep` 过滤。
+
+**vs 其他工具对比**：
+
+| 工具                     | 功能强度 | 覆盖范围   | 输出风格     | 是否图形 |
+| ------------------------ | -------- | ---------- | ------------ | -------- |
+| `lshw`                   | ⭐⭐⭐⭐ | 全面       | 树状/表格    | ❌       |
+| `lscpu`                  | ⭐       | 仅 CPU     | 表格         | ❌       |
+| `lsblk`                  | ⭐⭐     | 存储设备   | 树状         | ❌       |
+| `hwinfo`                 | ⭐⭐⭐⭐ | 全面       | 超详细       | ❌       |
+| `inxi`                   | ⭐⭐⭐⭐ | 综合、简洁 | 表格         | ❌       |
+| `neofetch`/`screenfetch` | ⭐       | 炫酷简要   | 终端艺术风格 | ❌       |
+
+> `lshw` 就是 Linux 下的“全套硬件扫描神器”，用来查主板、CPU、内存、磁盘、网卡等都非常靠谱，适合做系统评估、排查硬件、制作硬件清单。
+
 # 系统信息命令
 
 ## dmesg 命令
