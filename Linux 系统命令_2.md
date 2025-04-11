@@ -28,6 +28,82 @@ lspci [options]
 lspci | grep -i net
 ```
 
+## lsusb 命令
+
+> lsusb 查看当前有哪些 usb 设备。注意：插在 usb 口上的外接设备一定能通过 lsusb 显示出来，但是不一定能通过 lspci 显示出来，即使这个设备的驱动已经安装了。
+
+`lsusb` 是 Linux 系统中一个非常常用的命令，用于列出连接到系统上的 USB（通用串行总线）设备的信息。这个命令主要用于调试和查看 USB 设备的状态，是排查 USB 设备识别问题的利器。
+
+**基本用法**：
+
+```bash
+lsusb
+```
+
+这条命令会列出当前系统识别到的所有 USB 设备，每个设备一行。输出示例如下：
+
+```log
+Bus 002 Device 003: ID 046d:c52b Logitech, Inc. Unifying Receiver
+Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
+```
+
+字段解释：
+
+- `Bus 002`: USB 总线编号
+- `Device 003`: USB 设备号（在该总线上的编号）
+- `ID 046d:c52b`: USB 设备的厂商 ID（Vendor ID）和产品 ID（Product ID）
+- `Logitech, Inc. Unifying Receiver`: 设备厂商和设备名称（如能识别）
+
+---
+
+**常用选项**：
+
+| 选项                    | 说明                                                                |
+| ----------------------- | ------------------------------------------------------------------- |
+| `-v`                    | 显示详细信息（verbose），会输出每个设备的详细描述。需要 root 权限。 |
+| `-t`                    | 以树状结构显示设备之间的拓扑关系。                                  |
+| `-s [bus]:[dev]`        | 只查看指定的 Bus 和 Device 编号的设备信息。                         |
+| `-d [vendor]:[product]` | 只查看指定 Vendor ID 和 Product ID 的设备。                         |
+| `-V`                    | 显示 `lsusb` 版本信息。                                             |
+
+**示例**：
+
+1. 查看详细信息（root 权限推荐）
+
+   ```bash
+   sudo lsusb -v
+   ```
+
+2. 查看树状结构
+
+   ```bash
+   lsusb -t
+   ```
+
+3. 查看指定设备的详细信息
+
+   ```bash
+   lsusb -s 002:003 -v
+   ```
+
+**补充说明**：
+
+- `lsusb` 本质上是 `usbutils` 软件包的一部分，在大多数 Linux 发行版中可以通过以下命令安装：
+
+  ```bash
+  # Debian/Ubuntu
+  sudo apt install usbutils
+  # RedHat/CentOS/Fedora
+  sudo dnf install usbutils
+  # Arch
+  sudo pacman -S usbutils
+  ```
+
+- 如果你插了设备，但 `lsusb` 里看不到，可能需要检查：
+  - 是否物理连接没问题
+  - 是否内核支持对应驱动
+  - `dmesg` 中是否有设备识别失败的提示
+
 # 系统信息命令
 
 ## dmesg 命令
