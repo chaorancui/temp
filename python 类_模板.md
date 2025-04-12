@@ -798,6 +798,129 @@ class Example:
 3. 如果方法不需要访问任何类或实例状态，使用静态方法
 4. 谨慎使用私有方法，主要用于隐藏内部实现细节
 
+## 不同方法调用限制
+
+通过代码示例来解释不同方法之间的相互调用规则和限制：
+
+```python
+class MethodCallExample:
+    class_var = "class variable"
+
+    def __init__(self):
+        self.instance_var = "instance variable"
+
+    # 1. 实例方法调用其他方法
+    def instance_method(self):
+        print("实例方法可以调用：")
+        # 调用其他实例方法
+        self.another_instance_method()
+        # 调用私有方法
+        self.__private_method()
+        # 调用类方法
+        self.class_method()  # 或 MethodCallExample.class_method()
+        # 调用静态方法
+        self.static_method()  # 或 MethodCallExample.static_method()
+
+    def another_instance_method(self):
+        print("another instance method")
+
+    # 2. 类方法调用其他方法
+    @classmethod
+    def class_method(cls):
+        print("类方法可以调用：")
+        # 调用静态方法
+        cls.static_method()  # 或 MethodCallExample.static_method()
+        # 调用其他类方法
+        cls.another_class_method()
+
+        # 不能直接调用实例方法（需要实例对象）
+        # cls.instance_method()  # 错误
+
+        # 但可以创建实例后调用
+        instance = cls()
+        instance.instance_method()
+
+    @classmethod
+    def another_class_method(cls):
+        print("another class method")
+
+    # 3. 静态方法调用其他方法
+    @staticmethod
+    def static_method():
+        print("静态方法可以调用：")
+        # 调用其他静态方法
+        MethodCallExample.static_method2()
+        # 调用类方法
+        MethodCallExample.class_method()
+
+        # 不能直接调用实例方法（需要实例对象）
+        # MethodCallExample.instance_method()  # 错误
+
+        # 可以创建实例后调用
+        instance = MethodCallExample()
+        instance.instance_method()
+
+    @staticmethod
+    def static_method2():
+        print("static method 2")
+
+    # 4. 私有方法调用其他方法
+    def __private_method(self):
+        print("私有方法可以调用：")
+        # 与实例方法的调用权限相同
+        self.instance_method()
+        self.class_method()
+        self.static_method()
+        self.__another_private_method()
+
+    def __another_private_method(self):
+        print("another private method")
+```
+
+**调用规则总结**：
+
+1. 实例方法：
+
+   - 可以调用任何其他方法
+   - 调用实例方法和私有方法需要使用 self
+   - 调用类方法和静态方法可以用 self 或类名
+
+2. 类方法：
+
+   - 可以调用其他类方法和静态方法
+   - 不能直接调用实例方法和私有方法
+   - 如果需要调用实例方法，必须先创建实例
+
+3. 静态方法：
+
+   - 可以调用其他静态方法和类方法（通过类名）
+   - 不能直接调用实例方法和私有方法
+   - 如果需要调用实例方法，必须先创建实例
+
+4. 私有方法：
+
+   - 调用权限同实例方法
+   - 可以调用任何其他方法
+
+**最佳实践建议**：
+
+1. 方法调用应遵循最小权限原则：
+
+   - 如果只需要调用静态方法，就使用静态方法
+   - 如果需要访问类状态，就使用类方法
+   - 如果需要访问实例状态，才使用实例方法
+
+2. 避免复杂的调用链：
+
+   - 保持方法之间的调用关系清晰
+   - 避免循环调用
+   - 减少不必要的相互依赖
+
+3. 合理使用私有方法：
+
+   - 私有方法主要用于封装内部实现
+   - 避免在类外部访问私有方法
+
 ## 获取类的变量
 
 在 Python 中，获取类的变量（包括**类变量**和**实例变量**）可以通过内置函数和标准库模块来实现。主要的方法有两种：使用 **`__dict__` 属性**和 **`inspect` 模块**。
