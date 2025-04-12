@@ -1,3 +1,5 @@
+[toc]
+
 # python 常用库
 
 ## 使用 `pipdeptree` 检查依赖树
@@ -156,10 +158,10 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      ```python
      path_file = '/path/to/file.txt'
      path_directory = '/path/to/directory'
-  
+
      is_file = os.path.isfile(path_file)
      is_directory = os.path.isdir(path_directory)
-  
+
      print(f"{path_file} is a file:", is_file)
      print(f"{path_directory} is a directory:", is_directory)
      ```
@@ -170,7 +172,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      path = '/path/to/file_or_directory'
-  
+
      if os.path.exists(path):
          print(f"{path} exists!")
      else:
@@ -187,13 +189,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      import time
-  
+
      path = '/path/to/file.txt'
-  
+
      size = os.path.getsize(path)
      last_modified = os.path.getmtime(path)
      creation_time = os.path.getctime(path)
-  
+
      print(f"Size of {path}: {size} bytes")
      print(f"Last modified: {time.ctime(last_modified)}")
      print(f"Created on: {time.ctime(creation_time)}")
@@ -206,10 +208,10 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      ```python
      path_absolute = '/absolute/path/to/file.txt'
      path_relative = 'relative/path/to/file.txt'
-     
+
      is_absolute = os.path.isabs(path_absolute)
      is_relative = os.path.isabs(path_relative)
-     
+
      print(f"{path_absolute} is absolute:", is_absolute)
      print(f"{path_relative} is absolute:", is_relative)
      ```
@@ -222,7 +224,7 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      import os
-  
+
      path = os.path.join('/path/to', 'directory', 'file.txt')
      print(path)  # 输出: /path/to/directory/file.txt
      ```
@@ -248,13 +250,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      >
      >    ```python
      >    import os
-     >   
+     >
      >    # 示例路径片段
      >    path1 = "/home/user"
      >    path2 = ""
      >    path3 = "documents"
      >    path4 = "file.txt"
-     >   
+     >
      >    # 使用 os.path.join 连接路径
      >    full_path = os.path.join(path1, path2, path3, path4)
      >    print(full_path) # /home/user/documents/file.txt
@@ -368,9 +370,9 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      path_link = '/path/to/symlink'
-  
+
      is_link = os.path.islink(path_link)
-  
+
      print(f"{path_link} is a symbolic link:", is_link)
      ```
 
@@ -380,9 +382,9 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
      ```python
      path = '/path/to/../file.txt'
-  
+
      normalized_path = os.path.normpath(path)
-  
+
      print(f"Original path: {path}") # 输出："/path/to/../file.txt"
      print(f"Normalized path: {normalized_path}") # 输出："/path/file.txt"
      ```
@@ -394,9 +396,9 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
      ```python
      path1 = '/path/to/file1.txt'
      path2 = '/path/to/file2.txt'
-     
+
      is_same = os.path.samefile(path1, path2)
-     
+
      print(f"{path1} and {path2} point to the same file:", is_same)
      ```
 
@@ -407,13 +409,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```shell
    import os
-   
+
    # 设置要查找的文件夹路径
    folder_path = "/path/to/your/folder"
-   
+
    # 查找文件夹中以 ".bin" 结尾的文件
    files = [f for f in os.listdir(folder_path) if f.endswith('.bin')]
-   
+
    # 打印找到的文件列表
    for file in files:
        print(file)
@@ -430,13 +432,13 @@ Python 的 `os` 模块提供了许多与操作系统交互的函数，可以用�
 
    ```shell
    import os
-   
+
    output_file = "example.txt"  # 替换为你的实际文件路径
-   
+
    directory = os.path.dirname(output_file)
    if not directory: # 如果 directory 为空，设置为当前目录
        directory = "."
-   
+
    os.makedirs(directory, exist_ok=True) # directory 为空，此命令会报错
    ```
 
@@ -1351,51 +1353,26 @@ print(f"File mode string: {mode_string}")
 
 在 Python 中，`logging` 是一个标准库模块，用于记录程序运行时的日志信息。通过合理使用 `logging` 模块，可以帮助开发者更好地理解程序运行过程中的状态和问题，从而更轻松地进行调试和故障排查。
 
-以下是使用 `logging` 模块的基本方法和常见用法：
+### 用法介绍
 
-### 基本用法
-
-1. **导入模块**
+1. **基础用法：**
 
    ```python
    import logging
-   ```
 
-2. **设置日志级别**
+   # 设置基本配置
+   logging.basicConfig(
+       level=logging.INFO,  # 日志级别
+       format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',  # 日志格式
+       filename='app.log'  # 日志文件
+   )
 
-   `logging` 模块提供了多个日志级别，如 `DEBUG`、`INFO`、`WARNING`、`ERROR` 和 `CRITICAL`。通过设置不同的日志级别，可以控制记录的详细程度。
-
-   ```python
-   logging.basicConfig(**kwargs)
-   ```
-
-   **常用参数**
-
-   - `filename`：指定日志输出到的文件名。如果不指定，日志将输出到控制台。
-   - `filemode`：指定文件打开模式，默认是 `'a'`（追加模式）。常用模式还有 `'w'`（写模式，覆盖原有文件）。
-   - `format`：指定日志记录的格式字符串。
-   - `datefmt`：指定日期和时间的格式。
-   - `level`：设置日志记录的最低严重级别。常见级别有 `logging.DEBUG`, `logging.INFO`, `logging.WARNING`, `logging.ERROR`, `logging.CRITICAL`。设置为 `DEBUG`，意味着所有级别的日志信息都会被记录。
-   - `handlers`：指定一个处理器列表，用于自定义处理器（Python 3.3 及以上版本支持）。
-
-3. **记录日志**
-
-   使用不同级别的日志记录函数来记录不同级别的日志信息：
-
-   ```python
-   logging.debug('This is a debug message')
-   logging.info('This is an info message')
-   logging.warning('This is a warning message')
-   logging.error('This is an error message')
-   logging.critical('This is a critical message')
-   ```
-
-4. **输出格式**
-
-   默认情况下，日志信息会按照一定的格式输出到控制台。可以通过设置 `format` 参数来自定义日志输出的格式。
-
-   ```python
-   logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s')
+   # 使用日志
+   logging.debug('调试信息')
+   logging.info('一般信息')
+   logging.warning('警告信息')
+   logging.error('错误信息')
+   logging.critical('严重错误信息')
    ```
 
    上述格式中：
@@ -1404,81 +1381,348 @@ print(f"File mode string: {mode_string}")
    - `%(levelname)s` 表示日志级别名称
    - `%(message)s` 表示日志消息
 
-**示例**：
+2. **创建自定义 logger，将日志同时输出到控制台和文件**
 
-```python
-import logging
+   ```python
+   import logging
 
-# 设置日志级别和输出格式
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+   # 创建logger
+   logger = logging.getLogger('my_app')
+   logger.setLevel(logging.DEBUG)
 
-# 记录不同级别的日志信息
-logging.debug('This is a debug message')
-logging.info('This is an info message')
-logging.warning('This is a warning message')
-logging.error('This is an error message')
-logging.critical('This is a critical message')
-```
+   # 创建文件处理器
+   file_handler = logging.FileHandler('app.log')
+   file_handler.setLevel(logging.INFO)
 
-运行上述示例，会输出类似以下内容的日志信息：
+   # 创建控制台处理器
+   console_handler = logging.StreamHandler()
+   console_handler.setLevel(logging.DEBUG)
 
-```log
-2024-07-10 12:00:00,000 - DEBUG - This is a debug message
-2024-07-10 12:00:00,001 - INFO - This is an info message
-2024-07-10 12:00:00,002 - WARNING - This is a warning message
-2024-07-10 12:00:00,003 - ERROR - This is an error message
-2024-07-10 12:00:00,004 - CRITICAL - This is a critical message
-```
+   # 创建格式器
+   formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+   file_handler.setFormatter(formatter)
+   console_handler.setFormatter(formatter)
+
+   # 添加处理器到logger
+   logger.addHandler(file_handler)
+   logger.addHandler(console_handler)
+
+   # 使用logger
+   logger.debug('This is a debug message')
+   logger.info('This is an info message')
+   logger.warning('This is a warning message')
+   ```
+
+3. **在实际项目中的完整示例：**
+
+   ```python
+   import logging
+   import logging.handlers
+   import os
+
+   def setup_logger(name, log_file, level=logging.INFO):
+       """创建一个logger"""
+
+       # 创建logger目录
+       log_dir = os.path.dirname(log_file)
+       if not os.path.exists(log_dir):
+           os.makedirs(log_dir)
+
+       # 创建logger
+       logger = logging.getLogger(name)
+       logger.setLevel(level)
+
+       # 创建TimedRotatingFileHandler
+       file_handler = logging.handlers.TimedRotatingFileHandler(
+           log_file,
+           when='midnight',  # 每天午夜切换文件
+           interval=1,       # 间隔为1天
+           backupCount=30    # 保留30天的日志
+       )
+       file_handler.setLevel(level)
+
+       # 创建StreamHandler
+       console_handler = logging.StreamHandler()
+       console_handler.setLevel(level)
+
+       # 创建formatter
+       formatter = logging.Formatter(
+           '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
+       )
+
+       # 设置formatter
+       file_handler.setFormatter(formatter)
+       console_handler.setFormatter(formatter)
+
+       # 添加handlers
+       logger.addHandler(file_handler)
+       logger.addHandler(console_handler)
+
+       return logger
+
+   # 使用示例
+   class UserService:
+       def __init__(self):
+           self.logger = setup_logger(
+               'user_service',
+               'logs/user_service.log',
+               logging.DEBUG
+           )
+
+       def create_user(self, username):
+           try:
+               self.logger.info(f'开始创建用户: {username}')
+               # 业务逻辑
+               if not username:
+                   raise ValueError('用户名不能为空')
+               # 更多业务逻辑...
+               self.logger.info(f'用户创建成功: {username}')
+           except Exception as e:
+               self.logger.error(f'创建用户失败: {str(e)}', exc_info=True)
+               raise
+
+   # 使用服务
+   if __name__ == '__main__':
+       service = UserService()
+       try:
+           service.create_user('')
+       except Exception:
+           pass
+       service.create_user('alice')
+   ```
+
+4. **使用配置文件：**
+
+   ```python
+   # logging_config.py
+   import logging.config
+   import yaml
+
+   # 配置文件示例 (logging_config.yaml)
+   config = """
+   version: 1
+   formatters:
+     simple:
+       format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+     detailed:
+       format: '%(asctime)s - %(name)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s'
+
+   handlers:
+     console:
+       class: logging.StreamHandler
+       level: DEBUG
+       formatter: simple
+       stream: ext://sys.stdout
+
+     file:
+       class: logging.handlers.TimedRotatingFileHandler
+       level: INFO
+       formatter: detailed
+       filename: logs/app.log
+       when: midnight
+       interval: 1
+       backupCount: 30
+       encoding: utf8
+
+   loggers:
+     my_app:
+       level: DEBUG
+       handlers: [console, file]
+       propagate: no
+
+   root:
+     level: INFO
+     handlers: [console]
+   """
+
+   # 加载配置
+   def setup_logging():
+       config_dict = yaml.safe_load(config)
+       logging.config.dictConfig(config_dict)
+
+   # 使用示例
+   if __name__ == '__main__':
+       setup_logging()
+       logger = logging.getLogger('my_app')
+
+       logger.debug('调试信息')
+       logger.info('一般信息')
+       logger.warning('警告信息')
+   ```
+
+**主要注意点**：
+
+1. 日志级别（从低到高）：
+
+   - DEBUG: 详细调试信息
+   - INFO: 一般信息
+   - WARNING: 警告信息
+   - ERROR: 错误信息
+   - CRITICAL: 严重错误信息
+
+2. 最佳实践：
+
+   - 每个模块使用独立的 logger
+   - 使用适当的日志级别
+   - 配置日志轮转避免文件过大
+   - 包含足够的上下文信息
+   - 在异常处理中使用 exc_info=True 记录堆栈信息
+
+3. 性能考虑：
+
+   - 使用 lazy logging: `logger.debug('User %s logged in', username)` 而不是 `logger.debug(f'User {username} logged in')`
+   - 适当设置日志级别，避免过多日志
+   - 考虑使用异步日志处理器处理大量日志
+
+Python 的 `logging` 模块提供了多种 **handlers** 用于将日志输出到不同的目的地。`handlers` 允许你将日志信息输出到控制台、文件、远程服务器等，而不是直接在代码中使用简单的打印语句。相比直接使用 `print()` 或手动写入文件，使用 `logging` 模块的好处在于它提供了更丰富的功能，如日志级别、格式化、日志轮转、输出到多个目的地等。
 
 ### 高级用法
 
-- **将日志记录到文件**
+1. **将日志记录到文件**
 
-  可以通过设置 `filename` 参数将日志记录到文件中：
+   可以通过设置 `filename` 参数将日志记录到文件中：
 
-  ```python
-  logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-  ```
+   ```python
+   logging.basicConfig(filename='app.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+   ```
 
-- **添加处理程序**
+2. **添加处理程序**
 
-  可以添加多个处理程序，比如同时输出到控制台和文件：
+   可以添加多个处理程序，比如同时输出到控制台和文件：
 
-  ```python
-  console_handler = logging.StreamHandler()
-  file_handler = logging.FileHandler('app.log')
-  handlers = [console_handler, file_handler]
+   ```python
+   console_handler = logging.StreamHandler()
+   file_handler = logging.FileHandler('app.log')
+   handlers = [console_handler, file_handler]
 
-  logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=handlers)
-  ```
+   logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s', handlers=handlers)
+   ```
 
-- **使用 Logger 对象**
+### 常用 `handlers`
 
-  创建和配置 `Logger` 对象来进行更灵活的日志记录控制：
+1. **StreamHandler**
 
-  ```python
-  logger = logging.getLogger('my_app')
-  logger.setLevel(logging.DEBUG)
-  
-  # 创建一个文件处理程序和一个控制台处理程序
-  file_handler = logging.FileHandler('app.log')
-  console_handler = logging.StreamHandler()
-  
-  # 设置日志格式
-  formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-  file_handler.setFormatter(formatter)
-  console_handler.setFormatter(formatter)
-  
-  # 添加处理程序到 logger
-  logger.addHandler(file_handler)
-  logger.addHandler(console_handler)
-  
-  # 记录日志
-  logger.debug('Debug message')
-  logger.info('Info message')
-  ```
+   - 将日志输出到流（通常是控制台）。
+   - 适用于开发调试时，实时查看日志。
 
-通过这些方法，可以根据具体需求配置和管理日志记录，帮助开发人员更好地理解和调试程序运行过程中的各种情况和问题。
+   ```python
+   import logging
+
+   logger = logging.getLogger('my_logger')
+   handler = logging.StreamHandler()  # 输出到控制台
+   formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+   handler.setFormatter(formatter)
+   logger.addHandler(handler)
+
+   logger.setLevel(logging.DEBUG)
+   logger.debug('This is a debug message')
+   ```
+
+2. **FileHandler**
+
+   - 将日志输出到文件。
+   - 适用于生产环境中记录日志。
+
+   ```python
+   handler = logging.FileHandler('my_log.log')  # 输出到文件
+   handler.setFormatter(formatter)
+   logger.addHandler(handler)
+
+   logger.setLevel(logging.INFO)
+   logger.info('This is an info message')
+   ```
+
+3. **RotatingFileHandler**
+
+   - 将日志输出到文件并在文件大小达到一定阈值时自动进行文件轮换。
+   - 适用于日志文件会随着时间增长而变得很大的情况。
+
+   ```python
+   handler = logging.handlers.RotatingFileHandler(
+       'my_rotating_log.log', maxBytes=2000, backupCount=5
+   )  # 设置最大文件大小和备份数量
+   handler.setFormatter(formatter)
+   logger.addHandler(handler)
+
+   logger.setLevel(logging.DEBUG)
+   for i in range(1000):
+       logger.debug(f'Debug message {i}')
+   ```
+
+4. **TimedRotatingFileHandler**
+
+   - 将日志输出到文件并根据时间周期进行日志轮换（如每天、每小时等）。
+   - 适用于按时间进行日志文件管理的场景。
+
+   ```python
+   from logging.handlers import TimedRotatingFileHandler
+
+   handler = TimedRotatingFileHandler(
+       'timed_log.log', when='midnight', interval=1, backupCount=7
+   )  # 每天午夜轮换日志，保留7天的日志
+   handler.setFormatter(formatter)
+   logger.addHandler(handler)
+
+   logger.setLevel(logging.INFO)
+   logger.info('This is a timed log message')
+   ```
+
+5. **SocketHandler**
+
+   - 将日志发送到远程的日志服务器，通过网络连接。
+   - 适用于集中化日志管理的场景。
+
+   ```python
+   handler = logging.handlers.SocketHandler('localhost', logging.handlers.DEFAULT_TCP_LOGGING_PORT)
+   handler.setFormatter(formatter)
+   logger.addHandler(handler)
+
+   logger.setLevel(logging.ERROR)
+   logger.error('This is an error message sent to a remote server')
+   ```
+
+6. **SMTPHandler**
+
+   - 将日志通过电子邮件发送。
+   - 适用于在特定错误发生时需要立即通知相关人员的情况。
+
+   ```python
+   from logging.handlers import SMTPHandler
+
+   mail_handler = SMTPHandler(
+       mailhost='smtp.example.com',
+       fromaddr='your_email@example.com',
+       toaddrs=['recipient@example.com'],
+       subject='Error Log'
+   )
+   mail_handler.setFormatter(formatter)
+   logger.addHandler(mail_handler)
+
+   logger.setLevel(logging.ERROR)
+   logger.error('This is an error message sent by email')
+   ```
+
+**使用 `handlers` 的优势**
+
+- **日志级别控制**：通过 `handlers`，你可以对不同的输出目标设置不同的日志级别。例如，你可以将控制台输出限制为 `DEBUG`，而将文件输出限制为 `INFO` 或更高的级别。
+- **灵活的输出目标**：`handlers` 使得你可以轻松地将日志输出到多个不同的地方，比如控制台、文件、邮件、网络服务器等。
+- **日志轮换**：使用 `RotatingFileHandler` 或 `TimedRotatingFileHandler`，你可以设置日志文件的大小或时间，自动进行轮换并保存备份。这对于长期运行的应用程序非常有用，避免日志文件过大。
+- **格式化日志**：通过设置 `Formatter`，你可以控制日志的输出格式，包括时间戳、日志级别、消息内容等，使日志更加可读和结构化。
+- **日志集中管理**：`SocketHandler` 和其他类似的 `handlers` 可以将日志信息集中到一个服务器上，便于多台机器或应用程序的日志汇总，便于监控和分析。
+
+**总结**
+
+- **优势**：
+  - 提供多种日志输出方式（控制台、文件、网络等）。
+  - 支持日志级别控制。
+  - 提供日志轮换功能，避免日志文件过大。
+  - 支持格式化输出，使日志易于阅读和分析。
+  - 可以集中管理多个日志来源，适用于分布式应用。
+- **如何使用**：
+  - 创建适当的 `Handler`（如 `StreamHandler`, `FileHandler` 等）。
+  - 配置日志格式（`Formatter`）。
+  - 将 `Handler` 添加到 `Logger`。
+  - 可以使用多个 `Handler` 将日志输出到不同的目标（如控制台和文件）。
 
 ## struct 模块
 
