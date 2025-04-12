@@ -489,6 +489,7 @@ exit
         "MD013": false,  // 禁用行长限制规则
         "MD024": false,  // 禁用重复标题
         "MD033": false,  // 禁用HTML标签内的警告
+        "MD036": false,  // 禁用强调代替标题
         "MD041": false, // 禁用首行应该为top-level标题
         "MD045": false, // 禁用图片 alt text
     },
