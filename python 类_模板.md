@@ -514,72 +514,289 @@ print(output)
 
 # python 面向对象
 
+## 类变量
+
+Python 类中的成员变量主要有三种类型：
+
+1. **实例变量（Instance Variables）**
+
+   - 在**init**方法或其他方法中使用 self 定义
+   - 每个实例都有独立的 copy
+   - 访问方式：
+     - 在类内部：self.变量名
+     - 在类外部：实例对象.变量名
+
+2. **类变量（Class Variables）**
+
+   - 直接在类中定义，所有实例共享
+   - 访问方式：
+     - 在类内部：类名.变量名 或 self.变量名（后者不推荐）
+     - 在类外部：类名.变量名 或 实例对象.变量名（后者不推荐）
+
+3. **私有变量（Private Variables）**
+
+   - 变量名以双下划线\_\_开头
+   - 通过名称改写机制实现封装
+   - 访问方式：
+     - 在类内部：self.\_\_变量名
+     - 在类外部：不能直接访问，需要通过方法访问或使用 类名\_\_变量名（不推荐）
+
+**示例代码**：
+
+```python
+class Student:
+    # 类变量
+    school = "Python School"
+
+    def __init__(self, name):
+        # 实例变量
+        self.name = name
+        # 私有变量
+        self.__score = 0
+
+    def set_score(self, score):
+        self.__score = score
+
+    def get_score(self):
+        return self.__score
+
+# 使用示例
+student = Student("Alice")
+
+# 访问实例变量
+print(student.name)  # Alice
+
+# 访问类变量
+print(Student.school)  # Python School
+print(student.school)  # Python School
+
+# 访问私有变量
+student.set_score(90)
+print(student.get_score())  # 90
+
+# 强制访问私有变量（不推荐）
+print(student._Student__score)  # 90
+```
+
+**需要特别注意**：
+
+1. 实例变量最好在**init**中定义，使代码更清晰
+2. 类变量要谨慎使用，因为它被所有实例共享
+3. 私有变量的访问最好通过方法进行，而不是直接访问
+
 ## 类方法和类函数
 
-在 Python 中，类方法（classmethod）和普通的类函数（class function）有一些区别，主要体现在它们的装饰器和第一个参数上。
+Python 类中的函数和方法主要有四种类型：
 
-### 类方法（classmethod）
+1. **实例方法（Instance Methods）**
 
-类方法**使用 `@classmethod` 装饰器标识**，并且**第一个参数通常被命名为 `cls`**，表示调用该方法的类本身。类方法可以**通过类名或实例来调用**，但通常建议使用类名调用类方法。
+   ```python
+   class MyClass:
+       def instance_method(self, x):
+           return f"instance method called with {x}"
 
-**示例**：
+   # 使用方式
+   obj = MyClass()
+   obj.instance_method(1)
+   ```
+
+   - 第一个参数是 `self`，代表实例本身
+   - 典型场景：访问/修改实例状态，实现实例相关的业务逻辑
+   - 最常用的方法类型
+
+2. **类方法（Class Methods）**
+
+   ```python
+   class MyClass:
+       @classmethod
+       def class_method(cls, x):
+           return f"class method called with {x}"
+
+   # 使用方式
+   MyClass.class_method(1)  # 通过类调用
+   obj = MyClass()
+   obj.class_method(1)      # 通过实例调用
+   ```
+
+   - 使用 `@classmethod` 装饰器
+   - 第一个参数是 `cls`，代表类本身
+   - 典型场景：
+     - 替代构造函数（工厂方法）
+     - 修改类状态
+     - 实现与实例无关的类级别操作
+
+3. **静态方法（Static Methods）**
+
+   ```python
+   class MyClass:
+       @staticmethod
+       def static_method(x):
+           return f"static method called with {x}"
+
+   # 使用方式
+   MyClass.static_method(1)  # 通过类调用
+   obj = MyClass()
+   obj.static_method(1)      # 通过实例调用
+   ```
+
+   - 使用 `@staticmethod` 装饰器
+   - 不需要 `self` 或 `cls` 参数
+   - 典型场景：
+     - 工具函数
+     - 与类相关但不需要访问类或实例状态的方法
+
+4. **私有方法（Private Methods）**
+
+   ```python
+   class MyClass:
+       def __init__(self):
+           self.data = []
+
+       def public_method(self):
+           return self.__private_method()
+
+       def __private_method(self):
+           return "private method called"
+
+   # 使用方式
+   obj = MyClass()
+   obj.public_method()  # 正常访问
+   # obj.__private_method()  # 错误，不能直接访问
+   ```
+
+   - 方法名以双下划线 `__` 开头
+   - 类外部不能直接访问
+   - 典型场景：
+     - 内部实现细节
+     - 避免外部直接调用的辅助方法
+
+**完整示例展示各种方法的使用场景**：
 
 ```python
-class MyClass:
-    class_attr = 10
+class Date:
+    def __init__(self, year, month, day):
+        self.year = year
+        self.month = month
+        self.day = day
 
+    # 实例方法：处理实例数据
+    def format_date(self):
+        return f"{self.year}-{self.month:02d}-{self.day:02d}"
+
+    # 类方法：替代构造函数
+    @classmethod
+    def from_string(cls, date_string):
+        year, month, day = map(int, date_string.split('-'))
+        return cls(year, month, day)
+
+    # 静态方法：工具函数
+    @staticmethod
+    def is_valid_date(year, month, day):
+        if month < 1 or month > 12:
+            return False
+        if day < 1 or day > 31:
+            return False
+        return True
+
+    # 私有方法：内部实现
+    def __validate(self):
+        return self.is_valid_date(self.year, self.month, self.day)
+
+# 使用示例
+# 常规初始化
+date1 = Date(2024, 4, 12)
+print(date1.format_date())  # 2024-04-12
+
+# 使用类方法创建实例
+date2 = Date.from_string("2024-04-12")
+print(date2.format_date())  # 2024-04-12
+
+# 使用静态方法验证日期
+print(Date.is_valid_date(2024, 13, 1))  # False
+```
+
+**关键注意点**：
+
+1. 实例方法是最常用的，用于处理实例相关的操作
+2. 类方法常用于替代构造函数或处理类级别的操作
+3. 静态方法适用于与类相关但不需要访问类或实例状态的工具函数
+4. 私有方法用于隐藏实现细节，提高封装性
+
+## 方法访问成员差异
+
+不同类型的方法可以访问的成员确实有区别。下面详细说明：
+
+```python
+class Example:
+    # 类变量
+    class_var = "class variable"
+
+    def __init__(self):
+        # 实例变量
+        self.instance_var = "instance variable"
+        self.__private_var = "private variable"
+
+    # 实例方法
+    def instance_method(self):
+        print("实例方法可以访问：")
+        print(self.instance_var)      # 可以访问实例变量
+        print(self.__private_var)     # 可以访问私有变量
+        print(self.class_var)         # 可以访问类变量
+        print(Example.class_var)      # 也可以通过类名访问类变量
+
+    # 类方法
     @classmethod
     def class_method(cls):
-        print(f"Class method called with class attribute: {cls.class_attr}")
+        print("类方法可以访问：")
+        print(cls.class_var)          # 可以访问类变量
+        # print(cls.instance_var)     # 错误！不能访问实例变量
+        # print(cls.__private_var)    # 错误！不能访问实例的私有变量
 
-# 调用类方法
-MyClass.class_method()  # 输出: Class method called with class attribute: 10
+    # 静态方法
+    @staticmethod
+    def static_method():
+        print("静态方法可以访问：")
+        print(Example.class_var)      # 只能通过类名访问类变量
+        # print(instance_var)         # 错误！不能访问实例变量
+        # print(__private_var)        # 错误！不能访问私有变量
+
+    # 私有方法
+    def __private_method(self):
+        print("私有方法访问权限同实例方法：")
+        print(self.instance_var)      # 可以访问实例变量
+        print(self.__private_var)     # 可以访问私有变量
+        print(self.class_var)         # 可以访问类变量
 ```
 
-在这个示例中，`class_method` 是一个类方法，通过 `@classmethod` 装饰器标识。`cls` 参数表示调用该方法的类本身，可以用来访问类的属性和方法。
+**访问权限总结**：
 
-### 类函数（普通的类方法）
+1. 实例方法（包括私有方法）:
 
-普通的类方法是指在类中定义的普通方法，**没有使用 `@classmethod` 装饰器标识**。这些方法**可以通过实例访问**，并且**第一个参数通常是 `self`**，表示调用该方法的实例本身。
+   - 可以访问实例变量（通过 self）
+   - 可以访问私有变量（通过 self）
+   - 可以访问类变量（通过 self 或类名）
+   - 是访问能力最强的方法
 
-**示例**：
+2. 类方法：
 
-```python
-class MyClass:
-    def __init__(self, x):
-        self.x = x
+   - 可以访问类变量（通过 cls 或类名）
+   - 不能直接访问实例变量
+   - 不能直接访问私有变量
+   - 主要用于操作类变量和实现替代构造函数
 
-    def instance_method(self):
-        print(f"Instance method called with instance attribute: {self.x}")
+3. 静态方法：
 
-# 创建实例并调用实例方法
-obj = MyClass(5)
-obj.instance_method()  # 输出: Instance method called with instance attribute: 5
-```
+   - 只能通过类名访问类变量
+   - 不能访问实例变量
+   - 不能访问私有变量
+   - 访问能力最弱，基本等同于普通函数
 
-在这个示例中，`instance_method` 是一个普通的类方法，可以通过实例 `obj` 来调用，`self` 参数表示调用该方法的实例本身，可以访问实例的属性和方法。
+**使用建议**：
 
-### 区别总结
-
-- **类方法**：
-  - 使用 `@classmethod` 装饰器标识。
-  - 第一个参数通常命名为 `cls`，表示调用该方法的类本身。
-  - 可以通过类名或实例调用，但通常建议使用类名调用。
-  - 用于在类级别上操作或管理类的属性和方法。
-- **普通的类方法（类函数）**：
-  - 没有使用 `@classmethod` 装饰器标识。
-  - 第一个参数通常命名为 `self`，表示调用该方法的实例本身。
-  - 只能通过实例调用。
-  - 用于操作或访问实例的属性和方法。
-
-**选择使用类方法还是普通的类方法**：
-
-- 使用 **类方法**：
-  - 当方法需要访问和操作类的属性或者需要在**类级别上进行操作时，应使用类方法**。
-  - 类方法适用于实现工厂方法或者管理类级别的状态。
-- 使用 **普通的类方法（类函数）**：
-  - 当方法需要访问和**操作实例的属性时，应使用普通的类方法**。
-  - 普通的类方法适用于实现与特定实例相关的逻辑和操作。
+1. 如果方法需要访问实例状态，使用实例方法
+2. 如果方法只需要访问类变量，使用类方法
+3. 如果方法不需要访问任何类或实例状态，使用静态方法
+4. 谨慎使用私有方法，主要用于隐藏内部实现细节
 
 ## 获取类的变量
 
@@ -785,4 +1002,3 @@ print(person_dict)
 ```
 
 使用`vars()`函数将对象转换为字典后，我们可以将其与模板字符串结合使用，方便地进行字符串格式化。例如，结合前面提到的`string.Template` 和 Jinja2 模板引擎。
-
