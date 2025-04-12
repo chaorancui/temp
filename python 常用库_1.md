@@ -633,9 +633,9 @@ print(loaded_array)
    - `newline`：换行符，分隔行的字符串或字符。**默认是换行**。
    - `header`标题，将写入文件开头的字符串。。
    - `footer`：页脚，将被写入文件末尾的字符串。。
-   - `comments`：评论，将被添加到header和footer字符串前面的字符串，以将它们标记为注释。**默认值：'#'**。
+   - `comments`：评论，将被添加到 header 和 footer 字符串前面的字符串，以将它们标记为注释。**默认值：'#'**。
    - `encoding`：编码，用于对输出文件进行编码的编码。不适用于输出流。。
-   **示例代码**：
+     **示例代码**：
 
    ```python
    import numpy as np
@@ -703,3 +703,184 @@ print(loaded_array)
 
 - **保存到文本文件**：使用 `numpy.savetxt`，可以指定格式和分隔符。
 - **转换为字符串**：使用 `numpy.array2string`，灵活控制精度和分隔符。
+
+## argparse 库
+
+`argparse` 是 Python 中用于处理命令行参数的标准库，它允许你轻松地定义和解析程序运行时的命令行参数。通过它，你可以设置程序需要的输入参数、指定参数的类型、默认值等，并且自动生成帮助文档。
+
+[argparse 官方 python 文档](https://docs.python.org/zh-cn/3.13/library/argparse.html)
+
+**一、`argparse` 库使用格式**
+
+1. **创建 ArgumentParser 对象**
+
+   ```python复制编辑import argparse
+   class argparse.ArgumentParser(prog=None, usage=None, description=None, epilog=None, parents=[], formatter_class=argparse.HelpFormatter, prefix_chars='-', fromfile_prefix_chars=None, argument_default=None, conflict_handler='error', add_help=True, allow_abbrev=True, exit_on_error=True)
+   ```
+
+   创建一个新的 [`ArgumentParser`](https://docs.python.org/zh-cn/3.13/library/argparse.html#argparse.ArgumentParser) 对象。所有的参数都应当作为关键字参数传入。每个参数在下面都有它更详细的描述，但简而言之，它们是：
+
+   - [prog](https://docs.python.org/zh-cn/3.13/library/argparse.html#prog) - 程序的名称 (默认值: `os.path.basename(sys.argv[0])`)
+   - [usage](https://docs.python.org/zh-cn/3.13/library/argparse.html#usage) - 描述程序用途的字符串（默认值：从添加到解析器的参数生成）
+   - [description](https://docs.python.org/zh-cn/3.13/library/argparse.html#description) - 要在参数帮助信息之前显示的文本（默认：无文本）
+   - [epilog](https://docs.python.org/zh-cn/3.13/library/argparse.html#epilog) - 要在参数帮助信息之后显示的文本（默认：无文本）
+   - [parents](https://docs.python.org/zh-cn/3.13/library/argparse.html#parents) - 一个 [`ArgumentParser`](https://docs.python.org/zh-cn/3.13/library/argparse.html#argparse.ArgumentParser) 对象的列表，它们的参数也应包含在内
+   - [formatter_class](https://docs.python.org/zh-cn/3.13/library/argparse.html#formatter-class) - 用于自定义帮助文档输出格式的类
+   - [prefix_chars](https://docs.python.org/zh-cn/3.13/library/argparse.html#prefix-chars) - 可选参数的前缀字符集合（默认值： '-'）
+   - [fromfile_prefix_chars](https://docs.python.org/zh-cn/3.13/library/argparse.html#fromfile-prefix-chars) - 当需要从文件中读取其他参数时，用于标识文件名的前缀字符集合（默认值： `None`）
+   - [argument_default](https://docs.python.org/zh-cn/3.13/library/argparse.html#argument-default) - 参数的全局默认值（默认值： `None`）
+   - [conflict_handler](https://docs.python.org/zh-cn/3.13/library/argparse.html#conflict-handler) - 解决冲突选项的策略（通常是不必要的）
+   - [add_help](https://docs.python.org/zh-cn/3.13/library/argparse.html#add-help) - 为解析器添加一个 `-h/--help` 选项（默认值： `True`）
+   - [allow_abbrev](https://docs.python.org/zh-cn/3.13/library/argparse.html#allow-abbrev) - 如果缩写是无歧义的，则允许缩写长选项 （默认值：`True`）
+   - [exit_on_error](https://docs.python.org/zh-cn/3.13/library/argparse.html#exit-on-error) - 确定当出现错误时，`ArgumentParser` 是否退出并显示错误信息。（默认值:`True`）
+
+2. **添加参数**
+
+   ```python
+   ArgumentParser.add_argument(name or flags..., *[, action][, nargs][, const][, default][, type][, choices][, required][, help][, metavar][, dest][, deprecated])
+   ```
+
+   定义单个的命令行参数应当如何解析。每个形参都在下面有它自己更多的描述，长话短说有：
+
+   - [name or flags](https://docs.python.org/zh-cn/3.13/library/argparse.html#name-or-flags) - 一个名称或是由选项字符串组成的列表，例如 `'foo'` 或 `'-f', '--foo'`。
+   - [action](https://docs.python.org/zh-cn/3.13/library/argparse.html#action) - 当参数在命令行中出现时使用的动作基本类型。
+   - [nargs](https://docs.python.org/zh-cn/3.13/library/argparse.html#nargs) - 命令行参数应当消耗的数目。
+   - [const](https://docs.python.org/zh-cn/3.13/library/argparse.html#const) - 被一些 [action](https://docs.python.org/zh-cn/3.13/library/argparse.html#action) 和 [nargs](https://docs.python.org/zh-cn/3.13/library/argparse.html#nargs) 选择所需求的常数。
+   - [default](https://docs.python.org/zh-cn/3.13/library/argparse.html#default) - 当参数未在命令行中出现并且也不存在于命名空间对象时所产生的值。
+   - [type](https://docs.python.org/zh-cn/3.13/library/argparse.html#type) - 命令行参数应当被转换成的类型。
+   - [choices](https://docs.python.org/zh-cn/3.13/library/argparse.html#choices) - 由允许作为参数的值组成的序列。
+   - [required](https://docs.python.org/zh-cn/3.13/library/argparse.html#required) - 此命令行选项是否可省略 （仅选项可用）。
+   - [help](https://docs.python.org/zh-cn/3.13/library/argparse.html#help) - 一个此选项作用的简单描述。
+   - [metavar](https://docs.python.org/zh-cn/3.13/library/argparse.html#metavar) - 在使用方法消息中使用的参数值示例。
+   - [dest](https://docs.python.org/zh-cn/3.13/library/argparse.html#dest) - 被添加到 [`parse_args()`](https://docs.python.org/zh-cn/3.13/library/argparse.html#argparse.ArgumentParser.parse_args) 所返回对象上的属性名。
+   - [deprecated](https://docs.python.org/zh-cn/3.13/library/argparse.html#deprecated) - 参数的使用是否已被弃用。
+
+3. **解析命令行参数**
+
+   ```python
+   ArgumentParser.parse_args(args=None, namespace=None)
+   ```
+
+   将参数字符串转换为对象并将其设为命名空间的属性。 返回带有成员的命名空间。
+
+   之前对 [`add_argument()`](https://docs.python.org/zh-cn/3.13/library/argparse.html#argparse.ArgumentParser.add_argument) 的调用决定了哪些对象会被创建以及它们如何被赋值。 请参阅 `add_argument()` 的文档了解详情。
+
+   - [args](https://docs.python.org/zh-cn/3.13/library/argparse.html#args) - 要解析的字符串列表。 默认值是从 [`sys.argv`](https://docs.python.org/zh-cn/3.13/library/sys.html#sys.argv) 获取。
+   - [namespace](https://docs.python.org/zh-cn/3.13/library/argparse.html#namespace) - 用于获取属性的对象。 默认值是一个新的空 [`Namespace`](https://docs.python.org/zh-cn/3.13/library/argparse.html#argparse.Namespace) 对象。
+
+**二、`add_argument` name/flags 参数**
+
+1. **位置参数（Positional Arguments）**
+   位置参数是命令行输入中位置固定的参数。它们是必填的。
+
+   ```python
+   parser.add_argument('filename', type=str, help='The name of the file')
+   ```
+
+2. **可选参数（Optional Arguments）**
+   可选参数通常以 `--` 或 `-` 开头，允许用户指定值，通常有默认值。
+
+   ```python
+   parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
+   ```
+
+   这行代码的意思是，`--verbose` 是一个开关参数，如果在命令行中指定了 `--verbose`，它的值就会被设置为 `True`。
+
+**三、`add_argument` 其他参数**
+
+常见的参数类型包括：
+
+1. **`type`**
+   指定参数的类型，如 `int`、`float`、`str` 等。还可以用 `register()` 指定自定义类型。
+
+   ```python
+   parser.add_argument('--count', type=int, help='The number of items')
+   ```
+
+2. **`choices`**
+   限制参数只能是某些特定值。
+
+   ```python
+   parser.add_argument('--mode', choices=['fast', 'slow'], help='Set the mode')
+   ```
+
+3. **`default`**
+   设置参数的默认值。如果命令行没有提供该参数，则会使用默认值。
+
+   ```python
+   parser.add_argument('--output', type=str, default='result.txt', help='Output file name')
+   ```
+
+4. **`action`**
+   控制如何处理参数的输入。常见的 `action` 值有：
+
+   - `'store'`：保存参数值（默认行为）。
+   - `'store_true'`：如果参数在命令行中出现，则将参数的值设置为 `True`。
+   - `'store_false'`：如果参数在命令行中出现，则将参数的值设置为 `False`。
+   - `'append'`：将多个输入值追加到列表中。
+   - `'count'`：统计参数出现的次数。
+
+   ```python
+   parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
+   ```
+
+5. **`help`**
+   提供关于参数的帮助信息。当用户在命令行中输入 `-h` 或 `--help` 时，这些信息会被自动显示。
+
+   ```python
+   parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
+   ```
+
+6. **`nargs`**
+   设置命令行参数接受的值的数量。常见的 `nargs` 值包括：
+
+   - `'?'`：参数是可选的，并且有默认值。
+   - `'*'`：参数接受任意数量的值，结果是一个列表。
+   - `'+'`：参数至少需要一个值。
+
+   ```python
+   parser.add_argument('input_files', nargs='+', help='List of input files')
+   ```
+
+7. **`dest`**
+   用于指定命令行参数的目标变量名，默认情况下它会从参数的名字（去掉前缀）生成变量名。
+
+   ```python
+   parser.add_argument('--output', dest='output_file', help='Output file name')
+   ```
+
+8. **`metavar`**
+   允许你自定义帮助信息中显示的参数名称。
+
+   ```python
+   parser.add_argument('filename', metavar='FILE', help='Input file name')
+   ```
+
+**四、示例代码**
+
+```python
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description="Example program")
+
+    # 位置参数
+    parser.add_argument('filename', type=str, help='The input file name')
+
+    # 可选参数
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose output')
+    parser.add_argument('--count', type=int, default=5, help='The number of items')
+    parser.add_argument('--mode', choices=['fast', 'slow'], help='Set the mode')
+
+    # 解析命令行参数
+    args = parser.parse_args()
+
+    # 使用参数
+    print(f"Filename: {args.filename}")
+    print(f"Verbose: {args.verbose}")
+    print(f"Count: {args.count}")
+    print(f"Mode: {args.mode}")
+
+if __name__ == "__main__":
+    main()
+```
