@@ -107,23 +107,23 @@ systemctl disable systemd-resolved
    ```bash
    # 下载源码包
    wget http://www.thekelleys.org.uk/dnsmasq/dnsmasq-2.90.tar.xz
-
+   
    # 源码包解压
    tar xf dnsmasq-2.90.tar.xz
    cd dnsmasq-2.90
-
+   
    # 配置安装路径
    vim Makefile # 修改 PREFIX = /usr/local/dnsmasq
-
+   
    # 编译安装
    make && make install
-
+   
    # 生成配置文件
    cp dnsmasq.conf.example /etc/dnsmasq.conf
-
+   
    # 生成软连接
    ln -s /usr/local/dnsmasq/sbin/dnsmasq /usr/sbin/
-
+   
    # 查看dnsmasq版本
    dnsmasq --version
    ```
