@@ -534,7 +534,7 @@ with open('example.txt', 'r') as file:
 
    ```python
    import sqlite3
-   
+
    try:
        with sqlite3.connect('example.db') as conn:
            cursor = conn.cursor()
@@ -767,10 +767,10 @@ finally:
            print("这行不会执行")
        except ZeroDivisionError:
            print("捕获到除零错误")
-   
+
    print("程序继续执行")  # 这行会执行，因为异常被捕获了
    caught_example()
-   
+
    # 运行结果:
    # 开始执行
    # 捕获到除零错误
@@ -791,10 +791,10 @@ finally:
        except ZeroDivisionError:
            print("捕获到除零错误")
            sys.exit(1)
-   
+
    print("程序继续执行")  # 这行不会执行，因为程序被显示终止
    caught_example()
-   
+
    # 运行结果:
    # 开始执行
    # 捕获到除零错误
@@ -809,10 +809,10 @@ finally:
        # 这里会产生除零错误
        result = 10 / 0
        print("这行不会执行")  # 这行代码不会执行，因为上面的异常未被捕获
-   
+
    print("程序继续")  # 这行也不会执行
    uncaught_example()
-   
+
    # 运行结果:
    # 开始执行
    # ZeroDivisionError: division by zero
@@ -1040,6 +1040,20 @@ except OSError as e:
 ```
 
 在这个例子中，`subprocess.run` 尝试执行一个不存在的命令 `non_existent_command`，这会导致 `OSError` 异常被抛出，并显示相应的操作系统错误信息。
+
+## 函数入参类型
+
+在 Python 中，函数参数的行为取决于传入的对象类型。具体来说，**不可变类型**（如 `int`, `float`, `str`, `tuple` 等）会在函数内部传递副本，而**可变类型**（如 `list`, `dict`, `set`, 自定义对象等）会传递对对象的引用。因此，修改函数内的参数是否会影响外部变量，取决于你传入的是哪种类型。
+
+1. **对于不可变类型（如 `str`, `int`, `tuple` 等）**
+
+   如果你在函数内部修改一个不可变类型的参数，实际上是创建了一个新的对象，并将其绑定到局部变量，因此**函数内修改不会直接影响原始的外部变量**。
+
+   如果你希望函数修改外部的不可变类型，你可以将不可变类型**包装成可变类型**（如 `list` 或 `dict`），或者**返回修改后的值**，并在调用时将返回值赋给外部变量。
+
+2. **对于可变类型（如 `list`, `dict` 等）**
+
+   如果你在函数内部修改一个可变类型的参数（比如修改列表的元素或字典的键值对），**这些修改会直接影响外部变量**，因为传入的是对原始对象的引用。
 
 ## 可变参数
 
@@ -1539,13 +1553,13 @@ Python 的字符串（`str` 类型）提供了许多内置方法，用于处理�
 
    ```python
    import sys
-   
+
    try:
        print("程序即将退出...")
        sys.exit(1)
    except SystemExit as e:
        print(f"捕获到退出异常，退出码为：{e.code}")
-   
+
    # 输出：
    # 复制编辑程序即将退出...
    # 捕获到退出异常，退出码为：1
