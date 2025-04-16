@@ -1145,6 +1145,12 @@ ssh -p 22 my@127.0.0.1
    ssh-copy-id -i /path/id_rsa_user@host.pub user@host
 
    # 2.手动将直接将公钥文件内容拷贝到服务器的 ~/.ssh/authorized_keys 文件中，没有文件则创建文件
+
+
+   # 设置.ssh文件权限～/.ssh
+   chmod 700 ~/.ssh
+   # 设置authorized_keys文件权限
+   chmod 600 ~/.ssh/authorized_keys
    ```
 
    > NOTE ：
