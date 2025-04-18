@@ -1139,11 +1139,16 @@ ssh -p 22 my@127.0.0.1
 
 ### ssh 免密登录
 
-> [设置 SSH 通过秘钥登录](https://www.runoob.com/w3cnote/set-ssh-login-key.html)
-> [ssh 免密登录配置方法及配置](https://blog.csdn.net/weixin_44966641/article/details/123955997) ----主要
-> [VSCode——SSH 免密登录](https://blog.csdn.net/qq_45779334/article/details/129308235?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4) ----主要
-> [git/ssh 捋不清的几个问题](https://www.barretlee.com/blog/2014/03/11/cb-problems-in-git-when-ssh/)
-> [解决使用两台主机的 VSCode 远程连接同一个服务器账户出现的配置冲突问题](https://blog.csdn.net/holyball/article/details/130109637)
+参考链接：
+
+1. [设置 SSH 通过秘钥登录](https://www.runoob.com/w3cnote/set-ssh-login-key.html)
+2. [ssh 免密登录配置方法及配置](https://blog.csdn.net/weixin_44966641/article/details/123955997) ----主要
+3. [VSCode——SSH 免密登录](https://blog.csdn.net/qq_45779334/article/details/129308235?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4) ----主要
+4. [连接远程服务器总是要输入密码（rsa 验证无用）](https://www.cnblogs.com/coldchair/p/18760176)
+5. [git/ssh 捋不清的几个问题](https://www.barretlee.com/blog/2014/03/11/cb-problems-in-git-when-ssh/)
+6. [解决使用两台主机的 VSCode 远程连接同一个服务器账户出现的配置冲突问题](https://blog.csdn.net/holyball/article/details/130109637)
+
+配置流程：
 
 1. **生成秘钥对**
 
@@ -1191,48 +1196,48 @@ ssh -p 22 my@127.0.0.1
 
 4. **修改 SSH 服务器的配置文件**
 
-   确保 SSH 配置文件 `/etc/ssh/sshd_config` 允许公钥认证。你需要检查以下设置：
+确保 SSH 配置文件 `/etc/ssh/sshd_config` 允许公钥认证。你需要检查以下设置：
 
-   ```shell
-   # /etc/ssh/sshd_config 文件中
-   PubkeyAuthentication yes # 把#号去掉（默认在39行附近），这样公钥验证才生效。
-   ```
+```shell
+# /etc/ssh/sshd_config 文件中
+PubkeyAuthentication yes # 把#号去掉（默认在39行附近），这样公钥验证才生效。
+```
 
-   重启远程服务器的 ssh 服务
+重启远程服务器的 ssh 服务
 
-   ```shell
-   service ssh start
-   ```
+```shell
+service ssh start
+```
 
-5. **本地 SSH 连接配置**
+5.  **本地 SSH 连接配置**
 
-   SSH 使用 `~/.ssh/config` 文件来配置 SSH 连接。在文件中新增一份如下配置：
+SSH 使用 `~/.ssh/config` 文件来配置 SSH 连接。在文件中新增一份如下配置：
 
-   ```shell
-   Host xxx-xxx
-     HostName xxx.xxx.xxx.xxx
-     Port 22
-     User root
-     IdentityFile ~/.ssh/id_rsa_xxx
-   ```
+```shell
+Host xxx-xxx
+  HostName xxx.xxx.xxx.xxx
+  Port 22
+  User root
+  IdentityFile ~/.ssh/id_rsa_xxx
+```
 
-   如果这个文件没有正确配置，或者你没有在该文件中指定正确的 SSH 密钥，可能会导致无法识别密钥，从而要求输入密码。
+如果这个文件没有正确配置，或者你没有在该文件中指定正确的 SSH 密钥，可能会导致无法识别密钥，从而要求输入密码。
 
-   :book: **补充**
-   **ssh config 配置文件的基本格式**
+:book: **补充**
+**ssh config 配置文件的基本格式**
 
-   ```shell
-   Host      # hostName的别名
-     HostName  # 是目标主机的主机名，也就是平时我们使用ssh后面跟的地址名称。
-     Port   # 指定的端口号。
-     User   # 指定的登陆用户名。
-     IdentifyFile # 指定的私钥地址。
-     ProxyJump ProxyJump user@jump_host:port # 跳板机的用户名、主机地址、端口
-   ```
+```shell
+Host      # hostName的别名
+  HostName  # 是目标主机的主机名，也就是平时我们使用ssh后面跟的地址名称。
+  Port   # 指定的端口号。
+  User   # 指定的登陆用户名。
+  IdentifyFile # 指定的私钥地址。
+  ProxyJump ProxyJump user@jump_host:port # 跳板机的用户名、主机地址、端口
+```
 
-   > - 不要加 PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。<font color=red><b>被坑死了 -\_-!!!</b></font>
+> - 不要加 PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。<font color=red><b>被坑死了 -\_-!!!</b></font>
 
-6. 测试免密登录
+6.  测试免密登录
 
 ### ssh 远程连接 docker
 
