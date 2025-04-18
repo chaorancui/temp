@@ -1068,6 +1068,29 @@ rsync [选项] 源路径 目标路径
 
 `rsync` 是一个非常高效、灵活的工具，适用于文件同步、备份和远程传输。它能够处理本地和远程文件的增量同步，并通过多种选项提供高效的数据传输、压缩、排除和文件比较等功能。通过合理配置和选择选项，`rsync` 可以极大地简化和加速大规模数据的同步任务。
 
+## ssh-keygen
+
+> [ssh-keygen](http://linux.51yip.com/search/ssh-keygen)
+
+ssh-keygen 用于为 ssh(1)生成、管理和转换认证密钥，包括 RSA 和 DSA 两种密钥。**密钥类型可以用 -t 选项指定**。如果没有指定则默认生成用于 SSH-2 的 RSA 密钥。
+
+通常，这个程序产生一个密钥对，并要求**指定一个文件存放私钥**，同时将公钥存放在附加了".pub"后缀的同名文件中。
+
+程序同时要求输入一个密语字符串(passphrase)，空表示没有密语(主机密钥的密语必须为空)。
+
+密语和口令(password)非常相似，但是密语可以是一句话，里面有单词、标点符号、数字、空格或任何你想要的字符。好的密语要 30 个以上的字符，难以猜出，由大小写字母、数字、非字母混合组成。密语可以用 -p 选项修改。丢失的密语不可恢复。如果丢失或忘记了密语，用户必须产生新的密钥，然后把相应的公钥分发到其他机器上去。
+
+RSA1 的密钥文件中有一个**"注释"字段**，可以方便用户标识这个密钥，指出密钥的用途或其他有用的信息。创建密钥的时候，注释域初始化为"user@host"，以后可以用 -c 选项修改。
+
+```shell
+ -C comment 提供一个新注释
+ -f filename 指定密钥文件名。(要输入完整路劲，否则在当前路径下生成)
+-P passphrase 提供(旧)密语。
+-t type  指定要创建的密钥类型。可以使用："rsa1"(SSH-1) "rsa"(SSH-2) "dsa"(SSH-2)
+
+ssh-keygen -t rsa -C "user@host" -f "id_rsa_user@host"
+```
+
 ## ssh 命令
 
 > 参考：
@@ -1117,78 +1140,58 @@ ssh -p 22 my@127.0.0.1
 ### ssh 免密登录
 
 > [设置 SSH 通过秘钥登录](https://www.runoob.com/w3cnote/set-ssh-login-key.html)
->
 > [ssh 免密登录配置方法及配置](https://blog.csdn.net/weixin_44966641/article/details/123955997) ----主要
->
 > [VSCode——SSH 免密登录](https://blog.csdn.net/qq_45779334/article/details/129308235?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4) ----主要
->
 > [git/ssh 捋不清的几个问题](https://www.barretlee.com/blog/2014/03/11/cb-problems-in-git-when-ssh/)
+> [解决使用两台主机的 VSCode 远程连接同一个服务器账户出现的配置冲突问题](https://blog.csdn.net/holyball/article/details/130109637)
 
-1. 生成秘钥对
+1. **生成秘钥对**
 
    在本地机器上生成公钥、私钥：（一路回车默认即可）
 
    ```shell
    # 自行查阅命令参数，-t 秘钥类型；-C 注释；-f 生成文件名；
    # 最好先进入 `~/.ssh` 目录，这样文件直接生成在这个目录下。
-   ssh-keygen -t rsa -C "user@host" -f "path/id_rsa_user@host"
+   ssh-keygen -t rsa -C "xxx" -f "path/id_rsa_xxx"
    ```
 
-   可以在 `~/.ssh` 目录下看到两个秘钥文件，即我们刚生成的私钥 `id_rsa_user@host` 和公钥 `id_rsa_user@host.pub`（具体名称取决于你的命名）。
+   可以在 `~/.ssh` 目录下看到两个秘钥文件，即我们刚生成的私钥 `iid_rsa_xxx` 和公钥 `iid_rsa_xxx.pub`（具体名称取决于你的命名）。
 
-2. 上传公钥到服务器
+2. **上传公钥到服务器**
 
-   在本地机器上生成秘钥对之后，需要将公钥 `id_rsa_user@host.pub` 中的内容放到对应服务器上的 `~/.ssh/authorized_keys` 文件中，此步有 2 种方式：
+   在本地机器上生成秘钥对之后，需要将公钥 `iid_rsa_xxx.pub` 中的内容放到对应服务器上的 `~/.ssh/authorized_keys` 文件中，此步有 2 种方式：
 
    ```shell
    # 1.通过 ssh-copy-id 命令，命令有点类似 scp，需要输入密码
-   ssh-copy-id -i /path/id_rsa_user@host.pub user@host
+   ssh-copy-id -i /path/id_rsa_xxx.pub user@host
 
    # 2.手动将直接将公钥文件内容拷贝到服务器的 ~/.ssh/authorized_keys 文件中，没有文件则创建文件
-
-
-   # 设置.ssh文件权限～/.ssh
-   chmod 700 ~/.ssh
-   # 设置authorized_keys文件权限
-   chmod 600 ~/.ssh/authorized_keys
    ```
 
-   > NOTE ：
+3. **文件权限配置**
+
+   - ssh 密钥登录时，用户的 `~/.ssh` 目录及其内部文件（如 `authorized_keys`）的权限设置必须严格（安全性考虑），**否则 SSH 认证会失败**。
+   - 用户 Home 目录的权限过于宽松**也会导致 SSH 无法正常使用密钥认证**。该目录权限应该为 `755（drwxr-xr-x）`。
+
+   ```shell
+   # 设置 `～/.ssh` 和 `~/.ssh/authorized_keys` 权限
+   chmod 700 ~/.ssh
+   chmod 600 ~/.ssh/authorized_keys
+
+   # 用户 Home 目录权限为755
+   chmod 755 xxx/xxx
+   ```
+
+   > :page*with_curl: **Note**
+   > 如果权限设置不对，在配对秘钥的时候会无法打开 authorized_keys 文件从而导致秘钥配对失败。而 ssh 此时没有放弃连接，依然会尝试询问用户密码。最终产生的结果就是用户配置了公钥却仍然需要输入密码的问题。导致费了很大功夫才找到问题 `-*-!!!`。
    >
-   > ⚠️ 设置 ssh 路径下的权限（重要！）---- 本人未设置
-   > 远程服务器～/.ssh/authorized_keys 文件设置好后，一定要修改路径下的权限，否则 ssh 密钥认证会失效！！
-   >
-   > 由于 authorized_keys 这个文件我们自己创建的，而 ssh 处于安全性考虑，对.ssh 目录下的文件权限内容有着严格的权限要求，如果权限设置不对，在配对秘钥的时候会无法打开 authorized_keys 文件从而导致秘钥配对失败。而 ssh 此时没有放弃连接，依然会尝试询问用户密码。最终产生的结果就是用户配置了公钥却仍然需要输入密码的问题。很多教程都没有说明这一点，导致我也是费了很大功夫才找到问题
+   > :warning: 设置 ssh 路径下的权限，以及 Home 目录权限（重要！）---- 本人未设置
    >
    > [vscode 在 remote SSH 免密远程登录](https://blog.csdn.net/weixin_42907822/article/details/125237307)
 
-3. 配置 config 文件
+4. **修改 SSH 服务器的配置文件**
 
-   配置本地机器的 `~/.ssh/config` 文件，在对应 ip 下增加下面内容即可：
-
-   ```shell
-   Host 10.143.123.230
-     HostName 10.143.123.230
-     Port 22
-     User c00619335
-     IdentityFile ~/.ssh/id_rsa_c00619335@10.143.123.230
-   ```
-
-   > - ssh config 配置文件的基本格式
-   >
-   >   ```shell
-   >   Host      # hostName的别名
-   >     HostName  # 是目标主机的主机名，也就是平时我们使用ssh后面跟的地址名称。
-   >     Port   # 指定的端口号。
-   >     User   # 指定的登陆用户名。
-   >     IdentifyFile # 指定的私钥地址。
-   >   ```
-   >
-   > - 不要加 PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。
-   >
-   >   `<font color=red>`**被坑死了 -\_\_-!!!**`</font>`
-
-   同时要确保服务器上允许使用公钥链接
+   确保 SSH 配置文件 `/etc/ssh/sshd_config` 允许公钥认证。你需要检查以下设置：
 
    ```shell
    # /etc/ssh/sshd_config 文件中
@@ -1201,7 +1204,35 @@ ssh -p 22 my@127.0.0.1
    service ssh start
    ```
 
-4. 测试免密登录
+5. **本地 SSH 连接配置**
+
+   SSH 使用 `~/.ssh/config` 文件来配置 SSH 连接。在文件中新增一份如下配置：
+
+   ```shell
+   Host xxx-xxx
+     HostName xxx.xxx.xxx.xxx
+     Port 22
+     User root
+     IdentityFile ~/.ssh/id_rsa_xxx
+   ```
+
+   如果这个文件没有正确配置，或者你没有在该文件中指定正确的 SSH 密钥，可能会导致无法识别密钥，从而要求输入密码。
+
+   :book: **补充**
+   **ssh config 配置文件的基本格式**
+
+   ```shell
+   Host      # hostName的别名
+     HostName  # 是目标主机的主机名，也就是平时我们使用ssh后面跟的地址名称。
+     Port   # 指定的端口号。
+     User   # 指定的登陆用户名。
+     IdentifyFile # 指定的私钥地址。
+     ProxyJump ProxyJump user@jump_host:port # 跳板机的用户名、主机地址、端口
+   ```
+
+   > - 不要加 PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。<font color=red><b>被坑死了 -\_-!!!</b></font>
+
+6. 测试免密登录
 
 ### ssh 远程连接 docker
 
@@ -1291,27 +1322,4 @@ Port 22
 
 # 重启 ssh 服务
 service ssh start
-```
-
-## ssh-keygen
-
-> [ssh-keygen](http://linux.51yip.com/search/ssh-keygen)
-
-ssh-keygen 用于为 ssh(1)生成、管理和转换认证密钥，包括 RSA 和 DSA 两种密钥。**密钥类型可以用 -t 选项指定**。如果没有指定则默认生成用于 SSH-2 的 RSA 密钥。
-
-通常，这个程序产生一个密钥对，并要求**指定一个文件存放私钥**，同时将公钥存放在附加了".pub"后缀的同名文件中。
-
-程序同时要求输入一个密语字符串(passphrase)，空表示没有密语(主机密钥的密语必须为空)。
-
-密语和口令(password)非常相似，但是密语可以是一句话，里面有单词、标点符号、数字、空格或任何你想要的字符。好的密语要 30 个以上的字符，难以猜出，由大小写字母、数字、非字母混合组成。密语可以用 -p 选项修改。丢失的密语不可恢复。如果丢失或忘记了密语，用户必须产生新的密钥，然后把相应的公钥分发到其他机器上去。
-
-RSA1 的密钥文件中有一个**"注释"字段**，可以方便用户标识这个密钥，指出密钥的用途或其他有用的信息。创建密钥的时候，注释域初始化为"user@host"，以后可以用 -c 选项修改。
-
-```shell
- -C comment 提供一个新注释
- -f filename 指定密钥文件名。(要输入完整路劲，否则在当前路径下生成)
--P passphrase 提供(旧)密语。
--t type  指定要创建的密钥类型。可以使用："rsa1"(SSH-1) "rsa"(SSH-2) "dsa"(SSH-2)
-
-ssh-keygen -t rsa -C "user@host" -f "id_rsa_user@host"
 ```
