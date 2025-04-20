@@ -1,3 +1,5 @@
+[toc]
+
 # vim
 
 ## vim 基本操作
@@ -773,6 +775,18 @@ Vim 中切换窗口（在文件之间切换）
 
 比如你要删除双引号中的内容："hello world"；你就可以通过 di" 进行删除，如果不仅想删除双引号里的内容，还想把双引号一起删除，就可以使用 da" 来完成；删除完双引号里的内容想立即切换到 插入模式 也可以使用 ci" 来完成；
 
+# neovim
+
+[2024 年 vim 的 C/C++ 配置](https://martins3.github.io/My-Linux-Config/docs/nvim.html) ---- 介绍了很多 vim 和 neovim 的基础和演进
+
+[简单理解 Nvim 的 cmp 与 lsp](https://vatery.com/2023/09/02/%E7%AE%80%E5%8D%95%E7%90%86%E8%A7%A3Nvim%E7%9A%84cmp%E4%B8%8Elsp/) ---- 简单介绍 lsp 和 cmp
+
+- LSP 管理器: `nvim-lspconfig`。nvim-lspconfig 它简化了 LSP 集成，支持多种编程语言的高级功能，如智能代码补全、实时错误检测等。
+- cmp 代码补全引擎插件: `nvim-cmp`
+- language server 管理器: `mason.nvim`
+
+[在 Vim 和/或 Neovim](https://juejin.cn/post/7090094882588459045)
+
 # windows 下使用 neovim
 
 > [Neovim Github 仓库](https://github.com/neovim/neovim/tree/master) > [安装指南](https://github.com/neovim/neovim/blob/master/INSTALL.md)
@@ -829,8 +843,8 @@ Windows 系统下一些不错的 GUI 客户端有 [Neovim Qt](https://github.com
 
 - Linux 下的 vim：`~/.vimrc`
 - Windows 下的 Neovim：`~/AppData/Local/nvim/init.vim`
-  > 方法1：打开 Neovim，输入 `:h init.vim` 查看 Neovim 的配置文件位置
-  > 方法2：打开 Neovim，输入 `:echo stdpath('config')` 查看
+  > 方法 1：打开 Neovim，输入 `:h init.vim` 查看 Neovim 的配置文件位置
+  > 方法 2：打开 Neovim，输入 `:echo stdpath('config')` 查看
 - Windows 下的 Neovim Qt、Fvim：`~/AppData/Local/nvim/ginit.vim`
 - Windows 下的 Fvim 专用配置文件：`~/AppData/Local/fvim/fvim.vim`
 
@@ -897,6 +911,27 @@ Windows 系统下一些不错的 GUI 客户端有 [Neovim Qt](https://github.com
    win32yank 错误：确保 win32yank.exe 位于系统路径中（如 C:\Windows\System32），并且没有被防病毒软件拦截或删除。
 
 ### 基础配置
+
+## LazyVim
+
+GitHub 地址：<https://github.com/LazyVim/LazyVim/blob/main/README-CN.md>
+
+GitHub 文档：<https://www.lazyvim.org/>
+
+LazyVim 是一个基于 [💤 lazy.nvim](https://github.com/folke/lazy.nvim) 的 Neovim 配置方案，让定制和扩展变得简单直观。 您不必再在“从零配置”和“使用预制发行版”之间做选择，LazyVim 提供了一个两全其美的方式——既可以享受默认配置带来的便利，又能根据个人需求来灵活调整各项设置。
+
+### 图标/字体乱码
+
+注意，需要修改 terminal 的字体为 nerdfonts 中才不会出现乱码。
+
+Nerd Fonts 字体下载：<https://www.nerdfonts.com/#home>
+
+- **Windows 安装字体**：所有字体都存储在 `C:\Windows\Fonts` 文件夹中。只需将字体文件从提取的文件文件夹拖动到此文件夹中即可添加字体。
+
+### 启用额外插件
+
+LazyVim 除了预装了很多插件，还有一些默认不启用的插件，称为 `Lazy Extras`。可以在启动页按 x 进入该插件库。
+注：建议安装带 `recommended` 的插件。
 
 ## reference
 
