@@ -126,6 +126,12 @@ exit
 
 [如何修改 vscode 远程时.vscode-server 的下载路径](https://blog.csdn.net/weixin_43891186/article/details/140065981)
 
+### 远程连接报错
+
+[VSCode 远程连接时显示 The remote host may not meet VS Code Server‘s prerequisites for glibc and libstdc+](https://blog.csdn.net/weixin_55944949/article/details/136082838)
+
+[The remote host doesn't meet the prerequisites for running VS Code Server](https://github.com/microsoft/vscode/issues/245872)
+
 ## 插件
 
 ### C++ 插件
