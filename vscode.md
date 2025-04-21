@@ -120,6 +120,12 @@ exit
 
    - 断开远程连接，然后重新连接。VS Code 应该检测到 VS Code Server 已经安装，并直接使用它。
 
+### 修改 Server 默认安装路径
+
+[更改 vscode server 的默认路径](https://blog.csdn.net/weixin_43301333/article/details/128503260)
+
+[如何修改 vscode 远程时.vscode-server 的下载路径](https://blog.csdn.net/weixin_43891186/article/details/140065981)
+
 ## 插件
 
 ### C++ 插件
@@ -790,10 +796,7 @@ exit
       "console": "integratedTerminal",
       "justMyCode": true,
       "cwd": "${fileDirname}",
-      "args": [
-        "./xxx/xxx",
-        "--xxx=xxx"
-      ],
+      "args": ["./xxx/xxx", "--xxx=xxx"]
     }
   ]
 }
