@@ -155,21 +155,167 @@ alias <别名>=<命令>
 
 ## find 命令和 grep 命令区别
 
-### grep 命令
-
-- grep 的作用是**在文件中**提取和匹配符合条件的字符串行。命令格式如下
-
-```bash
-grep [选项] "搜索内容" 文件名
-```
-
 find 也是搜索命令，那么 find 命令和 grep 命令有什么区别呢？
 find 命令
 find 命令用于在系统中搜索符合条件的文件名，如果需要模糊查询，则使用通配符进行匹配，通配符是完全匹配（find 命令可以通过-regex 选项，把匹配规则转为正则表达式规则，但是不建议如此）。
 grep 命令
 grep 命令用于在文件中搜索符合条件的字符串，如果需要模糊查询，则使用正则表达式进行匹配，正则表达式是包含匹配。
 
-### 通配符与正则表达式的区别
+## grep 命令
+
+`grep` 是 Linux / Unix 系统中一个非常常用的命令行工具，用于 **搜索文件中符合条件的字符串**。它基于正则表达式进行匹配，并输出包含匹配内容的行。
+
+**一、基本语法**
+
+```bash
+grep [选项] '搜索字符串或正则表达式' 文件名
+```
+
+**二、常用参数详解**
+
+| 参数        | 说明                                     |
+| ----------- | ---------------------------------------- |
+| `-i`        | 忽略大小写（ignore case）                |
+| `-v`        | 反向选择，显示不匹配的行（invert match） |
+| `-n`        | 显示匹配行的行号（line number）          |
+| `-r` / `-R` | 递归搜索目录（recursive）                |
+| `-l`        | 只列出匹配的文件名（list file names）    |
+| `-L`        | 列出不含匹配内容的文件名                 |
+| `-c`        | 只输出匹配的行数（count）                |
+| `-o`        | 只输出匹配的部分（而非整行）             |
+| `-e`        | 支持多个匹配模式（pattern）              |
+| `-w`        | 精确匹配整个单词（word match）           |
+| `-A N`      | 匹配行后输出 N 行（after）               |
+| `-B N`      | 匹配行前输出 N 行（before）              |
+| `-C N`      | 匹配行前后各输出 N 行（context）         |
+| `--color`   | 高亮显示匹配字符串（彩色显示）           |
+
+**三、示例用法**
+
+```bash
+# 1. 在文件中查找包含 "hello" 的行：
+grep 'hello' file.txt
+
+# 2. 忽略大小写查找：
+grep -i 'hello' file.txt
+
+# 3. 显示行号：
+grep -n 'hello' file.txt
+
+# 4. 查找不包含某字符串的行：
+grep -v 'hello' file.txt
+
+# 5. 递归查找整个目录：
+grep -r 'hello' /path/to/dir
+
+# 6. 查找多个关键词：
+grep -e 'hello' -e 'world' file.txt
+
+# 7. 只输出匹配内容本身：
+grep -o 'hello' file.txt
+
+# 8. 统计匹配的行数：
+grep -c 'hello' file.txt
+
+# 9. 匹配行及前后内容：
+grep -C 2 'hello' file.txt
+```
+
+四、正则表达式支持（基础）：
+
+| 表达式 | 含义                      |
+| ------ | ------------------------- |
+| `.`    | 匹配任意单个字符          |
+| `*`    | 匹配前一个字符 0 次或多次 |
+| `^`    | 匹配行开头                |
+| `$`    | 匹配行结尾                |
+| `[]`   | 匹配字符集合              |
+| `[^]`  | 匹配不在集合中的字符      |
+| `\`    | 转义字符                  |
+| `      | `                         |
+
+> 如果你需要更强大的正则支持，可以使用 `grep -E`（等同于 `egrep`），支持扩展正则（如 `+`, `{m,n}`, `()` 等）。
+
+## 常用 grep 命令速查表
+
+**一、基本语法**
+
+```bash
+Usage: grep [OPTION]... PATTERNS [FILE]...
+Search for PATTERNS in each FILE.
+Example: grep -i 'hello world' menu.h main.c
+PATTERNS can contain multiple patterns separated by newlines.
+```
+
+**二、匹配相关**
+
+| 命令                      | 含义                 |
+| ------------------------- | -------------------- |
+| `grep 'text' file.txt`    | 查找包含 "text" 的行 |
+| `grep -i 'text' file.txt` | 忽略大小写查找       |
+| `grep -w 'text' file.txt` | 匹配整个单词         |
+| `grep -x 'text' file.txt` | 匹配整行             |
+| `grep -E 'foo             | bar' file.txt`       |
+| `grep -o 'text' file.txt` | 只输出匹配部分       |
+
+**三、文件和目录**
+
+| 命令                      | 含义                   |
+| ------------------------- | ---------------------- |
+| `grep 'text' file1 file2` | 在多个文件中查找       |
+| `grep -r 'text' dir/`     | 递归搜索目录           |
+| `grep -l 'text' *.log`    | 仅显示匹配的文件名     |
+| `grep -L 'text' *.log`    | 显示不包含匹配的文件名 |
+
+**四、输出控制**
+
+| 命令                           | 含义                       |
+| ------------------------------ | -------------------------- |
+| `grep -n 'text' file.txt`      | 显示匹配行的行号           |
+| `grep -c 'text' file.txt`      | 显示匹配的行数             |
+| `grep -v 'text' file.txt`      | 显示不包含匹配的行         |
+| `grep --color 'text' file.txt` | 高亮匹配文本               |
+| `grep -H 'text' file.txt`      | 显示文件名（默认多文件时） |
+| `grep -h 'text' file.txt`      | 不显示文件名（用于多文件） |
+
+**五、匹配上下文**
+
+| 命令                        | 含义                  |
+| --------------------------- | --------------------- |
+| `grep -A 3 'text' file.txt` | 匹配行及其后 3 行     |
+| `grep -B 3 'text' file.txt` | 匹配行及其前 3 行     |
+| `grep -C 3 'text' file.txt` | 匹配行及其前后各 3 行 |
+
+**六、高级用法**
+
+| 命令                  | 含义               |
+| --------------------- | ------------------ |
+| `ps aux               | grep nginx`        |
+| `dmesg                | grep -i error`     |
+| `find . -name "\*.py" | xargs grep 'main'` |
+
+**七、正则表达式速览（基础）**
+
+| 符号     | 意义                     |
+| -------- | ------------------------ |
+| `.`      | 匹配任意单字符           |
+| `*`      | 匹配前一个字符零次或多次 |
+| `^`      | 匹配行开头               |
+| `$`      | 匹配行结尾               |
+| `[abc]`  | 匹配 a 或 b 或 c         |
+| `[^abc]` | 匹配不是 a/b/c 的字符    |
+| `\`      | 转义字符                 |
+| `        | `                        |
+
+**八、示例组合**
+
+```bash
+grep -ir 'error' /var/log/             # 忽略大小写递归搜索日志
+grep -nA2 'fail' app.log               # 显示匹配和之后2行
+grep -Ev '^#|^$' config.txt            # 去除注释和空行
+```
+
+## 通配符与正则表达式的区别
 
 **通配符：用于匹配文件名，完全匹配**。
 
