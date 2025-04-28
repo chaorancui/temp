@@ -105,6 +105,7 @@ docker 基于 Linux 内核提供这样几项功能实现的：
 > [**Docker 快速入门**](https://docker.easydoc.net/doc/81170005/cCewZWoN/lTKfePfP)
 >
 > [Docker — 从入门到实践](https://yeasy.gitbook.io/docker_practice)
+> [Docker — 从入门到实践](http://docker.baoshu.red/introduction/what.html) ---- 跟上面不一样
 
 Docker 是一个应用打包、分发、部署的工具
 你也可以把它理解为一个轻量的虚拟机，它只虚拟你软件需要的运行环境，多余的一点都不要，
