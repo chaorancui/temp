@@ -349,6 +349,8 @@ print(greeting)  # 输出: "Hello, Bob! How are you today?"
 
 **格式化数字**：
 
+> 参考：[string --- 常见的字符串操作](https://docs.python.org/zh-cn/3/library/string.html#formatspec)
+
 你可以在 f-string 中在表达式后面加上 `:` 和格式说明符，来控制数字的显示格式。例如，浮动小数点数字的精度、填充宽度、对齐方式等。
 
 - `:.2f` 表示保留两位小数。
@@ -358,6 +360,11 @@ print(greeting)  # 输出: "Hello, Bob! How are you today?"
 - `>` 表示右对齐。
 - `^` 表示居中对齐。
 - `10` 表示宽度为 10，空白部分根据对齐规则填充。
+- `#` 显示进制前缀，如 '0xff'。
+- `b,c,d,o,x,X | e,E,f,F,g,G | s` 类型说明符：
+  二进制，Unicode字符，十进制（默认），八进制，十六进制（小写），十六进制（大写），
+  科学计数法（小写e），	科学计数法（大写E），定点表示法，同f，但大写无穷/NaN，通用格式（自动选择e/f），同g，但大写E/INF/NAN，
+  字符串（默认），
 
 ```python
 pi = 3.14159265358979
