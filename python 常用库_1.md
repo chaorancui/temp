@@ -884,3 +884,175 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+## argcomplete 库
+
+> 1. [Python 命令补全神器 argcomplete](https://vra.github.io/2023/05/28/python-autocomplete-with-argcomplete/)
+> 2. [Python 的 4 个命令补全工具](https://blog.csdn.net/YouXiaoHuaAi/article/details/131569169)
+
+**一、什么是 `argcomplete`**
+
+`argcomplete` 是一个 Python 库，用于为基于 `argparse` 的命令行程序 **提供自动补全功能**。它可以在 Bash 或 Zsh 中自动补全选项、选项值、子命令等。
+
+```bash
+# 例：
+./myscript.py --mo<Tab>
+# 补全为：
+./myscript.py --mode
+```
+
+**二、工作原理（简略版）**
+
+`argcomplete` 会在 shell 的补全机制中“插入钩子”，当用户按下 `<Tab>` 时，bash 会调用这个钩子运行脚本的一部分代码，通过 `argcomplete` 返回可用补全项。
+
+具体过程：
+
+1. Shell 检测补全时运行补全函数
+2. `argcomplete` 截获当前命令行状态（参数、光标位置等）
+3. 运行你的 Python 脚本，并通过环境变量 `COMP_LINE`, `COMP_POINT` 传入命令状态
+4. `argcomplete` 调用 `argparse` 解释器并返回匹配项
+5. Shell 展示这些补全选项
+
+**三、安装方法及启用补全的方式（两种）**
+
+安装：
+
+```bash
+pip install argcomplete
+```
+
+启用补全：
+
+1. 方式一：全局补全（推荐）
+
+   ```bash
+   activate-global-python-argcomplete --user
+   source ~/.bashrc
+   ```
+
+   适合你有很多脚本的情况，只要这些脚本有：
+
+   - `# PYTHON_ARGCOMPLETE_OK`
+   - 调用了 `argcomplete.autocomplete(parser)`
+
+   就能补全。
+
+2. 方式二：注册特定脚本（适合测试/单个脚本）
+
+   ```bash
+   eval "$(register-python-argcomplete ./myscript.py)"
+   ```
+
+   > :warning: 每次打开新的终端都要重新执行，除非写入 `.bashrc`。
+
+**四、基本使用方法**
+
+```python
+#!/usr/bin/env python
+# PYTHON_ARGCOMPLETE_OK
+
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--mode', choices=['fast', 'slow', 'auto'])
+
+# 建议使用如下方式导入argcomplete并启用自动补全，而不是直接调用
+try:
+    import argcomplete
+    argcomplete.autocomplete(parser)
+except ImportError:
+    pass
+args = parser.parse_args()
+```
+
+让它可执行：
+
+```bash
+chmod +x myscript.py
+
+# 例：
+./myscript.py --mo<Tab>
+# 补全为：
+./myscript.py --mode
+```
+
+**五、补全类型支持**
+
+| 类型       | 示例                                    |
+| ---------- | --------------------------------------- |
+| 选项名     | `--help`, `--mode`                      |
+| 选项值     | `--mode <fast/slow/auto>`               |
+| 位置参数   | `<input_file>`                          |
+| 子命令     | `myscript.py train`, `myscript.py test` |
+| 自定义补全 | 通过 `completer=` 自定义函数            |
+
+**六、高级用法**
+
+1. 自定义补全函数
+
+   ```python
+   def custom_completer(prefix, parsed_args, **kwargs):
+       return ['apple', 'banana', 'cherry']
+
+   parser.add_argument('--fruit').completer = custom_completer
+   ```
+
+2. 与子命令 (`add_subparsers`) 配合使用
+
+   ```python
+   subparsers = parser.add_subparsers(dest='command')
+
+   train_parser = subparsers.add_parser('train')
+   train_parser.add_argument('--epochs', type=int)
+   ```
+
+   `argcomplete` 能正确补全 `train`、`--epochs` 等子命令和参数。
+
+**七、其他**
+
+常见问题与排查：
+
+| 问题                | 原因                              | 解决方法                                         |
+| ------------------- | --------------------------------- | ------------------------------------------------ |
+| 按 Tab 没反应       | 没启用补全                        | 运行 `activate-global-python-argcomplete --user` |
+| 只能补全文件名      | Shell 没接管                      | 使用 bash/zsh，确认你用了 `./script.py`          |
+| 无法补全子命令      | 没加 `argcomplete.autocomplete()` | 确认代码中包含该语句                             |
+| 在 PyCharm 终端无效 | 它不是标准 bash/zsh               | 用系统终端测试                                   |
+| Windows 下无法工作  | PowerShell/CMD 不支持             | 推荐使用 WSL 或 Git Bash                         |
+
+工具命令速查：
+
+| 命令                                        | 说明                     |
+| ------------------------------------------- | ------------------------ |
+| `activate-global-python-argcomplete --user` | 启用全局补全             |
+| `register-python-argcomplete script.py`     | 注册脚本补全             |
+| `complete -p`                               | 查看当前已注册补全的脚本 |
+| `echo $SHELL`                               | 查看当前终端类型         |
+
+**八、示例测试脚本模板**
+
+```python
+#!/usr/bin/env python
+# PYTHON_ARGCOMPLETE_OK
+
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description="Demo CLI")
+    parser.add_argument('--mode', choices=['debug', 'release', 'test'], help="Build mode")
+    parser.add_argument('--target', help="Target platform")
+
+    # 建议使用如下方式导入argcomplete并启用自动补全，而不是直接调用
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        pass
+    args = parser.parse_args()
+    print(args)
+
+if __name__ == '__main__':
+    main()
+```
+
+是否需要我为你生成一个 CLI 项目模板，支持多脚本自动补全和子命令结构？
