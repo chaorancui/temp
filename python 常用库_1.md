@@ -1055,4 +1055,151 @@ if __name__ == '__main__':
     main()
 ```
 
-是否需要我为你生成一个 CLI 项目模板，支持多脚本自动补全和子命令结构？
+## Python CLI 项目模板带补全
+
+好的，我将为你生成一个 **完整的 Python CLI 项目模板**，具备以下功能：
+
+一、项目特性
+
+- 使用 [`argparse`](https://docs.python.org/3/library/argparse.html) 和 [`argcomplete`](https://pypi.org/project/argcomplete/)
+- 支持 **主命令 + 子命令结构**
+- 支持 **多个脚本文件**，自动补全（全局补全机制兼容）
+- 结构清晰，可扩展
+- 自动补全支持 `--help`、自定义参数、子命令名等
+
+二、项目结构示意
+
+```bash
+mycli/
+├── cli/
+│   ├── __init__.py
+│   ├── main.py          # 主入口
+│   ├── commands/
+│   │   ├── __init__.py
+│   │   ├── build.py     # 子命令 build
+│   │   └── deploy.py    # 子命令 deploy
+├── mycli.py             # 执行入口（可补全）
+└── README.md
+```
+
+三、文件内容一览：
+
+1. `mycli.py`（主执行脚本）
+
+   ```python
+   #!/usr/bin/env python
+   # PYTHON_ARGCOMPLETE_OK
+
+   from cli.main import main
+   main()
+   ```
+
+   > 🔧 可执行权限：`chmod +x mycli.py`
+
+2. `cli/main.py`
+
+   ```python
+   import argparse
+   import argcomplete
+   from cli.commands import build, deploy
+
+   def main():
+       parser = argparse.ArgumentParser(prog="mycli", description="My CLI Tool")
+       subparsers = parser.add_subparsers(dest="command", required=True)
+
+       build.register_subcommand(subparsers)
+       deploy.register_subcommand(subparsers)
+
+       argcomplete.autocomplete(parser)
+       args = parser.parse_args()
+       args.func(args)  # Call the handler
+   ```
+
+3. `cli/commands/build.py`
+
+   ```python
+   def register_subcommand(subparsers):
+       parser = subparsers.add_parser("build", help="Build project")
+       parser.add_argument("--target", choices=["x86", "arm", "wasm"], help="Build target")
+       parser.set_defaults(func=handle)
+
+   def handle(args):
+       print(f"Running build for target: {args.target}")
+   ```
+
+4. `cli/commands/deploy.py`
+
+   ```python
+   def register_subcommand(subparsers):
+       parser = subparsers.add_parser("deploy", help="Deploy project")
+       parser.add_argument("--env", choices=["dev", "prod"], help="Environment to deploy to")
+       parser.set_defaults(func=handle)
+
+   def handle(args):
+       print(f"Deploying to environment: {args.env}")
+   ```
+
+5. `cli/__init__.py` 和 `cli/commands/__init__.py`
+
+   空文件即可，用于标记为 Python 包。
+
+6. `README.md`
+
+   ````markdown
+   # mycli
+
+   A sample multi-script CLI tool with argcomplete support.
+
+   ## Usage
+
+   ```bash
+   chmod +x mycli.py
+   activate-global-python-argcomplete --user
+   source ~/.bashrc
+
+   ./mycli.py build --target x86
+   ./mycli.py deploy --env prod
+   ```
+   ````
+
+   这样就能体验到自动补全和多子命令结构的功能。
+
+7. 使用方式
+
+   1. 创建一个名为 `mycli` 的目录。
+   2. 在该目录下，按上述结构创建文件并复制内容。
+   3. 确保 `mycli.py` 文件可执行：
+
+      ```bash
+      chmod +x mycli.py
+      ```
+
+   4. 启用全局补全：
+
+      ```bash
+      activate-global-python-argcomplete --user # 全局启用一次
+      source ~/.bashrc
+      ```
+
+   5. 运行以下命令测试补全：
+
+      ```bash
+      ./mycli.py <Tab>         # 自动补全子命令 build、deploy
+      ./mycli.py build --<Tab> # 自动补全 --target
+      ```
+
+8. 可选：自动把 `mycli.py` 添加到 `$PATH` 中（例如放到 `~/bin`）
+
+示例补全演示：
+
+```bash
+./mycli.py <Tab>
+build   deploy
+
+$ ./mycli.py build --<Tab>
+--target  --help
+```
+
+---
+
+是否需要我打包为 zip 或者通过文本形式输出所有文件内容方便你复制？
