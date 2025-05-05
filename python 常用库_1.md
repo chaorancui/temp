@@ -11,38 +11,6 @@
 
 > [数据科学和机器学习](https://mlhowto.readthedocs.io/en/latest/index.html)
 
-### NumPy 标准数据类型
-
-NumPy 支持比 Python 更多种类的数值类型。 下表显示了 NumPy 中定义的不同标量数据类型。
-
-| 数据类型   | 说明                                                             |
-| :--------- | :--------------------------------------------------------------- |
-| bool       | 布尔类型，True 或者 False。                                      |
-| bool\_     | 布尔值（真、 True 或假、 False） ， 用一个字节存储               |
-| int\_      | 默认整型（类似于 C 语言中的 long， 通常情况下是 int64 或 int32） |
-| intc       | 与 C 语言的 int 类型一致，一般是 int32 或者 int64                |
-| intp       | 用于索引的整数，与 C 预言中的 ssize_t 一致，int32 或者 int64     |
-| int8       | 字节长度的整数，取值：[-128, 127]                                |
-| int16      | 16 位长度的整数，取值：[-32768, 32767]                           |
-| int32      | 32 位长度的整数，取值：[-2^31, 2^31-1]                           |
-| int64      | 64 位长度的整数，取值：[-2^^63, 2^63-1]                          |
-| uint8      | 8 位无符号整数，取值：[0, 255]                                   |
-| uint16     | 16 位无符号整数，取值：[0, 65535]                                |
-| uint32     | 32 位无符号整数，取值：[0, 2^32-1]                               |
-| uint64     | 64 位无符号整数，取值：[0, 2^64-1]                               |
-| float16    | 16 位半精度浮点数：1 位符号位，5 位指数，10 位尾数               |
-| float32    | 32 位半精度浮点数：1 位符号位，8 位指数，23 位尾数               |
-| float64    | 64 位半精度浮点数：1 位符号位，11 位指数，52 位尾数              |
-| float      | float64 的简化形式                                               |
-| float\_    | float64 的简化形式                                               |
-| complex64  | 复数类型，实部和虚部都是 32 位浮点数                             |
-| complex128 | 复数类型，实部和虚部都是 64 位浮点数                             |
-
-浮点数：（符号）尾数\*10 指数；
-复数：实部(.real)+虚部 i（.imag）；
-
-NumPy 数字类型是`dtype`（数据类型）对象的实例，每个对象具有唯一的特征。 这些类型可以是`np.bool_`，`np.float32`等。
-
 ### NumPy 数组内存布局
 
 [ndarray.flags](https://numpy.org/doc/stable/reference/generated/numpy.ndarray.flags.html#numpy.ndarray.flags)
@@ -116,29 +84,192 @@ print(array.flags)
 
 当数组是 **一维** 或 **二维并且行或列长度为 1** 时，数组内存的存储顺序在行优先和列优先的情况下都是连续的，因此 `C_CONTIGUOUS` 和 `F_CONTIGUOUS` 都会同时为 `True`。这种现象是正常的。
 
-### 数组转换为字符串
+### NumPy 标准数据类型
 
-`numpy.array2string` 是一个非常灵活的函数，它可以将 NumPy 数组转换为字符串，并且提供了很多选项来控制输出格式。
+NumPy 支持比 Python 更多种类的数值类型。 下表显示了 NumPy 中定义的不同标量数据类型。
+
+| 数据类型   | 说明                                                             |
+| :--------- | :--------------------------------------------------------------- |
+| bool       | 布尔类型，True 或者 False。                                      |
+| bool\_     | 布尔值（真、 True 或假、 False） ， 用一个字节存储               |
+| int\_      | 默认整型（类似于 C 语言中的 long， 通常情况下是 int64 或 int32） |
+| intc       | 与 C 语言的 int 类型一致，一般是 int32 或者 int64                |
+| intp       | 用于索引的整数，与 C 预言中的 ssize_t 一致，int32 或者 int64     |
+| int8       | 字节长度的整数，取值：[-128, 127]                                |
+| int16      | 16 位长度的整数，取值：[-32768, 32767]                           |
+| int32      | 32 位长度的整数，取值：[-2^31, 2^31-1]                           |
+| int64      | 64 位长度的整数，取值：[-2^^63, 2^63-1]                          |
+| uint8      | 8 位无符号整数，取值：[0, 255]                                   |
+| uint16     | 16 位无符号整数，取值：[0, 65535]                                |
+| uint32     | 32 位无符号整数，取值：[0, 2^32-1]                               |
+| uint64     | 64 位无符号整数，取值：[0, 2^64-1]                               |
+| float16    | 16 位半精度浮点数：1 位符号位，5 位指数，10 位尾数               |
+| float32    | 32 位半精度浮点数：1 位符号位，8 位指数，23 位尾数               |
+| float64    | 64 位半精度浮点数：1 位符号位，11 位指数，52 位尾数              |
+| float      | float64 的简化形式                                               |
+| float\_    | float64 的简化形式                                               |
+| complex64  | 复数类型，实部和虚部都是 32 位浮点数                             |
+| complex128 | 复数类型，实部和虚部都是 64 位浮点数                             |
+
+浮点数：（符号）尾数\*10 指数；
+复数：实部(.real)+虚部 i（.imag）；
+
+NumPy 数字类型是`dtype`（数据类型）对象的实例，每个对象具有唯一的特征。 这些类型可以是`np.bool_`，`np.float32`等。
+
+### NumPy 指定数据类型
+
+> [Data type objects (dtype)](https://numpy.org/doc/stable/reference/arrays.dtypes.html#)
+
+在 NumPy 中，`dtype='<f2'` 是一种指定数据类型的方式，表示**小端字节序（little-endian）的 2 字节浮点数（float16）**。NumPy 提供了多种方式来指定数据类型（`dtype`），包括**基本数据类型**、**字节序前缀**、**结构化数据类型**和**扩展数据类型**等。以下是全面的介绍：
+
+**一、基本数据类型（Type Codes）**
+
+NumPy 使用简短的字符代码表示基本数据类型：
+
+| 数据类型       | 字符代码               | 说明                                                    |
+| :------------- | :--------------------- | :------------------------------------------------------ |
+| 有符号整数     | `i1`, `i2`, `i4`, `i8` | `int8`, `int16`, `int32`, `int64`                       |
+| 无符号整数     | `u1`, `u2`, `u4`, `u8` | `uint8`, `uint16`, `uint32`, `uint64`                   |
+| 浮点数         | `f2`, `f4`, `f8`       | `float16`, `float32`, `float64`                         |
+| 复数浮点数     | `c8`, `c16`            | `complex64`（`2×float32`）, `complex128`（`2×float64`） |
+| 布尔型         | `?`                    | `bool`                                                  |
+| 字符串         | `S10`                  | 10 字节的 ASCII 字符串                                  |
+| Unicode 字符串 | `U10`                  | 10 字符的 Unicode 字符串                                |
+| 时间差         | `m8[ns]`               | `timedelta64`                                           |
+| 时间戳         | `M8[ns]`               | `datetime64`                                            |
+
+**示例**：
 
 ```python
-numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, separator=' ', prefix='', style=<no value>, formatter=None, threshold=None, edgeitems=None, sign=None, floatmode=None, suffix='', *, legacy=None)
+np.array([1, 2, 3], dtype='i4')  # 32 位整数
+np.array([1.0, 2.0], dtype='f8')  # 64 位浮点数
 ```
 
-**参数说明**：
+**二、字节序前缀（Byte Order）**
 
-- **a**: 输入的 NumPy 数组。
-- **max_line_width**: 每行的最大字符宽度。如果超过这个宽度，数组会换行。
-- **precision**: 浮点数的精度。
-- **suppress_small**: 如果为 True，小的浮点数会打印为 0。
-- **separator**: 元素之间的分隔符。
-- **prefix**: 每行的前缀。
-- **formatter**: 一个字典，用于指定不同类型元素的格式。
-- **threshold**: 总元素个数的阈值，超过这个值时数组会使用省略号进行简化。
-- **edgeitems**: 边缘元素的数量。
-- **sign**: 控制符号的显示，可以是 `+` 或者 `-`。
-- **floatmode**: 控制浮点数的显示模式，可以是 `maxprec`, `fixed`, `unique`, `maxprec_equal`。
-- **suffix**: 每行的后缀。
-- **legacy**: 控制旧版格式输出。
+> [numpy.dtype.byteorder](https://numpy.org/doc/stable/reference/generated/numpy.dtype.byteorder.html#numpy.dtype.byteorder)
+
+NumPy 允许显式指定字节序（适用于多字节数据类型）：
+
+- `>`：大端字节序（big-endian），示例：`'>i4'`（大端 int32）
+- `<`：小端字节序（little-endian），示例：`'<f2'`（小端 float16）
+- `=`：原生字节序（native endian，依赖于主机系统），示例：`'=f8'`（默认 float64）
+- `|`：不考虑字节序（not applicable），示例：`'|b1'`（无字节序 bool）
+
+> 所有内置数据类型对象的字节顺序都是 `=` 或 `|`。
+
+**示例**：
+
+```python
+np.frombuffer(b'\x00\x3C', dtype='<f2')  # 小端 float16
+np.frombuffer(b'\x3C\x00', dtype='>f2')  # 大端 float16
+# 注：'<f2' 等价于 np.float16 的小端版本（如果系统默认是小端，则 np.float16 和 '<f2' 是相同的）。
+```
+
+**三、结构化数据类型（Structured `dtype`）**
+
+结构化数据类型允许定义复合类型（类似 C 结构体）：
+
+(1) 元组列表形式
+
+```python
+dtype = np.dtype([
+    ('name', 'U10'),  # 字段名 'name'，Unicode 字符串（长度 10）
+    ('age', 'i4'),    # 字段名 'age'，32 位整数
+    ('height', 'f8')  # 字段名 'height'，64 位浮点数
+])
+```
+
+(2) 字典形式
+
+```python
+dtype = np.dtype({
+    'names': ['name', 'age', 'height'],
+    'formats': ['U10', 'i4', 'f8']
+})
+```
+
+(3) 字符串快捷形式
+
+```python
+dtype = np.dtype('U10, i4, f8')  # 字段名默认为 'f0', 'f1', 'f2'
+```
+
+(4) 对齐的结构化类型（内存对齐）
+
+```python
+dtype = np.dtype([
+    ('a', 'i4'),
+    ('b', 'f8')
+], align=True)  # 按编译器对齐规则填充字节
+```
+
+**四、扩展数据类型（Extended `dtype`）**
+
+(1) 子数组（Subarrays）
+
+```python
+dtype = np.dtype(('i4', (3,)))  # 每个元素是 3 个 int32 的数组
+arr = np.array([(1, 2, 3), (4, 5, 6)], dtype=dtype)
+```
+
+(2) 自定义数据类型
+
+```python
+# 定义一个 4 字节的数据类型，前 2 字节是 int16，后 2 字节是 uint16
+dtype = np.dtype([
+    ('a', 'i2'),
+    ('b', 'u2')
+])
+```
+
+**五、其他特殊类型**
+
+(1) 时间类型
+
+```python
+np.array(['2023-01-01'], dtype='M8[D]')  # 日期类型（天）
+np.array([100], dtype='m8[ns]')          # 时间差（纳秒）
+```
+
+(2) 对象类型
+
+```python
+np.array([1, 'hello'], dtype='O')  # Python 对象类型
+```
+
+**六、`numpy` 类型对象直接指定**
+
+可以直接使用 NumPy 的类型对象（推荐，可读性更好）：
+
+```python
+np.float16    # 等价于 'f2'
+np.int32      # 等价于 'i4'
+np.complex128 # 等价于 'c16'
+```
+
+**示例**：
+
+```python
+np.array([1.0, 2.0], dtype=np.float32)  # 显式指定 float32
+```
+
+## 总结
+
+| 指定方式          | 示例                     | 说明               |
+| :---------------- | :----------------------- | :----------------- |
+| 字符代码          | `'i4'`, `'f8'`           | 基本数据类型       |
+| 字节序 + 字符代码 | `'<f2'`, `'>i8'`         | 显式指定字节序     |
+| 结构化 `dtype`    | `[('name', 'U10')]`      | 类似 C 结构体      |
+| NumPy 类型对象    | `np.float16`, `np.int64` | 推荐方式，可读性高 |
+| 时间类型          | `'M8[ns]'`, `'m8[D]'`    | 日期时间或时间差   |
+
+选择哪种方式取决于场景：
+
+- **简单类型**：直接用 `np.float32` 或 `'f4'`。
+- **二进制数据解析**：用 `'<f2'` 或 `'>i4'` 显式控制字节序。
+- **结构化数据**：用 `dtype=[('field', 'type')]`。
+- **时间数据**：用 `'M8[ns]'` 或 `np.datetime64`。
 
 ### numpy 实现 reinterpret cast
 
@@ -572,7 +703,7 @@ print(loaded_array)
 - `fromfile` 函数加载二进制文件，需要手动指定数据类型（如 `np.int32`）。
 - 如果文件中存储的是多维数组数据，加载后需用 `.reshape` 方法手动恢复原始形状。
 
-#### `.bin` 文件的优缺点
+**`.bin` 文件的优缺点**
 
 - **优点**：
   - 文件简单，保存和读取效率高，适合保存大量的数据（如图像、音频信号等）。
@@ -703,6 +834,103 @@ print(loaded_array)
 
 - **保存到文本文件**：使用 `numpy.savetxt`，可以指定格式和分隔符。
 - **转换为字符串**：使用 `numpy.array2string`，灵活控制精度和分隔符。
+
+### 数组转字符串 array2string
+
+`numpy.array2string` 是一个非常灵活的函数，它可以将 NumPy 数组转换为字符串，并且提供了很多选项来控制输出格式。
+
+```python
+numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, separator=' ', prefix='', style=<no value>, formatter=None, threshold=None, edgeitems=None, sign=None, floatmode=None, suffix='', *, legacy=None)
+```
+
+**参数说明**：
+
+- **a**: 输入的 NumPy 数组。
+- **max_line_width**: 每行的最大字符宽度。如果超过这个宽度，数组会换行。
+- **precision**: 浮点数的精度。
+- **suppress_small**: 如果为 True，小的浮点数会打印为 0。
+- **separator**: 元素之间的分隔符。
+- **prefix**: 每行的前缀。
+- **formatter**: 一个字典，用于指定不同类型元素的格式。
+- **threshold**: 总元素个数的阈值，超过这个值时数组会使用省略号进行简化。
+- **edgeitems**: 边缘元素的数量。
+- **sign**: 控制符号的显示，可以是 `+` 或者 `-`。
+- **floatmode**: 控制浮点数的显示模式，可以是 `maxprec`, `fixed`, `unique`, `maxprec_equal`。
+- **suffix**: 每行的后缀。
+- **legacy**: 控制旧版格式输出。
+
+### 字节流转数值
+
+**一、将缓冲区解释为一维数组。**
+
+```python
+numpy.frombuffer(buffer, dtype=float, count=-1, offset=0, *, like=None)
+```
+
+**参数：**
+
+- **buffer**: buffer_like
+
+  buffer 区接口的对象
+
+- **dtype**: data-type, **optional**
+
+  返回数组的数据类型；**默认值：浮点数**。
+
+- **count**: int, **optional**
+
+  要读取的项目数。`-1`表示缓冲区中的所有数据；**默认值：-1**。
+
+- **offset**: int, **optional**
+
+  从该偏移量开始读取缓冲区（以字节为单位）；**默认值：0**。
+
+- **like**: array_like, **optional**
+
+  引用对象，用于创建非 NumPy 数组。如果传入的类数组`like`支持该`__array_function__`协议，则结果将由该协议定义。在这种情况下，它确保创建的数组对象与通过此参数传入的数组对象兼容。
+
+笔记
+
+如果缓冲区包含的数据不是按机器字节顺序排列的，则应将其指定为数据类型的一部分，例如：
+
+dt = np.dtype(int)
+dt = dt.newbyteorder('>')
+np.frombuffer(buf, dtype=dt)
+结果数组的数据不会被字节交换，但会被正确解释。
+
+此函数创建原始对象的视图。这通常是安全的，但当原始对象可变或不受信任时，复制结果可能是有意义的。
+
+**二、从数组中的原始数据字节构造 Python 字节**
+
+```python
+ndarray.tobytes(order='C')
+
+```
+
+构造 Python 字节，显示数据内存原始内容的副本。字节对象默认以 C 语言顺序生成。此行为由`order`参数控制。
+
+- 参数：
+
+  **order**：{‘C’, ‘F’, ‘A’}, optional
+
+  控制字节对象的内存布局。 ‘C’ 表示 C-order, ‘F’ 表示 F-order, ‘A’ (short for _Any_) 表示 ‘F’ if _a_ is Fortran contiguous, ‘C’ otherwise. 默认值为 ‘C’.
+
+- 返回：
+
+  **s**：bytes
+
+  数组的原始数据副本的字节。
+
+```python
+import numpy as np
+x = np.array([[0, 1], [2, 3]], dtype='<u2')
+x.tobytes()
+b'\x00\x00\x01\x00\x02\x00\x03\x00'
+x.tobytes('C') == x.tobytes()
+True
+x.tobytes('F')
+b'\x00\x00\x02\x00\x01\x00\x03\x00'
+```
 
 ## argparse 库
 
