@@ -254,7 +254,7 @@ np.complex128 # 等价于 'c16'
 np.array([1.0, 2.0], dtype=np.float32)  # 显式指定 float32
 ```
 
-## 总结
+**七、总结**
 
 | 指定方式          | 示例                     | 说明               |
 | :---------------- | :----------------------- | :----------------- |
@@ -889,13 +889,16 @@ numpy.frombuffer(buffer, dtype=float, count=-1, offset=0, *, like=None)
 
   引用对象，用于创建非 NumPy 数组。如果传入的类数组`like`支持该`__array_function__`协议，则结果将由该协议定义。在这种情况下，它确保创建的数组对象与通过此参数传入的数组对象兼容。
 
-笔记
+**注意：**
 
 如果缓冲区包含的数据不是按机器字节顺序排列的，则应将其指定为数据类型的一部分，例如：
 
+```python
 dt = np.dtype(int)
 dt = dt.newbyteorder('>')
 np.frombuffer(buf, dtype=dt)
+```
+
 结果数组的数据不会被字节交换，但会被正确解释。
 
 此函数创建原始对象的视图。这通常是安全的，但当原始对象可变或不受信任时，复制结果可能是有意义的。
@@ -904,7 +907,6 @@ np.frombuffer(buf, dtype=dt)
 
 ```python
 ndarray.tobytes(order='C')
-
 ```
 
 构造 Python 字节，显示数据内存原始内容的副本。字节对象默认以 C 语言顺序生成。此行为由`order`参数控制。
