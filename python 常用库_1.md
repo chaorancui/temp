@@ -859,7 +859,131 @@ numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, 
 - **suffix**: 每行的后缀。
 - **legacy**: 控制旧版格式输出。
 
-### 字节流转数值
+## 字节流
+
+> 1. [Binary Sequence Types — bytes, bytearray, memoryview](https://docs.python.org/3/library/stdtypes.html#binary-sequence-types-bytes-bytearray-memoryview)
+> 2. [`bytes.fromhex()` - Python docs](https://docs.python.org/3/library/stdtypes.html#bytes.fromhex)
+> 3. [`bytes.hex()` — Python Docs](https://docs.python.org/3/library/stdtypes.html#bytes.hex)
+
+- `bytes.fromhex()`：将十六进制字符串（hex string）转换为 `bytes` 对象
+- `bytes.hex()`：将一个 `bytes` 对象转换成纯十六进制表示的字符串
+
+### bytes.fromhex
+
+`bytes.fromhex()` 是 Python 内置的一个非常实用的方法，用于将**十六进制字符串（hex string）转换为 bytes 对象**，常用于处理底层数据通信、文件解析、加密等场景。
+
+**函数定义**
+
+```python
+bytes.fromhex(string)
+```
+
+**参数说明**
+
+- `string`：一个表示十六进制的字符串，可以包含空格，必须是偶数字符数（每两个字符代表一个字节）
+
+**返回值**
+
+- 返回一个新的 `bytes` 对象，其中每个字节由 `string` 中的两个十六进制字符组成。
+
+**示例**
+
+1. 十六进制字符串
+
+   ```python
+   b = bytes.fromhex('48656c6c6f20576f726c64')
+   print(b)         # 输出: b'Hello World'
+   print(b.decode())  # 输出: Hello World
+   ```
+
+   `'48'` 是 `H`，`65` 是 `e`，依此类推。
+
+2. 带空格的字符串
+
+   ```python
+   b = bytes.fromhex('48 65 6c 6c 6f')
+   print(b)  # 输出: b'Hello'
+   ```
+
+   空格是允许的，它会被自动忽略。
+
+3. 错误示例（字符串长度不是偶数）
+
+   ```python
+   bytes.fromhex('123')  # ValueError: non-hexadecimal number found in fromhex() arg at position 3
+   ```
+
+   你必须提供偶数长度的字符串，因为两个 hex 字符才能组成一个完整的字节。
+
+**常见应用场景**
+
+1. **从十六进制字符串还原二进制数据**
+   - 如：网络数据包、十六进制编辑器导出的字符串
+2. **配合 `struct.unpack` 使用**
+   - 可以将十六进制转为 `bytes` 后按格式解析
+3. **加密通信、哈希值处理**
+   - 如将 SHA256 的 hex digest 转成 bytes 继续操作
+
+### bytes.hex()
+
+`bytes.hex()` 是 Python 中 `bytes` 类型的一个方法，用于将一个 `bytes` 对象转换成**纯十六进制表示的字符串**。它是 `bytes.fromhex()` 的逆操作，常用于**调试、日志输出、数据传输、加密摘要处理等**场景。
+
+**函数定义**
+
+```python
+bytes.hex(sep=None, bytes_per_sep=1)
+```
+
+**参数说明（Python 3.8+ 支持）**
+
+| 参数            | 类型  | 说明                                                           |
+| --------------- | ----- | -------------------------------------------------------------- |
+| `sep`           | `str` | 可选，插入在每个字节之间的分隔符，例如 `' '`（空格）、`':'` 等 |
+| `bytes_per_sep` | `int` | 每多少个字节插入一个 `sep`，默认为 1                           |
+
+> 早期版本（Python < 3.8）不支持 `sep` 和 `bytes_per_sep` 参数。
+
+**返回值**
+
+一个只包含十六进制字符的字符串，每个字节转为两个十六进制字符（小写）。
+
+**示例**
+
+1. 基本示例
+
+   ```python
+   data = b'ABC'
+   hex_str = data.hex()
+   print(hex_str)  # 输出: '414243'
+   ```
+
+   说明：
+
+   - `'A'` → `0x41`
+   - `'B'` → `0x42`
+   - `'C'` → `0x43`
+
+2. 使用 `sep` 和 `bytes_per_sep`
+
+   ```python
+   data = b'\x12\x34\x56\x78'
+   print(data.hex(sep=':'))  # 输出: '12:34:56:78'
+
+   print(data.hex(sep='-', bytes_per_sep=2))  # 输出: '1234-5678'
+   ```
+
+   这在调试或输出类似 MAC 地址、十六进制分组等格式时非常有用。
+
+**应用场景**
+
+| 场景         | 说明                                    |
+| ------------ | --------------------------------------- |
+| 数据调试     | 将 `bytes` 数据打印成可读的十六进制     |
+| 数据传输     | 某些协议用 hex 字符串传输二进制数据     |
+| 加密摘要处理 | 哈希值如 SHA256 通常转为 hex 字符串显示 |
+| 数据序列化   | 可将 bytes 用 hex 保存为文本格式        |
+
+### 字节流和数值互转
 
 **一、将缓冲区解释为一维数组。**
 
