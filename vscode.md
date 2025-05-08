@@ -11,6 +11,8 @@
 
 ### 便携版
 
+[portapps/vscode-portable](https://github.com/portapps/vscode-portable/releases)
+
 - 插件安装位置在便携解压目录
 - 需要自己添加右键菜单
 
