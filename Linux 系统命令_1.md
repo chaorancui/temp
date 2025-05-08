@@ -161,6 +161,215 @@ find 命令用于在系统中搜索符合条件的文件名，如果需要模糊
 grep 命令
 grep 命令用于在文件中搜索符合条件的字符串，如果需要模糊查询，则使用正则表达式进行匹配，正则表达式是包含匹配。
 
+## find 命令
+
+`find` 是 Linux / Unix 系统中非常强大的命令行工具之一，可实现：
+
+- 精准搜索（按名称、时间、权限、大小等）；
+- 灵活组合条件（使用逻辑操作）；
+- 执行各种动作（复制、删除、移动、统计等）；
+
+可用 `find --help` 查看命令帮助文档。
+
+**一、基本格式**
+
+```bash
+Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
+
+# 中文：
+用法：find [选项] [起始路径...] [表达式]
+
+说明：
+- `path`：要搜索的路径，默认为当前目录（`.`）；
+- `expression`：匹配条件，默认是 `-print`（即列出路径）；
+```
+
+**二、表达式类型说明**
+
+**表达式可以包含以下部分**：
+
+- 操作符（operators）
+- 选项（options）
+- 测试条件（tests）
+- 动作（actions）
+
+1. **操作符（operators）**
+
+   用于组合或控制多个条件的逻辑关系：
+
+   ```bash
+   ( EXPR )        —— 括号分组（要加反斜线：`\(` `\)`）
+   ! EXPR          —— 逻辑非
+   -not EXPR       —— 等价于 `!`
+   EXPR1 -a EXPR2  —— 逻辑与（可省略）
+   EXPR1 -and EXPR2 —— 同上
+   EXPR1 -o EXPR2  —— 逻辑或
+   EXPR1 -or EXPR2 —— 同上
+   EXPR1 , EXPR2   —— 顺序执行 EXPR1 再执行 EXPR2（不管 EXPR1 成功与否）
+   ```
+
+2. **位置相关选项（positional options）**
+
+   这些选项**总是返回 true**，必须写在表达式之前：
+
+   ```bash
+   -daystart         —— 以当天凌晨为时间计算起点
+   -follow           —— 跟踪符号链接（等价于 `-L`）
+   -regextype        —— 设置正则表达式语法类型（例如 `posix-extended`）
+   ```
+
+3. **常规选项（normal options）**
+
+   也是总是为 true 的，必须在其他条件之前写：
+
+   ```bash
+   -depth               —— 先处理文件，再处理目录（深度优先）
+   --help               —— 显示帮助信息
+   -maxdepth LEVELS     —— 最大搜索层级
+   -mindepth LEVELS     —— 最小搜索层级
+   -mount / -xdev       —— 不跨越挂载点
+   -noleaf              —— 不假设目录结构优化（对非 GNU 系统有用）
+   --version            —— 显示版本
+   -ignore_readdir_race —— 忽略读取目录竞争条件
+   -noignore_readdir_race —— 不忽略读取目录竞争
+   ```
+
+4. **测试条件（tests）**
+
+   这些条件用于匹配文件特征：
+
+   | 参数                                      | 说明                              |
+   | ----------------------------------------- | --------------------------------- |
+   | `-name PATTERN`                           | 按文件名匹配（支持通配符）        |
+   | `-iname PATTERN`                          | 不区分大小写的文件名匹配          |
+   | `-regex PATTERN`                          | 使用正则表达式匹配整个路径        |
+   | `-size N[单位]`                           | 文件大小，单位如 `k`、`M`、`G` 等 |
+   | `-mtime N`                                | 修改时间（按天）                  |
+   | `-atime N`                                | 访问时间（按天）                  |
+   | `-ctime N`                                | 状态变更时间（按天）              |
+   | `-mmin N`                                 | 修改时间（按分钟）                |
+   | `-type f` / `d`                           | 文件 / 目录                       |
+   | `-user NAME`                              | 文件属主                          |
+   | `-group NAME`                             | 文件属组                          |
+   | `-perm MODE`                              | 权限匹配                          |
+   | `-empty`                                  | 空目录或空文件                    |
+   | `-false` / `-true`                        | 总是假 / 总是对                   |
+   | `-readable` / `-writable` / `-executable` | 是否可读 / 可写 / 可执行          |
+
+   说明：
+
+   - `N` 可以是 `+N`（大于），`-N`（小于），`N`（等于）。
+
+5. **动作（actions）**
+
+   对匹配文件执行的操作：
+
+   | 参数                  | 功能                                       |
+   | --------------------- | ------------------------------------------ |
+   | `-print`              | 打印路径（默认动作）                       |
+   | `-ls`                 | 类似 `ls -l` 的详细列表                    |
+   | `-delete`             | 删除匹配文件（⚠️ 危险操作）                |
+   | `-exec COMMAND {} \;` | 对每个文件执行命令（如：`cp {} /backup/`） |
+   | `-exec ... +`         | 一次性对多个文件执行命令（更高效）         |
+   | `-ok`                 | 类似 `-exec`，但执行前会提示确认           |
+   | `-prune`              | 跳过该目录（常用于排除路径）               |
+
+6. **-D 调试选项**
+
+   ```bash
+   -D exec,opt,rates,search,stat,time,tree,all,help
+   ```
+
+   用于调试 `find` 行为，一般不常用，比如：
+
+   - `-D exec` 显示执行命令的详细过程；
+   - `-D tree` 显示目录结构遍历过程；
+   - `-D help` 显示所有调试项说明。
+
+**三、查找条件（匹配过滤）总结**
+
+**文件名相关**
+
+- `-name` | `-name "*.log"` | 按名字（通配符）查找 |
+- `-iname` | `-iname "*.LOG"` | 不区分大小写 |
+- `-regex` | `-regex '.*\.log'` | 使用正则表达式匹配路径 |
+- `-regextype` | `-regextype posix-extended` | 设定正则语法类型（配合 `-regex`） |
+
+**类型相关**
+
+- `-type f` | 查找普通文件 | |
+- `-type d` | 查找目录 | |
+- `-type l` | 查找符号链接 | |
+- `-type b/c` | 块/字符设备文件 | |
+
+**时间相关**
+
+- `-mtime +7` | 7 天前修改的文件 | |
+- `-atime -1` | 1 天内被访问的文件 | |
+- `-newer file` | 比指定文件更新的文件 | |
+
+**大小相关**
+
+- `-size +100M` | 大于 100MB 的文件 | |
+- `-size -10k` | 小于 10KB 的文件 | |
+
+**权限/用户相关**
+
+- `-user root` | 属主是 root 的文件 | |
+- `-group dev` | 属组是 dev 的文件 | |
+- `-perm 644` | 权限为 644 的文件 | |
+
+**搜索控制**
+
+- `-maxdepth 1` | 只搜索当前目录，不进入子目录 | |
+- `-mindepth 2` | 跳过前几层，只搜索更深层 | |
+
+**操作动作（对匹配结果的处理）**
+
+- `-print` | 输出文件路径（默认行为） | |
+- `-exec` | `-exec rm {} \;`：对每个文件执行操作 | |
+- `-ok` | 类似 `-exec`，但每次操作前询问确认 | |
+- `-delete` | 删除匹配的文件或目录（**需谨慎！**） | |
+
+**四、典型场景**
+
+| 任务                          | 命令                                        |
+| ----------------------------- | ------------------------------------------- |
+| 查找当前目录下所有 `.c` 文件  | `find . -name "*.c"`                        |
+| 查找 7 天内修改的 `.log` 文件 | `find . -name "*.log" -mtime -7`            |
+| 查找大于 100MB 的文件         | `find . -type f -size +100M`                |
+| 删除所有空目录                | `find . -type d -empty -delete`             |
+| 拷贝所有包含 `_0_` 的文件     | `find . -name "*_0_*" -exec cp {} /dst/ \;` |
+
+一、查找路径/文件
+
+| 任务                                     | 命令                                         |
+| ---------------------------------------- | -------------------------------------------- |
+| 查找所有 `.log` 文件                     | `find /path/to/search -type f -name "*.log"` |
+| 查找最近 3 天内修改过的文件              | `find /path/to/search -type f -mtime -3`     |
+| 查找文件大小大于 100MB 的文件            | `find /path/to/search -type f -size +100M`   |
+| 查找目录（比如项目根目录下的所有子目录） | `find /path/to/search -type d -maxdepth 1`   |
+
+二、查找后本地 `cp` 拷贝
+
+| 任务                                                 | 命令                                                                                     |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 拷贝所有 `.txt` 到指定目录                           | `find . -type f -name "*.txt" -exec cp {} /backup/ \;`                                   |
+| 拷贝匹配正则文件名（如：`data_0001_0_*`）            | `find . -regextype posix-extended -regex './data_[0-9]{4}_0_.*' -exec cp {} /backup/ \;` |
+| 保留原目录结构地拷贝文件（推荐用 `rsync` 替代 `cp`） | `find ./src -type f -name "\*.conf" -exec rsync -R {} /backup/ \;`                       |
+| 自动创建目标目录（本地）                             | `find . -name "*.txt" -exec cp {} /backup/dir/ \;`                                       |
+| 使用 `basename` 改文件名或只拷贝文件本身             | `find . -type f -name "*.txt" -exec sh -c 'cp "$1" /target/$(basename "$1")' _ {} \;`    |
+
+> `rsync -R` 会保留源路径结构（如 `src/app/a.conf` 复制为 `backup/src/app/a.conf`）
+
+三、查找后远程拷贝（scp / rsync）
+
+| 任务                                      | 命令                                                                             |
+| ----------------------------------------- | -------------------------------------------------------------------------------- |
+| 使用 `scp` 拷贝所有 `.log` 文件到远程主机 | `find . -type f -name "*.txt" -exec cp {} /backup/ \;`                           |
+| 使用 `rsync` 批量拷贝并保留目录结构       | `find ./data -type f -name "*.bin" -exec rsync -R {} user@host:/remote/data/ \;` |
+| `scp` 加速小技巧（用 `xargs` 批量处理）   | `find . -name "\*.cfg" \| xargs -I {} scp {} user@host:/remote/configs/`         |
+
 ## grep 命令
 
 `grep` 是 Linux / Unix 系统中一个非常常用的命令行工具，用于 **搜索文件中符合条件的字符串**。它基于正则表达式进行匹配，并输出包含匹配内容的行。
@@ -376,9 +585,7 @@ Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
    - 示例：`cp -v file1.txt /home/user/destination/`
 
 5. **`-p` 或 `--preserve`**：保留文件的属性（如修改时间、权限、所有者等）。通常在复制文件时，源文件的权限和时间戳不会被保留，使用该选项可以避免这种情况。
-
    - 示例：`cp -p file1.txt /home/user/destination/`
-
 6. **`-u` 或 `--update`**：仅在源文件比目标文件更新，或者目标文件不存在时才复制。
 
    - 示例：`cp -u file1.txt /home/user/destination/`
@@ -394,6 +601,38 @@ Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
 9. **`--no-clobber`**：如果目标文件已存在，则不复制，不会覆盖目标文件。
 
    - 示例：`cp --no-clobber file1.txt /home/user/destination/`
+
+**注意：**
+
+`cp` 命令本身**不支持正则表达式**来筛选文件，它只支持通配符（如 `*`、`?`），这是由 shell（比如 bash）进行展开的。
+
+1. 使用通配符匹配文件
+
+   这是最常见的方式，例如：
+
+   ```bash
+   cp *.txt /target/dir/
+   ```
+
+   会拷贝当前目录下所有 `.txt` 文件。
+
+2. 如果你确实需要用 **正则表达式筛选文件名**，可以结合 `find` 或 `ls | grep` 使用：
+
+   （1）使用 `find` 搭配正则（推荐方式）
+
+   ```bash
+   find . -maxdepth 1 -regextype posix-extended -regex './file[0-9]+\.txt' -exec cp {} /target/dir/ \;
+   ```
+
+   这会拷贝所有形如 `file123.txt` 的文件。
+
+   （2）使用 `grep` 和 `xargs`
+
+   ```bash
+   ls | grep -E '^file[0-9]+\.txt$' | xargs -I {} cp {} /target/dir/
+   ```
+
+   这也能实现正则筛选，但 `ls` 对特殊字符（如空格）处理不好，慎用。
 
 ## mv 命令
 
