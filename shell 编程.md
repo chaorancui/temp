@@ -30,33 +30,111 @@
 
 ## 正则表达式介绍
 
-[Linux文本处理：掌握基础、扩展和Perl正则表达式的威力](https://blog.csdn.net/dgwxligg/article/details/138875027)
+[Linux 文本处理：掌握基础、扩展和 Perl 正则表达式的威力](https://blog.csdn.net/dgwxligg/article/details/138875027)
 
 当探讨 Linux 文本处理时，**基础正则表达式**（Basic Regular Expressions, BRE）、**扩展正则表达式**（Extended Regular Expressions, ERE）和**Perl 兼容正则表达式**（Perl-Compatible Regular Expressions, PCRE）这三种正则表达式非常重要。它们在功能和语法上有所区别，并由不同的工具和命令支持。
 
-1. **基础正则表达式 (BRE)**：
-   - BRE 是最初在 Unix 文本工具中使用的正则表达式的简单形式。
-   - 在 BRE 中，元字符如`?`, `+`, `{`, `|`, `(`, `)`需要被转义（前加反斜杠`\`）才能作为特殊意义解释。否则，它们会被当作普通字符处理。
-   - 常见的使用 BRE 的工具有`grep`、`sed`等。
-2. **扩展正则表达式 (ERE)**：
-   - ERE 对 BRE 进行了扩展，添加了一些额外的功能。
-   - ERE 不需要转义某些元字符（如`?`, `+`, `|`, `{}`, `()`）。
-   - 使用 ERE 的工具包括`egrep`（或`grep -E`），还有支持 ERE 的`sed`版本等。
-   - ERE 相对于 BRE 来说语法更加直观，但在老旧系统和工具中可能不被支持。
-3. **Perl 兼容正则表达式 (PCRE)**：
-   - PCRE 是一种更加强大和灵活的正则表达式版本，它扩展了传统的正则表达式并加入了许多 Perl 语言的特性。
-   - 例如，PCRE 支持 lookahead 和 lookbehind 断言、递归模式、命名捕获组等高级功能，这使得 PCRE 在处理复杂的模式匹配时异常强大。
-   - PCRE 通常被`grep`的`-P`选项和一些编程语言（如 PHP，Python 的`re`模块等）支持。
-     **讨论要点**：
+1. **基本正则表达式（BRE）**
 
-- **兼容性**：某些老旧的系统和工具只支持 BRE。
-- **功能性**：**PCRE 提供了最丰富**的功能，能够解决更复杂的问题。
-- **性能**：复杂的 PCRE 表达式可能会比 BRE 和 ERE 慢，尤其是在处理大量文本或复杂模式时。
-- **易用性**：ERE 和 PCRE 对初学者更友好，因为它们不需要多余的转义符，且语法更为直观。
-- **兼容性与未来性**：尽管 BRE 在历史上很重要，现代文本处理越来越多地支持 ERE 和 PCRE，后者尤其在程序设计领域受欢迎，因为其强大的功能和灵活性。
-  总结来说，选择哪种正则表达式主要依赖于任务的复杂性及所使用工具的支持度。对于简单的文本匹配，BRE 和 ERE 足够用了；而对于要求更高的模式匹配，尤其是涉及到复杂文本处理的场合，PCRE 则是更好的选择。
+   **标准**：POSIX 定义的基础规范
+   **工具代表**：传统 `grep`、`sed`（默认模式）
+   **核心特点**：
 
-注意事项：
+   - **元字符需转义**：
+     基础元字符（如 `.`、`*`、`^`、`$`）可直接使用，但扩展功能（如分组、量词）需转义：
+     - `\( \)` 表示分组，`\+` 表示“1 次或多次”。
+     - 例如：`a\+` 匹配 `a`、`aa`，但不支持 `a+`（未转义的 `+` 是普通字符）。
+   - **功能受限**：
+     - **默认不支持** `|`（逻辑或）、`?`（零次或一次）、`{n,m}`（量词范围）。但部分工具（如 GNU 扩展版的 `grep`、`sed`）可以通过 **转义** 来启用它们。
+     - 无预定义字符类（如 `\w`、`\s`），需用 POSIX 类（如 `[[:digit:]]`）。
+
+   ```bash
+   # 匹配 "color" 或 "colour"（需转义分组和量词）
+   grep 'colou\?r' file.txt  # GNU grep 扩展支持 \?，但严格 BRE 需用 'color\|colour'
+   ```
+
+2. **扩展正则表达式（ERE）**
+
+   **标准**：POSIX 扩展规范
+   **工具代表**：`grep -E`、`egrep`、`awk`、`find -regextype posix-extended`
+   **核心特点**：
+
+   - **元字符无需转义**：
+     直接使用 `+`、`?`、`|`、`()` 等：
+     - `(ab)+` 匹配 `ab`、`abab` 等。
+     - `a|b` 匹配 `a` 或 `b`。
+   - **仍不支持部分高级特性**：
+     - 无 `\w`、`\s`、`\d` 等快捷方式（需用 `[[:alnum:]]`）。
+     - 不支持非贪婪量词（如 `*?`）、零宽断言（如 `(?=)`）。
+
+   ```bash
+   # 匹配邮箱（ERE 更简洁）
+   grep -E '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}' file.txt
+   ```
+
+3. **Perl 兼容正则表达式（PCRE）**
+
+   **标准**：Perl 语言定义，事实上的现代标准
+   **工具代表**：Perl、Python、Ruby、现代编程语言、`grep -P`（GNU 扩展）
+   **核心特点**：
+
+   - **元字符丰富且无需转义**：
+     - 直接使用 `+`、`?`、`|`、`()`，支持 `\w`（单词字符）、`\d`（数字）、`\s`（空白）等。
+   - **高级功能**：
+     - **非贪婪量词**：`*?`、`+?` 最小化匹配。
+     - **零宽断言**：`(?=pattern)`（前瞻）、`(?<=pattern)`（后顾）。
+     - **条件与回溯**：复杂模式匹配和替换。
+   - **Unicode 支持**：
+     - `\p{L}` 匹配任意字母，`\p{Sc}` 匹配货币符号等。
+
+   ```python
+   # 非贪婪匹配 HTML 标签（PCRE）
+   import re
+   re.findall(r'<.*?>', '<div>test</div>')  # 结果: ['<div>', '</div>']
+   ```
+
+**三者的主要差异对比**
+
+| **特性**                 | **BRE**                       | **ERE**            | **PCRE**                   |
+| :----------------------- | :---------------------------- | :----------------- | :------------------------- |
+| **元字符转义**           | `\+`、`\(` 需转义             | `+`、`()` 无需转义 | 同 ERE，且支持更多快捷方式 |
+| **逻辑或 $\vert$**       | 不支持（需 $\setminus\vert$） | 直接支持           | 直接支持                   |
+| **量词 `?` `+` `{n,m}`** | 需转义：`\?` `\+`             | 直接支持           | 直接支持                   |
+| **分组 `()`**            | 需转义：`\( \)`               | 直接支持           | 直接支持，支持命名分组     |
+| **预定义字符类**         | 仅 POSIX 类                   | 仅 POSIX 类        | `\w`、`\d`、`\s` 等        |
+| **非贪婪匹配**           | 不支持                        | 不支持             | 支持（`*?`、`+?`）         |
+| **零宽断言**             | 不支持                        | 不支持             | 支持（`(?=)`、`(?<=)` 等） |
+| **Unicode**              | 不支持                        | 不支持             | 支持（`\p{...}`）          |
+
+**使用场景建议**
+
+1. **BRE**：
+   - 需兼容老旧 Unix 工具（如 `sed` 默认模式）或严格 POSIX 环境时使用。
+   - 语法繁琐，现代场景尽量避免。
+2. **ERE**：
+   - 脚本中需要平衡功能与可移植性时的首选（如 `grep -E`、`awk`）。
+   - 比 BRE 更易读，但功能仍有限。
+3. **PCRE**：
+   - 现代编程（Python、Perl 等）或复杂文本处理（如提取嵌套结构）。
+   - 功能最强大，但需注意工具支持（如 GNU `grep -P` 非标准）。
+
+**经典案例对比**
+
+```bash
+# 匹配 "file1" 到 "file9"：
+BRE:  grep 'file[1-9]'           # 基础字符集
+ERE:  grep -E 'file[1-9]'        # 同 BRE，但更清晰
+PCRE: grep -P 'file\d'           # 使用 \d 快捷方式
+
+# 匹配 "color" 或 "colour"：
+BRE:  grep 'colou\?r'            # 需转义量词
+ERE:  grep -E 'colou?r'          # 无需转义
+PCRE: grep -P 'colou?r'          # 同 ERE，但可与其他 PCRE 特性组合
+```
+
+理解这些差异后，可以根据工具和环境选择最合适的正则表达式类型。
+
+**注意事项：**
 
 1. `|` 或
    在正则表达式中，`|` 两边的空格会被视为正则表达式的一部分，而不是忽略它们。因此，如果在 `|` 两边加了空格如 `(x | y)_pos`，正则表达式将会匹配包含空格的字符串，
@@ -65,7 +143,7 @@
 
 ## 正则表达式需要转义的字符
 
-正则表达式中有些字符具有特殊的含义，如果在匹配中要用到它本来的含义，需要进行转义（在其前面加一个\\）。下面总结了常见的一些需要转义的特殊字符：
+正则表达式中有些字符具有特殊的含义，如果在匹配中要用到它本来的含义，需要进行转义（在其前面加一个 `\`）。下面总结了常见的一些需要转义的特殊字符：
 
 1. `$`：匹配输入字符串的结尾位置。如果设置了 RegExp 对象的 Multiline 属性，则 `$` 也匹配，如 `\n` 或 `\r`。
 2. `()`：标记一个子表达式的开始和结束位置。子表达式可以获取供以后使用。要匹配这些字符。
@@ -175,7 +253,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
      ```shell
      command >> filename
-     
+
      echo "Hello again!" >> output.txt
      # 这会将 "Hello again!" 追加到 output.txt 的末尾，而不会覆盖之前的内容。
      ```
@@ -187,7 +265,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
      ```shell
      command 2> errorfile.txt
-     
+
      ls non_existent_file 2> error.txt
      # 这会将 ls 命令的错误信息保存到 error.txt 文件中。
      ```
@@ -200,7 +278,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
      command &> outputfile.txt
      # 或
      command > outputfile.txt 2>&1
-  
+
      ls /nonexistent_directory &> all_output.txt
      # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
      ```
@@ -213,13 +291,13 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
      ```shell
      # 忽略标准输出：
      command > /dev/null
-     
+
      # 忽略标准错误：
      command 2> /dev/null
-     
+
      # 忽略标准输出和标准错误：
      command > /dev/null 2>&1
-     
+
      ls /nonexistent_directory > /dev/null 2>&1
      # 这会忽略 ls 命令的所有输出。
      ```
@@ -231,7 +309,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
      ```shell
      command1 | command2
-     
+
      ls -l | grep "^d"
      这会将 ls -l 的输出传递给 grep 命令，只显示目录条目。
      ```
@@ -470,7 +548,7 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
 ## 运算符优先级
 
-> [Bash脚本进阶指南：正文 > 第二部分 shell基础 > 8. 运算符相关话题](https://linuxstory.gitbook.io/advanced-bash-scripting-guide-in-chinese/zheng-wen/part2/08_operations_and_related_topics/08_4_operator_precedence)
+> [Bash 脚本进阶指南：正文 > 第二部分 shell 基础 > 8. 运算符相关话题](https://linuxstory.gitbook.io/advanced-bash-scripting-guide-in-chinese/zheng-wen/part2/08_operations_and_related_topics/08_4_operator_precedence)
 
 ## 单/双/反引号
 
@@ -573,10 +651,10 @@ Shell 命令的展开是单次展开，按照固定顺序进行一次性展开�
    var1="world"
    var2='$var1'
    echo $var2  # 输出: $var1
-   
+
    # 使用eval强制多次展开
    eval echo $var2  # 输出: world
-   
+
    # 命令替换也是单次
    cmd='$(echo "$(date)")'
    echo $cmd  # 输出: $(echo "$(date)")
@@ -784,13 +862,13 @@ echo ~/${user}_file{1,2}.{txt,log}
 
    ```bash
    path="/home/user/projects/test/file.txt"
-   
+
    # 提取最后一个/之前的内容
    before_last_slash=${path%/*}  # 结果: /home/user/projects/test
-   
+
    # 提取最后一个/之后的内容
    after_last_slash=${path##*/}  # 结果: file.txt
-   
+
    # 提取指定目录之后的路径
    sub_path=${path#*/user/}  # 结果: projects/test/file.txt
    ```
@@ -1227,7 +1305,7 @@ echo ~/${user}_file{1,2}.{txt,log}
 
   ```shell
   List="one two three"
-  
+
   for a in $List     # 空白符将变量分成几个部分。
   do
     echo "$a"
@@ -1235,19 +1313,19 @@ echo ~/${user}_file{1,2}.{txt,log}
   # one
   # two
   # three
-  
+
   echo "---"
-  
+
   for a in "$List"   # 在单一变量中保留所有空格。
   do #     ^     ^
     echo "$a"
   done
   # one two three
-  
+
   variable1="a variable containing five words"
   COMMAND This is $variable1    # 带上7个参数执行COMMAND命令：
   # "This" "is" "a" "variable" "containing" "five" "words"
-  
+
   COMMAND "This is $variable1"  # 带上1个参数执行COMMAND命令：
   # "This is a variable containing five words"
 
