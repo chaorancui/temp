@@ -920,6 +920,10 @@ GitHub 文档：<https://www.lazyvim.org/>
 
 LazyVim 是一个基于 [💤 lazy.nvim](https://github.com/folke/lazy.nvim) 的 Neovim 配置方案，让定制和扩展变得简单直观。 您不必再在“从零配置”和“使用预制发行版”之间做选择，LazyVim 提供了一个两全其美的方式——既可以享受默认配置带来的便利，又能根据个人需求来灵活调整各项设置。
 
+### 安装
+
+[Installation](https://www.lazyvim.org/installation)
+
 ### 图标/字体乱码
 
 注意，需要修改 terminal 的字体为 nerdfonts 中才不会出现乱码。
@@ -932,6 +936,10 @@ Nerd Fonts 字体下载：<https://www.nerdfonts.com/#home>
 
 LazyVim 除了预装了很多插件，还有一些默认不启用的插件，称为 `Lazy Extras`。可以在启动页按 x 进入该插件库。
 注：建议安装带 `recommended` 的插件。
+
+### 基础使用
+
+1. 按 leader 键，默认空格 &#x2423; ：快捷键。
 
 ## reference
 
