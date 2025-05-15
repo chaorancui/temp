@@ -920,6 +920,46 @@ GitHub 文档：<https://www.lazyvim.org/>
 
 LazyVim 是一个基于 [💤 lazy.nvim](https://github.com/folke/lazy.nvim) 的 Neovim 配置方案，让定制和扩展变得简单直观。 您不必再在“从零配置”和“使用预制发行版”之间做选择，LazyVim 提供了一个两全其美的方式——既可以享受默认配置带来的便利，又能根据个人需求来灵活调整各项设置。
 
+### LazyVim 和 lazy.nvim
+
+以下是 **`lazy.nvim`** 和 **`LazyVim`** 的核心区别：
+
+**一、`lazy.nvim`：插件管理器**
+
+- **作用**：只是一个用于管理和懒加载 Neovim 插件的工具，相当于 `packer.nvim`、`vim-plug` 的替代品，但更现代化、高性能。
+- **GitHub 地址**：<https://github.com/folke/lazy.nvim>
+- **作者**：@folke（也是 LazyVim 的作者）
+- **特性**：
+  - 超快的启动时间（支持懒加载、缓存分析等）。
+  - 配置插件方式模块化、声明式。
+  - 提供 UI 显示插件加载状态。
+  - 不带任何 Neovim 配置，只是个插件加载器。
+
+> 简单来说，`lazy.nvim` 就是一个「插件安装 + 加载系统」，不干涉你怎么配置 Neovim，只负责**怎么加载插件**。
+
+**二、`LazyVim`：完整 Neovim 配置框架**
+
+- **作用**：一个预配置的、模块化的 Neovim 配置集合，使用 `lazy.nvim` 作为插件管理器，提供了完整的编辑体验。
+- **GitHub 地址**：<https://github.com/LazyVim/LazyVim>
+- **作者**：同样是 @folke
+- **特性**：
+  - 内置了 LSP、自动补全、代码高亮、Git 支持等功能。
+  - 采用 `lazy.nvim` 来加载插件。
+  - 可通过 `~/.config/nvim/lua/plugins/*.lua` 扩展自己的插件。
+  - 适合想用 Neovim 但不想从零配置的人。
+
+> 简单来说，`LazyVim` 是一个基于 `lazy.nvim` 的「现代 Neovim 配置框架」，帮你把整个开发环境都搭好了。
+
+**二、总结**
+
+| 项目        | 类型       | 是否包含 Neovim 配置 | 是否包含插件 | 面向用户            | 它提供什么？                                |
+| ----------- | ---------- | -------------------- | ------------ | ------------------- | ------------------------------------------- |
+| `lazy.nvim` | 插件管理器 | ❌                   | ❌           | 插件作者 / 高级用户 | 装/更新/懒加载插件                          |
+| `LazyVim`   | 配置框架   | ✅                   | ✅           | 普通用户 / 开发者   | 提供全套配置（LSP、UI、插件集成、快捷键等） |
+
+如果你已经在手动配置 Neovim，可以**单独使用 `lazy.nvim`** 来管理插件；
+如果你想要一个**现成可用、可拓展的 Neovim 环境**，可以选择 **LazyVim**。
+
 ### 安装
 
 [Installation](https://www.lazyvim.org/installation)
