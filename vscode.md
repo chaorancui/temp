@@ -777,6 +777,17 @@ exit
 
 2. 输入要搜索的内容，即可像文件一样展示搜索结果。
 
+### 快速处理所有冲突
+
+如果文件 merge 时冲突较多，可以使用 `Accerpt all xxx` 去处理一个文件中的所有冲突。
+
+具体为：
+
+1. `Ctrl + Shift + P` 快捷键调出控制命令行；
+2. 输入 incoming 即可找到 `Merge Conflict: Accept All Incoming`
+
+同理可以用类似的预置命令处理保留所有当前修改。
+
 ## 调试
 
 > 官方文档：
