@@ -4,1908 +4,1175 @@
 
 1. [Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh-cn/latest/base/index.html)
 
-# 终端设置命令
+# 系统
 
-## alias 命令
+## 软件源
 
-`alias` 命令是 Linux 和类 Unix 系统中用于为常用命令创建别名的命令。通过 `alias`，你可以将复杂的命令简化为更简短、更易记的命令，或者为某些命令指定默认的选项或参数。
+### 更换软件源
 
-**基本语法**：
+1. 备份软件源
 
-```bash
-alias <别名>=<命令>
-```
+   ```bash
+   sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
+   ```
 
-- `<别名>`：你希望创建的短名称（即你将用来代替完整命令的名字）。
-- `<命令>`：你希望别名代表的完整命令（包括可选的参数或选项）。
+2. 更换软件源
+   根据 ubuntu 系统版本，从下面网站中找到相应的软件源，然后更新到 `/etc/apt/sources.list` 或 `/etc/apt/sources.list.d/ubuntu.sources` 文件中，更改文件后再运行 `sudo apt-get update` 更新索引以生效。
 
-> 注意：
+   - [[中科大镜像源 | mirrors.ustc.edu.cn]](https://mirrors.ustc.edu.cn/repogen/)
+   - [[清华镜像源 | mirrors.tuna.tsinghua.edu.cn]](https://mirrors.tuna.tsinghua.edu.cn/help/ubuntu/)
+
+   ```bash
+   sudo vim /etc/apt/sources.list
+   # 修改内容 xxxx
+   sudo apt-get update
+   ```
+
+**无内置编辑器**
+
+ubuntu 最小安装时，可能会遇到没有内置的编辑器的情况，vi/vim/emacs/nano/gedit(一个 GUI 的文本编辑器，Ubuntu 默认安装)。这时候无法编辑软件源，可以使用如下方法：
+
+1. `sources.list` 格式
+
+   ```bash
+   # 备份
+   sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
+
+   # 更新默认源
+   # 从 http://archive.ubuntu.com/ 替换为 http://mirrors.ustc.edu.cn/ 即可。
+   sudo sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list
+
+   # 更新安全源，因镜像站同步有延迟，可能会导致生产环境系统不能及时检查、安装上最新的安全更新，不建议替换 security 源。
+   # 从 http://security.ubuntu.com/ 替换为 https://mirrors.ustc.edu.cn/ 即可。
+   sudo sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list
+   ```
+
+2. `DEB822` 格式
+
+   ```bash
+   # 备份
+   sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
+   
+   # 更新默认源
+   # 从 http://archive.ubuntu.com/ 替换为 http://mirrors.ustc.edu.cn/ 即可。
+   sudo sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources
+   
+   # 更新安全源，因镜像站同步有延迟，可能会导致生产环境系统不能及时检查、安装上最新的安全更新，不建议替换 security 源。
+   # 从 http://security.ubuntu.com/ 替换为 https://mirrors.ustc.edu.cn/ 即可。
+   sudo sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/ubuntu.sources
+   ```
+
+> Tip:
+> 使用 HTTPS 可以有效避免国内运营商的缓存劫持。可以运行以下命令替换：
 >
-> `alias` 是可以嵌套的，也就是说，你可以在一个别名的定义中使用另一个别名。定义别名时**不能**出现**别名中直接引用自己**或者**存在无限递归**的情况。
+> ```bash
+> sudo sed -i 's/http:/https:/g' /etc/apt/sources.list   # sources.list
+> sudo sed -i 's/http:/https:/g' /etc/apt/sources.list.d/ubuntu.sources    # deb822
+> ```
 
-**示例**：
+### 传统 & deb822
 
-1. 创建一个简单的别名
+**Ubuntu：**
 
-   ```bash
-   alias ll='ls -l'
-   ```
+在 Ubuntu 24.04 之前，Ubuntu 的软件源配置文件使用传统的 One-Line-Style，路径为 `/etc/apt/sources.list`；
+从 Ubuntu 24.04 开始，Ubuntu 的软件源配置文件变更为 DEB822 格式，路径为 `/etc/apt/sources.list.d/ubuntu.source`。
 
-   这个命令将 `ll` 设置为 `ls -l` 的别名。之后，你只需要输入 `ll`，就会执行 `ls -l`，显示文件的详细信息。
+**Debian：**
 
-2. 创建带参数的别名
+大部分 Debian 的软件源配置文件使用传统的 One-Line-Style，路径为 `/etc/apt/sources.list`；
+但是对于容器镜像，从 Debian 12 开始，其软件源配置文件变更为 DEB822 格式，路径为 `/etc/apt/sources.list.d/debian.sources`。
+一般情况下，将对应文件中 Debian 默认的源地址 `http://deb.debian.org/` 替换为镜像地址即可。
 
-   ```bash
-   alias gs='git status'
-   ```
+> 什么是 DEB822 (.sources) 文件格式？
+>
+> 自新版本的 Debian 与 Ubuntu 起，例如：
+>
+> - Debian 12 的容器镜像
+> - Ubuntu 24.04
+>
+> 默认预装的系统中 APT 的系统源配置文件不再是传统的 `/etc/apt/sources.list`。传统格式（又被称为 One-Line-Style 格式）类似如下：
+>
+> ```bash
+> deb http://mirrors.ustc.edu.cn/debian/ bookworm main contrib
+> ```
+>
+> 新的 DEB822 格式自 APT 1.1（2015 年发布）起支持，后缀为 `.sources`，存储在 `/etc/apt/sources.list.d/` 目录下，格式类似如下：
+>
+> ```txt
+> Types: deb
+> URIs: https://mirrors.ustc.edu.cn/debian
+> Suites: bookworm
+> Components: main contrib
+> Signed-By: /usr/share/keyrings/debian-archive-keyring.gpg
+> ```
+>
+> 在切换软件源时，**需要根据实际情况选择对应的格式进行修改**。
+>
+> 关于 DEB822 格式的设计考虑，可以参考[官方文档](https://repolib.readthedocs.io/en/latest/deb822-format.html)（英文）。
 
-   这里，`gs` 成为 `git status` 命令的别名，简化了 Git 命令的输入。
+## 系统版本
 
-3. 别名包含多个命令
+### 发行版本名和版本号
 
-   你还可以创建一个别名来执行多个命令。例如，如果你想每次进入某个目录时都自动列出目录内容并打开一个编辑器：
+如果你加入了一家新公司，要为开发团队安装所需的软件并重启服务，这个时候首先要弄清楚它们运行在什么发行版以及哪个版本的系统上，你才能正确完成后续的工作。作为系统管理员，充分了解系统信息是首要的任务。
 
-   ```bash
-   alias goedit='cd /path/to/project && ls -l && vim .'
-   ```
+因为对于诸如 RHEL、Debian、openSUSE、Arch Linux 这几种主流发行版来说，它们各自拥有不同的包管理器来管理系统上的软件包，如果不知道所使用的是哪一个发行版的系统，在软件包安装的时候就会无从下手，而且由于大多数发行版都是用 systemd 命令而不是 SysVinit 脚本，在重启服务的时候也难以执行正确的命令。
 
-   这个别名会执行 `cd` 进入指定目录，列出该目录下的文件，并启动 `vim` 编辑器打开当前目录。
+1. `lsb_release` 命令
 
-4. 查看已定义的别名
-
-   要查看当前 shell 会话中已定义的所有别名，可以简单地输入：
-
-   ```bash
-   alias
-   ```
-
-   这将显示当前用户为所有常用命令定义的别名。例如，默认情况下，很多系统可能会为 `ls` 和其他命令定义一些常见别名，如：
-
-   ```bash
-   alias ls='ls --color=auto'
-   alias ll='ls -alF'
-   ```
-
-5. 删除别名
-
-   如果你不再需要某个别名，可以使用 `unalias` 命令删除它：
-
-   ```bash
-   unalias <别名>
-   ```
-
-   例如，删除 `ll` 别名：
-
-   ```bash
-   unalias ll
-   ```
-
-   如果你想删除所有别名，可以使用：
+   LSB（Linux 标准库 Linux Standard Base）能够打印发行版的具体信息，包括发行版名称、版本号、代号等。
 
    ```bash
-   unalias -a
+   # lsb_release -a
+   No LSB modules are available.
+   Distributor ID: Ubuntu
+   Description: Ubuntu 16.04.3 LTS
+   Release: 16.04
+   Codename: xenial
    ```
 
-6. 使别名永久生效
+2. 查看 `/etc/*-release` 文件
 
-   默认情况下，通过 `alias` 创建的别名只会在当前 shell 会话中有效。如果你希望在每次打开终端时都能使用某些别名，需要将它们添加到你的 shell 配置文件中。
-
-   对于 **Bash** 用户，通常是将别名添加到 `~/.bashrc` 文件中：
+   release 文件通常被视为操作系统的标识。在 `/etc` 目录下放置了很多记录着发行版各种信息的文件，每个发行版都各自有一套这样记录着相关信息的文件。下面是一组在 Ubuntu/Debian 系统上显示出来的文件内容 `cat /etc/lsb-release`。
+   在 RHEL/CentOS/Fedora 系统上分别为 `/etc/redhat-release` 和 `/etc/system-release` 文件，他们是指向 `/etc/[发行版名称]-release` 文件的一个连接。
 
    ```bash
-   echo "alias ll='ls -l'" >> ~/.bashrc
-   source ~/.bashrc
+   # cat /etc/issue
+   Ubuntu 16.04.3 LTS \n \l
+
+   # cat /etc/issue.net
+   Ubuntu 16.04.3 LTS
+
+   # cat /etc/lsb-release
+   DISTRIB_ID=Ubuntu
+   DISTRIB_RELEASE=16.04
+   ......
+
+   # cat /etc/os-release
+   NAME="Ubuntu"
+   VERSION="16.04.3 LTS (Xenial Xerus)"
+   ......
+
+   # cat /etc/debian_version
+   9.3
+
+   # cat /etc/centos-release
+   # cat /etc/fedora-release
+   # cat /etc/os-release
+   # cat /etc/redhat-release
+   # cat /etc/system-release
    ```
 
-   对于 **Zsh** 用户，可以将别名添加到 `~/.zshrc` 文件：
+3. `uname` 命令
+
+   uname（unix name 的意思） 是一个打印系统信息的工具，包括内核名称、版本号、系统详细信息以及所运行的操作系统等等。
+
+   - **建议阅读：** [6 种查看系统 Linux 内核的方法](https://www.2daygeek.com/check-find-determine-running-installed-linux-kernel-version/)
 
    ```bash
-   echo "alias gs='git status'" >> ~/.zshrc
-   source ~/.zshrc
+   # uname -a
+   Linux 2grhel8node 4.18.0-477.13.1.el8_8.x86_64 #1 SMP Thu May 18 10:27:05 EDT 2023 x86_64 x86_64 x86_64 GNU/Linux
    ```
 
-**常见的 `alias` 用法**
+   解释如下:
 
-1. **列出文件和目录（详细模式）：**
+   - Linux – Kernel name. The name of the kernel running on your system.
+   - 2grhel8node – Hostname
+   - 4.18.0-477.13.1.el8_8.x86_64 – Kernel release
+   - 1 SMP Thu May 18 10:27:05 EDT 2023 – Kernel version and last compiled date and time.
+   - x86_64 – Machine architecture
+   - x86_64 – Processor architecture
+   - x86_64 – Operating system architecture
+   - GNU/Linux – Operating system
+
+4. `/proc/version` 文件
+
+   这个文件记录了 Linux 内核的版本、用于编译内核的 gcc 的版本、内核编译的时间，以及内核编译者的用户名。
 
    ```bash
-   alias ll='ls -alF'
+   # cat /proc/version
+   Linux version 4.12.14-300.fc26.x86_64 ([email protected]) (gcc version 7.2.1 20170915 (Red Hat 7.2.1-2) (GCC) ) #1 SMP Wed Sep 20 16:28:07 UTC 2017
    ```
 
-2. **避免误用 `rm` 命令（加上 `-i` 选项，确认删除）：**
+### SUSE 包管理 zypper
+
+> [zypper 命令使用示例](https://www.linuxprobe.com/zypper-commands-examples.html)
+
+1. 安装包
 
    ```bash
-   alias rm='rm -i'
+   zypper install
+
+   # 示例：安装 Mozilla firefox
+   zypper install MozillaFirefox
    ```
 
-3. **查看目录大小：**
+2. 安装源码包
 
    ```bash
-   alias du='du -h --max-depth=1'
+   zypper source-install
+
+   # 示例：从库中安装 apache
+   zypper source-install apache2-mod_nss
    ```
 
-4. **查找并列出文件的 `man` 页面：**
+3. 更新包
+
+   ```shell
+   zypper list-updates # 查看所有可用的更新列表
+   zypper update xxx # 更新某一软件包
+   zypper update # 更新所有软件包
+   ```
+
+4. 删除包
 
    ```bash
-   alias man='man -a'
+   zypper remove
+
+   # 示例：移除 Mozilla Firefox
+   zypper remove MozillaFirefox
    ```
 
-5. **快速跳转到主目录：**
+5. 查找包
 
    ```bash
-   alias home='cd ~'
+   zypper search
+
+   # 示例：查找所有 usb 开头的软件包
+   zypper search usb*
    ```
 
-6. **查看网络接口信息：**
+6. 查看软件包详情
 
    ```bash
-   alias ifconfig='ifconfig -a'
+   zypper info
+
+   # 示例：查看 usbutils 的信息
+   zypper info usbutils
    ```
 
-**注意事项**：
-
-- 别名 **不能包含空格**，例如，`alias gs = 'git status'` 是不合法的，应该写成 `alias gs='git status'`。
-- 在一些命令中，使用别名可能会导致预期以外的行为。特别是，当你使用诸如 `sudo` 之类的命令时，默认情况下别名不会被应用。可以通过 `sudo` 加 `-E` 选项让 `sudo` 执行时保留用户的环境变量（包括别名），但这通常不推荐，因可能影响系统安全性。
-
-**总结**：
-
-`alias` 是一个非常有用的命令，能够帮助用户自定义并简化常用的命令。通过合理使用别名，可以提高工作效率，使得命令的输入更加便捷。不过，别名的使用要适度，避免产生不必要的混淆，特别是在涉及系统级命令时。
-
-# 文件查找/匹配命令
-
-## find 命令和 grep 命令区别
-
-find 也是搜索命令，那么 find 命令和 grep 命令有什么区别呢？
-find 命令
-find 命令用于在系统中搜索符合条件的文件名，如果需要模糊查询，则使用通配符进行匹配，通配符是完全匹配（find 命令可以通过-regex 选项，把匹配规则转为正则表达式规则，但是不建议如此）。
-grep 命令
-grep 命令用于在文件中搜索符合条件的字符串，如果需要模糊查询，则使用正则表达式进行匹配，正则表达式是包含匹配。
-
-## find 命令
-
-`find` 是 Linux / Unix 系统中非常强大的命令行工具之一，可实现：
-
-- 精准搜索（按名称、时间、权限、大小等）；
-- 灵活组合条件（使用逻辑操作）；
-- 执行各种动作（复制、删除、移动、统计等）；
-
-可用 `find --help` 查看命令帮助文档。
-
-**一、基本格式**
-
-```bash
-Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
-
-# 中文：
-用法：find [选项] [起始路径...] [表达式]
-
-说明：
-- `path`：要搜索的路径，默认为当前目录（`.`）；
-- `expression`：匹配条件，默认是 `-print`（即列出路径）；
-```
-
-**二、表达式类型说明**
-
-**表达式可以包含以下部分**：
-
-- 操作符（operators）
-- 选项（options）
-- 测试条件（tests）
-- 动作（actions）
-
-1. **操作符（operators）**
-
-   用于组合或控制多个条件的逻辑关系：
+7. 打补丁
 
    ```bash
-   ( EXPR )        —— 括号分组（要加反斜线：`\(` `\)`）
-   ! EXPR          —— 逻辑非
-   -not EXPR       —— 等价于 `!`
-   EXPR1 -a EXPR2  —— 逻辑与（可省略）
-   EXPR1 -and EXPR2 —— 同上
-   EXPR1 -o EXPR2  —— 逻辑或
-   EXPR1 -or EXPR2 —— 同上
-   EXPR1 , EXPR2   —— 顺序执行 EXPR1 再执行 EXPR2（不管 EXPR1 成功与否）
+   zypper patches # 查看所有可打补丁
+   zypper patch # 安装指定补丁
    ```
 
-2. **位置相关选项（positional options）**
+8. 锁住包
 
-   这些选项**总是返回 true**，必须写在表达式之前：
+   软件包被锁之后将不能被移除或升级，下面演示一下如何加锁
 
    ```bash
-   -daystart         —— 以当天凌晨为时间计算起点
-   -follow           —— 跟踪符号链接（等价于 `-L`）
-   -regextype        —— 设置正则表达式语法类型（例如 `posix-extended`）
+   zypper ll # List Locks，查看所有已被锁住的软件包
+   zypper al usbutils # add lock，锁住包文件 usbutils
+   zypper rl usbutils # remove lock，解锁 usbutils
    ```
 
-3. **常规选项（normal options）**
-
-   也是总是为 true 的，必须在其他条件之前写：
-
-   ```bash
-   -depth               —— 先处理文件，再处理目录（深度优先）
-   --help               —— 显示帮助信息
-   -maxdepth LEVELS     —— 最大搜索层级
-   -mindepth LEVELS     —— 最小搜索层级
-   -mount / -xdev       —— 不跨越挂载点
-   -noleaf              —— 不假设目录结构优化（对非 GNU 系统有用）
-   --version            —— 显示版本
-   -ignore_readdir_race —— 忽略读取目录竞争条件
-   -noignore_readdir_race —— 不忽略读取目录竞争
-   ```
-
-4. **测试条件（tests）**
-
-   这些条件用于匹配文件特征：
-
-   | 参数                                      | 说明                              |
-   | ----------------------------------------- | --------------------------------- |
-   | `-name PATTERN`                           | 按文件名匹配（支持通配符）        |
-   | `-iname PATTERN`                          | 不区分大小写的文件名匹配          |
-   | `-regex PATTERN`                          | 使用正则表达式匹配整个路径        |
-   | `-size N[单位]`                           | 文件大小，单位如 `k`、`M`、`G` 等 |
-   | `-mtime N`                                | 修改时间（按天）                  |
-   | `-atime N`                                | 访问时间（按天）                  |
-   | `-ctime N`                                | 状态变更时间（按天）              |
-   | `-mmin N`                                 | 修改时间（按分钟）                |
-   | `-type f` / `d`                           | 文件 / 目录                       |
-   | `-user NAME`                              | 文件属主                          |
-   | `-group NAME`                             | 文件属组                          |
-   | `-perm MODE`                              | 权限匹配                          |
-   | `-empty`                                  | 空目录或空文件                    |
-   | `-false` / `-true`                        | 总是假 / 总是对                   |
-   | `-readable` / `-writable` / `-executable` | 是否可读 / 可写 / 可执行          |
-
-   说明：
-
-   - `N` 可以是 `+N`（大于），`-N`（小于），`N`（等于）。
-
-5. **动作（actions）**
-
-   对匹配文件执行的操作：
-
-   | 参数                  | 功能                                       |
-   | --------------------- | ------------------------------------------ |
-   | `-print`              | 打印路径（默认动作）                       |
-   | `-ls`                 | 类似 `ls -l` 的详细列表                    |
-   | `-delete`             | 删除匹配文件（⚠️ 危险操作）                |
-   | `-exec COMMAND {} \;` | 对每个文件执行命令（如：`cp {} /backup/`） |
-   | `-exec ... +`         | 一次性对多个文件执行命令（更高效）         |
-   | `-ok`                 | 类似 `-exec`，但执行前会提示确认           |
-   | `-prune`              | 跳过该目录（常用于排除路径）               |
-
-6. **-D 调试选项**
-
-   ```bash
-   -D exec,opt,rates,search,stat,time,tree,all,help
-   ```
-
-   用于调试 `find` 行为，一般不常用，比如：
-
-   - `-D exec` 显示执行命令的详细过程；
-   - `-D tree` 显示目录结构遍历过程；
-   - `-D help` 显示所有调试项说明。
-
-**三、查找条件（匹配过滤）总结**
-
-**文件名相关**
-
-- `-name` | `-name "*.log"` | 按名字（通配符）查找 |
-- `-iname` | `-iname "*.LOG"` | 不区分大小写 |
-- `-regex` | `-regex '.*\.log'` | 使用正则表达式匹配路径 |
-- `-regextype` | `-regextype posix-extended` | 设定正则语法类型（配合 `-regex`） |
-
-**类型相关**
-
-- `-type f` | 查找普通文件 | |
-- `-type d` | 查找目录 | |
-- `-type l` | 查找符号链接 | |
-- `-type b/c` | 块/字符设备文件 | |
-
-**时间相关**
-
-- `-mtime +7` | 7 天前修改的文件 | |
-- `-atime -1` | 1 天内被访问的文件 | |
-- `-newer file` | 比指定文件更新的文件 | |
-
-**大小相关**
-
-- `-size +100M` | 大于 100MB 的文件 | |
-- `-size -10k` | 小于 10KB 的文件 | |
-
-**权限/用户相关**
-
-- `-user root` | 属主是 root 的文件 | |
-- `-group dev` | 属组是 dev 的文件 | |
-- `-perm 644` | 权限为 644 的文件 | |
-
-**搜索控制**
-
-- `-maxdepth 1` | 只搜索当前目录，不进入子目录 | |
-- `-mindepth 2` | 跳过前几层，只搜索更深层 | |
-
-**操作动作（对匹配结果的处理）**
-
-- `-print` | 输出文件路径（默认行为） | |
-- `-exec` | `-exec rm {} \;`：对每个文件执行操作 | |
-- `-ok` | 类似 `-exec`，但每次操作前询问确认 | |
-- `-delete` | 删除匹配的文件或目录（**需谨慎！**） | |
-
-**四、典型场景**
-
-| 任务                          | 命令                                        |
-| ----------------------------- | ------------------------------------------- |
-| 查找当前目录下所有 `.c` 文件  | `find . -name "*.c"`                        |
-| 查找 7 天内修改的 `.log` 文件 | `find . -name "*.log" -mtime -7`            |
-| 查找大于 100MB 的文件         | `find . -type f -size +100M`                |
-| 删除所有空目录                | `find . -type d -empty -delete`             |
-| 拷贝所有包含 `_0_` 的文件     | `find . -name "*_0_*" -exec cp {} /dst/ \;` |
-
-一、查找路径/文件
-
-| 任务                                     | 命令                                         |
-| ---------------------------------------- | -------------------------------------------- |
-| 查找所有 `.log` 文件                     | `find /path/to/search -type f -name "*.log"` |
-| 查找最近 3 天内修改过的文件              | `find /path/to/search -type f -mtime -3`     |
-| 查找文件大小大于 100MB 的文件            | `find /path/to/search -type f -size +100M`   |
-| 查找目录（比如项目根目录下的所有子目录） | `find /path/to/search -type d -maxdepth 1`   |
-
-二、查找后本地 `cp` 拷贝
-
-| 任务                                                 | 命令                                                                                     |
-| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| 拷贝所有 `.txt` 到指定目录                           | `find . -type f -name "*.txt" -exec cp {} /backup/ \;`                                   |
-| 拷贝匹配正则文件名（如：`data_0001_0_*`）            | `find . -regextype posix-extended -regex './data_[0-9]{4}_0_.*' -exec cp {} /backup/ \;` |
-| 保留原目录结构地拷贝文件（推荐用 `rsync` 替代 `cp`） | `find ./src -type f -name "\*.conf" -exec rsync -R {} /backup/ \;`                       |
-| 自动创建目标目录（本地）                             | `find . -name "*.txt" -exec cp {} /backup/dir/ \;`                                       |
-| 使用 `basename` 改文件名或只拷贝文件本身             | `find . -type f -name "*.txt" -exec sh -c 'cp "$1" /target/$(basename "$1")' _ {} \;`    |
-
-> `rsync -R` 会保留源路径结构（如 `src/app/a.conf` 复制为 `backup/src/app/a.conf`）
-
-三、查找后远程拷贝（scp / rsync）
-
-| 任务                                      | 命令                                                                             |
-| ----------------------------------------- | -------------------------------------------------------------------------------- |
-| 使用 `scp` 拷贝所有 `.log` 文件到远程主机 | `find . -type f -name "*.txt" -exec cp {} /backup/ \;`                           |
-| 使用 `rsync` 批量拷贝并保留目录结构       | `find ./data -type f -name "*.bin" -exec rsync -R {} user@host:/remote/data/ \;` |
-| `scp` 加速小技巧（用 `xargs` 批量处理）   | `find . -name "\*.cfg" \| xargs -I {} scp {} user@host:/remote/configs/`         |
-
-## grep 命令
-
-`grep` 是 Linux / Unix 系统中一个非常常用的命令行工具，用于 **搜索文件中符合条件的字符串**。它基于正则表达式进行匹配，并输出包含匹配内容的行。
-
-**一、基本语法**
-
-```bash
-grep [选项] '搜索字符串或正则表达式' 文件名
-```
-
-**二、常用参数详解**
-
-| 参数        | 说明                                     |
-| ----------- | ---------------------------------------- |
-| `-i`        | 忽略大小写（ignore case）                |
-| `-v`        | 反向选择，显示不匹配的行（invert match） |
-| `-n`        | 显示匹配行的行号（line number）          |
-| `-r` / `-R` | 递归搜索目录（recursive）                |
-| `-l`        | 只列出匹配的文件名（list file names）    |
-| `-L`        | 列出不含匹配内容的文件名                 |
-| `-c`        | 只输出匹配的行数（count）                |
-| `-o`        | 只输出匹配的部分（而非整行）             |
-| `-e`        | 支持多个匹配模式（pattern）              |
-| `-w`        | 精确匹配整个单词（word match）           |
-| `-A N`      | 匹配行后输出 N 行（after）               |
-| `-B N`      | 匹配行前输出 N 行（before）              |
-| `-C N`      | 匹配行前后各输出 N 行（context）         |
-| `--color`   | 高亮显示匹配字符串（彩色显示）           |
-
-**三、示例用法**
-
-```bash
-# 1. 在文件中查找包含 "hello" 的行：
-grep 'hello' file.txt
-
-# 2. 忽略大小写查找：
-grep -i 'hello' file.txt
-
-# 3. 显示行号：
-grep -n 'hello' file.txt
-
-# 4. 查找不包含某字符串的行：
-grep -v 'hello' file.txt
-
-# 5. 递归查找整个目录：
-grep -r 'hello' /path/to/dir
-
-# 6. 查找多个关键词：
-grep -e 'hello' -e 'world' file.txt
-
-# 7. 只输出匹配内容本身：
-grep -o 'hello' file.txt
-
-# 8. 统计匹配的行数：
-grep -c 'hello' file.txt
-
-# 9. 匹配行及前后内容：
-grep -C 2 'hello' file.txt
-```
-
-四、正则表达式支持（基础）：
-
-| 表达式 | 含义                      |
-| ------ | ------------------------- |
-| `.`    | 匹配任意单个字符          |
-| `*`    | 匹配前一个字符 0 次或多次 |
-| `^`    | 匹配行开头                |
-| `$`    | 匹配行结尾                |
-| `[]`   | 匹配字符集合              |
-| `[^]`  | 匹配不在集合中的字符      |
-| `\`    | 转义字符                  |
-| `      | `                         |
-
-> 如果你需要更强大的正则支持，可以使用 `grep -E`（等同于 `egrep`），支持扩展正则（如 `+`, `{m,n}`, `()` 等）。
-
-## 常用 grep 命令速查表
-
-**一、基本语法**
-
-```bash
-Usage: grep [OPTION]... PATTERNS [FILE]...
-Search for PATTERNS in each FILE.
-Example: grep -i 'hello world' menu.h main.c
-PATTERNS can contain multiple patterns separated by newlines.
-```
-
-**二、匹配相关**
-
-| 命令                      | 含义                 |
-| ------------------------- | -------------------- |
-| `grep 'text' file.txt`    | 查找包含 "text" 的行 |
-| `grep -i 'text' file.txt` | 忽略大小写查找       |
-| `grep -w 'text' file.txt` | 匹配整个单词         |
-| `grep -x 'text' file.txt` | 匹配整行             |
-| `grep -E 'foo             | bar' file.txt`       |
-| `grep -o 'text' file.txt` | 只输出匹配部分       |
-
-**三、文件和目录**
-
-| 命令                      | 含义                   |
-| ------------------------- | ---------------------- |
-| `grep 'text' file1 file2` | 在多个文件中查找       |
-| `grep -r 'text' dir/`     | 递归搜索目录           |
-| `grep -l 'text' *.log`    | 仅显示匹配的文件名     |
-| `grep -L 'text' *.log`    | 显示不包含匹配的文件名 |
-
-**四、输出控制**
-
-| 命令                           | 含义                       |
-| ------------------------------ | -------------------------- |
-| `grep -n 'text' file.txt`      | 显示匹配行的行号           |
-| `grep -c 'text' file.txt`      | 显示匹配的行数             |
-| `grep -v 'text' file.txt`      | 显示不包含匹配的行         |
-| `grep --color 'text' file.txt` | 高亮匹配文本               |
-| `grep -H 'text' file.txt`      | 显示文件名（默认多文件时） |
-| `grep -h 'text' file.txt`      | 不显示文件名（用于多文件） |
-
-**五、匹配上下文**
-
-| 命令                        | 含义                  |
-| --------------------------- | --------------------- |
-| `grep -A 3 'text' file.txt` | 匹配行及其后 3 行     |
-| `grep -B 3 'text' file.txt` | 匹配行及其前 3 行     |
-| `grep -C 3 'text' file.txt` | 匹配行及其前后各 3 行 |
-
-**六、高级用法**
-
-| 命令                  | 含义               |
-| --------------------- | ------------------ |
-| `ps aux               | grep nginx`        |
-| `dmesg                | grep -i error`     |
-| `find . -name "\*.py" | xargs grep 'main'` |
-
-**七、正则表达式速览（基础）**
-
-| 符号     | 意义                     |
-| -------- | ------------------------ |
-| `.`      | 匹配任意单字符           |
-| `*`      | 匹配前一个字符零次或多次 |
-| `^`      | 匹配行开头               |
-| `$`      | 匹配行结尾               |
-| `[abc]`  | 匹配 a 或 b 或 c         |
-| `[^abc]` | 匹配不是 a/b/c 的字符    |
-| `\`      | 转义字符                 |
-| `        | `                        |
-
-**八、示例组合**
-
-```bash
-grep -ir 'error' /var/log/             # 忽略大小写递归搜索日志
-grep -nA2 'fail' app.log               # 显示匹配和之后2行
-grep -Ev '^#|^$' config.txt            # 去除注释和空行
-```
-
-## 通配符与正则表达式的区别
-
-**通配符：用于匹配文件名，完全匹配**。
-
-| 通配符 | 作用                                                                                    |
-| ------ | --------------------------------------------------------------------------------------- |
-| ？     | 匹配一个任意字符                                                                        |
-| \*     | 匹配 0 个或任意多个任意字符，也就是可以匹配任何内容                                     |
-| []     | 匹配中括号中任意一个字符。例如，[abc]代表一定匹配一个字符，或者是 a，或者是 b，或者是 c |
-| [-]    | 匹配中括号中任意一个字符，-代表一个范围。例如，[a-z]代表匹配一个小写字母                |
-| [^]    | 逻辑非，表示匹配不是中括号内的一个字符。例如， `[^0-9]`代表匹配一个不是数字的字符       |
-
-**正则表达式：用于匹配字符串，包含匹配**。
-
-| 正则符 | 作用                                                                                    |
-| ------ | --------------------------------------------------------------------------------------- |
-| ？     | 匹配一个任意字符                                                                        |
-| \*     | 匹配 0 个或任意多个任意字符，也就是可以匹配任何内容                                     |
-| []     | 匹配中括号中任意一个字符。例如，[abc]代表一定匹配一个字符，或者是 a，或者是 b，或者是 c |
-| [-]    | 匹配中括号中任意一个字符，-代表一个范围。例如，[a-z]代表匹配一个小写字母                |
-| [^]    | 逻辑非，表示匹配不是中括号内的一个字符。例如， `[^0-9]`代表匹配一个不是数字的字符       |
-| ^      | 匹配行首                                                                                |
-| $      | 匹配行尾                                                                                |
-
-> [Linux grep 命令和通配符](https://blog.csdn.net/baidu_41388533/article/details/107610827)
-
-# 文件操作命令
-
-## cp 命令
-
-`cp` 命令是 Linux 中用于复制文件或目录的命令。它是最基本和最常用的命令之一，用于将源文件或源目录复制到目标位置。`cp` 的语法非常简单，但它有一些常用的选项，可以使其更加灵活和强大。
+## Terminal 终端快捷键汇总
+
+1. 常用快捷键
+
+   ctrl+左右键: 在单词之间跳转
+   ctrl+a: 跳到本行的行首
+   ctrl+e: 跳到页尾
+   Ctrl+u：删除当前光标前面的文字 （还有剪切功能）
+   ctrl+k：删除当前光标后面的文字(还有剪切功能)
+   Ctrl+L：进行清屏操作
+   Ctrl+y: 粘贴 Ctrl+u 或 ctrl+k 剪切的内容
+   Ctrl+w: 删除光标前面的单词的字符
+   Alt – d ：由光标位置开始，往右删除单词。往行尾删
+
+2. 移动光标
+
+   Ctrl – a ：移到行首
+   Ctrl – e ：移到行尾
+   Ctrl – b ：往回(左)移动一个字符
+   Ctrl – f ：往后(右)移动一个字符
+   Alt – b ：往回(左)移动一个单词
+   Alt – f ：往后(右)移动一个单词
+   Ctrl – xx ：在命令行尾和光标之间移动
+   M-b ：往回(左)移动一个单词
+   M-f ：往后(右)移动一个单词
+
+3. 编辑命令
+
+   Ctrl – h ：删除光标左方位置的字符
+   Ctrl – d ：删除光标右方位置的字符（注意：当前命令行没有任何字符时，会注销系统或结束终端）
+   Ctrl – w ：由光标位置开始，往左删除单词。往行首删
+   Alt – d ：由光标位置开始，往右删除单词。往行尾删
+   M – d ：由光标位置开始，删除单词，直到该单词结束。
+   Ctrl – k ：由光标所在位置开始，删除右方所有的字符，直到该行结束。
+   Ctrl – u ：由光标所在位置开始，删除左方所有的字符，直到该行开始。
+   Ctrl – y ：粘贴之前删除的内容到光标后。
+   ctrl – t ：交换光标处和之前两个字符的位置。
+   Alt + . ：使用上一条命令的最后一个参数。
+   Ctrl – \_ ：回复之前的状态。撤销操作。
+   Ctrl -a + Ctrl -k 或 Ctrl -e + Ctrl -u 或 Ctrl -k + Ctrl -u 组合可删除整行。
+
+4. Bang(!)命令
+
+   !! ：执行上一条命令。
+   !wget ：执行最近的以 wget 开头的命令。
+   !wget:p ：仅打印最近的以 wget 开头的命令，不执行。
+   !$ ：上一条命令的最后一个参数， 与 Alt - . 和 $\_ 相同。
+   !_：上一条命令的所有参数
+   !_:p ：打印上一条命令是所有参数，也即 !\*的内容。
+   ^abc ：删除上一条命令中的 abc。
+   !-n ：执行前 n 条命令，执行上一条命令： !-1， 执行前 5 条命令的格式是： !-5 查找历史命令
+   Ctrl – p ：显示当前命令的上一条历史命令
+   Ctrl – n ：显示当前命令的下一条历史命令
+   Ctrl – r ：搜索历史命令，随着输入会显示历史命令中的一条匹配命令，Enter 键执行匹配命令；ESC 键在命令行显示而不执行匹配命令。
+   Ctrl – g ：从历史搜索模式（Ctrl – r）退出。
+
+5. 控制命令
+
+   Ctrl – l ：清除屏幕，然后，在最上面重新显示目前光标所在的这一行的内容。
+   Ctrl – o ：执行当前命令，并选择上一条命令。
+   Ctrl – s ：阻止屏幕输出
+   Ctrl – q ：允许屏幕输出
+   Ctrl – c ：终止命令
+   Ctrl – z ：挂起命令
+
+# 账户操作命令
+
+## useradd 命令
+
+`useradd` 是一个用于在 Linux 系统中创建新用户的命令。它是一个低级命令，没有 `adduser` 那么多交互式功能，因此通常需要手动指定更多的选项，如密码、用户组、家目录等。相比于 `adduser`，`useradd` 更加简洁且灵活，适用于需要脚本化管理用户的场景。
 
 **基本语法：**
 
 ```bash
-Usage: cp [OPTION]... [-T] SOURCE DEST
-  or:  cp [OPTION]... SOURCE... DIRECTORY
-  or:  cp [OPTION]... -t DIRECTORY SOURCE...
+sudo useradd [选项] <用户名>
 ```
 
-Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
+**常见选项和用法：**
 
-**常用选项：**
+1. **创建新用户**
 
-1. **`-r` 或 `--recursive`**：用于递归复制目录。如果源是一个目录，并且你希望复制目录内容及其子目录，那么需要使用这个选项。
-
-   - 示例：`cp -r /home/user/source_dir /home/user/destination_dir`
-
-2. **`-f` 或 `--force`**：强制复制文件，并且如果目标文件无法写入，则会删除目标文件后重新复制。这对于避免覆盖的交互提示非常有用。
-
-   - 示例：`cp -f file1.txt /home/user/destination/`
-
-3. **`-i` 或 `--interactive`**：在目标文件已经存在时，提示用户确认是否覆盖。
-
-   - 示例：`cp -i file1.txt /home/user/destination/`
-
-4. **`-v` 或 `--verbose`**： 显示详细的复制过程，包括源文件和目标文件的路径。
-
-   - 示例：`cp -v file1.txt /home/user/destination/`
-
-5. **`-p` 或 `--preserve`**：保留文件的属性（如修改时间、权限、所有者等）。通常在复制文件时，源文件的权限和时间戳不会被保留，使用该选项可以避免这种情况。
-   - 示例：`cp -p file1.txt /home/user/destination/`
-6. **`-u` 或 `--update`**：仅在源文件比目标文件更新，或者目标文件不存在时才复制。
-
-   - 示例：`cp -u file1.txt /home/user/destination/`
-
-7. **`-a` 或 `--archive`**：这个选项是 `-dR --preserve=all` 的组合，意味着会复制文件及其所有属性（包括符号链接、文件权限、时间戳等），并且递归地复制目录。
-
-   - 示例：`cp -a source_dir /home/user/destination/`
-
-8. **`-l` 或 `--link`**：创建源文件的硬链接，而不是复制源文件。这意味着多个文件将指向相同的数据块。
-
-   - 示例：`cp -l file1.txt /home/user/destination/`
-
-9. **`--no-clobber`**：如果目标文件已存在，则不复制，不会覆盖目标文件。
-
-   - 示例：`cp --no-clobber file1.txt /home/user/destination/`
-
-**注意：**
-
-`cp` 命令本身**不支持正则表达式**来筛选文件，它只支持通配符（如 `*`、`?`），这是由 shell（比如 bash）进行展开的。
-
-1. 使用通配符匹配文件
-
-   这是最常见的方式，例如：
+   最基本的 `useradd` 命令是创建一个新用户。默认情况下，这个命令会为新用户创建一个家目录，并使用系统默认的 shell。
 
    ```bash
-   cp *.txt /target/dir/
+   sudo useradd <username>
    ```
 
-   会拷贝当前目录下所有 `.txt` 文件。
+   例如，创建一个名为 `alice` 的新用户： `sudo useradd alice`。
+   此命令会创建用户 `alice`，但不会为其设置密码、全名等。用户的家目录默认会创建在 `/home/alice`，并使用默认的 shell（通常是 `/bin/bash`）。
 
-2. 如果你确实需要用 **正则表达式筛选文件名**，可以结合 `find` 或 `ls | grep` 使用：
+2. **为用户设置密码**
 
-   （1）使用 `find` 搭配正则（推荐方式）
+   `useradd` 命令只负责创建用户，设置密码是一个单独的操作。可以使用 `passwd` 命令来为用户设置密码：
 
    ```bash
-   find . -maxdepth 1 -regextype posix-extended -regex './file[0-9]+\.txt' -exec cp {} /target/dir/ \;
+   sudo passwd <username>
    ```
 
-   这会拷贝所有形如 `file123.txt` 的文件。
+   例如，为 `alice` 设置密码：`sudo passwd alice`。 这会提示你输入并确认密码。
 
-   （2）使用 `grep` 和 `xargs`
+3. **指定用户的用户组**
+
+   默认情况下，`useradd` 会为每个新用户创建一个与用户名相同的组，并将该用户添加到该组中。你也可以使用 `-g` 选项指定一个现有的组。
 
    ```bash
-   ls | grep -E '^file[0-9]+\.txt$' | xargs -I {} cp {} /target/dir/
+   sudo useradd -g <groupname> <username>
    ```
 
-   这也能实现正则筛选，但 `ls` 对特殊字符（如空格）处理不好，慎用。
+   例如，将 `alice` 添加到 `developers` 组：`sudo useradd -g developers alice`。
 
-## mv 命令
+4. **为用户设置家目录**
 
-## install 命令
+   默认情况下，`useradd` 会在 `/home/` 下创建用户的家目录。如果你想指定一个不同的家目录位置，可以使用 `-d` 选项。
 
-install 命令与 cp 命令类似，均可以将文件或目录拷贝到指定的路径；但是 install 命令可以控制目标文件的属性。
+   ```bash
+   sudo useradd -d /path/to/home <username>
+   ```
 
-命令格式
+   例如，将 `alice` 的家目录设置为 `/data/alice`：`sudo useradd -d /data/alice alice`。
 
-```css
-install [OPTION]... [-T] SOURCE DEST
-install [OPTION]... SOURCE... DIRECTORY
-install [OPTION]... -t DIRECTORY SOURCE...
-install [OPTION]... -d DIRECTORY...
-```
+5. **为用户设置默认 shell**
 
-前三个格式会将指定的 source 复制到 Dest 地址或者将多个 source 复制到已存在的目标目录，同时设定相应的权限模式或者属主，属组等信息；第四个格式会创建给定的目录路径。
+   使用 `-s` 选项，可以指定用户的默认 shell。默认情况下，`useradd` 会使用系统默认的 shell（通常是 `/bin/bash`），但你可以通过此选项更改：
 
-常用选项
+   ```bash
+   sudo useradd -s /bin/zsh <username>
+   ```
 
-- `-g，--group=Group`：指定目标文件的属组；
-- `-o，--owner=user`：指定目标文件的属主；
-- `-m，--mode=mode`：指定目标文件的权限模式；
-- `-S`：设置目标文件的后缀；
-- `-D`：创建指定文件路径中不存在的目录；
+   例如，将 `alice` 的默认 shell 设置为 `zsh`：`sudo useradd -s /bin/zsh alice`。
 
-使用实例
+6. **为用户指定 UID 和 GID**
 
-复制 source 文件到指定的文件路径：
+   你可以使用 `-u` 和 `-g` 选项来指定用户的 UID（用户 ID）和 GID（组 ID）。这在需要与其他系统共享用户和组 ID 时非常有用。
 
-```ruby
-[root@localhost ~]# install /etc/passwd /tmp/passwd.bak
-[root@localhost ~]# cat /tmp/passwd.bak | head -5
-root:x:0:0:root:/root:/bin/bash
-bin:x:1:1:bin:/bin:/sbin/nologin
-daemon:x:2:2:daemon:/sbin:/sbin/nologin
-adm:x:3:4:adm:/var/adm:/sbin/nologin
-lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
-```
+   ```bash
+   sudo useradd -u <UID> -g <GID> <username>
+   ```
 
-复制多个 source 文件到对应的目录路径：
+   例如，将 `alice` 的 UID 设置为 `1001`，GID 设置为 `1001`：`sudo useradd -u 1001 -g 1001 alice`。
 
-```csharp
-[root@localhost ~]# mkdir /tmp/test
-[root@localhost ~]# install -t /tmp/test/ /etc/passwd /home/charlie/autocreate
-[root@localhost ~]# ll /tmp/test/
-总用量 8
--rwxr-xr-x. 1 root root   12 2月   9 17:00 autocreate
--rwxr-xr-x. 1 root root 3595 2月   9 17:00 passwd
-```
+7. **为用户创建附加组**
 
-## realpath
+   如果你想将用户添加到多个组，可以使用 `-G` 选项。此选项允许将用户添加到一个或多个附加组（以逗号分隔）。
 
-`realpath` 是一个 Linux 和 Unix 系统中的命令，用于**解析符号链接或相对路径**并**返回文件或目录的绝对路径**。它对于处理路径、确认文件位置、确保路径的一致性非常有用。
+   ```bash
+   sudo useradd -G <group1>,<group2>,<group3> <username>
+   ```
 
-**主要功能**：
+   例如，将 `alice` 添加到 `developers` 和 `admins` 两个附加组：`sudo useradd -G developers,admins alice`。
 
-1. **解析相对路径**：将给定的相对路径转换为绝对路径。
-2. **解析符号链接**：将符号链接解析为其实际的目标路径。
-3. **去除冗余**：移除 `.` 和 `..` 这样的路径部分，并返回简化的路径。
+8. **创建系统用户**
 
-**常见用法**：
+   使用 `-r` 选项可以创建一个系统用户，系统用户通常用于运行系统服务，并且不会有登录权限。
 
-```shell
-realpath [选项] [文件/目录]
-```
+   ```bash
+   sudo useradd -r <username>
+   ```
 
-**常用选项**：
+   例如，创建一个名为 `myservice` 的系统用户：`sudo useradd -r myservice`。
 
-- `--relative-to=DIR`：显示相对于指定目录的相对路径。
-- `--no-symlinks`：不解析符号链接，只对路径进行规范化。
-- `--canonicalize-missing`：即使路径不存在，也返回规范化后的路径。
+9. **创建用户并指定密码**
 
-**示例**：
+   `useradd` 本身不支持直接为用户设置密码，但你可以将 `passwd` 命令与 `useradd` 命令结合使用，在创建用户后立即为其设置密码。
 
-```shell
-# 1. 将相对路径转换为绝对路径：
-realpath ./mydir
-# 输出：/home/user/mydir
+   ```bash
+   sudo useradd <username> && sudo passwd <username>
+   ```
 
-# 2. 解析符号链接：假设 `/tmp/mylink` 是指向 `/home/user/mydir` 的符号链接：
-realpath /tmp/mylink
-# 输出：/home/user/mydir
+   例如：`sudo useradd alice && sudo passwd alice`。
 
-# 3. 获取相对路径：
-realpath --relative-to=/home /home/user/mydir
-# 输出：user/mydir
-```
+10. **删除用户**
 
-`realpath` 命令非常适用于需要在脚本中确保路径一致性的场景。
+    `userdel` 命令用于删除用户。使用 `-r` 选项可以删除用户及其家目录。
 
-## basename 命令
+    ```bash
+    sudo userdel -r <username>
+    ```
 
-`basename` 是一个常用的 Unix/Linux 命令，用于提取文件路径中的文件名部分，或从文件名中去掉指定的后缀。它特别适用于从完整的文件路径中提取文件名。
+    例如，删除用户 `alice` 和其家目录：`sudo userdel -r alice`。
 
-**基本语法**：
+**常见选项总结：**
+
+| 选项 | 描述                                         |
+| ---- | -------------------------------------------- |
+| `-d` | 设置用户的家目录路径                         |
+| `-s` | 设置用户的默认 shell                         |
+| `-u` | 设置用户的 UID（用户 ID）                    |
+| `-g` | 设置用户的主组（GID）                        |
+| `-G` | 设置用户的附加组（以逗号分隔）               |
+| `-r` | 创建一个系统用户，通常没有登录权限           |
+| `-m` | 创建用户时自动创建家目录（默认会创建）       |
+| `-f` | 设置密码过期前的宽限期（指定天数）           |
+| `-p` | 设置用户的密码（通过加密字符串，通常不推荐） |
+
+**示例：**
+
+1. **创建一个新用户 `alice` 并设置其密码**
+
+   ```bash
+   sudo useradd -m -s /bin/bash alice && sudo passwd alice
+   ```
+
+2. **为 `alice` 设置自定义家目录和默认 shell**
+
+   ```bash
+   sudo useradd -d /data/alice -s /bin/zsh -m alice
+   ```
+
+3. **创建系统用户 `myservice`**
+
+   ```bash
+   sudo useradd -r myservice
+   ```
+
+4. **将用户 `alice` 添加到 `developers` 和 `admins` 组**
+
+   ```bash
+   sudo useradd -G developers,admins alice
+   ```
+
+5. **删除用户并同时删除其家目录**
+
+   ```bash
+   sudo userdel -r alice
+   ```
+
+**总结：**
+
+`useradd` 是一个强大且灵活的工具，用于创建和管理用户账户。它适用于需要脚本化或系统化管理用户的场景，允许用户指定更多详细的配置选项（如 UID、GID、家目录、shell 等）。然而，它不像 `adduser` 那样交互式，因此需要手动设置更多的选项来完成用户的创建和配置。
+
+## adduser 交互命令
+
+`adduser` 是一个在 Linux 系统中用来创建新用户的命令。它是 `useradd` 命令的一个更为友好的前端，并提供了更多的交互式选项。与 `useradd` 不同，`adduser` 会自动创建用户的家目录并询问一些额外的设置，比如用户全名、密码等。
+
+**基本语法：**
 
 ```bash
-basename [OPTION] NAME [SUFFIX]
+sudo adduser [选项] <用户名>
 ```
 
-- `NAME`：指定文件的路径。
-- `SUFFIX`：可选参数，指定要从文件名中移除的后缀（如果文件名以该后缀结尾）。
+**常见用法：**
 
-**主要选项**：
+1. **创建一个新用户**
 
-- `-a` 或 `--multiple`：允许同时处理多个路径。
-- `-s` 或 `--suffix=SUFFIX`：指定一个后缀进行删除，相当于直接写在 `basename` 命令的第二个参数位置。
-
-**功能**：
-
-- **去除路径信息**：`basename` 可以去除文件路径，仅保留文件名。
-- **去除后缀**：可以指定一个后缀，`basename` 会去掉文件名中匹配的后缀部分。
-
-**使用示例**：
-
-1. 从文件路径中提取文件名
+   最基本的使用方式是创建一个新用户。你只需指定用户名，`adduser` 命令会创建一个新的用户账户，**并执行一些初始化操作（如创建家目录、设置默认 shell 等）**：
 
    ```bash
-   basename /home/user/docs/file.txt
-   # 输出: file.txt
+   sudo adduser <username>
    ```
 
-2. 去除文件名中的后缀
+   例如，要创建名为 `alice` 的用户：`sudo adduser alice`。
 
-   可以指定一个后缀，如果文件名以该后缀结尾，则会被去除：
+   在执行此命令时，系统会要求你输入以下信息：
+
+   - 密码（需要输入两次）
+   - 用户全名
+   - 房间号码
+   - 工作电话
+   - 个人电话
+   - 其他信息（可选）
+
+   如果你不想填写某个字段，可以直接按 `Enter` 跳过。创建完成后，`alice` 用户就被添加到系统中，并且其家目录通常是 `/home/alice`。
+
+2. **指定用户的用户组**
+
+   你可以指定用户所在的用户组。`adduser` 命令默认会为新用户创建一个与用户名相同的组，但你可以通过 `--ingroup` 选项指定用户属于的组：
 
    ```bash
-   basename /home/user/docs/file.txt .txt
-   # 输出: file
-   basename -s .h include/stdio.h
-   # 输出: stdio
-   basename "file.tar.gz" .tar.gz
-   # 输出：file
+   sudo adduser <username> --ingroup <groupname>
    ```
 
-3. 提取目录名称
+   例如，将 `alice` 用户添加到名为 `developers` 的组：`sudo adduser alice --ingroup developers`。
 
-   如果你需要提取目录名称而不是文件名，可以结合 `dirname` 和 `basename` 使用。例如，获取文件所属的最上级目录名：
+3. **指定用户的家目录**
+
+   你可以使用 `--home` 选项指定用户的家目录。默认情况下，`adduser` 会将用户的家目录创建在 `/home/` 下，但你可以通过此选项指定其他目录路径：
 
    ```bash
-   dirname /home/user/docs/file.txt | xargs basename
-   # 输出: docs
+   sudo adduser <username> --home /path/to/home
    ```
 
-4. 与 `find` 命令结合使用
+   例如，将 `alice` 用户的家目录设置为 `/data/alice`：`sudo adduser alice --home /data/alice`。
 
-   结合 `find` 命令，可以提取目录中多个文件的文件名。例如，列出当前目录中所有 `.txt` 文件的文件名：
+4. **禁用用户创建密码**
+
+   如果你不希望用户在创建时设置密码，可以使用 `--disabled-password` 选项：
 
    ```bash
-   find . -type f -name "*.txt" -exec basename {} \;
+   sudo adduser <username> --disabled-password
    ```
 
-5. 在脚本中获取当前脚本名：
+   例如，创建没有密码的 `bob` 用户：`sudo adduser bob --disabled-password`。
+
+   此命令会创建一个用户，但不会设置密码。用户可以通过其他认证方法（如 SSH 密钥）登录。
+
+5. **指定用户的默认 shell**
+
+   你可以使用 `--shell` 选项为用户指定默认 shell：
 
    ```bash
-   script_name=$(basename "$0")
+   sudo adduser <username> --shell /bin/bash
    ```
 
-6. 批量处理文件名：
+   例如，指定 `alice` 使用 `/bin/zsh` 作为默认 shell：`sudo adduser alice --shell /bin/zsh`。
+
+6. **使用特定的用户 ID 和组 ID**
+
+   通过 `--uid` 和 `--gid` 选项，可以分别指定用户的 UID（用户 ID）和 GID（组 ID）。通常不需要指定这些选项，但如果需要与其他系统共享用户或组 ID，则可以使用这些选项：
 
    ```bash
-   # 结合find使用
-   find . -type f | while read file; do
-       name=$(basename "$file")
-       echo "Processing $name"
-   done
+   sudo adduser <username> --uid 1234 --gid 5678
    ```
 
-# 压缩解压命令
+7. **创建系统用户**
 
-## tar 包
+   你可以通过 `--system` 选项创建一个系统用户。系统用户通常用于运行系统服务和进程，通常不需要登录权限：
 
-`tar` 是 Linux 中常用的打包和压缩工具，可以将多个文件或目录打包成一个归档文件，也可以用于解压这些归档文件。
+   ```bash
+   sudo adduser --system <username>
+   ```
 
-### 解压 `.tar` 包
+   例如，创建一个名为 `myservice` 的系统用户：`sudo adduser --system myservice`。
 
-如果你有一个 `.tar` 格式的文件，没有经过压缩，只是打包文件，可以使用以下命令：
+8. **删除用户**
+
+   `adduser` 命令本身并没有直接删除用户的选项，删除用户时需要使用 `deluser` 命令。要删除 `alice` 用户，可以使用：
+
+   ```bash
+   sudo deluser alice
+   ```
+
+9. **删除用户及其家目录**
+
+   如果想要在删除用户时一起删除其家目录，可以使用 `--remove-home` 选项：
+
+   ```bash
+   sudo deluser --remove-home alice
+   ```
+
+**总结：**
+
+`adduser` 是一个创建新用户的命令，通常比 `useradd` 更加友好。它会交互式地要求你设置用户的密码、全名等，并自动执行一些任务（如创建家目录和设置默认 shell）。常用选项包括：
+
+- `--ingroup <group>`：指定用户所在的组。
+- `--home <path>`：指定用户的家目录。
+- `--disabled-password`：创建没有密码的用户。
+- `--shell <shell>`：指定用户的默认 shell。
+- `--system`：创建系统用户。
+
+这些选项使得 `adduser` 成为一个非常方便的命令来管理用户账户。
+
+## 新建账户 - root 同权限
+
+在 Ubuntu 中，您可以通过以下步骤创建一个具有与 `root` 相同权限的新账户：
+
+1. **打开终端**：首先，打开一个终端窗口。
+
+2. **创建一个新用户**： 使用 `adduser` 命令创建一个新用户。替换 `<username>` 为您希望创建的用户名：
+
+   ```bash
+   sudo adduser <username>
+   ```
+
+   该命令会提示您输入用户的密码、姓名等信息，可以按需要填写，或者直接按回车跳过。
+
+3. **将新用户添加到 `sudo` 组**： 要让新用户具有与 `root` 相同的权限，需要将该用户添加到 `sudo` 组中。运行以下命令：
+
+   ```bash
+   sudo usermod -aG sudo <username>
+   ```
+
+4. **确认新用户是否具有 `sudo` 权限**： 切换到新用户并验证权限：
+
+   ```bash
+   su - <username>
+   sudo whoami
+   ```
+
+   如果返回 `root`，则表示新用户具有 `root` 权限。
+
+5. **完成**：现在，新账户就有了与 `root` 相同的权限。
+
+## 新用户默认信息
+
+在 Linux 系统中，使用 `useradd` 命令创建一个新用户时，会有一些默认的设置。这些默认设置会根据不同的发行版有所变化，但通常情况下，以下是大多数 Linux 系统的默认值。
+
+1. **默认组 (Primary Group)**
+
+   - 默认情况下，新用户的主组会与用户名相同。这意味着如果你创建一个名为 `alice` 的新用户，系统会自动为该用户创建一个名为 `alice` 的主组，并将该用户添加到该组。
+
+     ```bash
+     sudo useradd alice
+     ```
+
+     这会创建一个用户名为 `alice` 的用户，并将其主组设置为 `alice`。
+
+   - 如果你希望将用户添加到其他组，可以使用 `-g` 选项来指定主组，或者使用 `-G` 来指定附加组。
+
+2. **默认家目录 (Home Directory)**
+
+   - 默认情况下，新用户的家目录位于 `/home/用户名` 下。如果你创建用户 `alice`，那么家目录的默认路径是 `/home/alice`。
+
+   - 如果你希望将用户的家目录设置为其他位置，可以使用 `-d` 选项来指定目录路径。
+
+     ```bash
+     sudo useradd -d /data/alice alice
+     ```
+
+     这会将用户 `alice` 的家目录设置为 `/data/alice`。
+
+   - 如果指定了 `-m` 选项（通常会自动使用），系统会自动创建该目录。如果没有指定 `-m`，则不会自动创建家目录。
+
+3. **默认登录 Shell**
+
+   - 默认情况下，用户的登录 shell 通常是 `/bin/bash`，这是大多数 Linux 系统中的默认 shell。
+
+   - 如果你希望指定其他的登录 shell，可以使用 `-s` 选项。例如，如果你想为用户 `alice` 设置 `zsh` 作为登录 shell，可以这样做：
+
+     ```bash
+     sudo useradd -s /bin/zsh alice
+     ```
+
+4. **默认密码**
+
+   - 默认情况下，新用户不会设置密码，用户必须通过 `passwd` 命令设置密码。你可以为新用户指定一个初始密码：
+
+     ```bash
+     sudo passwd alice
+     ```
+
+     然后输入密码。
+
+5. **默认用户 ID 和组 ID**
+
+   - 系统会为新用户分配一个唯一的用户 ID（UID）和组 ID（GID）。这些 ID 会自动分配，通常从系统中空闲的最小值开始。UID 和 GID 是系统内部用来标识用户和组的唯一数字标识。
+
+6. **默认账户过期**
+
+   - 默认情况下，新用户账户没有过期日期。你可以使用 `-e` 选项来指定过期日期。例如：
+
+     ```bash
+     sudo useradd -e 2025-12-31 alice
+     ```
+
+     这会将用户的账户设置为在 2025 年 12 月 31 日过期。
+
+7. **默认用户目录权限**
+
+   - 默认情况下，新用户的家目录权限为 `755`，即用户对家目录有完全权限，而其他人只能读取和执行该目录。
+
+8. **默认附加组**
+
+   - 默认情况下，新用户只会被添加到其主组中（即与用户名相同的组），没有其他附加组。如果你希望将新用户添加到其他组，可以使用 `-G` 选项。
+
+     ```bash
+     sudo useradd -G sudo,adm alice
+     ```
+
+     这会将用户 `alice` 添加到 `sudo` 和 `adm` 附加组中。
+
+9. **默认用户账户锁定状态**
+
+   - 默认情况下，新创建的用户账户是解锁的。用户可以立即登录。如果你希望禁用账户，可以在创建用户时使用 `-L` 选项来锁定账户，或者创建后使用 `passwd -l <username>` 来锁定用户。
+
+10. **默认登录限制**
+
+    - 默认情况下，用户可以在任何时间登录。如果你希望为用户设置登录时间限制（例如，仅允许在特定时间段内登录），可以使用 `-e` 或 `-f` 选项来设置限制。
+
+11. **默认环境变量**
+
+    - 新创建的用户将继承系统默认的环境变量设置，如 `PATH` 等。这些设置通常在 `/etc/profile` 或 `/etc/bash.bashrc` 中定义。
+
+12. **默认用户的 umask 设置**
+
+    - `umask` 是一种控制文件和目录默认权限的机制。新创建的用户通常会继承 `/etc/profile` 中定义的默认 `umask` 值，通常是 `022`，这意味着创建的新文件会具有 `644` 权限（用户读写，组和其他用户只读），目录会具有 `755` 权限。
+
+**总结：**
+
+当你创建一个新用户时，通常会得到以下默认设置：
+
+- **默认主组**：与用户名相同。
+- **默认家目录**：`/home/<username>`。
+- **默认登录 shell**：`/bin/bash`。
+- **默认密码**：用户没有密码，必须使用 `passwd` 设置。
+- **默认 UID 和 GID**：由系统自动分配。
+- **默认附加组**：无（只属于主组）。
+- **默认账户状态**：解锁状态，可以立即登录。
+
+这些默认设置可以通过 `useradd` 命令的选项进行定制化。
+
+## 查看用户
+
+在 Linux 系统中，有几种方法可以查看当前系统上有哪些用户：
+
+1. **查看 `/etc/passwd` 文件**
+
+   - 系统中的所有用户信息（包括用户名、UID、GID、用户的家目录、默认 shell 等）都存储在 `/etc/passwd` 文件中。
+   - 可以使用 `cat`、`less` 或 `grep` 等命令查看该文件：
+
+     ```bash
+     cat /etc/passwd
+     ```
+
+     `/etc/passwd` 文件中的每一行代表一个用户，字段之间使用冒号（:）分隔，结构如下：
+
+     ```bash
+     username:password:UID:GID:comment:home_directory:shell
+     ```
+
+   - 其中：
+     - `username`：用户名。
+     - `password`：通常是一个占位符（在现代系统中，密码通常存储在 `/etc/shadow` 文件中）。
+     - `UID`：用户 ID。
+     - `GID`：组 ID。
+     - `comment`：通常是用户的全名或描述信息。
+     - `home_directory`：用户的家目录。
+     - `shell`：用户的默认 shell。
+
+2. **使用 `getent` 命令**
+
+   `getent` 命令用于查询系统的各种数据库，包括用户数据库。它从 `/etc/passwd` 获取信息，但也可以查询其他来源，如 LDAP 或 NIS（如果系统配置了这些）。
+
+   ```bash
+   getent passwd
+   ```
+
+   这会列出所有用户，包括系统用户和普通用户。输出的格式与 `/etc/passwd` 文件相同。
+
+3. **查看当前登录的用户**
+
+   如果你只关心当前登录的用户，可以使用以下命令：
+
+   ```bash
+   who
+   ```
+
+   这些命令会列出当前正在登录的用户及其会话信息。
+
+4. **查看系统组信息**
+
+如果你也想查看系统中的所有组（有时用户会加入多个组），可以查看 `/etc/group` 文件：
 
 ```bash
-tar -xvf archive.tar
-```
-
-- `x`：表示解压。
-- `v`：显示详细过程（可选，但通常会显示解压过程中的每个文件）。
-- `f`：后面跟的是归档文件名。
-
-总结
-
-- **`.tar` 文件**：`tar -xvf archive.tar`
-- **`.tar.gz` 或 `.tgz` 文件**：`tar -xzvf archive.tar.gz`
-- **`.tar.bz2` 文件**：`tar -xjvf archive.tar.bz2`
-- **`.tar.xz` 文件**：`tar -xJvf archive.tar.xz`
-
-## zip 包
-
-在 Linux 系统中，解压 `.zip` 文件通常使用 `unzip` 命令。如果系统上没有安装 `unzip`，你可以先安装它。
-
-1. `unzip` 解压：
-
-   Debian/Ubuntu 系统上安装：`sudo apt-get install unzip`
-
-   **解压 `.zip` 文件**：
-
-   ```bash
-   # 解压到当前目录中
-   unzip archive.zip
-   ```
-
-   - `x`：表示解压并保持文件夹结构。
-
-   **解压到指定目录**： 如果你想将 `.zip` 文件解压到指定目录，可以使用 `-d` 选项：
-
-   ```bash
-   unzip archive.zip -d /path/to/destination/
-   ```
-
-   **列出 `.zip` 文件内容**（不解压）： 如果你只想查看 `.zip` 文件内包含的文件列表，可以使用：
-
-   ```bash
-   unzip -l archive.zip
-   ```
-
-## rar 包
-
-1. `unrar` 解压：
-
-   `unrar` 是一个开源工具，通常用于解压 `.rar` 文件。Debian/Ubuntu 系统上安装：`sudo apt-get install unrar`
-
-   **解压 `.rar` 文件**：
-
-   ```bash
-   # 解压到当前目录中
-   unrar x archive.rar
-   ```
-
-   - `x`：表示解压并保持文件夹结构。
-
-   **解压到指定目录**： 如果你想将 `.rar` 文件解压到指定目录，可以使用 `-d` 选项：
-
-   ```bash
-   unrar x archive.rar -d /path/to/extract/directory/
-   ```
-
-   **列出 `.rar` 文件内容**（不解压）： 如果你只想查看 `.rar` 文件内包含的文件列表，可以使用：
-
-   ```bash
-   unrar l archive.rar
-   ```
-
-# 文件显示命令
-
-## cat
-
-cat（英文全拼：concatenate）命令用于连接文件并打印到标准输出设备上，它的主要作用是用于查看和连接文件。
-
-```shell
-cat [选项] [文件]
-```
-
-**参数说明：**
-
-- `-n`：显示行号，会在输出的每一行前加上行号。
-- `-b`：显示行号，但只对非空行进行编号。
-- `-s`：压缩连续的空行，只显示一个空行。
-- `-E`：在每一行的末尾显示 `$` 符号。
-- `-T`：将 Tab 字符显示为 `^I`。
-- `-v`：显示一些非打印字符。
-
-```shell
-cat filename # 查看文件内容：显示文件 filename 的内容。
-
-cat > filename # 创建文件：将标准输入重定向到文件 filename，覆盖该文件的内容。
-
-cat >> filename # 追加内容到文件：将标准输入追加到文件 filename 的末尾。
-
-cat file1 file2 > file3 # 连接文件：将 file1 和 file2 的内容合并到 file3 中。
-
-cat file1 file2 # 显示多个文件的内容：同时显示 file1 和 file2 的内容。
-
-cat filename | command # 使用管道：将 cat 命令的输出作为另一个命令的输入。
-
-cat filename | tail -n 10 # 查看文件的最后几行：显示文件 filename 的最后 10 行。
-
-cat -n filename # 使用 -n 选项显示行号：显示文件 filename 的内容，并在每行的前面加上行号。
-
-cat -b filename # 使用 -b 选项仅显示非空行的行号：
-
-cat -s filename # 使用 -s 选项合并空行：显示文件 filename 的内容，并合并连续的空行。
-
-cat -t filename # 使用 -t 选项显示制表符：显示文件 filename 的内容，并用 ^I 表示制表符。
-
-cat -e filename # 使用 -e 选项显示行结束符：显示文件 filename 的内容，并用 $ 表示行结束。
-
-cat -n textfile1 > textfile2 # 把 textfile1 的文档内容加上行号后输入 textfile2 这个文档里：
-
-cat -b textfile1 textfile2 >> textfile3 # 把 textfile1 和 textfile2 的文档内容加上行号（空白行不加）之后将内容附加到 textfile3 文档里：
-
-cat /dev/null > /etc/test.txt # 清空 /etc/test.txt 文档内容：
-```
-
-```shell
-# 要创建一个新文件并将内容写入它，你可以使用重定向操作符>或者cat命令本身。
-# 1.使用重定向操作符>：你可以输入你想要写入文件的内容。按下 Ctrl + D 来保存并退出。
-cat > new_file.txt
-# 2.使用cat命令：在<< EOF和EOF之间的文本是你要写入文件的内容。按下Enter后，然后按下Ctrl + D来保存并退出。
-cat > new_file.txt << EOF
-这是新文件的内容。
-它可以有多行。
-EOF
-
-# 要向现有文件追加内容，可以使用重定向操作符>>或者cat命令。
-# 1.使用重定向操作符>>：你可以输入你想要写入文件的内容。按下 Ctrl + D 来保存并退出。
-cat >> existing_file.txt
-# 2.使用cat命令：在<< EOF和EOF之间的文本是你要写入文件的内容。按下Enter后，然后按下Ctrl + D来保存并退出。
-cat >> existing_file.txt << EOF
-这是要追加到文件的内容。
-它可以有多行。
-EOF
-```
-
-## head
-
-head 命令可用于查看文件的开头部分的内容，有一个常用的参数 **-n** 用于显示行数，默认为 10，即显示 10 行的内容。
-
-```shell
-head [参数] [文件]
-```
-
-- -q 隐藏文件名
-- -v 显示文件名
-- -c<数目> 显示的字节数。
-- -n<行数> 显示的行数。
-
-```shell
-head -n 5 runoob_notes.log # 显示 notes.log 文件的开头 5 行，请输入以下命令
-
-head -c 20 runoob_notes.log # 显示文件前 20 个字节
-```
-
-## tail
-
-tail 命令可用于查看文件的内容，有一个常用的参数 **-f** 常用于查阅正在改变的日志文件。参数 **-n** 用于显示行数，默认为 10，即显示 10 行的内容。
-
-**tail -f filename** 会把 filename 文件里的最尾部的内容显示在屏幕上，并且不断刷新，只要 filename 更新就可以看到最新的文件内容。
-
-```shell
-tail [参数] [文件]
-```
-
-- -f 循环读取
-- -q 不显示处理信息
-- -v 显示详细的处理信息
-- -c<数目> 显示的字节数
-- -n<行数> 显示文件的尾部 n 行内容
-- --pid=PID 与-f 合用,表示在进程 ID,PID 死掉之后结束
-- -q, --quiet, --silent 从不输出给出文件名的首部
-- -s, --sleep-interval=S 与-f 合用,表示在每次反复的间隔休眠 S 秒
-
-```shell
-tail -n +20 notes.log # 显示文件 notes.log 的内容，从第 20 行至文件末尾
-
-tail -f notes.log # 此命令显示 notes.log 文件的最后 10 行。当将某些行添加至 notes.log 文件时，tail 命令会继续显示这些行。 显示一直继续，直到您按下（Ctrl-C）组合键停止显示。即，可跟踪名为 notes.log 的文件的增长情况。
-```
-
-## cat/head/tail 组合
-
-```shell
-# 显示前1000行
-cat [filename] | head -n 1000
-
-# 显示最后1000行
-cat [filename] | tail -n 1000
-
-# 从1000行以后开始显示
-cat [filename] | tail -n +1000
-
-# 从1000行开始显示3000行
-cat [filename] | tail -n +1000 | head -n 3000
-
-# 显示1000行到3000行
-cat [filename] | head -n 3000 | tail -n +1000
-```
-
-## tee 命令
-
-`tee` 是一个在 Unix/Linux 系统中常用的命令行工具，用于读取标准输入并将其内容写入标准输出和一个或多个文件。它的名称来源于字母 "T"，因为它的作用类似于一个 "T" 型分流器。
-
-**基本语法**：
-
-```bash
-tee [OPTION]... [FILE]...
-```
-
-- **OPTION**：可选参数，用于修改 `tee` 的行为。
-- **FILE**：要写入的一个或多个文件名。如果不指定文件，则输出到标准输出。
-
-**常用选项**：
-
-- `-a` 或 `--append`：追加内容到指定文件，而不是覆盖。
-- `-i` 或 `--ignore-interrupts`：在信号中断时忽略中断。
-- `--help`：显示帮助信息。
-- `--version`：显示版本信息。
-
-**常见用法**：
-
-1. 基本使用
-
-   将命令的输出同时写入到文件和标准输出：
-
-   ```bash
-   echo "Hello, World!" | tee output.txt
-   ```
-
-   这条命令会将 "Hello, World!" 打印到屏幕上，同时写入到 `output.txt` 文件中。
-
-2. 追加内容
-
-   使用 `-a` 选项可以将内容追加到文件末尾，而不是覆盖文件：
-
-   ```bash
-   echo "Hello again!" | tee -a output.txt
-   ```
-
-   如果 `output.txt` 已存在，这条命令会在文件末尾添加 "Hello again!"。
-
-3. 多个文件
-
-   可以将输出同时写入多个文件：
-
-   ```bash
-   echo "Logging data" | tee file1.txt file2.txt
-   ```
-
-   这会将 "Logging data" 同时写入 `file1.txt` 和 `file2.txt`。
-
-4. 结合其他命令
-
-   `tee` 常用于将输出流中的数据分流给多个命令。例如，可以将一个命令的输出保存到文件，同时将其传递给另一个命令：
-
-   ```bash
-   ps aux | tee processes.txt | grep bash
-   ```
-
-   这会将当前运行的所有进程信息保存到 `processes.txt` 文件中，同时筛选出包含 "bash" 的行并显示在屏幕上。
-
-5. 在脚本中使用
-
-   ```shell
-   #!/bin/bash
-   # 记录脚本执行过程
-   {
-       echo "Starting process..."
-       date
-       some_command
-       echo "Process completed."
-   } | tee process.log
-   ```
-
-6. 追加模式插入空行
-
-```shell
-echo "First line" | tee -a output.txt
-echo -e "\n\n\n" | tee -a output.txt  # 输出3个空行
-echo "Second line" | tee -a output.txt
-```
-
-**示例**：
-
-1. 输出到文件并显示
-
-   ```bash
-   df -h | tee disk_usage.txt
-   ```
-
-   这条命令会显示当前的磁盘使用情况，并将其写入到 `disk_usage.txt` 文件中。
-
-2. 与管道结合
-
-   ```bash
-   cat /var/log/syslog | tee syslog_copy.txt | grep error
-   ```
-
-   这会将系统日志文件的内容输出到标准输出并写入 `syslog_copy.txt`，同时筛选出包含 "error" 的行。
-
-**总结**：
-
-`tee` 命令是一个非常有用的工具，特别是在处理数据流时，可以有效地将输出分流到多个目的地。它在脚本编写、日志记录和调试过程中非常有用，能够帮助用户同时查看和存储命令的输出。
-
-## printf 命令
-
-`printf` 是一个在 Unix/Linux 系统中广泛使用的命令行工具，用于格式化输出文本。它比 `echo` 更强大和灵活，能够提供更复杂的格式控制，特别是在处理数字和字符串时。
-
-**基本语法**：
-
-```bash
-printf FORMAT_STRING [ARGUMENTS...]
-```
-
-- **FORMAT_STRING**：指定输出的格式，可以包含普通文本和格式说明符。
-- **ARGUMENTS**：要格式化输出的值。
-
-**常见格式说明符**：
-
-- `%s`：字符串
-- `%d`：十进制整数
-- `%f`：浮点数
-- `%x`：十六进制整数
-- `%o`：八进制整数
-- `%c`：字符
-- `%p`：指针（地址）
-
-**常见用法**：
-
-1. 格式化输出数字
-
-   格式化整数和浮点数：
-
-   ```bash
-   printf "Integer: %d\n" 42
-   printf "Float: %.2f\n" 3.14159
-   ```
-
-   - `%.2f` 表示输出浮点数并保留两位小数。
-
-2. 输出多个参数
-
-   可以一次性输出多个参数：
-
-   ```bash
-   printf "Name: %s, Age: %d\n" "Alice" 30
-   ```
-
-   这将输出 `Name: Alice, Age: 30`。
-
-3. 设定宽度和对齐方式
-
-   可以设定输出的宽度：
-
-   ```bash
-   printf "|%10s|%5d|\n" "Item" 123
-   ```
-
-   - `%10s` 表示字符串占用 10 个字符宽，右对齐。
-   - `%5d` 表示整数占用 5 个字符宽，右对齐。
-
-   左对齐可以使用负号：
-
-   ```bash
-   printf "|%-10s|%-5d|\n" "Item" 123
-   ```
-
-4. 使用转义字符
-
-   `printf` 也支持转义字符，比如换行符 `\n` 和制表符 `\t`：
-
-   ```bash
-   printf "Column1\tColumn2\nValue1\tValue2\n"
-   ```
-
-5. 生成多个重复字符
-
-   ```shell
-   printf '=%.0s' {1..20}
-   ```
-
-   - 格式字符串 `'=%.0s'`
-
-     在这里，格式字符串是 `'=%.0s'`。这个格式字符串可以分解为以下部分：
-
-     - **`=`**：这是要输出的字符。由于 `printf` 在处理格式字符串时，会将每个格式说明符与对应的参数结合起来输出，因此这里的 `=` 是固定的，它会被输出 20 次。
-     - **`%.0s`**：这是格式说明符，表示以字符串形式输出。具体来说：
-       - **`%s`** 表示输出字符串。
-       - **`.0`** 是一个精度修饰符，表示不输出字符串的内容，而是仅仅输出字符串的“空字符”。因此，`%.0s` 实际上不会输出任何字符，但会使得 `printf` 进行相应次数的调用。
-
-   - `{1..20}`
-
-     这是一个 Bash 的序列扩展（Brace Expansion），用于生成一个从 1 到 20 的序列。这里，它实际上并不使用这些数字的值，而是仅仅用来确定输出多少次格式字符串。
-
-**示例**：
-
-以下是一个完整的示例，演示 `printf` 的各种功能：
-
-```bash
-#!/bin/bash
-
-# 输出字符串
-printf "Hello, World!\n"
-
-# 输出整数和浮点数
-printf "Integer: %d\n" 42
-printf "Float: %.2f\n" 3.14159
-
-# 输出多个参数
-name="Alice"
-age=30
-printf "Name: %s, Age: %d\n" "$name" "$age"
-
-# 设置宽度和对齐
-printf "|%10s|%5d|\n" "Item" 123
-printf "|%-10s|%-5d|\n" "Item" 123
-
-# 使用转义字符
-printf "Column1\tColumn2\nValue1\tValue2\n"
-```
-
-运行这个脚本将输出如下内容：
-
-```log
-Hello, World!
-Integer: 42
-Float: 3.14
-Name: Alice, Age: 30
-|      Item|  123|
-|Item      |123  |
-Column1   Column2
-Value1    Value2
+cat /etc/group
 ```
 
 **总结：**
 
-`printf` 是一个非常强大的工具，适用于需要格式化输出的场合。它能够提供丰富的格式控制选项，帮助用户创建更易读和专业的输出结果。与 `echo` 相比，`printf` 更加灵活，适合在脚本中处理复杂的输出需求。
+- **查看所有用户**：使用 `cat /etc/passwd` 或 `getent passwd`。
+- **列出用户名**：使用 `cut -d: -f1 /etc/passwd`。
+- **查看当前登录的用户**：使用 `who` 或 `w`。
 
-## tree 命令
+通过这些方法，你可以轻松查看计算机上的所有用户及其相关信息。
 
-`tree` 是一个非常有用的命令行工具，用于以树状结构显示目录和文件的层次结构。它通过递归地列出目录及其内容，可以帮助用户更直观地查看文件系统的结构。
+## 查看组
 
-**1. 基本语法：**
+要查看 Linux 系统中有哪些组，可以使用以下几种方法：
+
+1. **查看 `/etc/group` 文件**
+
+   - 系统中所有的用户组信息都存储在 `/etc/group` 文件中。可以使用 `cat`、`less` 或 `grep` 等命令查看该文件。
+
+     ```bash
+     cat /etc/group
+     ```
+
+     每一行代表一个组，字段之间使用冒号（:）分隔，结构如下：
+
+     ```bash
+     groupname:password:GID:user_list
+     ```
+
+   - 其中：
+     - `groupname`：组名。
+     - `password`：组密码（通常为空或占位符）。
+     - `GID`：组 ID。
+     - `user_list`：属于该组的用户（用户名之间用逗号分隔）。
+
+2. **使用 `getent` 命令**
+
+   `getent` 命令可以从系统的各种数据库中查询信息，包括组信息。它会从 `/etc/group` 或其他配置了的源（如 LDAP 或 NIS）中获取组信息。
+
+   ```bash
+   getent group
+   ```
+
+   这会列出所有组及其相关信息。
+
+3. **查看当前用户的组**
+
+   如果你想查看某个特定用户属于哪些组，可以使用 `groups` 命令。这个命令会列出当前用户或指定用户所在的所有组。
+
+   ```bash
+   groups <username>
+   ```
+
+   如果不指定用户名，它会列出当前登录用户所在的所有组。
+
+4. **查看当前系统的组和成员**
+
+   你可以使用 `getent group` 命令结合 `grep` 来查找特定的组和组成员：
+
+   ```bash
+   getent group | grep <groupname>
+   ```
+
+   例如，查看 `sudo` 组的成员：
+
+   ```bash
+   getent group | grep sudo
+   ```
+
+**总结：**
+
+- **查看所有组**：使用 `cat /etc/group` 或 `getent group`。
+- **列出所有组名**：使用 `cut -d: -f1 /etc/group`。
+- **查看当前用户所在组**：使用 `groups` 命令。
+- **查看特定组信息**：使用 `getent group | grep <groupname>`。
+
+这些方法可以帮助你快速查看和管理系统中的组信息。
+
+## usermod 命令
+
+`usermod` 是 Linux 系统中的一个命令，用于修改现有用户的属性。它允许你更改用户的各种设置，例如**用户名、用户组、用户的家目录、登录 shell 等**。以下是 `usermod` 命令的一些常见用法和选项。
+
+**基本语法：**
 
 ```bash
-tree [选项] [目录...]
+usermod [选项] <用户名>
 ```
 
-- **[选项]**：用于修改 `tree` 输出的格式。
-- **[目录]**：指定要显示结构的目录，默认为当前目录。
+**常见选项：**
 
-**2. 常用选项：**
+1. **`-aG`** (Add to Groups)
 
-- `-L <level>` ：限制显示目录的深度，`<level>` 是要显示的目录层级。例如 `-L 2` 只显示两级目录结构。
-- `-d` ：只显示目录，不显示文件。
-- `-a` ：显示所有文件和目录（包括隐藏文件）。
-- `-f` ：在每个文件名前面加上完整的路径（不适用于相对路径）。
-- `-s` ：显示每个文件或目录的大小（以字节为单位）。
-- `-h` ：与 `-s` 配合使用，以可读性较高的方式显示文件大小（如 KB、MB）。
-- `-T` ：在文件或目录的末尾显示与其相关的详细时间戳。
-- `-I <pattern>` ：排除匹配 `<pattern>` 的文件或目录。例如 `-I "*.log"` 排除所有 `.log` 文件。
-- `--noreport` ：不显示报告统计信息（文件数和目录数）。
-- `-v` ：显示详细信息，包括文件的权限和修改时间。
+   - 这个选项用于将用户添加到一个或多个附加组中，而不会从原有的组中移除该用户。使用时要指定组名。
 
-**3. 示例：**
+     ```bash
+     sudo usermod -aG sudo <username>
+     ```
 
-1. 显示当前目录的树形结构
+     这会将用户 `<username>` 添加到 `sudo` 组中。
 
-   ```bash
-   tree
+2. **`-d`** (Home Directory)
 
-   # 输出：
-   ├── file1.txt
-   ├── file2.txt
-   └── subdir
-       ├── file3.txt
-       └── file4.txt
+   - 用于更改用户的家目录。`-d` 后面跟新的家目录路径。
 
-   2 directories, 4 files
-   ```
+     ```bash
+     sudo usermod -d /home/newhome <username>
+     ```
 
-2. 限制显示深度为 2
+     这会将用户的家目录更改为 `/home/newhome`。
 
-   ```bash
-   tree -L 2
+3. **`-m`** (Move the Home Directory)
 
-   # 输出：
-   ├── file1.txt
-   ├── file2.txt
-   └── subdir
-       ├── file3.txt
-       └── file4.txt
+   - 这个选项与 `-d` 一起使用，它会把旧的家目录内容移动到新的目录。必须同时指定 `-d` 和新目录路径。
 
-   2 directories, 4 files
-   ```
+     ```bash
+     sudo usermod -d /home/newhome -m <username>
+     ```
 
-3. 只显示目录，不显示文件
+     这会将用户的家目录移动到 `/home/newhome`，并将所有文件从旧目录迁移过去。
 
-   ```bash
-   tree -d
+4. **`-l`** (Login Name)
 
-   # 输出：
-   └── subdir
+   - 用于更改用户的登录名。
 
-   1 directory
-   ```
+     ```bash
+     sudo usermod -l newname oldname
+     ```
 
-4. 显示所有文件，包括隐藏文件
+     这会将用户名 `oldname` 更改为 `newname`。
 
-   ```bash
-   tree -a
+5. **`-g`** (Primary Group)
 
-   # 输出：
-   ├── .hiddenfile
-   ├── file1.txt
-   ├── file2.txt
-   └── subdir
-       ├── .hiddenfile
-       ├── file3.txt
-       └── file4.txt
+   - 用于更改用户的主组。该组将成为用户的默认组。
 
-   2 directories, 6 files
-   ```
+     ```bash
+     sudo usermod -g newgroup <username>
+     ```
 
-5. 显示文件和目录大小
+     这会将用户的主组更改为 `newgroup`。
 
-   ```bash
-   tree -s
+6. **`-G`** (Supplementary Groups)
 
-   # 输出：
-   ├── 123 file1.txt
-   ├── 456 file2.txt
-   └── subdir
-       ├── 789 file3.txt
-       └── 101 file4.txt
+   - 用于指定一个或多个附加组。与 `-aG` 不同，使用 `-G` 时会替换用户的附加组，而不是追加。
 
-   2 directories, 4 files
-   ```
+     ```bash
+     sudo usermod -G group1,group2 <username>
+     ```
 
-6. 显示文件大小以人类可读格式
+     这会将用户 `<username>` 的附加组更改为 `group1` 和 `group2`。
 
-   ```bash
-   tree -sh
+7. **`-s`** (Shell)
 
-   # 输出：
-   ├── 12K file1.txt
-   ├── 45K file2.txt
-   └── subdir
-       ├── 123K file3.txt
-       └── 56K file4.txt
+   - 用于更改用户的登录 shell。
 
-   2 directories, 4 files
-   ```
+     ```bash
+     sudo usermod -s /bin/zsh <username>
+     ```
 
-7. 排除特定文件类型
+     这会将用户的默认 shell 更改为 `zsh`。
 
-   ```bash
-   tree -I "*.log"
+8. **`-e`** (Expire Date)
 
-   # 输出：
-   ├── file1.txt
-   ├── file2.txt
-   └── subdir
-       ├── file3.txt
-       └── file4.txt
+   - 用于设置用户帐户的过期日期，格式为 `YYYY-MM-DD`。过期日期之后，用户将无法登录。
 
-   2 directories, 4 files
-   ```
+     ```bash
+     sudo usermod -e 2025-12-31 <username>
+     ```
 
-   （`*.log` 文件被排除）
+     这会将用户的帐户设置为在 2025 年 12 月 31 日过期。
 
-8. 显示完整路径
+9. **`-f`** (Inactive)
+
+   - 用于指定用户账户的非活动期，即账户在登录失败后的多少天将被禁用。
+
+     ```bash
+     sudo usermod -f 30 <username>
+     ```
+
+     这会设置用户在 30 天未活动后账户将被禁用。
+
+10. **`-p`** (Password)
+
+    - 用于更改用户的密码。通常这个选项配合一个加密的密码（使用 `openssl` 或其他工具加密）一起使用。
+
+      ```bash
+      sudo usermod -p '$6$rounds=656000$...' <username>
+      ```
+
+      这会将用户 `<username>` 的密码更改为给定的加密密码。
+
+**注意事项：**
+
+- 必须以 root 或具有适当权限的用户身份执行 `usermod` 命令。
+- 如果更改了用户名或用户的主目录，用户可能需要重新登录，以确保所有更改生效。
+- 使用 `-aG` 时非常重要，因为如果不加 `-a`，会替换用户原有的附加组，导致用户失去访问权限。
+
+**示例：**
+
+1. **将用户添加到多个组**：
 
    ```bash
-   tree -f
-
-   # 输出：
-   /home/user/file1.txt
-   /home/user/file2.txt
-   /home/user/subdir/file3.txt
-   /home/user/subdir/file4.txt
+   sudo usermod -aG sudo,adm <username>
    ```
 
-9. 不显示统计报告
+   这将用户 `<username>` 添加到 `sudo` 和 `adm` 组中，保留该用户原本的其他组。
+
+2. **更改用户登录 shell**：
 
    ```bash
-   tree --noreport
-
-   # 输出：
-   ├── file1.txt
-   ├── file2.txt
-   └── subdir
-       ├── file3.txt
-       └── file4.txt
+   sudo usermod -s /bin/bash <username>
    ```
 
-**4. 用途：**
+   这将用户 `<username>` 的默认 shell 更改为 `bash`。
 
-- **目录结构查看**：使用 `tree` 可以方便地查看一个目录的层次结构，特别是在文件夹层级很深的情况下，帮助用户了解整个文件系统的布局。
-- **目录内容筛选**：通过排除特定类型的文件或文件夹，用户可以更容易地获取他们需要的信息。
-- **文件大小分析**：通过显示每个文件的大小，可以帮助用户了解哪些文件占用了磁盘空间。
-- **脚本自动化**：在自动化任务中，`tree` 可以生成可视化的目录结构，便于日志记录和处理。
+3. **更改用户的家目录并迁移文件**：
 
-**5. 安装：**
+   ```bash
+   sudo usermod -d /home/newhome -m <username>
+   ```
 
-`tree` 不是 Linux 系统的默认工具，但可以通过包管理器进行安装：
+   这将用户 `<username>` 的家目录更改为 `/home/newhome`，并将所有旧目录中的文件迁移到新目录。
+
+## passwd 命令
+
+`passwd` 是一个 Linux 系统中的命令，用于更改用户密码。该命令既可以用来为新用户**设置密码**，也可以**修改**现有用户的密码。管理员可以使用 `passwd` 来管理系统中的用户密码。
+
+**基本语法：**
 
 ```bash
-# Debian/Ubuntu
-sudo apt-get install tree
-
-# RedHat/CentOS
-sudo yum install tree
-
-# macOs（通过 Homebrew）
-brew install tree
+passwd [选项] [用户名]
 ```
 
-**6. 总结：**
+- **选项**：可以用来修改 `passwd` 命令的行为。
+- **用户名**：指定要更改密码的用户，如果不指定用户名，则默认更改当前用户的密码。
 
-`tree` 是一个非常直观的命令行工具，可以以树状结构显示文件系统的层次结构。通过各种选项，用户可以定制输出的内容，例如限制深度、显示文件大小、排除特定类型的文件等。这些功能使得 `tree` 成为文件管理和脚本自动化任务中的一个强大工具。
+**常见用法和选项**
 
-# 文本操作命令
+1. **修改当前用户密码**
 
-## sed 命令
-
-`sed`（Stream Editor）是一个强大的文本处理工具，主要用于对文本流进行**过滤和转换**。它常用于 Unix/Linux 系统中，可以对文件内容或标准输入流进行文本替换、插入、删除和其他处理。
-
-**基本语法**：
-
-```bash
-sed [OPTIONS] 'command' file
-```
-
-- **OPTIONS**：选项，可以影响 `sed` 的行为。
-- **command**：要执行的命令，通常包括地址和操作。
-- **file**：要处理的文件名，可以是一个或多个文件。
-
-**常见功能和用法**：
-
-1. 文本替换
-
-   使用 `s` 命令进行替换：
+   如果你不指定用户名，`passwd` 命令将更改当前登录用户的密码。执行命令后，系统会提示输入当前密码和新密码。
 
    ```bash
-   sed 's/old-text/new-text/' filename
+   passwd
    ```
 
-   - 默认只替换第一处匹配的文本。
-   - 添加 `g` 可以替换所有匹配的文本：
+   这会要求你输入当前密码，然后输入两次新密码。
+
+2. **为指定用户设置密码**
+
+   作为管理员（root 用户）或具有 `sudo` 权限的用户，可以为其他用户设置或修改密码。
 
    ```bash
-   sed 's/old-text/new-text/g' filename
+   sudo passwd <username>
    ```
 
-2. 在行首/行尾添加文本
+   这会为指定的用户 `<username>` 设置或更改密码。系统会要求输入新密码，并确认密码。
 
-   - 在每行的开头添加文本：
+3. **禁用用户密码**
+
+   禁用用户的密码，使其无法通过密码登录。你可以使用 `-l` 选项来锁定用户密码。
 
    ```bash
-   sed 's/^/new-text /' filename
+   sudo passwd -l <username>
    ```
 
-   - 在每行的末尾添加文本：
+   锁定用户的密码后，该用户将无法通过传统的密码身份验证登录。**但仍可通过其他认证方法（如 SSH 密钥）登录**。
+
+4. **解锁用户密码**
+
+   如果一个用户的密码被锁定（例如通过 `passwd -l` 锁定），你可以使用 `-u` 选项来解锁用户的密码：
 
    ```bash
-   sed 's/$/ new-text/' filename
+   sudo passwd -u <username>
    ```
 
-3. 删除行
+   这将解锁指定用户的密码，使其能够重新使用密码登录。
 
-   - 删除特定行：
+5. **删除用户密码**
+
+   `passwd` 命令提供了 `-d` 选项，用来删除用户的密码，这样用户就没有密码了，从而可以通过其他方式登录（例如使用 SSH 密钥认证）。
 
    ```bash
-   sed '3d' filename   # 删除第三行
+   sudo passwd -d <username>
    ```
 
-   - 删除包含特定模式的行：
+   这条命令会删除 `<username>` 用户的密码，使其无法通过密码进行登录。
+
+6. **设置空密码（无密码登录）**
+
+   通过修改 `/etc/shadow` 文件，你也可以手动删除密码哈希值，使得用户密码为空。
+
+   1. 打开 `/etc/shadow` 文件：
+
+      ```bash
+      sudo nano /etc/shadow
+      ```
+
+   2. 找到目标用户的行，例如：
+
+      ```log
+      alice:$6$abc123$abcdefg:18344:0:99999:7:::
+      ```
+
+   3. 删除密码哈希（即冒号和 `$` 符号之间的内容），使该行变为空密码：
+
+      ```log
+      alice::18344:0:99999:7:::
+      ```
+
+   4. 保存文件并退出。
+
+   这种方法会使用户 `alice` 没有密码，从而可以进行无密码登录。
+
+7. **强制用户下次登录时修改密码**
+
+   你可以使用 `-e` 选项强制用户下次登录时修改密码：
 
    ```bash
-   sed '/pattern/d' filename
+   sudo passwd -e <username>
    ```
 
-4. 选择特定行
+   这将使得用户下次登录时必须输入新密码。
 
-   - 仅显示特定行：
+8. **设置密码过期时间**
+
+   `passwd` 命令还可以用来设置用户密码的过期时间。使用 `-x` 选项可以设置密码的最大使用期限，超过这个时间，用户必须修改密码。
 
    ```bash
-   sed -n '2p' filename   # 只打印第二行
+   sudo passwd -x <days> <username>
    ```
 
-   - 打印范围行：
+   其中 `<days>` 是密码的最大有效天数。例如，如果设置为 `30`，那么用户的密码在 30 天后将过期，必须重新设置。
+
+9. **设置密码最小使用期限**
+
+   你可以设置密码修改后用户必须等待的最小天数才能再次更改密码。使用 `-n` 选项来设置最小使用期限：
 
    ```bash
-   sed -n '2,5p' filename   # 打印第2到第5行
+   sudo passwd -n <days> <username>
    ```
 
-5. 使用正则表达式
+   例如，如果设置为 `7`，用户必须等待 7 天才能再次修改密码。
 
-   `sed` 支持基本正则表达式和扩展正则表达式：
+10. **设置密码警告天数**
 
-   - 基本正则表达式（BRE）：
+    `-w` 选项可以设置密码过期前的警告天数。在密码到期之前，系统会提醒用户修改密码。
 
-   ```bash
-   sed 's/[0-9]/X/' filename   # 将数字替换为 X
-   ```
+    ```bash
+    sudo passwd -w <days> <username>
+    ```
 
-   - 扩展正则表达式（ERE），需要使用 `-E` 选项：
+    例如，设置为 `7` 表示在密码到期前 7 天开始警告用户。
 
-   ```bash
-   sed -E 's/[a-zA-Z]+/WORD/' filename   # 将单词替换为 "WORD"
-   ```
+11. **查看密码过期信息**
 
-6. 直接编辑文件
+    使用 `chage` 命令可以查看用户密码的过期信息，虽然 `passwd` 命令本身不直接提供查看过期信息的功能。
 
-   使用 `-i` 选项可以直接修改文件而不输出到标准输出：
+**总结：**
 
-   ```bash
-   sed -i 's/old-text/new-text/g' filename
-   ```
-
-   - 注意：直接编辑文件前最好备份原文件。
-
-**使用示例**：
-
-1. 替换文件中的文本
-
-   假设有一个文本文件 `example.txt` 内容如下：
-
-   ```bash
-   Hello World
-   This is a test file.
-   Goodbye World
-   ```
-
-   要将所有的 "World" 替换为 "Everyone"，可以使用：
-
-   ```bash
-   sed 's/World/Everyone/g' example.txt
-   ```
-
-   输出：
-
-   ```bash
-   Hello Everyone
-   This is a test file.
-   Goodbye Everyone
-   ```
-
-2. 删除特定行
-
-   要删除第二行：
-
-   ```bash
-   sed '2d' example.txt
-   ```
-
-   输出：
-
-   ```bash
-   Hello World
-   Goodbye World
-   ```
-
-3. 在每行前添加文本
-
-   要在每行前添加 "Line: "：
-
-   ```bash
-   sed 's/^/Line: /' example.txt
-   ```
-
-   输出：
-
-   ```bash
-   Line: Hello World
-   Line: This is a test file.
-   Line: Goodbye World
-   ```
-
-`sed` 是一个非常灵活且强大的文本处理工具，适用于各种文本编辑任务。通过组合不同的命令和选项，可以完成复杂的文本处理工作。
-
-# 命令行命令
-
-## eval 命令
-
-`eval` 是 Shell 中的一个内建命令，用于**将一段字符串解析为命令并执行**。它通常用于将字符串形式的命令转换为可执行的命令，特别是在需要动态构建和运行复杂命令时。
-
-**语法**：
-
-```bash
-eval [命令字符串]
-```
-
-**工作原理**：
-
-`eval` 会对提供的命令字符串进行两次解析：
-
-1. **第一次解析**：解释字符串中的变量和命令替换。
-2. **第二次解析**：将解析后的内容作为命令执行。
-
-因此，`eval` 对于动态生成命令非常有用，可以在运行时生成复杂的命令行。
-
-**使用场景和示例**：
-
-eval 命令用于计算并执行包含 shell 命令的字符串。有几个重要的应用场景：
-
-1. 变量的间接引用
-
-   ```bash
-   # 根据变量名的内容来访问不同的变量值
-   var_name="path"
-   path="/usr/local/bin"
-   eval echo \$$var_name  # /usr/local/bin
-
-   # 动态设置变量
-   key="my_var"
-   value="hello"
-   eval "$key='$value'"  # 相当于 my_var='hello'
-   ```
-
-   **说明**：`\$$var_name` 经过两次解析后变成了 `$path`，最终输出 `/usr/local/bin`。
-
-2. 动态生成和执行命令
-
-   ```bash
-   # 根据条件构建命令
-   options="-l -h"
-   cmd="ls $options"
-   eval $cmd
-
-   # 构建带参数的复杂命令
-   port=8080
-   host="localhost"
-   eval "curl -X POST http://$host:$port/api"
-
-   # 多个命令组合成一个字符串进行一次性执行
-   cmd1="echo Hello"
-   cmd2="echo World"
-   eval "$cmd1; $cmd2"  # 输出2行，Hello 和 World
-   ```
-
-3. 环境变量的展开
-
-   ```bash
-   # 展开环境变量字符串
-   path_var='$HOME/documents'
-   eval echo $path_var  # 将输出实际的home路径
-   ```
-
-4. 处理命令行参数
-
-   ```bash
-   # 处理带引号的参数
-   args='"arg1 with space" arg2'
-   eval set -- $args
-   echo $1  # 输出: arg1 with space
-   ```
-
-5. 配置文件处理
-
-   ```bash
-   # 读取配置文件中的变量定义
-   config_line="export JAVA_HOME=/usr/lib/java"
-   eval $config_line
-   ```
-
-6. 处理复杂的命令组合
-
-   ```bash
-   eval "for i in {1..3}; do echo \$i; done"
-   ```
-
-**注意事项**：
-
-- **安全性**：由于 `eval` 会执行传入的所有内容，因此要注意不要用 `eval` 直接运行来自不可信源的输入，避免安全风险。
-- **调试难度**：因为 `eval` 会两次解析内容，所以可能会导致调试较复杂的命令困难。
-- 避免直接执行来自用户输入的命令，可能存在安全风险
-- 在使用 `eval` 前应该检查用户输入和对特殊字符进行转义
-- 优先考虑使用数组或其他内置命令
-- 谨慎处理包含空格或特殊字符的字符串
-- 尽可能使用其他更安全的替代方法
-
-### `eval` 后跟命令/字符串
-
-在 `eval` 中，我们可以直接跟字符串，也可以跟其他命令（如 `echo` 等），它们的执行结果会有所不同。
-
-1. `eval` 后面直接跟字符串
-
-   当 `eval` 后面直接跟字符串时，`eval` 会把这个字符串当作命令执行。通常，我们会把这个字符串放在**双引号**中，来确保变量替换和命令替换正常进行。
-
-   ```bash
-   cmd="echo Hello $USER"
-   eval "$cmd"
-   ```
-
-   这里，`eval` 会首先解析 `$cmd` 的内容，把它变成 `echo Hello your_username`，然后执行这个命令。最终输出 `Hello your_username`。
-
-2. `eval` 后面跟 `echo`
-
-   当 `eval` 后面跟 `echo` 时，`eval` 会先解析其后面的内容，然后执行它。`echo` 只会把内容打印出来，而不真正执行任何命令。
-
-   ```bash
-   cmd="echo Hello $USER"
-   eval echo "$cmd"
-   ```
-
-   在这个例子中，`eval` 会解析 `"$cmd"`，将其内容变为 `echo Hello your_username`，然后执行这个 `echo` 命令。最终输出的结果是：`echo Hello your_username`
-
-   > **总结**：
-   >
-   > - **`eval "$cmd"`**：会把 `cmd` 中的内容当作命令来执行。
-   > - **`eval echo "$cmd"`**：只是将 `$cmd` 的内容打印出来，但不执行。
-
-3. `eval` 后面跟其他命令
-
-   `eval` 也可以跟任何其他有效的 Shell 命令，不只是字符串或 `echo`，如 `ls`、`cat` 等命令。一般来说，`eval` 会先对整个命令进行一次预处理（如变量解析、命令替换等），然后再执行。
-
-   假设我们有文件路径变量 `path` 和文件名变量 `filename`：
-
-   ```bash
-   path="/usr/local"
-   filename="bin"
-   eval "ls $path/$filename"  # 效果与 eval ls "$path/$filename" 一样
-   ```
-
-   `eval` 会将 `ls $path/$filename` 解析为 `ls /usr/local/bin`，然后执行 `ls /usr/local/bin`，列出该目录内容。
-
-### `eval` 后跟单/双/反引号
-
-`eval` 后面跟不同类型的引号效果不同：
-
-1. 双引号 (")：
-
-   - 变量会在 eval 执行前展开
-   - 允许变量和命令替换
-
-   ```bash
-   name="John"
-   eval "echo Hello $name"  # 输出：Hello John
-   ```
-
-2. 单引号 (')：
-
-   - 变量不会被展开
-   - 内容会被原样解释
-
-   ```bash
-   name="John"
-   eval 'echo Hello $name'  # 输出：Hello $name
-   ```
-
-3. 反引号 (`) 或 $()：
-
-   - 用于命令替换
-   - 命令会被执行并返回结果
-
-   ```bash
-   eval `echo "ls -l"`    # 执行 ls -l
-   eval $(echo "ls -l")   # 同上，更现代的写法
-   ```
-
-**示例**：
-
-```bash
-# 双引号使用场景
-var="world"
-eval "message='Hello $var'"  # 变量会被展开
-
-# 单引号使用场景
-eval 'echo $PATH'  # $PATH 会在eval执行时才被展开
-
-# 命令替换使用场景
-eval `date "+now='%Y-%m-%d'"`
-eval $(date "+now='%Y-%m-%d'")
-```
-
-**建议**：
-
-- 优先使用双引号，便于变量展开
-- 需要延迟变量展开时使用单引号
-- 命令替换优先使用 $() 语法，更清晰易读
-
-## xargs 命令
-
-`xargs` 是 Linux 和 Unix 系统中的一个常用命令，用于将标准输入（例如管道或文件中的内容）转换为命令行参数。它允许你将其他命令的输出作为参数传递给指定的命令，特别适合处理多个输入，并将其批量传递给其他命令执行。
-
-**基本语法**：
-
-```bash
-command | xargs [options] [command [initial-arguments]]
-```
-
-**常用选项**：
-
-- `-n`：每次传递给命令的参数数目。
-
-  ```shell
-  echo "a b c" | xargs -n 1
-  # 输出：
-  # a
-  # b
-  # c
-  ```
-
-- `-d`: 自定义分隔符
-
-  ```shell
-  echo "a:b:c" | xargs -d ":" -n 1
-  ```
-
-- `-I`：指定占位符，用于替换输入。
-
-  ```shell
-  echo "file1 file2" | xargs -I {} cp {} backup/    # 每个文件拷贝到backup文件夹下
-  ```
-
-- `-P`：并行处理
-
-  ```shell
-  find . -type f | xargs -P 4 -I {} gzip {}  # 4个并行进程
-  ```
-
-- `-p`：提示用户确认执行每条命令。
-
-  ```shell
-  echo "a b c" | xargs -n 1 -p
-  ```
-
-- `-t`：打印每个命令（用于调试）。
-
-  ```shell
-  echo "a b c" | xargs -n 1 -t
-  ```
-
-- `-0`：配合 `find ... -print0` 使用，用于处理文件名中的空格或特殊字符。
-
-**`xargs` 的主要功能**：
-
-- **批量传递参数**：`xargs` 可以将多个输入拼接成一个命令的参数列表，以便一次性处理。
-- **自动分批执行**：如果参数太多导致命令长度超限，`xargs` 会自动将其分批执行。
-- **结合管道使用**：`xargs` 常与 `find`、`grep`、`cat` 等命令结合，通过管道传递数据，完成复杂任务。
-
-**常见示例**：
-
-1. `xargs` 批量删除文件：
-   假设要删除当前目录下 `.tmp` 结尾的所有文件，可以使用 `find` 和 `xargs` 组合：
-
-   ```bash
-   find . -name "*.tmp" | xargs rm
-   ```
-
-   这里，`find` 会找到所有 `.txt` 文件并传递给 `xargs`，然后 `xargs` 执行 `rm` 命令来删除它们。
-
-2. `xargs` 批量重命名：
-
-   ```bash
-   ls *.txt | xargs -I {} mv {} {}.bak
-   ```
-
-3. `xargs` 批量压缩：
-
-   ```bash
-   find . -name "*.log" | xargs gzip
-   ```
-
-4. 安全处理：
-   处理包含空格的文件名：
-
-   ```bash
-   find . -type f -print0 | xargs -0 command
-   ```
-
-5. 使用 `xargs` 将单行转换为多行
-
-   `xargs` 默认将输入按空格分隔为一行输出，即**前面命令的所有输出当成一行作为其他命令的参数**：
-
-   ```bash
-   echo "a b c d" | xargs
-   # 输出: a b c d
-   ```
-
-6. 使用 `xargs` 和 `-I` 替换字符串
-
-   `-I` 选项指定一个占位符（如 `{}`），`xargs` 将每个输入替换到占位符位置。当后面的命令有多个参数时使用，可以组装出更复杂的命令。例如：
-
-   ```bash
-   echo "file1 file2" | xargs -I {} mv {} /new_directory/
-   ```
-
-   这里 `{}` 是占位符，每个输入会替换 `{}`，然后执行 `mv` 命令将 `file1` 和 `file2` 移动到 `/new_directory/`。
+- **新建用户**：使用 `sudo useradd <username>` 创建新用户。
+- **设置用户密码**：使用 `sudo passwd <username>` 设置密码。
+- **修改密码**：同样使用 `sudo passwd <username>` 修改密码。
+- **禁用用户密码**：使用 `sudo passwd -l <username>` 锁定用户密码。
+- **解锁用户密码**：使用 `sudo passwd -u <username>` 解锁密码。
+- **强制用户下次修改密码**：使用 `sudo passwd -e <username>` 强制更改密码。

@@ -1,1330 +1,1911 @@
 [toc]
 
-# 系统设备命令
+# Linux 相关网址记录
 
-## lspci 命令
+1. [Linux Tools Quick Tutorial](https://linuxtools-rst.readthedocs.io/zh-cn/latest/base/index.html)
 
-**lspci** 是一个用来显示系统中所有 PCI 总线设备或连接到该总线上的所有设备的工具。
+# 终端设置命令
 
-```bash
-lspci [options]
-```
+## alias 命令
 
-- **-v**
+`alias` 命令是 Linux 和类 Unix 系统中用于为常用命令创建别名的命令。通过 `alias`，你可以将复杂的命令简化为更简短、更易记的命令，或者为某些命令指定默认的选项或参数。
 
-  使得 _lspci_ 以冗余模式显示所有设备的详细信息。
-
-- **-vv**
-
-  使得 _lspci_ 以过冗余模式显示更详细的信息 (事实上是 PCI 设备能给出的所有东西)。这些数据的确切意义没有在此手册页中解释，如果你想知道更多，请参照 **/usr/include/linux/pci.h** 或者 PCI 规范。
-
-- **-t**
-
-  以树形方式显示包含所有总线、桥、设备和它们的连接的图表。
-
-```shell
-# 实例
-# 查看网卡生产商，型号
-lspci | grep -i net
-```
-
-## lsusb 命令
-
-> lsusb 查看当前有哪些 usb 设备。注意：插在 usb 口上的外接设备一定能通过 lsusb 显示出来，但是不一定能通过 lspci 显示出来，即使这个设备的驱动已经安装了。
-
-`lsusb` 是 Linux 系统中一个非常常用的命令，用于列出连接到系统上的 USB（通用串行总线）设备的信息。这个命令主要用于调试和查看 USB 设备的状态，是排查 USB 设备识别问题的利器。
-
-**基本用法**：
+**基本语法**：
 
 ```bash
-lsusb
+alias <别名>=<命令>
 ```
 
-这条命令会列出当前系统识别到的所有 USB 设备，每个设备一行。输出示例如下：
+- `<别名>`：你希望创建的短名称（即你将用来代替完整命令的名字）。
+- `<命令>`：你希望别名代表的完整命令（包括可选的参数或选项）。
 
-```log
-Bus 002 Device 003: ID 046d:c52b Logitech, Inc. Unifying Receiver
-Bus 001 Device 002: ID 8087:0024 Intel Corp. Integrated Rate Matching Hub
-```
-
-字段解释：
-
-- `Bus 002`: USB 总线编号
-- `Device 003`: USB 设备号（在该总线上的编号）
-- `ID 046d:c52b`: USB 设备的厂商 ID（Vendor ID）和产品 ID（Product ID）
-- `Logitech, Inc. Unifying Receiver`: 设备厂商和设备名称（如能识别）
-
----
-
-**常用选项**：
-
-| 选项                    | 说明                                                                |
-| ----------------------- | ------------------------------------------------------------------- |
-| `-v`                    | 显示详细信息（verbose），会输出每个设备的详细描述。需要 root 权限。 |
-| `-t`                    | 以树状结构显示设备之间的拓扑关系。                                  |
-| `-s [bus]:[dev]`        | 只查看指定的 Bus 和 Device 编号的设备信息。                         |
-| `-d [vendor]:[product]` | 只查看指定 Vendor ID 和 Product ID 的设备。                         |
-| `-V`                    | 显示 `lsusb` 版本信息。                                             |
+> 注意：
+>
+> `alias` 是可以嵌套的，也就是说，你可以在一个别名的定义中使用另一个别名。定义别名时**不能**出现**别名中直接引用自己**或者**存在无限递归**的情况。
 
 **示例**：
 
-1. 查看详细信息（root 权限推荐）
+1. 创建一个简单的别名
 
    ```bash
-   sudo lsusb -v
+   alias ll='ls -l'
    ```
 
-2. 查看树状结构
+   这个命令将 `ll` 设置为 `ls -l` 的别名。之后，你只需要输入 `ll`，就会执行 `ls -l`，显示文件的详细信息。
+
+2. 创建带参数的别名
 
    ```bash
-   lsusb -t
+   alias gs='git status'
    ```
 
-3. 查看指定设备的详细信息
+   这里，`gs` 成为 `git status` 命令的别名，简化了 Git 命令的输入。
+
+3. 别名包含多个命令
+
+   你还可以创建一个别名来执行多个命令。例如，如果你想每次进入某个目录时都自动列出目录内容并打开一个编辑器：
 
    ```bash
-   lsusb -s 002:003 -v
+   alias goedit='cd /path/to/project && ls -l && vim .'
    ```
 
-**补充说明**：
+   这个别名会执行 `cd` 进入指定目录，列出该目录下的文件，并启动 `vim` 编辑器打开当前目录。
 
-- `lsusb` 本质上是 `usbutils` 软件包的一部分，在大多数 Linux 发行版中可以通过以下命令安装：
+4. 查看已定义的别名
 
-  ```bash
-  # Debian/Ubuntu
-  sudo apt install usbutils
-  # RedHat/CentOS/Fedora
-  sudo dnf install usbutils
-  # Arch
-  sudo pacman -S usbutils
-  ```
-
-- 如果你插了设备，但 `lsusb` 里看不到，可能需要检查：
-  - 是否物理连接没问题
-  - 是否内核支持对应驱动
-  - `dmesg` 中是否有设备识别失败的提示
-
-## lshw 命令
-
-`lshw`（**List Hardware**）是 Linux 下一个非常强大的**硬件信息查看工具**，可以详细列出系统中主板、CPU、内存、网卡、磁盘、总线等的硬件型号、序列号、速度、驱动、厂商、固件版本等等。相比 `lscpu`、`lsblk` 等专用工具，`lshw` 更像是一个全能硬件侦探。
-
-**安装方式**：
-
-```bash
-# Debian/Ubuntu
-sudo apt install lshw
-# Arch Linux
-sudo yum install lshw
-# Arch Linux
-sudo yum install lshw
-```
-
-**常用选项总结**：
-
-| 选项            | 说明                                            |
-| --------------- | ----------------------------------------------- |
-| `-short`        | 简洁模式，快速查看硬件                          |
-| `-class [类型]` | 只列出指定类别（如 cpu、memory、disk、network） |
-| `-C [类型]`     | 同 `-class`，大小写敏感更宽容                   |
-| `-sanitize`     | 屏蔽序列号、MAC 等敏感信息                      |
-| `-json`         | 以 JSON 格式输出                                |
-| `-html`         | 输出为 HTML 格式（适合做报告）                  |
-| `-quiet`        | 静默模式，隐藏错误或警告信息                    |
-
----
-
-**示例用法**：
-
-1. 查看 CPU 信息
+   要查看当前 shell 会话中已定义的所有别名，可以简单地输入：
 
    ```bash
-   sudo lshw -class cpu
-
-   # 输出示例：
-     *-cpu
-          description: CPU
-          product: Intel(R) Core(TM) i7-9700K CPU @ 3.60GHz
-          vendor: Intel Corp.
-          physical id: 3
-          bus info: cpu@0
-          width: 64 bits
+   alias
    ```
 
-2. 简洁模式查看硬件总览
+   这将显示当前用户为所有常用命令定义的别名。例如，默认情况下，很多系统可能会为 `ls` 和其他命令定义一些常见别名，如：
 
    ```bash
-   sudo lshw -short
-
-   # 示例输出：
-   H/W path       Device      Class          Description
-   =====================================================
-   /0/0                        memory         64KiB BIOS
-   /0/4                        processor      Intel Core i7
-   /0/100/1f.2    /dev/sda     disk           512GB SSD
-   /0/100/1f.3                 multimedia     Audio device
+   alias ls='ls --color=auto'
+   alias ll='ls -alF'
    ```
 
-3. 查看内存信息
+5. 删除别名
+
+   如果你不再需要某个别名，可以使用 `unalias` 命令删除它：
 
    ```bash
-   sudo lshw -class memory
+   unalias <别名>
    ```
 
-   可以看到物理内存槽数量、已插入的内存条型号、容量等。
-
-4. 导出为 HTML 或 JSON
+   例如，删除 `ll` 别名：
 
    ```bash
-   sudo lshw -html > hardware.html
-   sudo lshw -json > hardware.json
+   unalias ll
    ```
 
-   适合文档记录或做硬件审计报告。
-
-**能查看的硬件类型**：
-
-你可以用 `lshw -class [类型]` 查看：
-
-- `cpu` – 处理器
-- `memory` – 内存
-- `disk` – 磁盘设备（HDD、SSD、NVMe）
-- `network` – 网卡
-- `storage` – 控制器（如 SATA/NVMe 控制器）
-- `display` – 显卡
-- `bus` – 总线（如 PCIe、USB 控制器）
-- `battery` – 电池（笔记本）
-- `system` – 主机名、厂商、BIOS
-
-  **注意事项**：
-
-- **必须加 `sudo`** 才能看到最完整的信息，否则很多设备会显示不全。
-- 某些设备（比如 NVMe）可能不会被完全识别，需要搭配 `lsblk` / `nvme list`。
-- 如果你觉得 `lshw` 输出太多，可以搭配 `less` 或 `grep` 过滤。
-
-**vs 其他工具对比**：
-
-| 工具                     | 功能强度 | 覆盖范围   | 输出风格     | 是否图形 |
-| ------------------------ | -------- | ---------- | ------------ | -------- |
-| `lshw`                   | ⭐⭐⭐⭐ | 全面       | 树状/表格    | ❌       |
-| `lscpu`                  | ⭐       | 仅 CPU     | 表格         | ❌       |
-| `lsblk`                  | ⭐⭐     | 存储设备   | 树状         | ❌       |
-| `hwinfo`                 | ⭐⭐⭐⭐ | 全面       | 超详细       | ❌       |
-| `inxi`                   | ⭐⭐⭐⭐ | 综合、简洁 | 表格         | ❌       |
-| `neofetch`/`screenfetch` | ⭐       | 炫酷简要   | 终端艺术风格 | ❌       |
-
-> `lshw` 就是 Linux 下的“全套硬件扫描神器”，用来查主板、CPU、内存、磁盘、网卡等都非常靠谱，适合做系统评估、排查硬件、制作硬件清单。
-
-# 系统信息命令
-
-## dmesg 命令
-
-[dmesg 命令](https://www.runoob.com/linux/linux-comm-dmesg.html)
-
-Linux dmesg（英文全称：display message）命令用于显示开机信息。
-
-kernel 会将开机信息存储在 ring buffer 中。您若是开机时来不及查看信息，可利用 dmesg 来查看。开机信息亦保存在 /var/log 目录中，名称为 dmesg 的文件里。
-
-```bash
-dmesg [-cn][-s <缓冲区大小>]
-```
-
-- -c 　显示信息后，清除 ring buffer 中的内容。
-- -s<缓冲区大小> 　预设置为 8196，刚好等于 ring buffer 的大小。
-- -n 　设置记录信息的层级。
-
-```bash
-# 实例
-# 显示开机信息
-dmesg |less
-```
-
-# 系统服务命令
-
-## systemctl 命令
-
-`systemctl` 是 Linux 系统中用于与 **systemd** 系统和服务管理器交互的命令行工具。`systemd` 是现代 Linux 发行版（如 Ubuntu、CentOS、Debian 和 Fedora 等）中用于初始化系统和管理系统服务的核心组件。通过 `systemctl`，你可以管理和控制系统的服务、守护进程、系统状态等。
-
-**列出所有 service**：
-
-```shell
-systemctl list-units --type=service
-systemctl --type=service
-```
-
-**常用命令**，ssh 服务为例：
-
-```bash
-# 开机自动启动ssh命令
-sudo systemctl enable ssh
-
-# 关闭ssh开机自动启动命令
-sudo systemctl disable ssh
-
-# 单次开启ssh
-sudo systemctl start ssh
-
-# 单次关闭ssh
-sudo systemctl stop ssh
-
-# 设置好后重启系统
-reboot
-
-#查看ssh是否启动，看到Active: active (running)即表示成功
-sudo systemctl status ssh
-```
-
-**其他命令**：
-
-```bash
-# 重新加载服务配置，某些服务（例如 Nginx、Apache）支持在不完全重启服务的情况下重新加载配置
-sudo systemctl reload <service_name>
-
-# 查看日志
-# 查看特定服务的日志输出，通常通过 journalctl 配合 systemctl 使用
-sudo journalctl -u <service_name>
-```
-
-## systemd 服务
-
-`systemd` 是现代 Linux 系统中用来管理系统启动、服务管理、进程监控等任务的初始化系统和系统管理器。它是许多主流 Linux 发行版（如 Ubuntu、Fedora、Debian、CentOS 等）的默认系统和服务管理工具。
-
-在传统的 Unix 系统中，使用的是老式的 SysVinit 系统来启动服务和管理进程，而 `systemd` 是一个现代化的替代方案，它解决了许多传统初始化系统的问题，提供了更高效、更强大的功能。
-
-### 启动过程
-
-`systemd` 在 Linux 系统启动时首先启动，并接管系统的初始化过程，取代了传统的 SysVinit。它通过 **并行化** 启动服务和处理任务，从而加速了系统的启动过程。与传统的线性启动方式不同，`systemd` 可以同时启动多个服务，提高了系统的启动效率。
-
-### 主要组件和功能
-
-1. Unit（单元）
-
-   `systemd` 通过 **unit**（单元）管理系统的各类服务、挂载点、套接字等。每个单元有不同的类型，用于表示不同的任务或资源。例如：
-
-   - **service unit**（服务单元）：用于管理后台服务进程（例如 HTTP 服务、数据库服务等）。
-   - **mount unit**（挂载单元）：用于挂载文件系统。
-   - **socket unit**（套接字单元）：用于处理网络通信或文件 I/O 等任务。
-   - **target unit**（目标单元）：用于定义系统的运行级别，类似于传统的运行级别概念（例如，图形界面模式、多用户模式等）。
-
-2. 并行启动
-
-   传统的系统初始化使用串行启动，即服务依赖于前一个服务的启动，而 `systemd` 支持 **并行启动**，可以在没有相互依赖的情况下同时启动多个服务，显著提高了启动速度。
-
-3. 依赖关系
-
-   `systemd` 允许服务之间建立依赖关系，确保服务按照特定的顺序启动或停止。例如，一个 Web 服务器可能依赖于数据库服务，`systemd` 会确保数据库服务在 Web 服务器启动之前完成启动。
-
-4. 日志管理（Journal）
-
-   `systemd` 内置了日志系统，称为 **journal**，它能够收集和存储系统和服务的日志消息。与传统的日志文件不同，`journal` 将日志存储在二进制文件中，能够提供更强的查询功能。通过 `journalctl` 命令，用户可以轻松查看和分析系统日志。
-
-5. 并发和依赖控制
-
-   `systemd` 允许服务的启动、停止和重启依赖于其他服务的状态。例如，一个网络服务的启动可能依赖于网络接口的激活，`systemd` 会自动处理这些依赖关系。
-
-6. 服务监控和自动重启
-
-   `systemd` 提供了 **服务监控** 功能，可以检测服务是否崩溃或停止运行。如果服务失败，`systemd` 可以自动重启服务，确保系统的稳定性和可靠性。
-
-7. 控制系统资源
-
-   `systemd` 可以控制和管理服务的资源使用，例如，限制内存、CPU、磁盘 I/O 等资源的使用，从而避免某些服务占用过多资源导致系统不稳定。
-
-8. **与传统 SysVinit 的对比**
-
-   | 特性         | SysVinit                 | systemd                                |
-   | ------------ | ------------------------ | -------------------------------------- |
-   | 启动方式     | 串行启动                 | 并行启动                               |
-   | 服务管理     | 基于脚本（/etc/init.d/） | 基于 unit 文件（/etc/systemd/system/） |
-   | 服务依赖管理 | 不支持自动管理依赖关系   | 支持服务依赖自动管理                   |
-   | 系统日志     | 单独的日志文件           | 集成的日志系统（journal）              |
-   | 服务重启     | 手动配置                 | 支持自动重启服务                       |
-
-### 常见命令和操作
-
-使用 `systemd` 时，常用的命令包括：
-
-- **启动服务**：`sudo systemctl start <service_name>`
-- **停止服务**：`sudo systemctl stop <service_name>`
-- **查看服务状态**：`sudo systemctl status <service_name>`
-- **重启服务**：`sudo systemctl restart <service_name>`
-- **启用服务（开机启动）**：`sudo systemctl enable <service_name>`
-- **禁用服务（禁止开机启动）**：`sudo systemctl disable <service_name>`
-- **查看日志**：`sudo journalctl -u <service_name>`
-
-### systemd 的优势
-
-- **快速启动**：并行化的服务启动显著缩短了系统启动时间。
-- **精确的依赖管理**：服务可以按需自动启动和停止，避免不必要的依赖。
-- **日志集成**：内置日志管理功能，简化了日志的存储和查看。
-- **容错性**：支持自动重启崩溃的服务，确保系统稳定运行。
-- **资源控制**：更好地控制每个服务的资源使用，防止某个服务影响整个系统的稳定性。
-
-总结来说，`systemd` 是一个功能强大、灵活且高效的系统和服务管理工具，它提升了系统启动、服务管理、资源分配和日志管理的能力，逐步成为现代 Linux 系统的标准初始化系统。
-
-# 网络命令
-
-## ip 命令
-
-Linux 下 [ip](https://www.runoob.com/linux/linux-comm-ip.html) 命令与 [ifconfig](https://www.runoob.com/linux/linux-comm-ifconfig.html) 命令类似，但比 ifconfig 命令更加强大，主要功能是用于显示或设置网络设备。
-
-ip 命令是 Linux 加强版的的网络配置工具，用于代替 ifconfig 命令。
-
-```shell
-ip [ OPTIONS ] OBJECT { COMMAND | help }
-```
-
-OBJECT 为常用对象，值可以是以下几种：
-
-```shell
-OBJECT={ link | addr | addrlabel | route | rule | neigh | ntable | tunnel | maddr | mroute | mrule | monitor | xfrm | token }
-```
-
-常用对象的取值含义如下：
-
-- link：网络设备
-- address：设备上的协议（IP 或 IPv6）地址
-- addrlabel：协议地址选择的标签配置
-- route：路由表条目
-- rule：路由策略数据库中的规则
-
-OPTIONS 为常用选项，值可以是以下几种：
-
-```shell
-OPTIONS={ -V[ersion] | -s[tatistics] | -d[etails] | -r[esolve] | -h[uman-readable] | -iec | -f[amily] { inet | inet6 | ipx | dnet | link } | -o[neline] | -t[imestamp] | -b[atch] [filename] | -rc[vbuf] [size] }
-```
-
-常用选项的取值含义如下：
-
-- -V：显示命令的版本信息；
-- -s：输出更详细的信息；
-- -f：强制使用指定的协议族；
-- -4：指定使用的网络层协议是 IPv4 协议；
-- -6：指定使用的网络层协议是 IPv6 协议；
-- -0：输出信息每条记录输出一行，即使内容较多也不换行显示；
-- -r：显示主机时，不使用 IP 地址，而使用主机的域名。
-
-```shell
-# 实例
-ip link show         # 显示网络接口信息
-ip link list         # 用 ip 命令显示网络设备的运行状态：
-ip -s link list      # 显示更加详细的设备信息：
-ip addr show         # 显示网卡IP信息
-ip route list        # 显示核心路由表：
-ip link | grep -E '^[0-9]' | awk -F: '{print $2}'  # 获取主机所有网络接口：
-```
-
-## ifconfig 命令
-
-[ifconfig 命令](https://www.runoob.com/linux/linux-comm-ifconfig.html)
-
-需要安装如下工具：
-
-```shell
-apt install net-tools
-```
-
-配置和显示 Linux 系统网卡的网络参数。用 ifconfig 命令配置的网卡信息，在网卡重启后机器重启后，配置就不存在。要想将上述的配置信息永远的存的电脑里，那就要修改网卡的配置文件了。
-
-```shell
-ifconfig [网络设备][down up -allmulti -arp -promisc][add<地址>][del<地址>][<hw<网络设备类型><硬件地址>][io_addr<I/O地址>][irq<IRQ地址>][media<网络媒介类型>][mem_start<内存地址>][metric<数目>][mtu<字节>][netmask<子网掩码>][tunnel<地址>][-broadcast<地址>][-pointopoint<地址>][IP地址]
-```
-
-**参数说明**：
-
-- add<地址> 设置网络设备 IPv6 的 IP 地址。
-- del<地址> 删除网络设备 IPv6 的 IP 地址。
-- down 关闭指定的网络设备。
-- <hw<网络设备类型><硬件地址> 设置网络设备的类型与硬件地址。
-- io_addr<I/O 地址> 设置网络设备的 I/O 地址。
-- irq<IRQ 地址> 设置网络设备的 IRQ。
-- media<网络媒介类型> 设置网络设备的媒介类型。
-- mem_start<内存地址> 设置网络设备在主内存所占用的起始地址。
-- metric<数目> 指定在计算数据包的转送次数时，所要加上的数目。
-- mtu<字节> 设置网络设备的 MTU。
-- netmask<子网掩码> 设置网络设备的子网掩码。
-- tunnel<地址> 建立 IPv4 与 IPv6 之间的隧道通信地址。
-- up 启动指定的网络设备。
-- -broadcast<地址> 将要送往指定地址的数据包当成广播数据包来处理。
-- -pointopoint<地址> 与指定地址的网络设备建立直接连线，此模式具有保密功能。
-- -promisc 关闭或启动指定网络设备的 promiscuous 模式。
-- [IP 地址] 指定网络设备的 IP 地址。
-- [网络设备] 指定网络设备的名称。
-
-```shell
-# 实例
-ifconfig   #处于激活状态的网络接口
-ifconfig -a  #所有配置的网络接口，不论其是否激活
-ifconfig eth0  #显示eth0的网卡信息
-
-# 显示网络设备信息（激活状态的）：
-[root@localhost ~]# ifconfig
-eth0      Link encap:Ethernet  HWaddr 00:16:3E:00:1E:51
-          inet addr:10.160.7.81  Bcast:10.160.15.255  Mask:255.255.240.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:61430830 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:88534 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:1000
-          RX bytes:3607197869 (3.3 GiB)  TX bytes:6115042 (5.8 MiB)
-
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:56103 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:56103 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-          RX bytes:5079451 (4.8 MiB)  TX bytes:5079451 (4.8 MiB)
-```
-
-说明：
-
-**eth0** 表示第一块网卡，其中`HWaddr`表示网卡的物理地址，可以看到目前这个网卡的物理地址(MAC 地址）是`00:16:3E:00:1E:51`。
-
-**inet addr** 用来表示网卡的 IP 地址，此网卡的 IP 地址是`10.160.7.81`，广播地址`Bcast:10.160.15.255`，掩码地址`Mask:255.255.240.0`。
-
-**lo** 是表示主机的回坏地址，这个一般是用来测试一个网络程序，但又不想让局域网或外网的用户能够查看，只能在此台主机上运行和查看所用的网络接口。比如把 httpd 服务器的指定到回坏地址，在浏览器输入 127.0.0.1 就能看到你所架 WEB 网站了。但只是您能看得到，局域网的其它主机或用户无从知道。
-
-- 第一行：连接类型：Ethernet（以太网）HWaddr（硬件 mac 地址）。
-- 第二行：网卡的 IP 地址、子网、掩码。
-- 第三行：UP（代表网卡开启状态）RUNNING（代表网卡的网线被接上）MULTICAST（支持组播）MTU:1500（最大传输单元）：1500 字节。
-- 第四、五行：接收、发送数据包情况统计。
-- 第七行：接收、发送数据字节数统计信息。
-
-**启动关闭指定网卡：**
-
-```shell
-ifconfig eth0 up
-ifconfig eth0 down
-```
-
-`ifconfig eth0 up`为启动网卡 eth0，`ifconfig eth0 down`为关闭网卡 eth0。ssh 登陆 linux 服务器操作要小心，关闭了就不能开启了，除非你有多网卡。
-
-**为网卡配置和删除 IPv6 地址：**
-
-```shell
-ifconfig eth0 add 33ffe:3240:800:1005::2/64    #为网卡eth0配置IPv6地址
-ifconfig eth0 del 33ffe:3240:800:1005::2/64    #为网卡eth0删除IPv6地址
-```
-
-**用 ifconfig 修改 MAC 地址：**
-
-```shell
-ifconfig eth0 hw ether 00:AA:BB:CC:dd:EE
-```
-
-**配置 IP 地址：**
-
-```shell
-[root@localhost ~]# ifconfig eth0 192.168.2.10
-[root@localhost ~]# ifconfig eth0 192.168.2.10 netmask 255.255.255.0
-[root@localhost ~]# ifconfig eth0 192.168.2.10 netmask 255.255.255.0 broadcast 192.168.2.255
-```
-
-## iwconfig 命令
-
-需要安装如下工具：
-
-```shell
-sudo apt install wireless-tools
-```
-
-iwconfig 系统配置无线网络设备或显示无线网络设备信息。iwconfig 命令类似于 ifconfig 命令，但是他配置对象是无线网卡，它对网络设备进行无线操作，如设置无线通信频段
-
-```shell
-iwconfig [interface]
-```
-
-- auto 自动模式
-- essid 设置 ESSID
-- nwid 设置网络 ID
-- freq 设置无线网络通信频段
-- chanel 设置无线网络通信频段
-- sens 设置无线网络设备的感知阀值
-- mode 设置无线网络设备的通信设备
-- ap 强迫无线网卡向给定地址的接入点注册
-- nick<名字> 为网卡设定别名
-- rate<速率> 设定无线网卡的速率
-- rts<阀值> 在传输数据包之前增加一次握手，确信信道在正常的
-- power 无线网卡的功率设置
-
-```shell
-# 实例
-iwconfig    # 显示无线网络配置
-```
-
-## wpa_supplicant 工具
-
-wpa_supplicant 工具集，包括 wpa_supplicant*、*wpa_passphrase、wpa_cli
-
-## dig
-
-`dig`（Domain Information Groper）是一个用于查询 DNS（域名系统）信息的命令行工具。在 Linux 和其他 Unix-like 系统中，`dig` 是最常用的 DNS 查询工具之一。它可以用于查询域名的各种信息，如 IP 地址、MX 记录、NS 记录等。
-
-`dig` 提供了比传统的 `nslookup` 更强大和灵活的功能，支持更多的查询选项、查询类型以及更详细的输出。
-
-1. **基本语法**
+   如果你想删除所有别名，可以使用：
 
    ```bash
-   dig [@server] [name] [type] [options]
+   unalias -a
    ```
 
-   - `@server`：指定要查询的 DNS 服务器。默认情况下，`dig` 会查询系统配置的 DNS 服务器。
-   - `name`：要查询的域名。
-   - `type`：查询类型（例如，A、MX、NS 等）。如果不指定，默认查询 A 记录。
-   - `options`：一些附加选项，用于修改查询的行为或输出。
+6. 使别名永久生效
 
-2. **常见查询类型**
+   默认情况下，通过 `alias` 创建的别名只会在当前 shell 会话中有效。如果你希望在每次打开终端时都能使用某些别名，需要将它们添加到你的 shell 配置文件中。
 
-   以下是 `dig` 支持的一些常见查询类型：
+   对于 **Bash** 用户，通常是将别名添加到 `~/.bashrc` 文件中：
 
-   - **A**：查询 IPv4 地址（默认查询类型）。
-   - **AAAA**：查询 IPv6 地址。
-   - **MX**：查询邮件交换记录（Mail Exchange）。
-   - **NS**：查询域名服务器记录（Name Server）。
-   - **CNAME**：查询别名记录（Canonical Name）。
-   - **SOA**：查询授权记录（Start of Authority）。
-   - **PTR**：查询反向 DNS 查找记录。
-   - **TXT**：查询文本记录，常用于域名验证或 SPF 配置。
+   ```bash
+   echo "alias ll='ls -l'" >> ~/.bashrc
+   source ~/.bashrc
+   ```
 
-3. **常用选项**
+   对于 **Zsh** 用户，可以将别名添加到 `~/.zshrc` 文件：
 
-   - `+short`：仅显示简洁的输出（例如，只显示 IP 地址）。
-   - `+trace`：显示 DNS 查询的完整跟踪路径，查看从根服务器到目标服务器的所有查询过程。
-   - `+all`：显示所有相关信息，包括查询的每个步骤和每个 DNS 记录。
-   - `+noall +answer`：仅显示答案部分，过滤掉不相关的信息。
-   - `+ndots=<num>`：指定域名解析时要求的最小点数，默认是 1。
+   ```bash
+   echo "alias gs='git status'" >> ~/.zshrc
+   source ~/.zshrc
+   ```
 
-4. **基本用法**
+**常见的 `alias` 用法**
 
-   1. 查询 A/MX/NS/CNAME/TXT/PTR/SOA 记录
+1. **列出文件和目录（详细模式）：**
 
-      ```bash
-      dig example.com      # 查询某个域名的 A 记录（IPv4 地址），默认情况下，dig 会查询 A 记录
-      dig example.com MX   # 查询域名的 MX 记录（邮件交换服务器）
-      dig example.com NS   # 查询域名的 NS 记录（域名服务器）
-      dig www.example.com CNAME  # 查询域名的 CNAME 记录（别名记录）
-      dig example.com TXT        # 查询域名的 TXT 记录（文本记录）
-      dig example.com A MX NS    # 可以在同一个命令中查询多个记录， 这将同时查询 A、MX 和 NS 记录。
-      dig -x 8.8.8.8       # 反向查询某个 IP 地址对应的域名，这将查询 IP 地址 8.8.8.8 对应的域名
-      dig example.com SOA  # 查询一个域名的授权记录（SOA）
-      ```
+   ```bash
+   alias ll='ls -alF'
+   ```
 
-   2. 查询指定的 DNS 服务器
+2. **避免误用 `rm` 命令（加上 `-i` 选项，确认删除）：**
 
-      如果你想要指定某个 DNS 服务器来执行查询，可以使用 `@` 来指定：
+   ```bash
+   alias rm='rm -i'
+   ```
 
-      ```bash
-      dig @8.8.8.8 example.com
-      ```
+3. **查看目录大小：**
 
-      这会使用 Google 的公共 DNS 服务器 `8.8.8.8` 来查询 `example.com` 的 A 记录。
+   ```bash
+   alias du='du -h --max-depth=1'
+   ```
 
-   3. 选项使用
+4. **查找并列出文件的 `man` 页面：**
 
-      ```bash
-      # +trace：使用 `+trace` 查看从根 DNS 服务器到目标服务器的查询路径，这会显示详细的查询过程，包括所有递归查询
-      dig +trace example.com
-      # +short：如果你只关心简洁的输出，可以使用 `+short` 选项，这只会输出 IP 地址或其他查询的简洁结果
-      dig example.com +short
-      # +noall +answer：如果你只想查看答案部分，可以使用 `+noall +answer`，这会过滤掉其他部分，仅显示查询的答案
-      dig example.com +noall +answer
-      ```
+   ```bash
+   alias man='man -a'
+   ```
 
-5. **输出示例**
+5. **快速跳转到主目录：**
 
-   以查询 `example.com` 的 A 记录为例，执行 `dig example.com` 后的输出通常包括以下几部分：
+   ```bash
+   alias home='cd ~'
+   ```
 
-   - **QUESTION SECTION**：显示查询的目标域名和查询类型。
-   - **ANSWER SECTION**：显示查询的结果（例如，`example.com` 的 IP 地址）。
-   - **AUTHORITY SECTION**：显示负责该域名的授权 DNS 服务器。
-   - **ADDITIONAL SECTION**：可能会显示额外的相关信息。
+6. **查看网络接口信息：**
 
-6. **常见用途**
+   ```bash
+   alias ifconfig='ifconfig -a'
+   ```
 
-- **检查域名是否解析正常**：使用 `dig` 可以快速确认某个域名是否能够正确解析为 IP 地址。
-- **诊断 DNS 问题**：当出现 DNS 问题时，`dig` 可帮助分析域名解析过程，确认 DNS 配置是否正确。
-- **了解 DNS 记录**：你可以通过 `dig` 查询各类 DNS 记录，获取域名的详细配置信息。
+**注意事项**：
+
+- 别名 **不能包含空格**，例如，`alias gs = 'git status'` 是不合法的，应该写成 `alias gs='git status'`。
+- 在一些命令中，使用别名可能会导致预期以外的行为。特别是，当你使用诸如 `sudo` 之类的命令时，默认情况下别名不会被应用。可以通过 `sudo` 加 `-E` 选项让 `sudo` 执行时保留用户的环境变量（包括别名），但这通常不推荐，因可能影响系统安全性。
 
 **总结**：
 
-`dig` 是一个非常强大的 DNS 查询工具，适用于从简单的域名解析查询到复杂的 DNS 配置分析。通过灵活的查询类型和选项，它可以帮助你全面了解 DNS 配置、调试 DNS 问题并进行网络故障排查。
+`alias` 是一个非常有用的命令，能够帮助用户自定义并简化常用的命令。通过合理使用别名，可以提高工作效率，使得命令的输入更加便捷。不过，别名的使用要适度，避免产生不必要的混淆，特别是在涉及系统级命令时。
 
-# 程序分析命令
+# 文件查找/匹配命令
 
-## ldd
+## find 命令和 grep 命令区别
 
-(list dynamic dependencies)
+find 也是搜索命令，那么 find 命令和 grep 命令有什么区别呢？
+find 命令
+find 命令用于在系统中搜索符合条件的文件名，如果需要模糊查询，则使用通配符进行匹配，通配符是完全匹配（find 命令可以通过-regex 选项，把匹配规则转为正则表达式规则，但是不建议如此）。
+grep 命令
+grep 命令用于在文件中搜索符合条件的字符串，如果需要模糊查询，则使用正则表达式进行匹配，正则表达式是包含匹配。
 
-# 网络协议命令
+## find 命令
 
-## curl 命令
+`find` 是 Linux / Unix 系统中非常强大的命令行工具之一，可实现：
 
-> [curl 的用法指南](https://www.ruanyifeng.com/blog/2019/09/curl-reference.html)
->
-> [curl 命令详解](https://handerfly.github.io/linux/2019/05/26/curl%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/)
->
-> [Linux curl 命令详解](https://www.cnblogs.com/duhuo/p/5695256.html)
+- 精准搜索（按名称、时间、权限、大小等）；
+- 灵活组合条件（使用逻辑操作）；
+- 执行各种动作（复制、删除、移动、统计等）；
 
-`curl` 命令是一个功能强大的网络工具，它的名字就是客户端（client）的 URL 工具的意思。它能够通过 http、ftp 等方式下载文件，也能够上传文件，同时支持 HTTPS 等众多协议，还支持 POST、cookies、认证、从指定偏移处下载部分文件、用户代理字符串、限速、文件大小、进度条等特征。其实 curl 远不止前面所说的那些功能，大家可以通过 man curl 阅读手册页获取更多的信息。
+可用 `find --help` 查看命令帮助文档。
 
-类似的工具还有 wget。
-
-常用参数 curl 命令参数很多，这里只列出 shell 脚本中经常用到过的那些。
-
-```shell
--a/--append 上传文件时，附加到目标文件
-
--A:随意指定自己这次访问所宣称的自己的浏览器信息
-
--b/--cookie <name=string/file> cookie字符串或文件读取位置，使用option来把上次的cookie信息追加到http request里面去。
-
--c/--cookie-jar <file> 操作结束后把cookie写入到这个文件中
-
--C/--continue-at <offset>  断点续转
-
--d/--data <data>   HTTP POST方式传送数据
-
-    --data-ascii <data> 以ascii的方式post数据
-     --data-binary <data> 以二进制的方式post数据
-     --negotiate 使用HTTP身份验证
-     --digest 使用数字身份验证
-     --disable-eprt 禁止使用EPRT或LPRT
-     --disable-epsv 禁止使用EPSV
--D/--dump-header <file> 把header信息写入到该文件中
-
-     --egd-file <file>  为随机数据(SSL)设置EGD socket路径
-
-     --tcp-nodelay     使用TCP_NODELAY选项
-
--e/--referer <URL>  指定引用地址
-
--F/--form <name=content>   模拟http表单提交数据
-
-     --form-string <name=string> 模拟http表单提交数据
-
--G/--get    以get的方式来发送数据
-
--H/--header <header> 指定请求头参数
-
-    --ignore-content-length  忽略的HTTP头信息的长度
-
--i/--include     输出时包括protocol头信息
-
--I/--head 仅返回头部信息，使用HEAD请求
-
--k/--insecure  允许不使用证书到SSL站点
-
--K/--config    指定的配置文件读取
-
--l/--list-only   列出ftp目录下的文件名称
-
-    --limit-rate <rate> 设置传输速度
-
-     --local-port<NUM>  强制使用本地端口号
-
--m/--max-time <seconds> 指定处理的最大时长
-
-     --max-redirs <num>    设置最大读取的目录数
-
-     --max-filesize <bytes>  设置最大下载的文件总量
-
--o/--output <file>   指定输出文件名称
-
--O/--remote-name  把输出写到该文件中，保留远程文件的文件名
-
-
-
--v/--verbose  小写的v参数，用于打印更多信息，包括发送的请求信息，这在调试脚本是特别有用。
-
--s/--slient 减少输出的信息，比如进度
-
---connect-timeout <seconds> 指定尝试连接的最大时长
-
--x/--proxy <proxyhost[:port]> 指定代理服务器地址和端口，端口默认为1080
-
-
--u/--user <user[:password]>设置服务器的用户和密码
-
--r/--range <range>检索来自HTTP/1.1或FTP服务器字节范围
-
-   --range-file 读取（SSL）的随机文件
-
--R/--remote-time   在本地生成文件时，保留远程文件时间
-
-    --retry <num>   指定重试次数
-
-    --retry-delay <seconds>   传输出现问题时，设置重试间隔时间
-
-    --retry-max-time <seconds>  传输出现问题时，设置最大重试时间
-
--s/--silent  静默模式。不输出任何东西
-
--S/--show-error  显示错误
-
-    --socks4 <host[:port]> 用socks4代理给定主机和端口
-
-    --socks5 <host[:port]> 用socks5代理给定主机和端口
-
-    --stderr <file>
-
--x/--proxy <host[:port]> 在给定的端口上使用HTTP代理
-
--X/--request <command> 指定什么命令。curl默认的HTTP动词是GET，使用-X参数可以支持其他动词。
-
--T/--upload-file <file> 指定上传文件路径
-```
-
-## wget 命令
-
-## scp 命令
-
-> [Docs » 工具参考篇 » 18. scp 跨机远程拷贝](https://linuxtools-rst.readthedocs.io/zh-cn/latest/tool/scp.html)
-> 帮助文档：`man scp`
-
-scp 是 secure copy 的简写，用于在 Linux 下进行远程拷贝文件的命令，和它类似的命令有 cp，不过 cp 只是在本机进行拷贝不能跨服务器，而且 scp 传输是加密的。当你服务器硬盘变为只读 read only system 时，用 scp 可以帮你把文件移出来。
-
-> :page_with_curl: **注解：**
-> 类似的工具有 rsync；scp 消耗资源少，不会提高多少系统负荷，在这一点上，rsync 就远远不及它了。rsync 比 scp 会快一点，但当小文件多的情况下，rsync 会导致硬盘 I/O 非常高，而 scp 基本不影响系统正常使用。
-
-**命令格式**：
+**一、基本格式**
 
 ```bash
-scp [参数] [原路径] [目标路径]
+Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
+
+# 中文：
+用法：find [选项] [起始路径...] [表达式]
+
+说明：
+- `path`：要搜索的路径，默认为当前目录（`.`）；
+- `expression`：匹配条件，默认是 `-print`（即列出路径）；
 ```
 
-**命令参数**：
+**二、表达式类型说明**
 
-- `-1` 强制 scp 命令使用协议 ssh1
-- `-2` 强制 scp 命令使用协议 ssh2
-- `-4` 强制 scp 命令只使用 IPv4 寻址
-- `-6` 强制 scp 命令只使用 IPv6 寻址
-- `-B` 使用批处理模式（传输过程中不询问传输口令或短语）
-- `-C` 允许压缩。（将-C 标志传递给 ssh，从而打开压缩功能）
-- `-p` 留原文件的修改时间，访问时间和访问权限。
-- `-q` 不显示传输进度条。
-- `-r` 递归复制整个目录。
-- `-v` 详细方式显示输出。scp 和 ssh(1)会显示出整个过程的调试信息。这些信息用于调试连接，验证和配置问题。
-- `-c` cipher 以 cipher 将数据传输进行加密，这个选项将直接传递给 ssh。
-- `-F` ssh_config 指定一个替代的 ssh 配置文件，此参数直接传递给 ssh。
-- `-i` identity_file 从指定文件中读取传输时使用的密钥文件，此参数直接传递给 ssh。
-- `-l` limit 限定用户所能使用的带宽，以 Kbit/s 为单位。
-- `-o` ssh_option 如果习惯于使用 ssh_config(5)中的参数传递方式，
-- `-P` port 注意是大写的 P, port 是指定数据传输用到的端口号
-- `-S` program 指定加密传输时所使用的程序。此程序必须能够理解 ssh(1)的选项。
+**表达式可以包含以下部分**：
 
-**使用示例**：
+- 操作符（operators）
+- 选项（options）
+- 测试条件（tests）
+- 动作（actions）
 
-1. **从本地拷贝文件到远程服务器**：
+1. **操作符（operators）**
+
+   用于组合或控制多个条件的逻辑关系：
 
    ```bash
-   scp /path/to/local/file username@remote_host:/path/to/remote/directory
-   scp /path/to/local/file remote_host:/path/to/remote/directory
-
-   # 例如，把本地的 `file.txt` 拷贝到远程服务器的 `/home/user/` 目录：
-   scp file.txt user@192.168.1.10:/home/user/
+   ( EXPR )        —— 括号分组（要加反斜线：`\(` `\)`）
+   ! EXPR          —— 逻辑非
+   -not EXPR       —— 等价于 `!`
+   EXPR1 -a EXPR2  —— 逻辑与（可省略）
+   EXPR1 -and EXPR2 —— 同上
+   EXPR1 -o EXPR2  —— 逻辑或
+   EXPR1 -or EXPR2 —— 同上
+   EXPR1 , EXPR2   —— 顺序执行 EXPR1 再执行 EXPR2（不管 EXPR1 成功与否）
    ```
 
-   指定了用户名，命令执行后需要输入用户密码；如果不指定用户名，命令执行后需要输入用户名和密码；
+2. **位置相关选项（positional options）**
 
-2. **从远程服务器拷贝文件到本地**：
+   这些选项**总是返回 true**，必须写在表达式之前：
 
    ```bash
-   scp username@remote_host:/path/to/remote/file /path/to/local/directory
-
-   # 例如，从远程服务器的 `/home/user/` 目录下载 `file.txt` 到本地：
-   scp user@192.168.1.10:/home/user/file.txt /path/to/local/directory
+   -daystart         —— 以当天凌晨为时间计算起点
+   -follow           —— 跟踪符号链接（等价于 `-L`）
+   -regextype        —— 设置正则表达式语法类型（例如 `posix-extended`）
    ```
 
-3. **递归拷贝目录**： 使用 `-r` 选项，可以拷贝整个目录：
+3. **常规选项（normal options）**
+
+   也是总是为 true 的，必须在其他条件之前写：
 
    ```bash
-   scp -r /path/to/local/directory username@remote_host:/path/to/remote/directory
+   -depth               —— 先处理文件，再处理目录（深度优先）
+   --help               —— 显示帮助信息
+   -maxdepth LEVELS     —— 最大搜索层级
+   -mindepth LEVELS     —— 最小搜索层级
+   -mount / -xdev       —— 不跨越挂载点
+   -noleaf              —— 不假设目录结构优化（对非 GNU 系统有用）
+   --version            —— 显示版本
+   -ignore_readdir_race —— 忽略读取目录竞争条件
+   -noignore_readdir_race —— 不忽略读取目录竞争
    ```
 
-4. **指定端口号**： 如果远程服务器的 SSH 服务运行在非标准端口（例如 10086），你可以通过 `-P` 选项指定端口：
+4. **测试条件（tests）**
+
+   这些条件用于匹配文件特征：
+
+   | 参数                                      | 说明                              |
+   | ----------------------------------------- | --------------------------------- |
+   | `-name PATTERN`                           | 按文件名匹配（支持通配符）        |
+   | `-iname PATTERN`                          | 不区分大小写的文件名匹配          |
+   | `-regex PATTERN`                          | 使用正则表达式匹配整个路径        |
+   | `-size N[单位]`                           | 文件大小，单位如 `k`、`M`、`G` 等 |
+   | `-mtime N`                                | 修改时间（按天）                  |
+   | `-atime N`                                | 访问时间（按天）                  |
+   | `-ctime N`                                | 状态变更时间（按天）              |
+   | `-mmin N`                                 | 修改时间（按分钟）                |
+   | `-type f` / `d`                           | 文件 / 目录                       |
+   | `-user NAME`                              | 文件属主                          |
+   | `-group NAME`                             | 文件属组                          |
+   | `-perm MODE`                              | 权限匹配                          |
+   | `-empty`                                  | 空目录或空文件                    |
+   | `-false` / `-true`                        | 总是假 / 总是对                   |
+   | `-readable` / `-writable` / `-executable` | 是否可读 / 可写 / 可执行          |
+
+   说明：
+
+   - `N` 可以是 `+N`（大于），`-N`（小于），`N`（等于）。
+
+5. **动作（actions）**
+
+   对匹配文件执行的操作：
+
+   | 参数                  | 功能                                       |
+   | --------------------- | ------------------------------------------ |
+   | `-print`              | 打印路径（默认动作）                       |
+   | `-ls`                 | 类似 `ls -l` 的详细列表                    |
+   | `-delete`             | 删除匹配文件（⚠️ 危险操作）                |
+   | `-exec COMMAND {} \;` | 对每个文件执行命令（如：`cp {} /backup/`） |
+   | `-exec ... +`         | 一次性对多个文件执行命令（更高效）         |
+   | `-ok`                 | 类似 `-exec`，但执行前会提示确认           |
+   | `-prune`              | 跳过该目录（常用于排除路径）               |
+
+6. **-D 调试选项**
 
    ```bash
-   scp -P 10086 file.txt user@192.168.1.10:/home/user/
+   -D exec,opt,rates,search,stat,time,tree,all,help
    ```
 
-5. **使用 SSH 密钥文件**： 如果你需要使用 SSH 密钥进行认证，可以使用 `-i` 选项指定密钥文件：
+   用于调试 `find` 行为，一般不常用，比如：
 
-   ```bash
-   scp -i /path/to/private_key file.txt user@192.168.1.10:/home/user/
-   ```
+   - `-D exec` 显示执行命令的详细过程；
+   - `-D tree` 显示目录结构遍历过程；
+   - `-D help` 显示所有调试项说明。
 
-6. **显示详细信息**： 使用 `-v` 选项来查看详细的传输过程：
+**三、查找条件（匹配过滤）总结**
 
-   ```bash
-   scp -v file.txt user@192.168.1.10:/home/user/
-   ```
+**文件名相关**
 
-7. **启用压缩**： 使用 `-C` 选项来启用压缩，以加快大文件的传输速度：
+- `-name` | `-name "*.log"` | 按名字（通配符）查找 |
+- `-iname` | `-iname "*.LOG"` | 不区分大小写 |
+- `-regex` | `-regex '.*\.log'` | 使用正则表达式匹配路径 |
+- `-regextype` | `-regextype posix-extended` | 设定正则语法类型（配合 `-regex`） |
 
-   ```bash
-   scp -C largefile.zip user@192.168.1.10:/home/user/
-   ```
+**类型相关**
 
-`scp` 是一个非常方便且安全的工具，适用于快速传输文件。如果你有需要使用 SSH 协议进行文件传输的场景，`scp` 可以高效地帮助你完成工作。
+- `-type f` | 查找普通文件 | |
+- `-type d` | 查找目录 | |
+- `-type l` | 查找符号链接 | |
+- `-type b/c` | 块/字符设备文件 | |
 
-## rsync 命令
+**时间相关**
 
-`rsync` 是一个强大的文件同步和传输工具，通常用于在本地或远程主机之间同步文件和目录。它的主要优势是**支持增量备份和高效的数据传输**，能够只传输已更改的部分数据，而不必每次都传输完整的文件。
+- `-mtime +7` | 7 天前修改的文件 | |
+- `-atime -1` | 1 天内被访问的文件 | |
+- `-newer file` | 比指定文件更新的文件 | |
+
+**大小相关**
+
+- `-size +100M` | 大于 100MB 的文件 | |
+- `-size -10k` | 小于 10KB 的文件 | |
+
+**权限/用户相关**
+
+- `-user root` | 属主是 root 的文件 | |
+- `-group dev` | 属组是 dev 的文件 | |
+- `-perm 644` | 权限为 644 的文件 | |
+
+**搜索控制**
+
+- `-maxdepth 1` | 只搜索当前目录，不进入子目录 | |
+- `-mindepth 2` | 跳过前几层，只搜索更深层 | |
+
+**操作动作（对匹配结果的处理）**
+
+- `-print` | 输出文件路径（默认行为） | |
+- `-exec` | `-exec rm {} \;`：对每个文件执行操作 | |
+- `-ok` | 类似 `-exec`，但每次操作前询问确认 | |
+- `-delete` | 删除匹配的文件或目录（**需谨慎！**） | |
+
+**四、典型场景**
+
+| 任务                          | 命令                                        |
+| ----------------------------- | ------------------------------------------- |
+| 查找当前目录下所有 `.c` 文件  | `find . -name "*.c"`                        |
+| 查找 7 天内修改的 `.log` 文件 | `find . -name "*.log" -mtime -7`            |
+| 查找大于 100MB 的文件         | `find . -type f -size +100M`                |
+| 删除所有空目录                | `find . -type d -empty -delete`             |
+| 拷贝所有包含 `_0_` 的文件     | `find . -name "*_0_*" -exec cp {} /dst/ \;` |
+
+一、查找路径/文件
+
+| 任务                                     | 命令                                         |
+| ---------------------------------------- | -------------------------------------------- |
+| 查找所有 `.log` 文件                     | `find /path/to/search -type f -name "*.log"` |
+| 查找最近 3 天内修改过的文件              | `find /path/to/search -type f -mtime -3`     |
+| 查找文件大小大于 100MB 的文件            | `find /path/to/search -type f -size +100M`   |
+| 查找目录（比如项目根目录下的所有子目录） | `find /path/to/search -type d -maxdepth 1`   |
+
+二、查找后本地 `cp` 拷贝
+
+| 任务                                                 | 命令                                                                                     |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 拷贝所有 `.txt` 到指定目录                           | `find . -type f -name "*.txt" -exec cp {} /backup/ \;`                                   |
+| 拷贝匹配正则文件名（如：`data_0001_0_*`）            | `find . -regextype posix-extended -regex './data_[0-9]{4}_0_.*' -exec cp {} /backup/ \;` |
+| 保留原目录结构地拷贝文件（推荐用 `rsync` 替代 `cp`） | `find ./src -type f -name "\*.conf" -exec rsync -R {} /backup/ \;`                       |
+| 自动创建目标目录（本地）                             | `find . -name "*.txt" -exec cp {} /backup/dir/ \;`                                       |
+| 使用 `basename` 改文件名或只拷贝文件本身             | `find . -type f -name "*.txt" -exec sh -c 'cp "$1" /target/$(basename "$1")' _ {} \;`    |
+
+> `rsync -R` 会保留源路径结构（如 `src/app/a.conf` 复制为 `backup/src/app/a.conf`）
+
+三、查找后远程拷贝（scp / rsync）
+
+| 任务                                      | 命令                                                                             |
+| ----------------------------------------- | -------------------------------------------------------------------------------- |
+| 使用 `scp` 拷贝所有 `.log` 文件到远程主机 | `find . -type f -name "*.txt" -exec cp {} /backup/ \;`                           |
+| 使用 `rsync` 批量拷贝并保留目录结构       | `find ./data -type f -name "*.bin" -exec rsync -R {} user@host:/remote/data/ \;` |
+| `scp` 加速小技巧（用 `xargs` 批量处理）   | `find . -name "\*.cfg" \| xargs -I {} scp {} user@host:/remote/configs/`         |
+
+## grep 命令
+
+`grep` 是 Linux / Unix 系统中一个非常常用的命令行工具，用于 **搜索文件中符合条件的字符串**。它基于正则表达式进行匹配，并输出包含匹配内容的行。
+
+**一、基本语法**
+
+```bash
+grep [选项] '搜索字符串或正则表达式' 文件名
+```
+
+**二、常用参数详解**
+
+| 参数        | 说明                                     |
+| ----------- | ---------------------------------------- |
+| `-i`        | 忽略大小写（ignore case）                |
+| `-v`        | 反向选择，显示不匹配的行（invert match） |
+| `-n`        | 显示匹配行的行号（line number）          |
+| `-r` / `-R` | 递归搜索目录（recursive）                |
+| `-l`        | 只列出匹配的文件名（list file names）    |
+| `-L`        | 列出不含匹配内容的文件名                 |
+| `-c`        | 只输出匹配的行数（count）                |
+| `-o`        | 只输出匹配的部分（而非整行）             |
+| `-e`        | 支持多个匹配模式（pattern）              |
+| `-w`        | 精确匹配整个单词（word match）           |
+| `-A N`      | 匹配行后输出 N 行（after）               |
+| `-B N`      | 匹配行前输出 N 行（before）              |
+| `-C N`      | 匹配行前后各输出 N 行（context）         |
+| `--color`   | 高亮显示匹配字符串（彩色显示）           |
+
+**三、示例用法**
+
+```bash
+# 1. 在文件中查找包含 "hello" 的行：
+grep 'hello' file.txt
+
+# 2. 忽略大小写查找：
+grep -i 'hello' file.txt
+
+# 3. 显示行号：
+grep -n 'hello' file.txt
+
+# 4. 查找不包含某字符串的行：
+grep -v 'hello' file.txt
+
+# 5. 递归查找整个目录：
+grep -r 'hello' /path/to/dir
+
+# 6. 查找多个关键词：
+grep -e 'hello' -e 'world' file.txt
+
+# 7. 只输出匹配内容本身：
+grep -o 'hello' file.txt
+
+# 8. 统计匹配的行数：
+grep -c 'hello' file.txt
+
+# 9. 匹配行及前后内容：
+grep -C 2 'hello' file.txt
+```
+
+四、正则表达式支持（基础）：
+
+| 表达式 | 含义                      |
+| ------ | ------------------------- |
+| `.`    | 匹配任意单个字符          |
+| `*`    | 匹配前一个字符 0 次或多次 |
+| `^`    | 匹配行开头                |
+| `$`    | 匹配行结尾                |
+| `[]`   | 匹配字符集合              |
+| `[^]`  | 匹配不在集合中的字符      |
+| `\`    | 转义字符                  |
+| `      | `                         |
+
+> 如果你需要更强大的正则支持，可以使用 `grep -E`（等同于 `egrep`），支持扩展正则（如 `+`, `{m,n}`, `()` 等）。
+
+## 常用 grep 命令速查表
+
+**一、基本语法**
+
+```bash
+Usage: grep [OPTION]... PATTERNS [FILE]...
+Search for PATTERNS in each FILE.
+Example: grep -i 'hello world' menu.h main.c
+PATTERNS can contain multiple patterns separated by newlines.
+```
+
+**二、匹配相关**
+
+| 命令                      | 含义                 |
+| ------------------------- | -------------------- |
+| `grep 'text' file.txt`    | 查找包含 "text" 的行 |
+| `grep -i 'text' file.txt` | 忽略大小写查找       |
+| `grep -w 'text' file.txt` | 匹配整个单词         |
+| `grep -x 'text' file.txt` | 匹配整行             |
+| `grep -E 'foo             | bar' file.txt`       |
+| `grep -o 'text' file.txt` | 只输出匹配部分       |
+
+**三、文件和目录**
+
+| 命令                      | 含义                   |
+| ------------------------- | ---------------------- |
+| `grep 'text' file1 file2` | 在多个文件中查找       |
+| `grep -r 'text' dir/`     | 递归搜索目录           |
+| `grep -l 'text' *.log`    | 仅显示匹配的文件名     |
+| `grep -L 'text' *.log`    | 显示不包含匹配的文件名 |
+
+**四、输出控制**
+
+| 命令                           | 含义                       |
+| ------------------------------ | -------------------------- |
+| `grep -n 'text' file.txt`      | 显示匹配行的行号           |
+| `grep -c 'text' file.txt`      | 显示匹配的行数             |
+| `grep -v 'text' file.txt`      | 显示不包含匹配的行         |
+| `grep --color 'text' file.txt` | 高亮匹配文本               |
+| `grep -H 'text' file.txt`      | 显示文件名（默认多文件时） |
+| `grep -h 'text' file.txt`      | 不显示文件名（用于多文件） |
+
+**五、匹配上下文**
+
+| 命令                        | 含义                  |
+| --------------------------- | --------------------- |
+| `grep -A 3 'text' file.txt` | 匹配行及其后 3 行     |
+| `grep -B 3 'text' file.txt` | 匹配行及其前 3 行     |
+| `grep -C 3 'text' file.txt` | 匹配行及其前后各 3 行 |
+
+**六、高级用法**
+
+| 命令                  | 含义               |
+| --------------------- | ------------------ |
+| `ps aux               | grep nginx`        |
+| `dmesg                | grep -i error`     |
+| `find . -name "\*.py" | xargs grep 'main'` |
+
+**七、正则表达式速览（基础）**
+
+| 符号     | 意义                     |
+| -------- | ------------------------ |
+| `.`      | 匹配任意单字符           |
+| `*`      | 匹配前一个字符零次或多次 |
+| `^`      | 匹配行开头               |
+| `$`      | 匹配行结尾               |
+| `[abc]`  | 匹配 a 或 b 或 c         |
+| `[^abc]` | 匹配不是 a/b/c 的字符    |
+| `\`      | 转义字符                 |
+| `        | `                        |
+
+**八、示例组合**
+
+```bash
+grep -ir 'error' /var/log/             # 忽略大小写递归搜索日志
+grep -nA2 'fail' app.log               # 显示匹配和之后2行
+grep -Ev '^#|^$' config.txt            # 去除注释和空行
+```
+
+## 通配符与正则表达式的区别
+
+**通配符：用于匹配文件名，完全匹配**。
+
+| 通配符 | 作用                                                                                    |
+| ------ | --------------------------------------------------------------------------------------- |
+| ？     | 匹配一个任意字符                                                                        |
+| \*     | 匹配 0 个或任意多个任意字符，也就是可以匹配任何内容                                     |
+| []     | 匹配中括号中任意一个字符。例如，[abc]代表一定匹配一个字符，或者是 a，或者是 b，或者是 c |
+| [-]    | 匹配中括号中任意一个字符，-代表一个范围。例如，[a-z]代表匹配一个小写字母                |
+| [^]    | 逻辑非，表示匹配不是中括号内的一个字符。例如， `[^0-9]`代表匹配一个不是数字的字符       |
+
+**正则表达式：用于匹配字符串，包含匹配**。
+
+| 正则符 | 作用                                                                                    |
+| ------ | --------------------------------------------------------------------------------------- |
+| ？     | 匹配一个任意字符                                                                        |
+| \*     | 匹配 0 个或任意多个任意字符，也就是可以匹配任何内容                                     |
+| []     | 匹配中括号中任意一个字符。例如，[abc]代表一定匹配一个字符，或者是 a，或者是 b，或者是 c |
+| [-]    | 匹配中括号中任意一个字符，-代表一个范围。例如，[a-z]代表匹配一个小写字母                |
+| [^]    | 逻辑非，表示匹配不是中括号内的一个字符。例如， `[^0-9]`代表匹配一个不是数字的字符       |
+| ^      | 匹配行首                                                                                |
+| $      | 匹配行尾                                                                                |
+
+> [Linux grep 命令和通配符](https://blog.csdn.net/baidu_41388533/article/details/107610827)
+
+# 文件操作命令
+
+## cp 命令
+
+`cp` 命令是 Linux 中用于复制文件或目录的命令。它是最基本和最常用的命令之一，用于将源文件或源目录复制到目标位置。`cp` 的语法非常简单，但它有一些常用的选项，可以使其更加灵活和强大。
 
 **基本语法：**
 
 ```bash
-rsync [选项] 源路径 目标路径
+Usage: cp [OPTION]... [-T] SOURCE DEST
+  or:  cp [OPTION]... SOURCE... DIRECTORY
+  or:  cp [OPTION]... -t DIRECTORY SOURCE...
 ```
 
-> - 源目录后不加斜杠 `/`：将<font color=red>整个目录</font>（包括其名称）复制到目标目录中。
-> - 源目录后加斜杠 `/`：将<font color=red>源目录中的内容</font>复制到目标目录，而不复制源目录本身。
+Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
 
-**常见用法：**
+**常用选项：**
 
-1. **本地文件同步**
+1. **`-r` 或 `--recursive`**：用于递归复制目录。如果源是一个目录，并且你希望复制目录内容及其子目录，那么需要使用这个选项。
 
-   将本地文件或目录同步到另一个本地目录。
+   - 示例：`cp -r /home/user/source_dir /home/user/destination_dir`
 
-   ```bash
-   rsync -av /path/to/source/ /path/to/destination/
-   ```
+2. **`-f` 或 `--force`**：强制复制文件，并且如果目标文件无法写入，则会删除目标文件后重新复制。这对于避免覆盖的交互提示非常有用。
 
-   - `-a`：归档模式，表示递归复制文件并保持文件的权限、时间戳等属性。
-   - `-v`：显示详细输出。
+   - 示例：`cp -f file1.txt /home/user/destination/`
 
-   例如，将 `/home/user/source/` 目录中的内容同步到 `/home/user/destination/` 目录：
+3. **`-i` 或 `--interactive`**：在目标文件已经存在时，提示用户确认是否覆盖。
 
-   ```bash
-   rsync -av /home/user/source/ /home/user/destination/
-   ```
+   - 示例：`cp -i file1.txt /home/user/destination/`
 
-2. **远程同步**
+4. **`-v` 或 `--verbose`**： 显示详细的复制过程，包括源文件和目标文件的路径。
 
-   `rsync` 还可以通过 SSH 连接到远程服务器，将文件从本地复制到远程服务器，或将远程服务器的文件同步到本地。
+   - 示例：`cp -v file1.txt /home/user/destination/`
 
-   - 从本地复制到远程服务器：
+5. **`-p` 或 `--preserve`**：保留文件的属性（如修改时间、权限、所有者等）。通常在复制文件时，源文件的权限和时间戳不会被保留，使用该选项可以避免这种情况。
+   - 示例：`cp -p file1.txt /home/user/destination/`
+6. **`-u` 或 `--update`**：仅在源文件比目标文件更新，或者目标文件不存在时才复制。
 
-   ```bash
-   rsync -av /path/to/source/ user@remote_host:/path/to/destination/
-   ```
+   - 示例：`cp -u file1.txt /home/user/destination/`
 
-   - 从远程服务器复制到本地：
+7. **`-a` 或 `--archive`**：这个选项是 `-dR --preserve=all` 的组合，意味着会复制文件及其所有属性（包括符号链接、文件权限、时间戳等），并且递归地复制目录。
 
-   ```bash
-   rsync -av user@remote_host:/path/to/source/ /path/to/destination/
-   ```
+   - 示例：`cp -a source_dir /home/user/destination/`
 
-   其中：
+8. **`-l` 或 `--link`**：创建源文件的硬链接，而不是复制源文件。这意味着多个文件将指向相同的数据块。
 
-   - `user`：远程服务器的用户名。
-   - `remote_host`：远程主机的 IP 地址或域名。
+   - 示例：`cp -l file1.txt /home/user/destination/`
 
-3. **增量备份**
+9. **`--no-clobber`**：如果目标文件已存在，则不复制，不会覆盖目标文件。
 
-   `rsync` 的一个重要功能是增量备份，它只会复制自上次同步以来发生变化的文件。这是通过记录每个文件的修改时间和大小来实现的。
+   - 示例：`cp --no-clobber file1.txt /home/user/destination/`
 
-   ```bash
-   rsync -av --delete /path/to/source/ /path/to/destination/
-   ```
+**注意：**
 
-   - `--delete`：删除目标目录中在源目录中不存在的文件。这通常用于保持目标目录与源目录的完全一致。
+`cp` 命令本身**不支持正则表达式**来筛选文件，它只支持通配符（如 `*`、`?`），这是由 shell（比如 bash）进行展开的。
 
-4. **排除某些文件或目录**
+1. 使用通配符匹配文件
 
-   如果你希望同步时排除某些文件或目录，可以使用 `--exclude` 选项。
+   这是最常见的方式，例如：
 
    ```bash
-   rsync -av --exclude 'pattern' /path/to/source/ /path/to/destination/
+   cp *.txt /target/dir/
    ```
 
-   例如，要排除 `.git/` 目录：
+   会拷贝当前目录下所有 `.txt` 文件。
+
+2. 如果你确实需要用 **正则表达式筛选文件名**，可以结合 `find` 或 `ls | grep` 使用：
+
+   （1）使用 `find` 搭配正则（推荐方式）
 
    ```bash
-   rsync -av --exclude '.git/' /path/to/source/ /path/to/destination/
+   find . -maxdepth 1 -regextype posix-extended -regex './file[0-9]+\.txt' -exec cp {} /target/dir/ \;
    ```
 
-   你还可以使用 `--exclude-from` 选项，指定一个文件，**该文件列出了多个排除模式**。
+   这会拷贝所有形如 `file123.txt` 的文件。
+
+   （2）使用 `grep` 和 `xargs`
 
    ```bash
-   rsync -av --exclude-from 'exclude_list.txt' /path/to/source/ /path/to/destination/
+   ls | grep -E '^file[0-9]+\.txt$' | xargs -I {} cp {} /target/dir/
    ```
 
-5. **同步指定文件**
+   这也能实现正则筛选，但 `ls` 对特殊字符（如空格）处理不好，慎用。
 
-   如果只想同步特定文件，可以指定文件路径。例如，将某个文件从本地同步到远程服务器：
+## mv 命令
+
+## install 命令
+
+install 命令与 cp 命令类似，均可以将文件或目录拷贝到指定的路径；但是 install 命令可以控制目标文件的属性。
+
+命令格式
+
+```css
+install [OPTION]... [-T] SOURCE DEST
+install [OPTION]... SOURCE... DIRECTORY
+install [OPTION]... -t DIRECTORY SOURCE...
+install [OPTION]... -d DIRECTORY...
+```
+
+前三个格式会将指定的 source 复制到 Dest 地址或者将多个 source 复制到已存在的目标目录，同时设定相应的权限模式或者属主，属组等信息；第四个格式会创建给定的目录路径。
+
+常用选项
+
+- `-g，--group=Group`：指定目标文件的属组；
+- `-o，--owner=user`：指定目标文件的属主；
+- `-m，--mode=mode`：指定目标文件的权限模式；
+- `-S`：设置目标文件的后缀；
+- `-D`：创建指定文件路径中不存在的目录；
+
+使用实例
+
+复制 source 文件到指定的文件路径：
+
+```ruby
+[root@localhost ~]# install /etc/passwd /tmp/passwd.bak
+[root@localhost ~]# cat /tmp/passwd.bak | head -5
+root:x:0:0:root:/root:/bin/bash
+bin:x:1:1:bin:/bin:/sbin/nologin
+daemon:x:2:2:daemon:/sbin:/sbin/nologin
+adm:x:3:4:adm:/var/adm:/sbin/nologin
+lp:x:4:7:lp:/var/spool/lpd:/sbin/nologin
+```
+
+复制多个 source 文件到对应的目录路径：
+
+```csharp
+[root@localhost ~]# mkdir /tmp/test
+[root@localhost ~]# install -t /tmp/test/ /etc/passwd /home/charlie/autocreate
+[root@localhost ~]# ll /tmp/test/
+总用量 8
+-rwxr-xr-x. 1 root root   12 2月   9 17:00 autocreate
+-rwxr-xr-x. 1 root root 3595 2月   9 17:00 passwd
+```
+
+## realpath
+
+`realpath` 是一个 Linux 和 Unix 系统中的命令，用于**解析符号链接或相对路径**并**返回文件或目录的绝对路径**。它对于处理路径、确认文件位置、确保路径的一致性非常有用。
+
+**主要功能**：
+
+1. **解析相对路径**：将给定的相对路径转换为绝对路径。
+2. **解析符号链接**：将符号链接解析为其实际的目标路径。
+3. **去除冗余**：移除 `.` 和 `..` 这样的路径部分，并返回简化的路径。
+
+**常见用法**：
+
+```shell
+realpath [选项] [文件/目录]
+```
+
+**常用选项**：
+
+- `--relative-to=DIR`：显示相对于指定目录的相对路径。
+- `--no-symlinks`：不解析符号链接，只对路径进行规范化。
+- `--canonicalize-missing`：即使路径不存在，也返回规范化后的路径。
+
+**示例**：
+
+```shell
+# 1. 将相对路径转换为绝对路径：
+realpath ./mydir
+# 输出：/home/user/mydir
+
+# 2. 解析符号链接：假设 `/tmp/mylink` 是指向 `/home/user/mydir` 的符号链接：
+realpath /tmp/mylink
+# 输出：/home/user/mydir
+
+# 3. 获取相对路径：
+realpath --relative-to=/home /home/user/mydir
+# 输出：user/mydir
+```
+
+`realpath` 命令非常适用于需要在脚本中确保路径一致性的场景。
+
+## basename 命令
+
+`basename` 是一个常用的 Unix/Linux 命令，用于提取文件路径中的文件名部分，或从文件名中去掉指定的后缀。它特别适用于从完整的文件路径中提取文件名。
+
+**基本语法**：
+
+```bash
+basename [OPTION] NAME [SUFFIX]
+```
+
+- `NAME`：指定文件的路径。
+- `SUFFIX`：可选参数，指定要从文件名中移除的后缀（如果文件名以该后缀结尾）。
+
+**主要选项**：
+
+- `-a` 或 `--multiple`：允许同时处理多个路径。
+- `-s` 或 `--suffix=SUFFIX`：指定一个后缀进行删除，相当于直接写在 `basename` 命令的第二个参数位置。
+
+**功能**：
+
+- **去除路径信息**：`basename` 可以去除文件路径，仅保留文件名。
+- **去除后缀**：可以指定一个后缀，`basename` 会去掉文件名中匹配的后缀部分。
+
+**使用示例**：
+
+1. 从文件路径中提取文件名
 
    ```bash
-   rsync -av /path/to/local/file.txt user@remote_host:/path/to/remote/destination/
+   basename /home/user/docs/file.txt
+   # 输出: file.txt
    ```
 
-6. **使用 SSH 进行加密传输**
+2. 去除文件名中的后缀
 
-   `rsync` 默认使用 SSH 协议进行远程文件传输。如果你希望指定一个自定义的 SSH 端口，可以使用 `-e` 选项来设置 SSH 的命令。
+   可以指定一个后缀，如果文件名以该后缀结尾，则会被去除：
 
    ```bash
-   rsync -av -e 'ssh -p 2222' /path/to/source/ user@remote_host:/path/to/destination/
+   basename /home/user/docs/file.txt .txt
+   # 输出: file
+   basename -s .h include/stdio.h
+   # 输出: stdio
+   basename "file.tar.gz" .tar.gz
+   # 输出：file
    ```
 
-**常见选项：**
+3. 提取目录名称
 
-| 选项             | 描述                                                                             |
-| ---------------- | -------------------------------------------------------------------------------- |
-| `-a`             | 归档模式，表示递归复制并保持文件的权限、时间戳等属性                             |
-| `-v`             | 显示详细输出                                                                     |
-| `-z`             | 压缩文件数据，减少传输数据量                                                     |
-| `-r`             | 递归复制整个目录                                                                 |
-| `-u`             | 仅复制源文件比目标文件新的文件                                                   |
-| `-l`             | 保留符号链接                                                                     |
-| `-t`             | 保留时间戳                                                                       |
-| `-p`             | 保留文件权限                                                                     |
-| `-P`             | 启用 --partial 和 --progress，在文件传输过程中显示进度，并保留已传输的部分文件。 |
-| `-g`             | 保留文件的组信息                                                                 |
-| `-o`             | 保留文件的拥有者信息                                                             |
-| `-x`             | 防止跨文件系统，限制同步到单一文件系统                                           |
-| `--delete`       | 删除目标目录中源目录没有的文件                                                   |
-| `--exclude`      | 排除匹配的文件或目录                                                             |
-| `--exclude-from` | 从指定文件中读取排除规则                                                         |
-| `--progress`     | 显示传输进度                                                                     |
-| `-e`             | 使用自定义远程 shell（例如 SSH）进行传输                                         |
-| `-h`             | 以易读的格式显示文件大小（例如 KB、MB、GB）                                      |
-| `--dry-run`      | 模拟同步过程，但不实际执行任何操作                                               |
-
-**高级用法：**
-
-1. **限制带宽使用**
-
-   如果你希望限制 `rsync` 使用的带宽，可以使用 `--bwlimit` 选项。例如，限制带宽为 1MB/s：
+   如果你需要提取目录名称而不是文件名，可以结合 `dirname` 和 `basename` 使用。例如，获取文件所属的最上级目录名：
 
    ```bash
-   rsync -av --bwlimit=1024 /path/to/source/ user@remote_host:/path/to/destination/
+   dirname /home/user/docs/file.txt | xargs basename
+   # 输出: docs
    ```
 
-2. **比较文件**
+4. 与 `find` 命令结合使用
 
-   使用 `--itemize-changes` 选项可以显示文件同步时的变化：
+   结合 `find` 命令，可以提取目录中多个文件的文件名。例如，列出当前目录中所有 `.txt` 文件的文件名：
 
    ```bash
-   rsync -av --itemize-changes /path/to/source/ /path/to/destination/
+   find . -type f -name "*.txt" -exec basename {} \;
    ```
 
-   该命令会输出详细的文件变化信息，类似于：
+5. 在脚本中获取当前脚本名：
+
+   ```bash
+   script_name=$(basename "$0")
+   ```
+
+6. 批量处理文件名：
+
+   ```bash
+   # 结合find使用
+   find . -type f | while read file; do
+       name=$(basename "$file")
+       echo "Processing $name"
+   done
+   ```
+
+# 压缩解压命令
+
+## tar 包
+
+`tar` 是 Linux 中常用的打包和压缩工具，可以将多个文件或目录打包成一个归档文件，也可以用于解压这些归档文件。
+
+### 解压 `.tar` 包
+
+如果你有一个 `.tar` 格式的文件，没有经过压缩，只是打包文件，可以使用以下命令：
+
+```bash
+tar -xvf archive.tar
+```
+
+- `x`：表示解压。
+- `v`：显示详细过程（可选，但通常会显示解压过程中的每个文件）。
+- `f`：后面跟的是归档文件名。
+
+总结
+
+- **`.tar` 文件**：`tar -xvf archive.tar`
+- **`.tar.gz` 或 `.tgz` 文件**：`tar -xzvf archive.tar.gz`
+- **`.tar.bz2` 文件**：`tar -xjvf archive.tar.bz2`
+- **`.tar.xz` 文件**：`tar -xJvf archive.tar.xz`
+
+## zip 包
+
+在 Linux 系统中，解压 `.zip` 文件通常使用 `unzip` 命令。如果系统上没有安装 `unzip`，你可以先安装它。
+
+1. `unzip` 解压：
+
+   Debian/Ubuntu 系统上安装：`sudo apt-get install unzip`
+
+   **解压 `.zip` 文件**：
+
+   ```bash
+   # 解压到当前目录中
+   unzip archive.zip
+   ```
+
+   - `x`：表示解压并保持文件夹结构。
+
+   **解压到指定目录**： 如果你想将 `.zip` 文件解压到指定目录，可以使用 `-d` 选项：
+
+   ```bash
+   unzip archive.zip -d /path/to/destination/
+   ```
+
+   **列出 `.zip` 文件内容**（不解压）： 如果你只想查看 `.zip` 文件内包含的文件列表，可以使用：
+
+   ```bash
+   unzip -l archive.zip
+   ```
+
+## rar 包
+
+1. `unrar` 解压：
+
+   `unrar` 是一个开源工具，通常用于解压 `.rar` 文件。Debian/Ubuntu 系统上安装：`sudo apt-get install unrar`
+
+   **解压 `.rar` 文件**：
+
+   ```bash
+   # 解压到当前目录中
+   unrar x archive.rar
+   ```
+
+   - `x`：表示解压并保持文件夹结构。
+
+   **解压到指定目录**： 如果你想将 `.rar` 文件解压到指定目录，可以使用 `-d` 选项：
+
+   ```bash
+   unrar x archive.rar -d /path/to/extract/directory/
+   ```
+
+   **列出 `.rar` 文件内容**（不解压）： 如果你只想查看 `.rar` 文件内包含的文件列表，可以使用：
+
+   ```bash
+   unrar l archive.rar
+   ```
+
+# 文件显示命令
+
+## cat
+
+cat（英文全拼：concatenate）命令用于连接文件并打印到标准输出设备上，它的主要作用是用于查看和连接文件。
+
+```shell
+cat [选项] [文件]
+```
+
+**参数说明：**
+
+- `-n`：显示行号，会在输出的每一行前加上行号。
+- `-b`：显示行号，但只对非空行进行编号。
+- `-s`：压缩连续的空行，只显示一个空行。
+- `-E`：在每一行的末尾显示 `$` 符号。
+- `-T`：将 Tab 字符显示为 `^I`。
+- `-v`：显示一些非打印字符。
+
+```shell
+cat filename # 查看文件内容：显示文件 filename 的内容。
+
+cat > filename # 创建文件：将标准输入重定向到文件 filename，覆盖该文件的内容。
+
+cat >> filename # 追加内容到文件：将标准输入追加到文件 filename 的末尾。
+
+cat file1 file2 > file3 # 连接文件：将 file1 和 file2 的内容合并到 file3 中。
+
+cat file1 file2 # 显示多个文件的内容：同时显示 file1 和 file2 的内容。
+
+cat filename | command # 使用管道：将 cat 命令的输出作为另一个命令的输入。
+
+cat filename | tail -n 10 # 查看文件的最后几行：显示文件 filename 的最后 10 行。
+
+cat -n filename # 使用 -n 选项显示行号：显示文件 filename 的内容，并在每行的前面加上行号。
+
+cat -b filename # 使用 -b 选项仅显示非空行的行号：
+
+cat -s filename # 使用 -s 选项合并空行：显示文件 filename 的内容，并合并连续的空行。
+
+cat -t filename # 使用 -t 选项显示制表符：显示文件 filename 的内容，并用 ^I 表示制表符。
+
+cat -e filename # 使用 -e 选项显示行结束符：显示文件 filename 的内容，并用 $ 表示行结束。
+
+cat -n textfile1 > textfile2 # 把 textfile1 的文档内容加上行号后输入 textfile2 这个文档里：
+
+cat -b textfile1 textfile2 >> textfile3 # 把 textfile1 和 textfile2 的文档内容加上行号（空白行不加）之后将内容附加到 textfile3 文档里：
+
+cat /dev/null > /etc/test.txt # 清空 /etc/test.txt 文档内容：
+```
+
+```shell
+# 要创建一个新文件并将内容写入它，你可以使用重定向操作符>或者cat命令本身。
+# 1.使用重定向操作符>：你可以输入你想要写入文件的内容。按下 Ctrl + D 来保存并退出。
+cat > new_file.txt
+# 2.使用cat命令：在<< EOF和EOF之间的文本是你要写入文件的内容。按下Enter后，然后按下Ctrl + D来保存并退出。
+cat > new_file.txt << EOF
+这是新文件的内容。
+它可以有多行。
+EOF
+
+# 要向现有文件追加内容，可以使用重定向操作符>>或者cat命令。
+# 1.使用重定向操作符>>：你可以输入你想要写入文件的内容。按下 Ctrl + D 来保存并退出。
+cat >> existing_file.txt
+# 2.使用cat命令：在<< EOF和EOF之间的文本是你要写入文件的内容。按下Enter后，然后按下Ctrl + D来保存并退出。
+cat >> existing_file.txt << EOF
+这是要追加到文件的内容。
+它可以有多行。
+EOF
+```
+
+## head
+
+head 命令可用于查看文件的开头部分的内容，有一个常用的参数 **-n** 用于显示行数，默认为 10，即显示 10 行的内容。
+
+```shell
+head [参数] [文件]
+```
+
+- -q 隐藏文件名
+- -v 显示文件名
+- -c<数目> 显示的字节数。
+- -n<行数> 显示的行数。
+
+```shell
+head -n 5 runoob_notes.log # 显示 notes.log 文件的开头 5 行，请输入以下命令
+
+head -c 20 runoob_notes.log # 显示文件前 20 个字节
+```
+
+## tail
+
+tail 命令可用于查看文件的内容，有一个常用的参数 **-f** 常用于查阅正在改变的日志文件。参数 **-n** 用于显示行数，默认为 10，即显示 10 行的内容。
+
+**tail -f filename** 会把 filename 文件里的最尾部的内容显示在屏幕上，并且不断刷新，只要 filename 更新就可以看到最新的文件内容。
+
+```shell
+tail [参数] [文件]
+```
+
+- -f 循环读取
+- -q 不显示处理信息
+- -v 显示详细的处理信息
+- -c<数目> 显示的字节数
+- -n<行数> 显示文件的尾部 n 行内容
+- --pid=PID 与-f 合用,表示在进程 ID,PID 死掉之后结束
+- -q, --quiet, --silent 从不输出给出文件名的首部
+- -s, --sleep-interval=S 与-f 合用,表示在每次反复的间隔休眠 S 秒
+
+```shell
+tail -n +20 notes.log # 显示文件 notes.log 的内容，从第 20 行至文件末尾
+
+tail -f notes.log # 此命令显示 notes.log 文件的最后 10 行。当将某些行添加至 notes.log 文件时，tail 命令会继续显示这些行。 显示一直继续，直到您按下（Ctrl-C）组合键停止显示。即，可跟踪名为 notes.log 的文件的增长情况。
+```
+
+## cat/head/tail 组合
+
+```shell
+# 显示前1000行
+cat [filename] | head -n 1000
+
+# 显示最后1000行
+cat [filename] | tail -n 1000
+
+# 从1000行以后开始显示
+cat [filename] | tail -n +1000
+
+# 从1000行开始显示3000行
+cat [filename] | tail -n +1000 | head -n 3000
+
+# 显示1000行到3000行
+cat [filename] | head -n 3000 | tail -n +1000
+```
+
+## tee 命令
+
+`tee` 是一个在 Unix/Linux 系统中常用的命令行工具，用于读取标准输入并将其内容写入标准输出和一个或多个文件。它的名称来源于字母 "T"，因为它的作用类似于一个 "T" 型分流器。
+
+**基本语法**：
+
+```bash
+tee [OPTION]... [FILE]...
+```
+
+- **OPTION**：可选参数，用于修改 `tee` 的行为。
+- **FILE**：要写入的一个或多个文件名。如果不指定文件，则输出到标准输出。
+
+**常用选项**：
+
+- `-a` 或 `--append`：追加内容到指定文件，而不是覆盖。
+- `-i` 或 `--ignore-interrupts`：在信号中断时忽略中断。
+- `--help`：显示帮助信息。
+- `--version`：显示版本信息。
+
+**常见用法**：
+
+1. 基本使用
+
+   将命令的输出同时写入到文件和标准输出：
+
+   ```bash
+   echo "Hello, World!" | tee output.txt
+   ```
+
+   这条命令会将 "Hello, World!" 打印到屏幕上，同时写入到 `output.txt` 文件中。
+
+2. 追加内容
+
+   使用 `-a` 选项可以将内容追加到文件末尾，而不是覆盖文件：
+
+   ```bash
+   echo "Hello again!" | tee -a output.txt
+   ```
+
+   如果 `output.txt` 已存在，这条命令会在文件末尾添加 "Hello again!"。
+
+3. 多个文件
+
+   可以将输出同时写入多个文件：
+
+   ```bash
+   echo "Logging data" | tee file1.txt file2.txt
+   ```
+
+   这会将 "Logging data" 同时写入 `file1.txt` 和 `file2.txt`。
+
+4. 结合其他命令
+
+   `tee` 常用于将输出流中的数据分流给多个命令。例如，可以将一个命令的输出保存到文件，同时将其传递给另一个命令：
+
+   ```bash
+   ps aux | tee processes.txt | grep bash
+   ```
+
+   这会将当前运行的所有进程信息保存到 `processes.txt` 文件中，同时筛选出包含 "bash" 的行并显示在屏幕上。
+
+5. 在脚本中使用
 
    ```shell
-   >f+++++++++ file1
-   >f+++++++++ file2
+   #!/bin/bash
+   # 记录脚本执行过程
+   {
+       echo "Starting process..."
+       date
+       some_command
+       echo "Process completed."
+   } | tee process.log
    ```
 
-3. **使用 `rsync` 进行镜像同步**
+6. 追加模式插入空行
 
-   如果你想将一个目录完全复制到另一个位置，并删除目标位置中不再存在的文件，可以使用以下命令：
+```shell
+echo "First line" | tee -a output.txt
+echo -e "\n\n\n" | tee -a output.txt  # 输出3个空行
+echo "Second line" | tee -a output.txt
+```
+
+**示例**：
+
+1. 输出到文件并显示
 
    ```bash
-   rsync -av --delete /path/to/source/ /path/to/destination/
+   df -h | tee disk_usage.txt
    ```
 
-4. **只同步文件的元数据**
+   这条命令会显示当前的磁盘使用情况，并将其写入到 `disk_usage.txt` 文件中。
 
-   如果你只关心文件的时间戳和权限等元数据，不需要同步文件内容，可以使用 `-c`（--checksum）选项，通过比较文件校验和来确定是否需要同步文件。
+2. 与管道结合
 
    ```bash
-   rsync -avc /path/to/source/ /path/to/destination/
+   cat /var/log/syslog | tee syslog_copy.txt | grep error
    ```
 
-**例子：**
+   这会将系统日志文件的内容输出到标准输出并写入 `syslog_copy.txt`，同时筛选出包含 "error" 的行。
 
-1. **将本地目录 `/data/` 同步到远程服务器：**
+**总结**：
+
+`tee` 命令是一个非常有用的工具，特别是在处理数据流时，可以有效地将输出分流到多个目的地。它在脚本编写、日志记录和调试过程中非常有用，能够帮助用户同时查看和存储命令的输出。
+
+## printf 命令
+
+`printf` 是一个在 Unix/Linux 系统中广泛使用的命令行工具，用于格式化输出文本。它比 `echo` 更强大和灵活，能够提供更复杂的格式控制，特别是在处理数字和字符串时。
+
+**基本语法**：
+
+```bash
+printf FORMAT_STRING [ARGUMENTS...]
+```
+
+- **FORMAT_STRING**：指定输出的格式，可以包含普通文本和格式说明符。
+- **ARGUMENTS**：要格式化输出的值。
+
+**常见格式说明符**：
+
+- `%s`：字符串
+- `%d`：十进制整数
+- `%f`：浮点数
+- `%x`：十六进制整数
+- `%o`：八进制整数
+- `%c`：字符
+- `%p`：指针（地址）
+
+**常见用法**：
+
+1. 格式化输出数字
+
+   格式化整数和浮点数：
 
    ```bash
-   rsync -avz /data/ user@remote_host:/backup/
+   printf "Integer: %d\n" 42
+   printf "Float: %.2f\n" 3.14159
    ```
 
-   - `-z`：启用数据压缩，以减少传输时间。
+   - `%.2f` 表示输出浮点数并保留两位小数。
 
-2. **从远程服务器同步目录并排除 `.log` 文件：**
+2. 输出多个参数
+
+   可以一次性输出多个参数：
 
    ```bash
-   rsync -av --exclude='*.log' user@remote_host:/data/ /backup/
+   printf "Name: %s, Age: %d\n" "Alice" 30
    ```
 
-3. **使用 SSH 自定义端口进行同步：**
+   这将输出 `Name: Alice, Age: 30`。
+
+3. 设定宽度和对齐方式
+
+   可以设定输出的宽度：
 
    ```bash
-   rsync -av -e 'ssh -p 2222' /data/ user@remote_host:/backup/
+   printf "|%10s|%5d|\n" "Item" 123
    ```
 
-4. **在本地和远程服务器之间进行增量备份：**
+   - `%10s` 表示字符串占用 10 个字符宽，右对齐。
+   - `%5d` 表示整数占用 5 个字符宽，右对齐。
+
+   左对齐可以使用负号：
 
    ```bash
-   rsync -av --delete /data/ user@remote_host:/backup/
+   printf "|%-10s|%-5d|\n" "Item" 123
    ```
 
-5. **模拟执行而不实际同步：**
+4. 使用转义字符
+
+   `printf` 也支持转义字符，比如换行符 `\n` 和制表符 `\t`：
 
    ```bash
-   rsync -av --dry-run /data/ user@remote_host:/backup/
+   printf "Column1\tColumn2\nValue1\tValue2\n"
    ```
+
+5. 生成多个重复字符
+
+   ```shell
+   printf '=%.0s' {1..20}
+   ```
+
+   - 格式字符串 `'=%.0s'`
+
+     在这里，格式字符串是 `'=%.0s'`。这个格式字符串可以分解为以下部分：
+
+     - **`=`**：这是要输出的字符。由于 `printf` 在处理格式字符串时，会将每个格式说明符与对应的参数结合起来输出，因此这里的 `=` 是固定的，它会被输出 20 次。
+     - **`%.0s`**：这是格式说明符，表示以字符串形式输出。具体来说：
+       - **`%s`** 表示输出字符串。
+       - **`.0`** 是一个精度修饰符，表示不输出字符串的内容，而是仅仅输出字符串的“空字符”。因此，`%.0s` 实际上不会输出任何字符，但会使得 `printf` 进行相应次数的调用。
+
+   - `{1..20}`
+
+     这是一个 Bash 的序列扩展（Brace Expansion），用于生成一个从 1 到 20 的序列。这里，它实际上并不使用这些数字的值，而是仅仅用来确定输出多少次格式字符串。
+
+**示例**：
+
+以下是一个完整的示例，演示 `printf` 的各种功能：
+
+```bash
+#!/bin/bash
+
+# 输出字符串
+printf "Hello, World!\n"
+
+# 输出整数和浮点数
+printf "Integer: %d\n" 42
+printf "Float: %.2f\n" 3.14159
+
+# 输出多个参数
+name="Alice"
+age=30
+printf "Name: %s, Age: %d\n" "$name" "$age"
+
+# 设置宽度和对齐
+printf "|%10s|%5d|\n" "Item" 123
+printf "|%-10s|%-5d|\n" "Item" 123
+
+# 使用转义字符
+printf "Column1\tColumn2\nValue1\tValue2\n"
+```
+
+运行这个脚本将输出如下内容：
+
+```log
+Hello, World!
+Integer: 42
+Float: 3.14
+Name: Alice, Age: 30
+|      Item|  123|
+|Item      |123  |
+Column1   Column2
+Value1    Value2
+```
 
 **总结：**
 
-`rsync` 是一个非常高效、灵活的工具，适用于文件同步、备份和远程传输。它能够处理本地和远程文件的增量同步，并通过多种选项提供高效的数据传输、压缩、排除和文件比较等功能。通过合理配置和选择选项，`rsync` 可以极大地简化和加速大规模数据的同步任务。
+`printf` 是一个非常强大的工具，适用于需要格式化输出的场合。它能够提供丰富的格式控制选项，帮助用户创建更易读和专业的输出结果。与 `echo` 相比，`printf` 更加灵活，适合在脚本中处理复杂的输出需求。
 
-## ssh-keygen
+## tree 命令
 
-> [ssh-keygen](http://linux.51yip.com/search/ssh-keygen)
+`tree` 是一个非常有用的命令行工具，用于以树状结构显示目录和文件的层次结构。它通过递归地列出目录及其内容，可以帮助用户更直观地查看文件系统的结构。
 
-ssh-keygen 用于为 ssh(1)生成、管理和转换认证密钥，包括 RSA 和 DSA 两种密钥。**密钥类型可以用 -t 选项指定**。如果没有指定则默认生成用于 SSH-2 的 RSA 密钥。
+**1. 基本语法：**
 
-通常，这个程序产生一个密钥对，并要求**指定一个文件存放私钥**，同时将公钥存放在附加了".pub"后缀的同名文件中。
-
-程序同时要求输入一个密语字符串(passphrase)，空表示没有密语(主机密钥的密语必须为空)。
-
-密语和口令(password)非常相似，但是密语可以是一句话，里面有单词、标点符号、数字、空格或任何你想要的字符。好的密语要 30 个以上的字符，难以猜出，由大小写字母、数字、非字母混合组成。密语可以用 -p 选项修改。丢失的密语不可恢复。如果丢失或忘记了密语，用户必须产生新的密钥，然后把相应的公钥分发到其他机器上去。
-
-RSA1 的密钥文件中有一个**"注释"字段**，可以方便用户标识这个密钥，指出密钥的用途或其他有用的信息。创建密钥的时候，注释域初始化为"user@host"，以后可以用 -c 选项修改。
-
-```shell
- -C comment 提供一个新注释
- -f filename 指定密钥文件名。(要输入完整路劲，否则在当前路径下生成)
--P passphrase 提供(旧)密语。
--t type  指定要创建的密钥类型。可以使用："rsa1"(SSH-1) "rsa"(SSH-2) "dsa"(SSH-2)
-
-ssh-keygen -t rsa -C "user@host" -f "id_rsa_user@host"
+```bash
+tree [选项] [目录...]
 ```
 
-## ssh 命令
+- **[选项]**：用于修改 `tree` 输出的格式。
+- **[目录]**：指定要显示结构的目录，默认为当前目录。
 
-> 参考：
->
-> ```shell
-> man ssh
-> ```
+**2. 常用选项：**
 
-Linux 一般作为服务器使用，而服务器一般放在机房，你不可能在机房操作你的 Linux 服务器。
+- `-L <level>` ：限制显示目录的深度，`<level>` 是要显示的目录层级。例如 `-L 2` 只显示两级目录结构。
+- `-d` ：只显示目录，不显示文件。
+- `-a` ：显示所有文件和目录（包括隐藏文件）。
+- `-f` ：在每个文件名前面加上完整的路径（不适用于相对路径）。
+- `-s` ：显示每个文件或目录的大小（以字节为单位）。
+- `-h` ：与 `-s` 配合使用，以可读性较高的方式显示文件大小（如 KB、MB）。
+- `-T` ：在文件或目录的末尾显示与其相关的详细时间戳。
+- `-I <pattern>` ：排除匹配 `<pattern>` 的文件或目录。例如 `-I "*.log"` 排除所有 `.log` 文件。
+- `--noreport` ：不显示报告统计信息（文件数和目录数）。
+- `-v` ：显示详细信息，包括文件的权限和修改时间。
 
-这时我们就需要远程登录到 Linux 服务器来管理维护系统。
+**3. 示例：**
 
-Linux 系统中是通过 ssh 服务实现的远程登录功能，默认 ssh 服务端口号为 22。
+1. 显示当前目录的树形结构
 
-SSH 为 Secure Shell 的缩写，由 IETF 的网络工作小组（Network Working Group）所制定。
+   ```bash
+   tree
 
-SSH 为建立在应用层和传输层基础上的安全协议。
+   # 输出：
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── file3.txt
+       └── file4.txt
 
-```shell
-ssh [-46AaCfGgKkMNnqsTtVvXxYy] [-B bind_interface]
-    [-b bind_address] [-c cipher_spec] [-D [bind_address:]port]
-    [-E log_file] [-e escape_char] [-F configfile] [-I pkcs11]
-    [-i identity_file] [-J [user@]host[:port]] [-L address]
-    [-l login_name] [-m mac_spec] [-O ctl_cmd] [-o option] [-p port]
-    [-Q query_option] [-R address] [-S ctl_path] [-W host:port]
-    [-w local_tun[:remote_tun]] destination [command [argument ...]]
+   2 directories, 4 files
+   ```
+
+2. 限制显示深度为 2
+
+   ```bash
+   tree -L 2
+
+   # 输出：
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── file3.txt
+       └── file4.txt
+
+   2 directories, 4 files
+   ```
+
+3. 只显示目录，不显示文件
+
+   ```bash
+   tree -d
+
+   # 输出：
+   └── subdir
+
+   1 directory
+   ```
+
+4. 显示所有文件，包括隐藏文件
+
+   ```bash
+   tree -a
+
+   # 输出：
+   ├── .hiddenfile
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── .hiddenfile
+       ├── file3.txt
+       └── file4.txt
+
+   2 directories, 6 files
+   ```
+
+5. 显示文件和目录大小
+
+   ```bash
+   tree -s
+
+   # 输出：
+   ├── 123 file1.txt
+   ├── 456 file2.txt
+   └── subdir
+       ├── 789 file3.txt
+       └── 101 file4.txt
+
+   2 directories, 4 files
+   ```
+
+6. 显示文件大小以人类可读格式
+
+   ```bash
+   tree -sh
+
+   # 输出：
+   ├── 12K file1.txt
+   ├── 45K file2.txt
+   └── subdir
+       ├── 123K file3.txt
+       └── 56K file4.txt
+
+   2 directories, 4 files
+   ```
+
+7. 排除特定文件类型
+
+   ```bash
+   tree -I "*.log"
+
+   # 输出：
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── file3.txt
+       └── file4.txt
+
+   2 directories, 4 files
+   ```
+
+   （`*.log` 文件被排除）
+
+8. 显示完整路径
+
+   ```bash
+   tree -f
+
+   # 输出：
+   /home/user/file1.txt
+   /home/user/file2.txt
+   /home/user/subdir/file3.txt
+   /home/user/subdir/file4.txt
+   ```
+
+9. 不显示统计报告
+
+   ```bash
+   tree --noreport
+
+   # 输出：
+   ├── file1.txt
+   ├── file2.txt
+   └── subdir
+       ├── file3.txt
+       └── file4.txt
+   ```
+
+**4. 用途：**
+
+- **目录结构查看**：使用 `tree` 可以方便地查看一个目录的层次结构，特别是在文件夹层级很深的情况下，帮助用户了解整个文件系统的布局。
+- **目录内容筛选**：通过排除特定类型的文件或文件夹，用户可以更容易地获取他们需要的信息。
+- **文件大小分析**：通过显示每个文件的大小，可以帮助用户了解哪些文件占用了磁盘空间。
+- **脚本自动化**：在自动化任务中，`tree` 可以生成可视化的目录结构，便于日志记录和处理。
+
+**5. 安装：**
+
+`tree` 不是 Linux 系统的默认工具，但可以通过包管理器进行安装：
+
+```bash
+# Debian/Ubuntu
+sudo apt-get install tree
+
+# RedHat/CentOS
+sudo yum install tree
+
+# macOs（通过 Homebrew）
+brew install tree
 ```
 
-ssh connects and logs into the specified destination, which may be specified as either `[user@]hostname` or a URI of the form
-`ssh://[user@]hostname[:port]`. The user must prove their identity to the remote machine using one of several methods (see below).
+**6. 总结：**
 
-常用登录命令：
+`tree` 是一个非常直观的命令行工具，可以以树状结构显示文件系统的层次结构。通过各种选项，用户可以定制输出的内容，例如限制深度、显示文件大小、排除特定类型的文件等。这些功能使得 `tree` 成为文件管理和脚本自动化任务中的一个强大工具。
 
-```shell
-ssh -p 22 my@127.0.0.1
-# 输入密码：
+# 文本操作命令
+
+## sed 命令
+
+`sed`（Stream Editor）是一个强大的文本处理工具，主要用于对文本流进行**过滤和转换**。它常用于 Unix/Linux 系统中，可以对文件内容或标准输入流进行文本替换、插入、删除和其他处理。
+
+**基本语法**：
+
+```bash
+sed [OPTIONS] 'command' file
 ```
 
-**-p** 后面是端口
+- **OPTIONS**：选项，可以影响 `sed` 的行为。
+- **command**：要执行的命令，通常包括地址和操作。
+- **file**：要处理的文件名，可以是一个或多个文件。
 
-**my** 是服务器用户名
+**常见功能和用法**：
 
-**127.0.0.1** 是服务器 ip
+1. 文本替换
 
-回车输入密码即可登录
+   使用 `s` 命令进行替换：
 
-### ssh 免密登录
-
-参考链接：
-
-1. [设置 SSH 通过秘钥登录](https://www.runoob.com/w3cnote/set-ssh-login-key.html)
-2. [ssh 免密登录配置方法及配置](https://blog.csdn.net/weixin_44966641/article/details/123955997) ----主要
-3. [VSCode——SSH 免密登录](https://blog.csdn.net/qq_45779334/article/details/129308235?spm=1001.2101.3001.6650.2&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7ECtr-2-129308235-blog-123031276.235%5Ev43%5Epc_blog_bottom_relevance_base3&utm_relevant_index=4) ----主要
-4. [连接远程服务器总是要输入密码（rsa 验证无用）](https://www.cnblogs.com/coldchair/p/18760176)
-5. [git/ssh 捋不清的几个问题](https://www.barretlee.com/blog/2014/03/11/cb-problems-in-git-when-ssh/)
-6. [解决使用两台主机的 VSCode 远程连接同一个服务器账户出现的配置冲突问题](https://blog.csdn.net/holyball/article/details/130109637)
-
-配置流程：
-
-1. **生成秘钥对**
-
-   在本地机器上生成公钥、私钥：（一路回车默认即可）
-
-   ```shell
-   # 自行查阅命令参数，-t 秘钥类型；-C 注释；-f 生成文件名；
-   # 最好先进入 `~/.ssh` 目录，这样文件直接生成在这个目录下。
-   ssh-keygen -t rsa -C "xxx" -f "path/id_rsa_xxx"
+   ```bash
+   sed 's/old-text/new-text/' filename
    ```
 
-   可以在 `~/.ssh` 目录下看到两个秘钥文件，即我们刚生成的私钥 `iid_rsa_xxx` 和公钥 `iid_rsa_xxx.pub`（具体名称取决于你的命名）。
+   - 默认只替换第一处匹配的文本。
+   - 添加 `g` 可以替换所有匹配的文本：
 
-2. **上传公钥到服务器**
-
-   在本地机器上生成秘钥对之后，需要将公钥 `iid_rsa_xxx.pub` 中的内容放到对应服务器上的 `~/.ssh/authorized_keys` 文件中，此步有 2 种方式：
-
-   ```shell
-   # 1.通过 ssh-copy-id 命令，命令有点类似 scp，需要输入密码
-   ssh-copy-id -i /path/id_rsa_xxx.pub user@host
-
-   # 2.手动将直接将公钥文件内容拷贝到服务器的 ~/.ssh/authorized_keys 文件中，没有文件则创建文件
+   ```bash
+   sed 's/old-text/new-text/g' filename
    ```
 
-3. **文件权限配置**
+2. 在行首/行尾添加文本
 
-   - ssh 密钥登录时，用户的 `~/.ssh` 目录及其内部文件（如 `authorized_keys`）的权限设置必须严格（安全性考虑），**否则 SSH 认证会失败**。
-   - 用户 Home 目录的权限过于宽松**也会导致 SSH 无法正常使用密钥认证**。该目录权限应该为 `755（drwxr-xr-x）`。
+   - 在每行的开头添加文本：
 
-   ```shell
-   # 设置 `～/.ssh` 和 `~/.ssh/authorized_keys` 权限
-   chmod 700 ~/.ssh
-   chmod 600 ~/.ssh/authorized_keys
-
-   # 用户 Home 目录权限为755
-   chmod 755 xxx/xxx
+   ```bash
+   sed 's/^/new-text /' filename
    ```
 
-   > :page*with_curl: **Note**
-   > 如果权限设置不对，在配对秘钥的时候会无法打开 authorized_keys 文件从而导致秘钥配对失败。而 ssh 此时没有放弃连接，依然会尝试询问用户密码。最终产生的结果就是用户配置了公钥却仍然需要输入密码的问题。导致费了很大功夫才找到问题 `-*-!!!`。
+   - 在每行的末尾添加文本：
+
+   ```bash
+   sed 's/$/ new-text/' filename
+   ```
+
+3. 删除行
+
+   - 删除特定行：
+
+   ```bash
+   sed '3d' filename   # 删除第三行
+   ```
+
+   - 删除包含特定模式的行：
+
+   ```bash
+   sed '/pattern/d' filename
+   ```
+
+4. 选择特定行
+
+   - 仅显示特定行：
+
+   ```bash
+   sed -n '2p' filename   # 只打印第二行
+   ```
+
+   - 打印范围行：
+
+   ```bash
+   sed -n '2,5p' filename   # 打印第2到第5行
+   ```
+
+5. 使用正则表达式
+
+   `sed` 支持基本正则表达式和扩展正则表达式：
+
+   - 基本正则表达式（BRE）：
+
+   ```bash
+   sed 's/[0-9]/X/' filename   # 将数字替换为 X
+   ```
+
+   - 扩展正则表达式（ERE），需要使用 `-E` 选项：
+
+   ```bash
+   sed -E 's/[a-zA-Z]+/WORD/' filename   # 将单词替换为 "WORD"
+   ```
+
+6. 直接编辑文件
+
+   使用 `-i` 选项可以直接修改文件而不输出到标准输出：
+
+   ```bash
+   sed -i 's/old-text/new-text/g' filename
+   ```
+
+   - 注意：直接编辑文件前最好备份原文件。
+
+**使用示例**：
+
+1. 替换文件中的文本
+
+   假设有一个文本文件 `example.txt` 内容如下：
+
+   ```bash
+   Hello World
+   This is a test file.
+   Goodbye World
+   ```
+
+   要将所有的 "World" 替换为 "Everyone"，可以使用：
+
+   ```bash
+   sed 's/World/Everyone/g' example.txt
+   ```
+
+   输出：
+
+   ```bash
+   Hello Everyone
+   This is a test file.
+   Goodbye Everyone
+   ```
+
+2. 删除特定行
+
+   要删除第二行：
+
+   ```bash
+   sed '2d' example.txt
+   ```
+
+   输出：
+
+   ```bash
+   Hello World
+   Goodbye World
+   ```
+
+3. 在每行前添加文本
+
+   要在每行前添加 "Line: "：
+
+   ```bash
+   sed 's/^/Line: /' example.txt
+   ```
+
+   输出：
+
+   ```bash
+   Line: Hello World
+   Line: This is a test file.
+   Line: Goodbye World
+   ```
+
+`sed` 是一个非常灵活且强大的文本处理工具，适用于各种文本编辑任务。通过组合不同的命令和选项，可以完成复杂的文本处理工作。
+
+# 命令行命令
+
+## eval 命令
+
+`eval` 是 Shell 中的一个内建命令，用于**将一段字符串解析为命令并执行**。它通常用于将字符串形式的命令转换为可执行的命令，特别是在需要动态构建和运行复杂命令时。
+
+**语法**：
+
+```bash
+eval [命令字符串]
+```
+
+**工作原理**：
+
+`eval` 会对提供的命令字符串进行两次解析：
+
+1. **第一次解析**：解释字符串中的变量和命令替换。
+2. **第二次解析**：将解析后的内容作为命令执行。
+
+因此，`eval` 对于动态生成命令非常有用，可以在运行时生成复杂的命令行。
+
+**使用场景和示例**：
+
+eval 命令用于计算并执行包含 shell 命令的字符串。有几个重要的应用场景：
+
+1. 变量的间接引用
+
+   ```bash
+   # 根据变量名的内容来访问不同的变量值
+   var_name="path"
+   path="/usr/local/bin"
+   eval echo \$$var_name  # /usr/local/bin
+
+   # 动态设置变量
+   key="my_var"
+   value="hello"
+   eval "$key='$value'"  # 相当于 my_var='hello'
+   ```
+
+   **说明**：`\$$var_name` 经过两次解析后变成了 `$path`，最终输出 `/usr/local/bin`。
+
+2. 动态生成和执行命令
+
+   ```bash
+   # 根据条件构建命令
+   options="-l -h"
+   cmd="ls $options"
+   eval $cmd
+
+   # 构建带参数的复杂命令
+   port=8080
+   host="localhost"
+   eval "curl -X POST http://$host:$port/api"
+
+   # 多个命令组合成一个字符串进行一次性执行
+   cmd1="echo Hello"
+   cmd2="echo World"
+   eval "$cmd1; $cmd2"  # 输出2行，Hello 和 World
+   ```
+
+3. 环境变量的展开
+
+   ```bash
+   # 展开环境变量字符串
+   path_var='$HOME/documents'
+   eval echo $path_var  # 将输出实际的home路径
+   ```
+
+4. 处理命令行参数
+
+   ```bash
+   # 处理带引号的参数
+   args='"arg1 with space" arg2'
+   eval set -- $args
+   echo $1  # 输出: arg1 with space
+   ```
+
+5. 配置文件处理
+
+   ```bash
+   # 读取配置文件中的变量定义
+   config_line="export JAVA_HOME=/usr/lib/java"
+   eval $config_line
+   ```
+
+6. 处理复杂的命令组合
+
+   ```bash
+   eval "for i in {1..3}; do echo \$i; done"
+   ```
+
+**注意事项**：
+
+- **安全性**：由于 `eval` 会执行传入的所有内容，因此要注意不要用 `eval` 直接运行来自不可信源的输入，避免安全风险。
+- **调试难度**：因为 `eval` 会两次解析内容，所以可能会导致调试较复杂的命令困难。
+- 避免直接执行来自用户输入的命令，可能存在安全风险
+- 在使用 `eval` 前应该检查用户输入和对特殊字符进行转义
+- 优先考虑使用数组或其他内置命令
+- 谨慎处理包含空格或特殊字符的字符串
+- 尽可能使用其他更安全的替代方法
+
+### `eval` 后跟命令/字符串
+
+在 `eval` 中，我们可以直接跟字符串，也可以跟其他命令（如 `echo` 等），它们的执行结果会有所不同。
+
+1. `eval` 后面直接跟字符串
+
+   当 `eval` 后面直接跟字符串时，`eval` 会把这个字符串当作命令执行。通常，我们会把这个字符串放在**双引号**中，来确保变量替换和命令替换正常进行。
+
+   ```bash
+   cmd="echo Hello $USER"
+   eval "$cmd"
+   ```
+
+   这里，`eval` 会首先解析 `$cmd` 的内容，把它变成 `echo Hello your_username`，然后执行这个命令。最终输出 `Hello your_username`。
+
+2. `eval` 后面跟 `echo`
+
+   当 `eval` 后面跟 `echo` 时，`eval` 会先解析其后面的内容，然后执行它。`echo` 只会把内容打印出来，而不真正执行任何命令。
+
+   ```bash
+   cmd="echo Hello $USER"
+   eval echo "$cmd"
+   ```
+
+   在这个例子中，`eval` 会解析 `"$cmd"`，将其内容变为 `echo Hello your_username`，然后执行这个 `echo` 命令。最终输出的结果是：`echo Hello your_username`
+
+   > **总结**：
    >
-   > :warning: 设置 ssh 路径下的权限，以及 Home 目录权限（重要！）---- 本人未设置
-   >
-   > [vscode 在 remote SSH 免密远程登录](https://blog.csdn.net/weixin_42907822/article/details/125237307)
+   > - **`eval "$cmd"`**：会把 `cmd` 中的内容当作命令来执行。
+   > - **`eval echo "$cmd"`**：只是将 `$cmd` 的内容打印出来，但不执行。
 
-4. **修改 SSH 服务器的配置文件**
+3. `eval` 后面跟其他命令
 
-确保 SSH 配置文件 `/etc/ssh/sshd_config` 允许公钥认证。你需要检查以下设置：
+   `eval` 也可以跟任何其他有效的 Shell 命令，不只是字符串或 `echo`，如 `ls`、`cat` 等命令。一般来说，`eval` 会先对整个命令进行一次预处理（如变量解析、命令替换等），然后再执行。
 
-```shell
-# /etc/ssh/sshd_config 文件中
-PubkeyAuthentication yes # 把#号去掉（默认在39行附近），这样公钥验证才生效。
+   假设我们有文件路径变量 `path` 和文件名变量 `filename`：
+
+   ```bash
+   path="/usr/local"
+   filename="bin"
+   eval "ls $path/$filename"  # 效果与 eval ls "$path/$filename" 一样
+   ```
+
+   `eval` 会将 `ls $path/$filename` 解析为 `ls /usr/local/bin`，然后执行 `ls /usr/local/bin`，列出该目录内容。
+
+### `eval` 后跟单/双/反引号
+
+`eval` 后面跟不同类型的引号效果不同：
+
+1. 双引号 (")：
+
+   - 变量会在 eval 执行前展开
+   - 允许变量和命令替换
+
+   ```bash
+   name="John"
+   eval "echo Hello $name"  # 输出：Hello John
+   ```
+
+2. 单引号 (')：
+
+   - 变量不会被展开
+   - 内容会被原样解释
+
+   ```bash
+   name="John"
+   eval 'echo Hello $name'  # 输出：Hello $name
+   ```
+
+3. 反引号 (`) 或 $()：
+
+   - 用于命令替换
+   - 命令会被执行并返回结果
+
+   ```bash
+   eval `echo "ls -l"`    # 执行 ls -l
+   eval $(echo "ls -l")   # 同上，更现代的写法
+   ```
+
+**示例**：
+
+```bash
+# 双引号使用场景
+var="world"
+eval "message='Hello $var'"  # 变量会被展开
+
+# 单引号使用场景
+eval 'echo $PATH'  # $PATH 会在eval执行时才被展开
+
+# 命令替换使用场景
+eval `date "+now='%Y-%m-%d'"`
+eval $(date "+now='%Y-%m-%d'")
 ```
 
-重启远程服务器的 ssh 服务
+**建议**：
 
-```shell
-service ssh start
+- 优先使用双引号，便于变量展开
+- 需要延迟变量展开时使用单引号
+- 命令替换优先使用 $() 语法，更清晰易读
+
+## xargs 命令
+
+`xargs` 是 Linux 和 Unix 系统中的一个常用命令，用于将标准输入（例如管道或文件中的内容）转换为命令行参数。它允许你将其他命令的输出作为参数传递给指定的命令，特别适合处理多个输入，并将其批量传递给其他命令执行。
+
+**基本语法**：
+
+```bash
+command | xargs [options] [command [initial-arguments]]
 ```
 
-5.  **本地 SSH 连接配置**
+**常用选项**：
 
-SSH 使用 `~/.ssh/config` 文件来配置 SSH 连接。在文件中新增一份如下配置：
+- `-n`：每次传递给命令的参数数目。
 
-```shell
-Host xxx-xxx
-  HostName xxx.xxx.xxx.xxx
-  Port 22
-  User root
-  IdentityFile ~/.ssh/id_rsa_xxx
-```
+  ```shell
+  echo "a b c" | xargs -n 1
+  # 输出：
+  # a
+  # b
+  # c
+  ```
 
-如果这个文件没有正确配置，或者你没有在该文件中指定正确的 SSH 密钥，可能会导致无法识别密钥，从而要求输入密码。
+- `-d`: 自定义分隔符
 
-:book: **补充**
-**ssh config 配置文件的基本格式**
+  ```shell
+  echo "a:b:c" | xargs -d ":" -n 1
+  ```
 
-```shell
-Host      # hostName的别名
-  HostName  # 是目标主机的主机名，也就是平时我们使用ssh后面跟的地址名称。
-  Port   # 指定的端口号。
-  User   # 指定的登陆用户名。
-  IdentifyFile # 指定的私钥地址。
-  ProxyJump ProxyJump user@jump_host:port # 跳板机的用户名、主机地址、端口
-```
+- `-I`：指定占位符，用于替换输入。
 
-> - 不要加 PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。<font color=red><b>被坑死了 -\_-!!!</b></font>
+  ```shell
+  echo "file1 file2" | xargs -I {} cp {} backup/    # 每个文件拷贝到backup文件夹下
+  ```
 
-6.  测试免密登录
+- `-P`：并行处理
 
-### ssh 远程连接 docker
+  ```shell
+  find . -type f | xargs -P 4 -I {} gzip {}  # 4个并行进程
+  ```
 
-> [设置 SSH 远程连接 docker 容器](https://www.cnblogs.com/luochunxi/p/16699704.html)
+- `-p`：提示用户确认执行每条命令。
 
-```shell
-# 1.创建容器，默认是root用户，需自定义<>中内容
-# `host` 模式 `-p` 选项不需要，因为 `host` 模式下容器直接使用宿主机的网络栈，端口是共享的。
-docker run -d \
-    -it \
-    --privileged \
-    -h <hostname> \
-    --restart always \
-    --network host \
-    --name <dockername> \
-    -v /data/<path>:/data/<path> \
-    IMAGE \
-    /bin/bash
+  ```shell
+  echo "a b c" | xargs -n 1 -p
+  ```
 
-# `bridge` 模式可以使用 `-p` 选项指定端口
-docker run -d \
-    -it \
-    --privileged \
-    -h <hostname> \
-    --restart always \
-    --network bridge \
-    -p <port_h:port_c> \
-    --name <dockername> \
-    -v /data/<path>:/data/<path> \
-    IMAGE \
-    /bin/bash
+- `-t`：打印每个命令（用于调试）。
 
-# 2.进入容器
-docker exec -it <docker_name> bash
+  ```shell
+  echo "a b c" | xargs -n 1 -t
+  ```
 
-# 3.设置密码，修改容器的root密码
-passwd
-密码设置为：123456
+- `-0`：配合 `find ... -print0` 使用，用于处理文件名中的空格或特殊字符。
 
-# 4.安装 ssh
-apt-get update
-apt-get install openssh-server -y
+**`xargs` 的主要功能**：
 
-# 5.查看 ssh 是否启动
-ps -e | grep ssh # 有sshd,说明ssh服务已经启动。如果没有启动，输入`service ssh start`启动服务
+- **批量传递参数**：`xargs` 可以将多个输入拼接成一个命令的参数列表，以便一次性处理。
+- **自动分批执行**：如果参数太多导致命令长度超限，`xargs` 会自动将其分批执行。
+- **结合管道使用**：`xargs` 常与 `find`、`grep`、`cat` 等命令结合，通过管道传递数据，完成复杂任务。
 
-# 6.修改配置，
-# 打开配置文件`/etc/ssh/sshd_config`
-PermitRootLogin yes  # 原文件为`PermitRootLogin without-password`，需要改成左边，没有就新增
-Port 22  # 可能原文件为`#Port 22`，即默认放开 22 端口给 ssh 用。
-Port xxx # 如果 docker run 用的是 host 模式，这里直接指定一个合法端口给 ssh 用就可以，如 10086，宿主机和 docker 都是用这个端口，注意不要冲突。如果 docker run 命令中为 bridge 模式（默认）且用 -p <host_port>:<container_port>的<container_port>为22，此处`Port 22`；若<container_port>为其他值如10086，则此处需要改成`Port 10086`。放开多个端口需同时添加多条`Port xxx`。
+**常见示例**：
 
-# 7.启动 ssh，重启用`service ssh restart`
-service ssh start
-# 开机自动启动ssh命令
-sudo systemctl enable ssh
+1. `xargs` 批量删除文件：
+   假设要删除当前目录下 `.tmp` 结尾的所有文件，可以使用 `find` 和 `xargs` 组合：
 
-# 8.ssh远程登录上述创建的容器
-# 注意这里要用 root 用户登录
-ssh root@xx.xx.xx.xx -p <port>
-```
+   ```bash
+   find . -name "*.tmp" | xargs rm
+   ```
 
-> NOTE：
->
-> 一定要检查 `~/.ssh/config` 文件，不要添加 PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。
->
-> `<font color=red>`被坑死了 -\_\_-!!!`</font>`
->
-> ```shell
-> # 上面步骤修改配置文件`/etc/ssh/sshd_config`时，部分 wiki 说要放开下面配置，实测未放开也可以，未深究
-> PasswordAuthentication yes
-> ```
+   这里，`find` 会找到所有 `.txt` 文件并传递给 `xargs`，然后 `xargs` 执行 `rm` 命令来删除它们。
 
-### ssh 启动报错
+2. `xargs` 批量重命名：
 
-如果 ssh 启动报错：
+   ```bash
+   ls *.txt | xargs -I {} mv {} {}.bak
+   ```
 
-```shell
-Badly formatted port number
-```
+3. `xargs` 批量压缩：
 
-说明 `/etc/ssh/sshd_config` 中端口号有问题，改正默认值 22，然后重启 ssh 服务即可。如
+   ```bash
+   find . -name "*.log" | xargs gzip
+   ```
 
-```shell
-# 打开文件 /etc/ssh/sshd_config，将 Port 改成22
-Port 22
+4. 安全处理：
+   处理包含空格的文件名：
 
-# 重启 ssh 服务
-service ssh start
-```
+   ```bash
+   find . -type f -print0 | xargs -0 command
+   ```
+
+5. 使用 `xargs` 将单行转换为多行
+
+   `xargs` 默认将输入按空格分隔为一行输出，即**前面命令的所有输出当成一行作为其他命令的参数**：
+
+   ```bash
+   echo "a b c d" | xargs
+   # 输出: a b c d
+   ```
+
+6. 使用 `xargs` 和 `-I` 替换字符串
+
+   `-I` 选项指定一个占位符（如 `{}`），`xargs` 将每个输入替换到占位符位置。当后面的命令有多个参数时使用，可以组装出更复杂的命令。例如：
+
+   ```bash
+   echo "file1 file2" | xargs -I {} mv {} /new_directory/
+   ```
+
+   这里 `{}` 是占位符，每个输入会替换 `{}`，然后执行 `mv` 命令将 `file1` 和 `file2` 移动到 `/new_directory/`。
