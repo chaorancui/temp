@@ -14,6 +14,11 @@
 
 ### Jinja2 示例
 
+参考链接：
+
+1. [欢迎来到 Jinja2](https://docs.jinkan.org/docs/jinja2/)
+2. [xx]()
+
 #### 安装 Jinja2
 
 ```bash
