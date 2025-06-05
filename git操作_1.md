@@ -1369,3 +1369,258 @@ git clean -df
 ```
 
 git clean 对于刚编译过的项目也非常有用. 如, 他能轻易删除掉编译后生成的.o 和.exe 等文件. 这个在打包要发布一个 release 的时候非常有用
+
+# Git LFS
+
+## 什么是 Git LFS
+
+Git LFS 是 Git 的扩展，用于管理大型二进制文件（如 `.zip`、`.pt`、`.png`、`.psd` 等），避免它们直接存在 Git 历史中导致仓库膨胀。
+Git LFS 使用**指针文件**代替真正的二进制内容，并将真实数据托管在专用的 LFS 服务器上。
+
+## Git LFS 常用命令
+
+### git lfs install
+
+初始化或配置 Git LFS。
+
+```bash
+git lfs install                 # 安装 LFS，启用自动 smudge
+git lfs install --skip-smudge   # 安装但跳过拉取大文件（checkout 时不会自动下载）
+```
+
+- 通常在第一次使用 LFS 时执行。
+- 修改 Git 配置，例如设置 `filter.lfs.smudge`。
+
+### git lfs track
+
+告诉 Git 哪些文件需要被 LFS 管理。
+
+```bash
+git lfs track "*.psd"
+```
+
+- 会在项目根目录生成或修改 `.gitattributes` 文件。
+- 必须提交 `.gitattributes` 文件才能让其他人也生效。
+
+### git lfs untrack
+
+取消对某些文件类型的 LFS 跟踪。
+
+```bash
+git lfs untrack "*.psd"
+```
+
+- 同样会修改 `.gitattributes` 文件。
+
+### git lfs ls-files
+
+列出当前项目中由 LFS 管理的文件（索引中的文件）。
+
+```bash
+git lfs ls-files
+```
+
+### git lfs status
+
+查看当前 LFS 文件的状态（是否已提交、修改等）。
+
+```bash
+git lfs status
+```
+
+### git lfs fetch
+
+从 LFS 服务器下载文件对象，但不 checkout（适用于 CI 或缓存）。
+
+```bash
+git lfs fetch                         # 拉取当前 HEAD 所需的 LFS 对象
+git lfs fetch --all                   # 拉取所有分支所有对象（谨慎使用）
+git lfs fetch --include="folder/**"   # 仅拉取指定路径下的 LFS 文件
+```
+
+### git lfs pull
+
+等价于 `git lfs fetch` + `git lfs checkout`，即下载并替换指针为实际文件。
+
+```bash
+git lfs pull
+git lfs pull --include="models/**"
+```
+
+### git lfs push
+
+推送 LFS 管理的文件到远程 LFS 服务器。
+
+```bash
+git lfs push origin main
+git lfs push --all origin    # 推送所有 LFS 文件历史（适合备份）
+```
+
+### git lfs checkout
+
+将指针文件替换为真实内容（如果之前 fetch 过）。
+
+```bash
+git lfs checkout
+```
+
+- 常用于 LFS 下载被跳过（如设置了 `GIT_LFS_SKIP_SMUDGE=1`）的场景。
+
+### git lfs clean / git lfs smudge
+
+低层命令，一般不手动使用。
+
+- `clean`：Git 添加文件时，把大文件替换成 LFS 指针。
+- `smudge`：Git checkout 时，把指针替换成真实文件。
+
+这些通过 `.gitattributes` 中的 `filter=lfs` 自动完成。
+
+### git lfs prune
+
+清理未使用的本地 LFS 对象以节省磁盘空间。
+
+```bash
+git lfs prune
+```
+
+- 类似于 Git 的 `gc`，删除 LFS 缓存中没被引用的文件。
+
+### git lfs log
+
+显示关于某个文件的 LFS 历史记录（对象版本、SHA 等）。
+
+### git lfs env
+
+显示当前 Git LFS 的配置信息。
+
+### git lfs help
+
+显示帮助文档或具体命令说明。
+
+```bash
+git lfs help
+git lfs help track
+```
+
+**总结**：
+
+| 场景                          | 建议命令                              |
+| ----------------------------- | ------------------------------------- |
+| 克隆但不下载大文件            | `GIT_LFS_SKIP_SMUDGE=1 git clone ...` |
+| 后续补拉某个目录下的 LFS 文件 | `git lfs pull --include="dir/**"`     |
+| 只推送某个分支的 LFS 文件     | `git lfs push origin <branch>`        |
+| 查看哪些文件被 LFS 管理       | `git lfs ls-files`                    |
+| 清理没用的 LFS 文件           | `git lfs prune`                       |
+
+## 示例工作流程
+
+```bash
+# 初始化
+git lfs install
+
+# 指定大文件类型
+git lfs track "*.pt"
+git add .gitattributes
+git add model.pt
+git commit -m "Add model with LFS"
+
+# 推送到远程
+git push origin main
+```
+
+## 小贴士
+
+### 是否启用自动拉取 LFS
+
+```bash
+git config --global --get filter.lfs.smudge
+# 输出为：git-lfs smudge --skip %f, 则当前是跳过拉取
+# 输出为：git-lfs smudge %f, 则自动拉取
+```
+
+### 关闭自动拉取 LFS 文件
+
+Git 本身并不支持只克隆部分文件夹，你必须先克隆整个仓库，再 selectively 拉取所需的 LFS 文件。
+如果你在 **执行 `git clone` 拉取仓库时，不想拉取由 Git LFS 管理的文件内容（即只保留指针，不下载实际大文件）**，你可以使用以下方法：
+
+**一、使用环境变量 `GIT_LFS_SKIP_SMUDGE=1`（推荐方法）**
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone <repo-url>
+```
+
+原理说明：
+
+- `smudge` 是 Git LFS 在 checkout 时用来**自动下载大文件**的机制。
+- 这个命令通过设置环境变量禁用 smudge：
+  - 会拉取 Git 仓库（commit/树/指针等）
+  - 不会拉取 LFS 文件内容，只留下 LFS 的占位符指针文件
+
+**二、克隆后永久关闭自动拉取（可选）**
+
+如果你经常处理这种仓库，可以在本地全局禁用 smudge：
+
+```bash
+git lfs install --skip-smudge
+```
+
+这样你今后拉的所有 Git 仓库都不会自动下载 LFS 文件。
+
+你可以通过以下方式来**关闭 `git lfs install --skip-smudge` 的效果**，即**恢复默认行为**，让 Git 在 checkout 时自动下载 LFS 管理的文件。
+
+- **方法一**：重新执行不带参数的 `git lfs install`，这会恢复默认的自动 smudge（自动下载）行为。
+
+- **方法二**：手动修改配置项
+
+  `--skip-smudge` 的本质是设置了以下配置项：
+
+  ```bash
+  git config --global filter.lfs.smudge "git-lfs smudge --skip %f"
+  ```
+
+  你可以通过下面的命令手动清除，或者恢复默认设置：
+
+  ```bash
+  # 手动清除
+  git config --global --unset filter.lfs.smudge
+
+  # 恢复默认设置
+  git config --global filter.lfs.smudge "git-lfs smudge %f"
+  ```
+
+### 单独拉取 lfs 管理的文件
+
+`git lfs`（Git Large File Storage）默认会根据 `.gitattributes` 中的配置，拉取 LFS 管理的所有大文件。如果你只想**拉取一个文件夹下的文件**，可以通过 Git LFS 的 `--include` 和 `--exclude` 选项实现**最小化拉取数据**的效果：
+
+- `--include` 参数，用于**只拉取**指定路径的 LFS 文件。
+- `--exclude` 参数，用于**排除**指定路径的 LFS 文件。
+
+```bash
+GIT_LFS_SKIP_SMUDGE=1 git clone <repo-url>
+git lfs pull --include="path/to/your/folder"
+```
+
+**注意事项**：
+
+- `--include` 的路径是相对仓库根目录的。
+- 要用 `"` 包裹路径，防止 shell 扩展或路径被误解。
+- 如果该目录下没有由 LFS 管理的文件，该命令不会做任何事。
+
+**示例**
+
+假设你有如下目录结构：
+
+```bash
+project/
+├── models/
+│   ├── model1.pt  # LFS 文件
+│   └── model2.pt
+├── data/
+│   └── large_data.csv  # LFS 文件
+```
+
+你只想拉取 `models/` 下的模型文件：
+
+```bash
+git lfs pull --include="models"
+```
