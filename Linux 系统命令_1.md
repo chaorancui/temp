@@ -52,11 +52,11 @@ ubuntu 最小安装时，可能会遇到没有内置的编辑器的情况，vi/v
    ```bash
    # 备份
    sudo cp /etc/apt/sources.list /etc/apt/sources.list.bkp
-   
+
    # 更新默认源
    # 从 http://archive.ubuntu.com/ 替换为 http://mirrors.ustc.edu.cn/ 即可。
    sudo sed -i 's@//.*archive.ubuntu.com@//mirrors.ustc.edu.cn@g' /etc/apt/sources.list.d/ubuntu.sources
-   
+
    # 更新安全源，因镜像站同步有延迟，可能会导致生产环境系统不能及时检查、安装上最新的安全更新，不建议替换 security 源。
    # 从 http://security.ubuntu.com/ 替换为 https://mirrors.ustc.edu.cn/ 即可。
    sudo sed -i 's/security.ubuntu.com/mirrors.ustc.edu.cn/g' /etc/apt/sources.list.d/ubuntu.sources
@@ -1176,3 +1176,87 @@ passwd [选项] [用户名]
 - **禁用用户密码**：使用 `sudo passwd -l <username>` 锁定用户密码。
 - **解锁用户密码**：使用 `sudo passwd -u <username>` 解锁密码。
 - **强制用户下次修改密码**：使用 `sudo passwd -e <username>` 强制更改密码。
+
+## chown 命令
+
+`chown` 是 Linux 中用于更改文件或目录 **所有者**（user）和/或 **所属组**（group）的命令。该命令常用于权限管理，确保某些用户或组可以访问和操作指定文件或目录。
+
+**一、基本语法**
+
+```bash
+chown [选项] 用户[:用户组] 文件/目录
+```
+
+- `用户`：新文件拥有者。
+- `用户组`：新所属用户组，可选。
+- 文件/目录：要操作的目标对象。
+
+**二、常用示例**
+
+1. **更改文件拥有者**
+
+   ```bash
+   sudo chown alice file.txt
+   ```
+
+   将 `file.txt` 的拥有者改为用户 `alice`，用户组保持不变。
+
+2. **更改文件拥有者和所属组**
+
+   ```bash
+   sudo chown alice:developers file.txt
+   ```
+
+   将 `file.txt` 的拥有者改为 `alice`，所属用户组改为 `developers`。
+
+3. **只更改所属组**
+
+   ```bash
+   sudo chown :developers file.txt
+   ```
+
+   拥有者不变，只将文件的用户组改为 `developers`。
+
+4. **递归更改目录及其内部所有文件/子目录的所有者**
+
+   ```bash
+   sudo chown -R alice:developers /data/share
+   ```
+
+   使用 `-R`（`--recursive`） 选项可以递归更改整个目录树的拥有者和组。
+
+5. **使用 UID 和 GID 更改**
+
+   ```bash
+   sudo chown 1001:1002 file.txt
+   ```
+
+   将文件所有者和组设置为对应的 UID 和 GID。
+
+**三、常用选项**
+
+| 选项                 | 说明                                                     |
+| -------------------- | -------------------------------------------------------- |
+| `-R`                 | 递归地更改目录及其中所有文件和子目录的拥有者/用户组。    |
+| `-f`                 | 忽略错误信息，不显示警告。                               |
+| `-v`                 | 显示处理信息，输出详细更改内容。                         |
+| `--from=旧用户:旧组` | 仅当文件当前的拥有者和组匹配时才更改（常用于安全脚本）。 |
+
+你可以使用 `ls -l` 来查看文件所有者和用户组：
+
+```bash
+ls -l file.txt
+
+# 示例输出：
+-rw-r--r-- 1 alice developers  1234 Jun 5 12:34 file.txt
+其中：
+
+- `alice` 是文件拥有者。
+- `developers` 是所属用户组。
+```
+
+**四、注意事项**
+
+- 修改所有权通常需要超级用户权限（使用 `sudo`）。
+- `chown` 无法用于普通用户修改他们无权访问的文件。
+- 更改系统关键文件的拥有者可能导致系统异常，请谨慎使用。
