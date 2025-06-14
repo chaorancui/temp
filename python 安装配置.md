@@ -8,6 +8,230 @@ windows 查看安装 python 版本：py -0
 
 查看 python 安装路径：where python
 
+## 代码格式化插件
+
+### yapf
+
+`yapf` (Yet Another Python Formatter) 是 Google 开发的 Python 代码格式化工具，支持 `pep8`、`google`、`facebook` 和 `chromium` **4 种内置预设风格（built-in styles）**，还可自定义风格，调整自定义缩进、换行、括号样式、对齐方式等。
+
+**一、内置风格（built-in styles）**（共 4 个）
+
+你可以通过参数 `--style=<style_name>` 或在配置文件中指定 `based_on_style = <style_name>` 来使用它们。
+
+下面是这 4 种风格的核心区别总结：
+
+1. `pep8`（Python 官方风格）
+
+   - **基准：** [PEP 8](https://peps.python.org/pep-0008/)
+   - **缩进宽度：** 4 空格
+   - **换行控制：** 比较宽松（更早换行）
+   - **函数参数换行：** 尽量放在多行，尤其当参数较多时
+   - **推荐用途：** 想遵循 Python 官方规范的人
+
+   ```python
+   def foo(a, b, c,
+           d, e, f):
+       pass
+   ```
+
+2. `google`
+
+   - **基准：** Google Python Style Guide
+   - **缩进宽度：** 4 空格
+   - **函数参数：** 尽可能保持在一行，除非超长
+   - **字典、列表等结构体：** 尽量紧凑
+   - **推荐用途：** 喜欢 Google 风格、简洁写法的人
+
+   ```python
+   def foo(a, b, c, d, e, f):
+       pass
+   ```
+
+3. `chromium`
+
+   - **基准：** Chromium 项目中的 Python 风格
+   - **缩进宽度：** 2 空格（与其他风格不同）
+   - **格式更紧凑：** 倾向少换行，节省垂直空间
+   - **推荐用途：** Chromium、Google 工程代码一致性需求
+
+   ```python
+   def foo(a, b, c, d, e, f):  # 使用 2 空格缩进
+     pass
+   ```
+
+4. `facebook`
+
+   - **Facebook 风格（不公开文档）**
+   - **缩进宽度：** 4 空格
+   - **长行换行：** 更激进的分行
+   - **字典和函数参数：** 倾向多行，尤其在超过列宽限制时
+   - **推荐用途：** 喜欢更加规整、清晰结构风格的人
+
+   ```python
+   def foo(
+       a, b, c,
+       d, e, f,
+   ):
+       pass
+   ```
+
+小结：
+
+| 特性              | pep8     | google   | chromium   | facebook   |
+| ----------------- | -------- | -------- | ---------- | ---------- |
+| 缩进              | 4 空格   | 4 空格   | **2 空格** | 4 空格     |
+| 参数换行倾向      | 较早换行 | 尽量一行 | 尽量一行   | 较激进换行 |
+| 风格紧凑度        | 中等     | 紧凑     | 紧凑       | 宽松       |
+| 多行列表/字典格式 | 较宽松   | 紧凑     | 紧凑       | 更倾向多行 |
+
+**二、自定义风格（custom styles）**
+
+你可以基于上述任意一个内置风格**自定义参数**，创建你自己的配置文件。`yapf` 配置文件可以放在多个位置，会按照一定的顺序查找这些配置文件。以下是可以放置 `yapf` 配置支持格式和优先级顺序：
+
+1. `yapf` 支持的配置文件格式包括：
+
+   - `setup.cfg`
+   - `tox.ini`
+   - `.style.yapf`
+   - `pyproject.toml`（支持较新版本）
+
+2. `yapf` 配置文件的查找优先级（从高到低）：
+
+   1. 显式指定配置路径（最高优先级）
+
+      - 使用 `--style=/path/to/your/configfile` 指定的配置文件。
+
+   2. 当前目录及其父目录中查找配置文件
+
+      按以下顺序查找，并向上递归查找，直到文件系统根或用户主目录：
+
+      - `.style.yapf`
+      - `setup.cfg` （含 `[yapf]` section）
+      - `tox.ini` （含 `[yapf]` section）
+      - `pyproject.toml`（含 `[tool.yapf]` section，v0.32.0+ 支持）
+
+   3. 用户主目录中的 `.style.yapf`（如果存在）
+
+      - 路径通常是 `~/.style.yapf` 或 `%USERPROFILE%\.style.yapf`
+      - 属于“全局配置”，如果项目中没有配置文件，会使用它。
+
+   4. 默认内置风格
+
+      - 如果没有找到任何配置文件，使用 `pep8` 风格作为默认。
+      - 除非显式指定了 `--style=google`、`chromium`、`facebook` 等。
+
+   | 优先级 | 来源                                             | 示例说明                         |
+   | ------ | ------------------------------------------------ | -------------------------------- |
+   | 1      | 显式指定 `--style=path`                          | `yapf --style=mycfg.cfg code.py` |
+   | 2      | 当前目录及向上查找 `.style.yapf`、`setup.cfg` 等 | 项目级配置                       |
+   | 3      | 用户主目录 `~/.style.yapf`                       | 全局配置                         |
+   | 4      | 默认风格 `pep8`                                  | 无配置文件时的兜底风格           |
+
+3. 配置内容
+
+   方式 1：`.style.yapf`
+
+   ```ini
+   [style]
+   based_on_style = pep8
+   indent_width = 4
+   column_limit = 100
+   ```
+
+   方式 2：`setup.cfg`
+
+   ```ini
+   [yapf]
+   based_on_style = pep8
+   indent_width = 2
+   ```
+
+   方式 3：`pyproject.toml`（v0.32.0+ 支持）
+
+   ```toml
+   [tool.yapf]
+   based_on_style = "pep8"
+   indent_width = 4
+   column_limit = 120
+   ```
+
+   建议
+
+   - 如果是单个项目，推荐将 `.style.yapf` 或 `setup.cfg` 放在项目根目录。
+   - 如果多个项目共用一套规则，可以放到用户目录下 `~/.style.yapf`（但不是所有版本都支持）。
+   - 使用 `--style=...` 显式指定配置文件，可以避免查找混乱。
+
+4. 可配置项
+
+   可以在官方文档或运行以下命令查看所有可用项 `yapf --style-help`。
+
+   1. 基本缩进设置
+
+      - `indent_width=4`：使用 4 个空格作为缩进
+      - `continuation_indent_width=4`：续行缩进也是 4 个空格
+      - `use_tabs=False`：不使用制表符，只用空格
+
+   2. 括号与缩进处理
+
+      - `align_closing_bracket_with_visual_indent=True`：将闭合括号与视觉缩进对齐
+      - `dedent_closing_brackets=False`：不在单独一行上取消闭合括号的缩进
+      - `indent_closing_brackets=False`：不在单独一行上缩进闭合括号
+      - `coalesce_brackets=False`：不合并连续括号
+
+   3. 行长度与换行
+
+      - `column_limit=79`：遵循 PEP8 的 79 字符行宽限制
+      - `join_multiple_lines=True`：将短的多行语句合并为单行
+
+   4. 字典与列表格式
+
+      - `each_dict_entry_on_separate_line=True`：每个字典条目单独一行
+      - `allow_multiline_dictionary_keys=False`：不允许字典键跨多行
+      - `indent_dictionary_value=False`：字典值不缩进（与键同行）
+      - `spaces_around_dict_delimiters=False`：字典花括号内不加空格
+      - `spaces_around_list_delimiters=False`：列表方括号内不加空格
+
+   5. 运算符处理
+
+      - `split_before_bitwise_operator=True`：在按位运算符前换行
+      - `split_before_logical_operator=True`：在逻辑运算符前换行
+      - `split_before_arithmetic_operator=False`：不在算术运算符前换行
+      - `arithmetic_precedence_indication=False`：不使用空格表示运算符优先级
+
+   6. 空白行控制
+
+      - `blank_lines_around_top_level_definition=2`：顶级定义周围 2 个空行
+      - `blank_lines_between_top_level_imports_and_variables=1`：导入和变量间 1 个空行
+      - `blank_line_before_nested_class_or_def=True`：嵌套类/函数前加空行
+
+   7. 注释处理
+
+      - `spaces_before_comment=2`：行尾注释前 2 个空格
+      - `i18n_comment=` 和 `i18n_function_call=`：国际化相关注释和函数的特殊处理
+
+   8. 其他重要设置
+
+      - `split_before_closing_bracket=True`：在闭合括号前换行
+      - `split_before_dict_set_generator=True`：在字典/集合生成器前换行
+      - `split_penalty_*` 系列：控制各种换行情况的"惩罚值"，影响格式化决策
+
+**三、vscode 配置**
+
+1. pip 安装 ypaf，vscode 安装插件
+2. 把 formatter 设置为 ypaf
+3. 项目中直接建立配置文件，或者通过 vscode 指定配置文件
+
+或者直接在 `settings.json` 中直接添加：
+
+```json
+    "[python]": {
+        "editor.defaultFormatter": "eeyore.yapf"
+    },
+    "yapf.args": [
+        "--style=xxx/.style.yapf"
+    ]
+```
+
 # pip 命令
 
 pip 是 Python 包管理工具，该工具提供了对 Python 包的查找、下载、安装、卸载的功能。
