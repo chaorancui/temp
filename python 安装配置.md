@@ -167,53 +167,83 @@ windows 查看安装 python 版本：py -0
 
    1. 基本缩进设置
 
-      - `indent_width=4`：使用 4 个空格作为缩进
-      - `continuation_indent_width=4`：续行缩进也是 4 个空格
-      - `use_tabs=False`：不使用制表符，只用空格
+      - `indent_width=4`：缩进宽度为 4 个空格
+      - `continuation_indent_width=4`：续行缩进宽度为 4 个空格
+      - `use_tabs=False`：不使用制表符，仅用空格
+      - `indent_blank_lines=False`：不缩进空行
 
    2. 括号与缩进处理
 
-      - `align_closing_bracket_with_visual_indent=True`：将闭合括号与视觉缩进对齐
-      - `dedent_closing_brackets=False`：不在单独一行上取消闭合括号的缩进
-      - `indent_closing_brackets=False`：不在单独一行上缩进闭合括号
-      - `coalesce_brackets=False`：不合并连续括号
+      - `align_closing_bracket_with_visual_indent=True`：闭合括号与视觉缩进对齐
+      - `dedent_closing_brackets=False`：不将闭合括号单独一行并取消缩进
+      - `indent_closing_brackets=False`：不将闭合括号单独一行并缩进
+      - `coalesce_brackets=False`：不合并连续的括号
+      - `space_inside_brackets=False`：不在括号、方括号或花括号内部添加空格
+      - `space_between_ending_comma_and_closing_bracket=True`：在结束逗号和闭合括号之间添加空格
 
    3. 行长度与换行
 
-      - `column_limit=79`：遵循 PEP8 的 79 字符行宽限制
-      - `join_multiple_lines=True`：将短的多行语句合并为单行
+      - `column_limit=120`：列限制为 120 个字符
+      - `join_multiple_lines=True`：合并短行（如单行 `if` 语句）
+      - `continuation_align_style=SPACE`：续行使用空格对齐
 
    4. 字典与列表格式
 
       - `each_dict_entry_on_separate_line=True`：每个字典条目单独一行
-      - `allow_multiline_dictionary_keys=False`：不允许字典键跨多行
-      - `indent_dictionary_value=False`：字典值不缩进（与键同行）
-      - `spaces_around_dict_delimiters=False`：字典花括号内不加空格
-      - `spaces_around_list_delimiters=False`：列表方括号内不加空格
+      - `allow_multiline_dictionary_keys=False`：不允许字典键跨越多行
+      - `indent_dictionary_value=False`：不缩进字典值（若换行）
+      - `force_multiline_dict=False`：不强制多行字典格式
+      - `spaces_around_dict_delimiters=False`：不在字典分隔符 `{ }` 周围添加空格
+      - `spaces_around_list_delimiters=False`：不在列表分隔符 `[ ]` 周围添加空格
+      - `spaces_around_tuple_delimiters=False`：不在元组分隔符 `( )` 周围添加空格
 
-   5. 运算符处理
+   5. 运算符与表达式格式
 
-      - `split_before_bitwise_operator=True`：在按位运算符前换行
-      - `split_before_logical_operator=True`：在逻辑运算符前换行
+      - `arithmetic_precedence_indication=False`：不通过空格表示算术运算符优先级
+      - `no_spaces_around_selected_binary_operators=`：未设置禁止特定二元运算符周围空格
+      - `spaces_around_power_operator=False`：不在幂运算符 `**` 周围添加空格
+      - `spaces_around_subscript_colon=False`：不在切片运算符 `:` 周围添加空格
       - `split_before_arithmetic_operator=False`：不在算术运算符前换行
-      - `arithmetic_precedence_indication=False`：不使用空格表示运算符优先级
+      - `split_before_bitwise_operator=True`：在位运算符 `& | ^` 前换行
+      - `split_before_logical_operator=True`：在逻辑运算符 `and or` 前换行
 
-   6. 空白行控制
+   6. 函数与参数格式
 
-      - `blank_lines_around_top_level_definition=2`：顶级定义周围 2 个空行
-      - `blank_lines_between_top_level_imports_and_variables=1`：导入和变量间 1 个空行
-      - `blank_line_before_nested_class_or_def=True`：嵌套类/函数前加空行
+      - `allow_split_before_default_or_named_assigns=True`：允许在默认值或命名赋值前换行
+      - `split_before_named_assigns=False`：不在命名赋值前换行
+      - `split_arguments_when_comma_terminated=False`：不在逗号结尾时换行参数列表
+      - `split_before_first_argument=False`：不在第一个参数前换行
+      - `split_before_expression_after_opening_paren=False`：不在开括号后的表达式前换行
 
-   7. 注释处理
+   7. 注释与文档字符串
 
-      - `spaces_before_comment=2`：行尾注释前 2 个空格
-      - `i18n_comment=` 和 `i18n_function_call=`：国际化相关注释和函数的特殊处理
+      - `spaces_before_comment=2`：行尾注释前保留 2 个空格
+      - `blank_line_before_class_docstring=False`：不在类文档字符串前插入空行
+      - `blank_line_before_module_docstring=False`：不在模块文档字符串前插入空行
 
-   8. 其他重要设置
+   8. 空行与代码块分隔
 
-      - `split_before_closing_bracket=True`：在闭合括号前换行
+      - `blank_lines_around_top_level_definition=2`：顶级函数/类定义周围保留 2 个空行
+      - `blank_lines_between_top_level_imports_and_variables=1`：顶级导入与变量间保留 1 个空行
+      - `blank_line_before_nested_class_or_def=True`：在嵌套的类或函数前插入空行
+
+   9. 列表推导式与生成器
+
+      - `split_complex_comprehension=False`：不拆分复杂的列表推导式或生成器
       - `split_before_dict_set_generator=True`：在字典/集合生成器前换行
-      - `split_penalty_*` 系列：控制各种换行情况的"惩罚值"，影响格式化决策
+
+   10. 换行惩罚与优先级
+
+       - `split_penalty_after_opening_bracket=30`：开括号后换行的惩罚值
+       - `split_penalty_arithmetic_operator=300`：算术运算符周围换行的惩罚值
+       - `split_penalty_bitwise_operator=300`：位运算符周围换行的惩罚值
+       - `split_penalty_logical_operator=300`：逻辑运算符周围换行的惩罚值
+       - `split_penalty_excess_character=7000`：超出列限制的惩罚值
+
+   11. 国际化与特殊处理
+
+       - `i18n_comment=`：未设置国际化注释正则表达式
+       - `i18n_function_call=`：未设置国际化函数调用名称
 
 **三、vscode 配置**
 
