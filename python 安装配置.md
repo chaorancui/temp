@@ -281,6 +281,27 @@ windows 查看安装 python 版本：py -0
     ]
 ```
 
+参考：`.style.yapf`
+
+```ini
+[style]
+based_on_style = pep8
+
+# 每行字符限制
+column_limit = 120
+
+# 是否第一个参数前换行
+split_before_first_argument = False
+# 是否闭合括号前换行
+split_before_closing_bracket = False
+# 是否在含注释的列表中换行
+disable_split_list_with_comment = False
+# 是否命名赋值前换行
+split_before_named_assigns = False
+# 是否列表每个元素强制换行
+each_dict_entry_on_separate_line = False
+```
+
 # pip 命令
 
 pip 是 Python 包管理工具，该工具提供了对 Python 包的查找、下载、安装、卸载的功能。
