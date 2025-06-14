@@ -873,8 +873,41 @@ scp [参数] [原路径] [目标路径]
 **基本语法：**
 
 ```bash
-rsync [选项] 源路径 目标路径
+Usage: rsync [OPTION]... SRC [SRC]... DEST
+  or   rsync [OPTION]... SRC [SRC]... [USER@]HOST:DEST
+  or   rsync [OPTION]... SRC [SRC]... [USER@]HOST::DEST
+  or   rsync [OPTION]... SRC [SRC]... rsync://[USER@]HOST[:PORT]/DEST
+  or   rsync [OPTION]... [USER@]HOST:SRC [DEST]
+  or   rsync [OPTION]... [USER@]HOST::SRC [DEST]
+  or   rsync [OPTION]... rsync://[USER@]HOST[:PORT]/SRC [DEST]
+The ':' usages connect via remote shell, while '::' & 'rsync://' usages connect
+to an rsync daemon, and require SRC or DEST to start with a module name.
 ```
+
+**常见选项：**
+
+- `-a`: 归档模式，表示递归复制并保持文件的权限、时间戳等属性
+- `-z`: 压缩文件数据，减少传输数据量，以减少传输时间
+- `-r`: 递归复制整个目录
+- `-u`: 仅复制源文件比目标文件新的文件
+- `--delete`: 删除目标目录中源目录没有的文件
+- `--exclude=PATTERN`: 匹配 PATTERN，排除文件或目录
+- `--exclude-from=FIL`: 匹配 FILE 中的规则，排除文件或目录
+- `--include=PATTERN`: 匹配 PATTERN，不进行 exclude
+- `--include-from=FIL`: 匹配 FILE 中的规则，不进行 exclude
+- `-l`: 保留符号链接
+- `-t`: 保留时间戳
+- `-p`: 保留文件权限
+- `-g`: 保留文件的组信息
+- `-o`: 保留文件的拥有者信息
+- `-x`: 防止跨文件系统，限制同步到单一文件系统
+- `-e`: 使用自定义远程 shell（可指定如 SSH 端口）进行传输
+- `-v`: 显示详细输出
+- `--partial`: 保留已传输的部分文件
+- `--progress`: 显示传输进度
+- `-P`: 等同于 --partial 和 --progress，在文件传输过程中显示进度，并保留已传输的部分文件。
+- `-h`: 以易读的格式显示文件大小（例如 KB、MB、GB）
+- `--dry-run`: 模拟同步过程，但不实际执行任何操作
 
 > - 源目录后不加斜杠 `/`：将<font color=red>整个目录</font>（包括其名称）复制到目标目录中。
 > - 源目录后加斜杠 `/`：将<font color=red>源目录中的内容</font>复制到目标目录，而不复制源目录本身。
@@ -900,24 +933,16 @@ rsync [选项] 源路径 目标路径
 
 2. **远程同步**
 
-   `rsync` 还可以通过 SSH 连接到远程服务器，将文件从本地复制到远程服务器，或将远程服务器的文件同步到本地。
-
-   - 从本地复制到远程服务器：
+   `rsync` 默认使用 SSH 协议进行远程文件传输，可将文件从本地复制到远程服务器，或将远程服务器的文件同步到本地。如果你希望指定一个自定义的 SSH 端口，可以使用 `-e` 选项来设置 SSH 的命令。
 
    ```bash
+   # 从本地复制到远程服务器：
    rsync -av /path/to/source/ user@remote_host:/path/to/destination/
-   ```
-
-   - 从远程服务器复制到本地：
-
-   ```bash
+   # 从远程服务器复制到本地：
    rsync -av user@remote_host:/path/to/source/ /path/to/destination/
+   # 使用 SSH 自定义端口
+   rsync -av -e 'ssh -p 2222' /path/to/source/ user@remote_host:/path/to/destination/
    ```
-
-   其中：
-
-   - `user`：远程服务器的用户名。
-   - `remote_host`：远程主机的 IP 地址或域名。
 
 3. **增量备份**
 
@@ -929,65 +954,44 @@ rsync [选项] 源路径 目标路径
 
    - `--delete`：删除目标目录中在源目录中不存在的文件。这通常用于保持目标目录与源目录的完全一致。
 
-4. **排除某些文件或目录**
+4. **排除/包含某些文件或目录**
 
-   如果你希望同步时排除某些文件或目录，可以使用 `--exclude` 选项。
+   1. **排除指定文件或目录**
+      使用 `--exclude` 选项，多个排除规则就写多次 `--exclude`。
+      或使用 `--exclude-from` 选项，指定一个文件，该文件每行对应一个排除规则。
 
-   ```bash
-   rsync -av --exclude 'pattern' /path/to/source/ /path/to/destination/
-   ```
+      ```bash
+      rsync -av \
+         --exclude '*.log' \
+         --exclude '*.git' \
+         source/ destination/
+      ```
 
-   例如，要排除 `.git/` 目录：
+   2. **仅包含指定文件或目录**
 
-   ```bash
-   rsync -av --exclude '.git/' /path/to/source/ /path/to/destination/
-   ```
+      先使用 `--include`/`--include-from` 指定要同步的内容，最后用 `--exclude='*'` 排除其他所有内容。
 
-   你还可以使用 `--exclude-from` 选项，指定一个文件，**该文件列出了多个排除模式**。
+      > :warning: 注意：`--include` 中路径是相对于 `source/` 的，不是绝对路径。
 
-   ```bash
-   rsync -av --exclude-from 'exclude_list.txt' /path/to/source/ /path/to/destination/
-   ```
+      ```bash
+      rsync -av \
+         --include='file1.txt' \
+         --include='subdir/data.csv' \
+         --exclude='*' \
+         source/ destination/
+      ```
 
-5. **同步指定文件**
+   3. **--include 和 --exclude 解释**
 
-   如果只想同步特定文件，可以指定文件路径。例如，将某个文件从本地同步到远程服务器：
+      `--include` 本身**不会自动排除其他文件**。如果你只使用 `--include` 而不加 `--exclude='*'`，那么默认是「同步所有文件」，只是在你指定的 `--include` 文件上**优先匹配**，并不会阻止其他文件也被同步。因此若想「仅同步指定文件」，需加上写 `--exclude='*'`。
 
-   ```bash
-   rsync -av /path/to/local/file.txt user@remote_host:/path/to/remote/destination/
-   ```
+      `rsync` 的匹配规则是「顺序判断」的，流程大致如下：
 
-6. **使用 SSH 进行加密传输**
+      1. 遇到 `--include`：如果文件/路径匹配到，**标记为“保留”**。
+      2. 遇到 `--exclude`：如果匹配到，**标记为“忽略”**。
+      3. 如果什么都不匹配，默认是包含。
 
-   `rsync` 默认使用 SSH 协议进行远程文件传输。如果你希望指定一个自定义的 SSH 端口，可以使用 `-e` 选项来设置 SSH 的命令。
-
-   ```bash
-   rsync -av -e 'ssh -p 2222' /path/to/source/ user@remote_host:/path/to/destination/
-   ```
-
-**常见选项：**
-
-| 选项             | 描述                                                                             |
-| ---------------- | -------------------------------------------------------------------------------- |
-| `-a`             | 归档模式，表示递归复制并保持文件的权限、时间戳等属性                             |
-| `-v`             | 显示详细输出                                                                     |
-| `-z`             | 压缩文件数据，减少传输数据量                                                     |
-| `-r`             | 递归复制整个目录                                                                 |
-| `-u`             | 仅复制源文件比目标文件新的文件                                                   |
-| `-l`             | 保留符号链接                                                                     |
-| `-t`             | 保留时间戳                                                                       |
-| `-p`             | 保留文件权限                                                                     |
-| `-P`             | 启用 --partial 和 --progress，在文件传输过程中显示进度，并保留已传输的部分文件。 |
-| `-g`             | 保留文件的组信息                                                                 |
-| `-o`             | 保留文件的拥有者信息                                                             |
-| `-x`             | 防止跨文件系统，限制同步到单一文件系统                                           |
-| `--delete`       | 删除目标目录中源目录没有的文件                                                   |
-| `--exclude`      | 排除匹配的文件或目录                                                             |
-| `--exclude-from` | 从指定文件中读取排除规则                                                         |
-| `--progress`     | 显示传输进度                                                                     |
-| `-e`             | 使用自定义远程 shell（例如 SSH）进行传输                                         |
-| `-h`             | 以易读的格式显示文件大小（例如 KB、MB、GB）                                      |
-| `--dry-run`      | 模拟同步过程，但不实际执行任何操作                                               |
+      > :pushpin: `--include` 是一个「白名单」，但 rsync 默认是「全允许」的。所以你必须配合 `--exclude='*'` 才能让 `--include` 生效为「只包含这些，其他都不要」。
 
 **高级用法：**
 
@@ -1028,34 +1032,6 @@ rsync [选项] 源路径 目标路径
 
    ```bash
    rsync -avc /path/to/source/ /path/to/destination/
-   ```
-
-**例子：**
-
-1. **将本地目录 `/data/` 同步到远程服务器：**
-
-   ```bash
-   rsync -avz /data/ user@remote_host:/backup/
-   ```
-
-   - `-z`：启用数据压缩，以减少传输时间。
-
-2. **从远程服务器同步目录并排除 `.log` 文件：**
-
-   ```bash
-   rsync -av --exclude='*.log' user@remote_host:/data/ /backup/
-   ```
-
-3. **使用 SSH 自定义端口进行同步：**
-
-   ```bash
-   rsync -av -e 'ssh -p 2222' /data/ user@remote_host:/backup/
-   ```
-
-4. **在本地和远程服务器之间进行增量备份：**
-
-   ```bash
-   rsync -av --delete /data/ user@remote_host:/backup/
    ```
 
 5. **模拟执行而不实际同步：**
