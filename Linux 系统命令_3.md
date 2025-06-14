@@ -1168,7 +1168,7 @@ ssh -p 22 my@127.0.0.1
 
    ```shell
    # 1.通过 ssh-copy-id 命令，命令有点类似 scp，需要输入密码
-   ssh-copy-id -i /path/id_rsa_xxx.pub user@host
+   ssh-copy-id -p 22 -i /path/id_rsa_xxx.pub user@host
 
    # 2.手动将直接将公钥文件内容拷贝到服务器的 ~/.ssh/authorized_keys 文件中，没有文件则创建文件
    ```
