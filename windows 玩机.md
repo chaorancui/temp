@@ -101,3 +101,8 @@ type env:path
 <https://github.com/743859910/Typora_Unlocker>
 
 <https://www.ghxi.com/typora.html>
+
+### IDM
+
+关闭 IDM (internet download manager) 自动弹出自动更新的提示
+<https://blog.csdn.net/qq_29856169/article/details/137630040>
