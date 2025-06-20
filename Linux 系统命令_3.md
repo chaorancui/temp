@@ -909,8 +909,57 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
 - `-h`: 以易读的格式显示文件大小（例如 KB、MB、GB）
 - `--dry-run`: 模拟同步过程，但不实际执行任何操作
 
-> - 源目录后不加斜杠 `/`：将<font color=red>整个目录</font>（包括其名称）复制到目标目录中。
-> - 源目录后加斜杠 `/`：将<font color=red>源目录中的内容</font>复制到目标目录，而不复制源目录本身。
+**目录后加不加 `/`：**
+
+| 情况                     | 拷贝结果                                                          |
+| ------------------------ | ----------------------------------------------------------------- |
+| 源目录末尾加 `/`         | 拷贝<font color=red>源目录中的内容</font>，而不复制源目录本身     |
+| 源目录末尾不加 `/`       | 拷贝<font color=red>整个目录</font>（包括其本身）复制到目标目录中 |
+| 目标目录末尾加或不加 `/` | 一般无实际区别，除非目标不存在                                    |
+
+假设当前目录结构如下：
+
+```bash
+/home/user/
+├── source/
+│   ├── file1.txt
+│   └── file2.txt
+└── destination/
+```
+
+1. `rsync -av source/ destination/`
+
+   - 拷贝的是 `source` **目录中的内容** 到 `destination` 目录中。
+   - `destination` 目录最终变为：
+
+     ```log
+     /home/user/destination/
+     ├── file1.txt
+     └── file2.txt
+     ```
+
+2. `rsync -av source destination/`
+
+   - 拷贝的是 `source` **整个目录（包括其名称）** 到 `destination`。
+   - `destination` 目录最终变为：
+
+     ```log
+     /home/user/destination/source/
+     ├── file1.txt
+     └── file2.txt
+     ```
+
+3. `rsync -av source/ destination` vs `rsync -av source/ destination/`
+
+   - 如果 `destination` 存在，它们效果是一样的；
+   - 如果 `destination` 不存在：
+     - `destination` 会被创建为新的目录；
+     - 加 `/` 不影响拷贝内容，但更推荐用 `/` 表明是目录意图。
+
+4. 常见错误理解
+
+   - **误以为加不加 `/` 没区别**：实际上差异很大，会导致最终目录结构不同。
+   - **目标目录是否存在影响结果**：若目标目录不存在，`rsync` 会根据源路径决定最终路径。
 
 **常见用法：**
 
@@ -972,11 +1021,18 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
       先使用 `--include`/`--include-from` 指定要同步的内容，最后用 `--exclude='*'` 排除其他所有内容。
 
       > :warning: 注意：`--include` 中路径是相对于 `source/` 的，不是绝对路径。
+      > 如果想匹配 source/ 的内层目录的文件而不指定内层目录如下面 subdir，需要加上 --include='_/'，这样就可以进入内层目录去找到你想要的 `_.xx/` 等文件。如果不加，rsync 会一上来就排除整个目录，连里面的文件都不会检查。
 
       ```bash
       rsync -av \
          --include='file1.txt' \
          --include='subdir/data.csv' \
+         --exclude='*' \
+         source/ destination/
+      rsync -av \
+         --include='*/' \
+         --include='file1.txt' \
+         --include='data.csv' \
          --exclude='*' \
          source/ destination/
       ```
