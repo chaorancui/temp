@@ -276,12 +276,30 @@ argume:aa bb //$@ 是传给脚本的所有参数的列表
 
      ```shell
      command &> outputfile.txt
-     # 或
+     # 等价于
      command > outputfile.txt 2>&1
 
      ls /nonexistent_directory &> all_output.txt
      # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
+
+     # 重定向 + 管道组合
+     command 2>&1 | tee output.log
      ```
+
+     注意：
+
+     - `&>` 是 Bash 的语法糖（语法简写），只能用于 Bash（不是 POSIX 标准，因此在 sh 或某些老版本 shell 中不支持）。
+     - `command 2>&1 | tee output.log` <font color=red>重定向 + 管道组合</font>：
+       - `2>&1`：先把标准错误（fd 2）重定向到标准输出（fd 1）
+       - 整个 stdout + stderr 一起通过 `|` 管道交给 tee
+       - `tee`：一边将输入写入 output.log，一边输出到终端（屏幕）
+     - `command > file 2>&1` <font color=red>顺序非常重要！</font>这表示：
+       - 先把 stdout 重定向到 file
+       - 再把 stderr 重定向到 stdout（此时 stdout 已经是 file）
+     - `command 2>&1 > file` 是错误写法：
+       - `2>&1`：把 stderr 重定向到当前的 stdout，此时 stdout 还指向终端
+       - `> file`：把 stdout 重定向到 file，但是 stderr 已经绑定到了“原始的终端 stdout”，不会跟着变
+       - 结果是：stdout 输出进 file，stderr 仍然输出到终端！
 
 4. 重定向到 `/dev/null`
    `/dev/null` 是一个特殊的文件，任何写入它的数据都会被丢弃。可以使用它来忽略不需要的输出。
