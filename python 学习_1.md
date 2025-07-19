@@ -1839,6 +1839,64 @@ import pdb; pdb.set_trace()
 
 示例：可用于分析 `raise ... from e` 中的多个异常链
 
+## ipdb
+
+`pdb` 和 `ipdb` 都是 Python 中用于调试程序的工具，但它们之间有一些关键区别，主要体现在用户体验、功能扩展和依赖方面。
+
+| 调试器 | 全称             | 所属项目      | 依赖                |
+| ------ | ---------------- | ------------- | ------------------- |
+| `pdb`  | Python Debugger  | Python 标准库 | 无（内置模块）      |
+| `ipdb` | IPython Debugger | IPython 项目  | `ipython`（需安装） |
+
+1. `pdb`
+
+   - Python 官方标准库提供的命令行调试器。
+   - 提供基本的调试功能：断点、单步执行、查看变量、堆栈跟踪等。
+   - 轻量、无依赖，可在任何 Python 环境中使用。
+   - 使用：
+
+     ```python
+     import pdb
+     pdb.set_trace()  # 程序将在此暂停进入调试模式
+     ```
+
+2. `ipdb`
+
+   - `pdb` 的一个增强版本，基于 IPython。
+   - 提供更强的交互式调试体验。
+   - 使用 IPython 的特性（如自动补全、语法高亮、历史记录、魔法命令等）。
+   - 安装：
+
+     ```python
+     pip install ipdb
+     ```
+
+   - 使用：
+
+     ```python
+     import ipdb
+     ipdb.set_trace()
+     ```
+
+**核心区别对比**
+
+| 功能                    | `pdb`                    | `ipdb`                                           |
+| ----------------------- | ------------------------ | ------------------------------------------------ |
+| 自动补全（tab 补全）    | ❌                       | ✅                                               |
+| 语法高亮                | ❌                       | ✅                                               |
+| 多行编辑                | ❌                       | ✅ （依赖 IPython shell）                        |
+| 支持 IPython 魔法命令   | ❌                       | ✅                                               |
+| 异常调试（post-mortem） | ✅                       | ✅                                               |
+| 依赖 IPython            | ❌                       | ✅                                               |
+| 默认交互体验            | 命令行原始交互           | IPython shell 风格（类似 Jupyter Notebook）      |
+| 适用场景                | 所有环境，特别是轻量环境 | 更复杂、更丰富的调试体验，适合开发机或交互式开发 |
+
+**总结**
+
+- `pdb` 是 Python 内置的调试器，简单、无依赖、可随时用。
+- `ipdb` 提供更好的用户体验，尤其在需要频繁交互、使用历史记录、补全等功能时非常强大。
+- 两者接口一致，`set_trace()` 等使用方式几乎相同，方便替换。
+
 # PyQt5
 
 ## [PyQt5 关于 Qt Designer 的初步应用和打包过程详解](http://www.codebaoku.com/it-python/it-python-223940.html)
