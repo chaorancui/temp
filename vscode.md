@@ -183,10 +183,39 @@ exit
    智能提示和自动补全，shellman 全部搞定
 
 2. shellcheck - Timon Wong
-      语法错误检查
+   语法错误检查
 
 3. shell-format - foxundermoon
    快捷键：Ctrl + Shift + I
+
+   - **功能**:
+
+     - 基于 [`shfmt`](https://github.com/mvdan/sh)（一个成熟的 Shell 格式化工具）。
+     - 支持自动格式化 `.sh`、`.bash` 等文件。
+     - 可配置缩进（空格/制表符）、换行风格等。
+
+   - **安装**:
+
+     1. 在 VS Code 扩展商店搜索 `ShellFormat`。
+
+     2. 安装后，需确保系统已安装 `shfmt`。
+
+        - 从 [shfmt GitHub Releases](https://github.com/mvdan/sh/releases) 下载对应版本（如 `shfmt_*_linux_amd64`）。
+        - Windows：重命名为 `shfmt.exe`，并放入 `C:\Windows\System32` 或添加到 `PATH`。
+        - Linux：重命名为 `shfmt`，赋予执行权限并安装：`chmod +x shfmt`,`sudo mv shfmt /usr/local/bin/`
+
+     3. 插件路径配置
+
+        ```json
+        "shellformat.path": "/usr/local/bin/shfmt"  // Linux/macOS
+        ```
+
+   - **配置**:
+     在 `settings.json` 中添加规则，例如：
+
+     ```json
+     "shellformat.flag": "-i 2"  // 2空格缩进
+     ```
 
 到这里，刀就已经磨好了，去劈柴吧少年~
 
