@@ -571,7 +571,7 @@ ssh -p 22 my@127.0.0.1
    chmod 755 xxx/xxx
    ```
 
-   > :page*with_curl: **Note**
+   > :page_with_curl: **Note**
    > 如果权限设置不对，在配对秘钥的时候会无法打开 authorized_keys 文件从而导致秘钥配对失败。而 ssh 此时没有放弃连接，依然会尝试询问用户密码。最终产生的结果就是用户配置了公钥却仍然需要输入密码的问题。导致费了很大功夫才找到问题 `-*-!!!`。
    >
    > :warning: 设置 ssh 路径下的权限，以及 Home 目录权限（重要！）---- 本人未设置
@@ -580,48 +580,56 @@ ssh -p 22 my@127.0.0.1
 
 4. **修改 SSH 服务器的配置文件**
 
-确保 SSH 配置文件 `/etc/ssh/sshd_config` 允许公钥认证。你需要检查以下设置：
+   确保 SSH 配置文件 `/etc/ssh/sshd_config` 允许公钥认证。你需要检查以下设置：
 
-```shell
-# /etc/ssh/sshd_config 文件中
-PubkeyAuthentication yes # 把#号去掉（默认在39行附近），这样公钥验证才生效。
-```
+   ```shell
+   # /etc/ssh/sshd_config 文件中
+   PubkeyAuthentication yes # 把#号去掉（默认在39行附近），这样公钥验证才生效。
+   ```
 
-重启远程服务器的 ssh 服务
+   重启远程服务器的 ssh 服务
 
-```shell
-service ssh start
-```
+   ```shell
+   service ssh start
+   ```
 
-5.  **本地 SSH 连接配置**
+5. **本地 SSH 连接配置**
 
-SSH 使用 `~/.ssh/config` 文件来配置 SSH 连接。在文件中新增一份如下配置：
+   SSH 使用 `~/.ssh/config` 文件来配置 SSH 连接。在文件中新增一份如下配置：
 
-```shell
-Host xxx-xxx
-  HostName xxx.xxx.xxx.xxx
-  Port 22
-  User root
-  IdentityFile ~/.ssh/id_rsa_xxx
-```
+   ```shell
+   Host xxx-xxx
+     HostName xxx.xxx.xxx.xxx
+     Port 22
+     User root
+     IdentityFile ~/.ssh/id_rsa_xxx
+   ```
 
-如果这个文件没有正确配置，或者你没有在该文件中指定正确的 SSH 密钥，可能会导致无法识别密钥，从而要求输入密码。
+   如果这个文件没有正确配置，或者你没有在该文件中指定正确的 SSH 密钥，可能会导致无法识别密钥，从而要求输入密码。
 
-:book: **补充**
-**ssh config 配置文件的基本格式**
+   :book: **补充**
+   **ssh config 配置文件的基本格式**
 
-```shell
-Host      # hostName的别名
-  HostName  # 是目标主机的主机名，也就是平时我们使用ssh后面跟的地址名称。
-  Port   # 指定的端口号。
-  User   # 指定的登陆用户名。
-  IdentifyFile # 指定的私钥地址。
-  ProxyJump ProxyJump user@jump_host:port # 跳板机的用户名、主机地址、端口
-```
+   ```shell
+   Host my-server-alias                # hostName的别名
+     HostName xxx.xxx.xxx.xxx          # 远程服务器 IP 或域名
+     Port xx                           # 默认是22，可以根据实际改
+     User xxxxx                        # SSH 登录用户名
+     IdentityFile ~/.ssh/xxxxxxxx      # 指定私钥路径
 
-> - 不要加 PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。<font color=red><b>被坑死了 -\_-!!!</b></font>
+     # 跳过服务器指纹验证，建议仅用于脚本或临时场景
+     StrictHostKeyChecking no
+     UserKnownHostsFile /dev/null
 
-6.  测试免密登录
+     # 指定跳板机的用户名、主机地址、端口
+     ProxyJump [user@]jump_host[:port]
+     # 也可以把跳板机也定义成一个 Host 别名方便复用，然后
+     ProxyJump my-server-alias
+   ```
+
+   > - 不要加 PreferredAuthentications publickey，否则连接远程服务器上 docker 时，会报错 **Connection refused**。<font color=red><b>被坑死了 -\_-!!!</b></font>
+
+6. 测试免密登录
 
 ### ssh 远程连接 docker
 
@@ -711,4 +719,67 @@ Port 22
 
 # 重启 ssh 服务
 service ssh start
+```
+
+### ssh 服务器指纹
+
+服务器指纹（**SSH Fingerprint**）是在 SSH 连接中用于标识远程主机身份的“数字指纹”，它的作用类似于人的身份证，用来确认“你正在连接的是你想连接的那台服务器”。
+
+> 服务器指纹是<font color=red>服务器的 SSH 公钥</font>经过摘要算法（如 SHA256）计算后的简短字符串，用于防止中间人攻击。
+
+**它是怎么来的？**
+
+- 当一台服务器启动 SSH 服务时，它会生成一对密钥对（公钥和私钥）。
+
+- 公钥存储在服务器的 `/etc/ssh/ssh_host_*.pub` 中。
+
+- **指纹**就是这个公钥经过哈希算法（MD5、SHA1、SHA256）计算出的摘要，例如：
+
+  ```ruby
+  SHA256:X3vUHT4ZBj3lRDb1K+F2G8HVzknD4Q7KpR4gzxZPbSg
+  ```
+
+可以用如下命令查看服务器的 SSH 指纹：
+
+```bash
+ssh-keygen -lf /etc/ssh/ssh_host_rsa_key.pub
+```
+
+**作用：**
+
+1. **身份验证（防中间人攻击）**
+   当你第一次连接某台服务器，SSH 客户端会显示指纹，让你确认这是不是你要连的机器。
+
+2. **防止被假冒服务器欺骗**
+   如果你连接到了一个伪装成目标主机的机器，它的公钥指纹会不同，SSH 就会提示你：
+
+   > WARNING: POSSIBLE DNS SPOOFING DETECTED!
+
+3. **后续连接时自动校验**
+   第一次连接确认后，指纹被保存在你本地的 `~/.ssh/known_hosts` 文件中。下次连接时自动校验是否一致，如果变了，SSH 会警告你可能遭遇了攻击。
+
+举个中间人攻击的例子：
+
+1. 你连接服务器 A，结果网络中有人劫持了你的连接。
+2. 他伪装成 A 给你发送了自己的公钥。
+3. 如果你没有验证指纹并照样输入密码，你的密码就被泄露了！
+
+**总结：**
+
+| 项目         | 说明                               |
+| ------------ | ---------------------------------- |
+| 本质         | 服务器 SSH 公钥的哈希摘要          |
+| 作用         | 确认远程主机身份，防止中间人攻击   |
+| 首次连接     | 用户确认指纹，保存到 known_hosts   |
+| 指纹变更警告 | 可能是服务器换密钥或遭遇攻击       |
+| 推荐做法     | 第一次连接时比对确认，之后自动校验 |
+
+**跳过指纹验证：**
+
+在 vscode 的 ssh config 配置文件中，可以通过下面配置跳过指纹验证
+
+```bash
+# 跳过服务器指纹验证，建议仅用于脚本或临时场景
+StrictHostKeyChecking no
+UserKnownHostsFile /dev/null
 ```
