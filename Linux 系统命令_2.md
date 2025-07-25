@@ -808,24 +808,114 @@ basename [OPTION] NAME [SUFFIX]
 
 `tar` 是 Linux 中常用的打包和压缩工具，可以将多个文件或目录打包成一个归档文件，也可以用于解压这些归档文件。
 
-### 解压 `.tar` 包
+`tar` 是 Linux/Unix 系统中用于**打包（归档）文件和目录**的命令，全称是 **tape archive**。它常用于备份文件、软件发布包的生成等场景。`tar` 不压缩文件，但可与 gzip、bzip2、xz 等工具结合实现压缩打包。
 
-如果你有一个 `.tar` 格式的文件，没有经过压缩，只是打包文件，可以使用以下命令：
+**常用参数详解**
+
+以下是 `tar` 的常用参数（区分长短参数形式）：
+
+| 参数                           | 含义                                        |
+| ------------------------------ | ------------------------------------------- |
+| `-c` 或 `--create`             | 创建新归档文件（archive）                   |
+| `-x` 或 `--extract`            | 解包归档文件                                |
+| `-t` 或 `--list`               | 查看归档文件内容                            |
+| `-f <file>` 或 `--file=<file>` | 指定归档文件名（必须紧跟 `-f`）             |
+| `-v` 或 `--verbose`            | 显示处理过程中的文件名（verbose 模式）      |
+| `-z` 或 `--gzip`               | 使用 gzip 压缩或解压（`.tar.gz` 或 `.tgz`） |
+| `-j` 或 `--bzip2`              | 使用 bzip2 压缩（`.tar.bz2`）               |
+| `-J` 或 `--xz`                 | 使用 xz 压缩（`.tar.xz`）                   |
+| `--lzma`                       | 使用 lzma 压缩（`.tar.lzma`）               |
+| `-C <dir>`                     | 切换目录再操作（常用于解压时指定目标目录）  |
+| `--exclude=<pattern>`          | 排除匹配的文件/目录                         |
+
+**常见用法示例**
+
+1. 创建归档文件（不压缩）
+
+   ```bash
+   tar -cvf archive.tar dir1 file2
+   ```
+
+   - 将 `dir1` 和 `file2` 打包成 `archive.tar`，不压缩
+
+2. 解包归档文件（不解压）
+
+   ```bash
+   tar -xvf archive.tar
+   ```
+
+3. 创建 gzip 压缩包（`.tar.gz` 或 `.tgz`）
+
+   ```bash
+   tar -czvf archive.tar.gz dir/
+   ```
+
+   - `c`: 创建
+   - `z`: gzip 压缩
+   - `v`: 显示详情
+   - `f`: 指定文件名
+
+4. 解压 `tar.gz` 文件
+
+   ```bash
+   # 到当前目录
+   tar -xzvf archive.tar.gz
+   # 到指定目录
+   tar -xzvf archive.tar.gz -C /path/to/target/
+   ```
+
+5. 解压 `.tar.bz2` 文件
+
+   ```bash
+   tar -xjvf archive.tar.bz2
+   ```
+
+6. 解压 `.tar.xz` 文件
+
+   ```bash
+   tar -xJvf archive.tar.xz
+   ```
+
+7. 查看归档文件内容
+
+   ```bash
+   tar -tvf archive.tar.gz
+   ```
+
+   > 不解压，仅显示文件列表。
+
+8. 创建归档时排除某些文件或目录
+
+   ```bash
+   tar --exclude='*.log' -czvf archive.tar.gz dir/
+   ```
+
+9. 仅解压指定文件（部分解压）
+
+   ```bash
+   tar -xzvf archive.tar.gz path/inside/tar.txt
+   ```
+
+10. 追加文件到已存在的 `.tar` 文件中（仅限未压缩的 tar）
 
 ```bash
-tar -xvf archive.tar
+tar -rvf archive.tar newfile.txt
 ```
 
-- `x`：表示解压。
-- `v`：显示详细过程（可选，但通常会显示解压过程中的每个文件）。
-- `f`：后面跟的是归档文件名。
+**后缀与压缩方式对照表**
 
-总结
+| 文件后缀           | 说明            | 命令中使用的参数 |
+| ------------------ | --------------- | ---------------- |
+| `.tar`             | 仅打包，无压缩  | `-cvf`、`-xvf`   |
+| `.tar.gz` / `.tgz` | 使用 gzip 压缩  | `-czvf`、`-xzvf` |
+| `.tar.bz2`         | 使用 bzip2 压缩 | `-cjvf`、`-xjvf` |
+| `.tar.xz`          | 使用 xz 压缩    | `-cJvf`、`-xJvf` |
 
-- **`.tar` 文件**：`tar -xvf archive.tar`
-- **`.tar.gz` 或 `.tgz` 文件**：`tar -xzvf archive.tar.gz`
-- **`.tar.bz2` 文件**：`tar -xjvf archive.tar.bz2`
-- **`.tar.xz` 文件**：`tar -xJvf archive.tar.xz`
+**实战建议**
+
+- 打包发布时，推荐 `.tar.gz` 或 `.tar.xz`，兼顾兼容性和压缩率。
+- 解压时优先加上 `-C` 指定目录，避免文件铺开到当前路径。
+- 可以将参数合并成一组，例如 `-xvzf`，也可以拆开 `-x -v -z -f`。
 
 ## zip 包
 
@@ -881,6 +971,215 @@ tar -xvf archive.tar
 
    ```bash
    unrar l archive.rar
+   ```
+
+在 Linux 下，`.rar` 格式不是开源的压缩格式，需要安装官方的 **RAR** 工具（通常包含 `rar` 和 `unrar` 两个命令）对 `.rar` 文件的压缩和解压。
+
+**RAR 格式简介**
+
+- `.rar` 是一种专有压缩格式，压缩率较高，常用于 Windows 系统。
+- Linux 系统默认**不支持 RAR 格式**，需要手动安装工具包（如 `rar`、`unrar`）。
+- 工具来源：由 RARLab 官方发布（非开源）。
+
+**安装方法**
+
+```bash
+# Ubuntu / Debian
+sudo apt update
+sudo apt install rar unrar
+# CentOS / RHEL
+sudo yum install epel-release
+sudo yum install rar unrar
+```
+
+**2. 常用命令与参数**
+
+**1、压缩工具 `rar`**
+
+**基本语法：**
+
+```bash
+rar <命令> [参数] <压缩文件.rar> <文件或目录>
+```
+
+**常用命令：**
+
+- `a`：添加文件到压缩包（若压缩包不存在则创建）。
+- `d`：删除压缩包内文件。
+- `l`：列出压缩包内容。
+- `t`：测试压缩包是否损坏。
+- `u`：更新压缩包中的文件。
+
+**常用参数：**
+
+- `-r`：递归处理子目录。
+- `-p[密码]`：设置密码（如 `-p123`）。
+- `-m<n>`：设置压缩级别（`0`存储，`3`默认，`5`最大）。
+- `-v<大小>`：分卷压缩（如 `-v100M` 每卷 100MB）。
+- `-sfx`：创建自解压包（Windows 格式）。
+- `-lock`：锁定压缩包（禁止修改）。
+
+**典型使用示例**
+
+1. 压缩文件/目录：
+
+   ```bash
+   rar a archive.rar /path/to/dir
+   rar a -r archive.rar /path/to/dir
+   ```
+
+   - `-r` 表示递归压缩子目录
+     假设有如下目录：
+
+     ```log
+     /path/to/dir/
+     ├── file1.txt
+     ├── file2.log
+     └── subdir/
+         ├── file3.txt
+         └── file4.log
+     ```
+
+   - **不带 `-r` 参数**：仅压缩指定目录下的直接文件，**忽略子目录及其内容**。
+
+     生成的 `archive.rar` 将包含如下，其中 `subdir/` 及其内容不会被压缩：
+
+     ```log
+     file1.txt
+     file2.log
+     ```
+
+   - **带 `-r` 参数**：递归压缩指定目录下的**所有文件和子目录**（包括子目录中的内容）。
+
+     生成的 `archive.rar` 将包含：
+
+     ```log
+     file1.txt
+     file2.log
+     subdir/file3.txt
+     subdir/file4.log
+     ```
+
+2. 分卷压缩（每卷 50MB）：
+
+   ```bash
+   rar a -v50M archive.rar largefile.iso
+   ```
+
+3. 添加密码压缩
+
+   ```bash
+   rar a -p123456 secure.rar file.txt
+   ```
+
+   > 用密码 `123456` 进行压缩（注意密码可能在命令行历史中留下）
+
+4. 查看压缩包内容
+
+   ```bash
+   rar l archive.rar
+   ```
+
+**2、解压工具 `unrar`**
+
+**基本语法：**
+
+```bash
+unrar <命令> [参数] <压缩文件.rar> [目标目录]
+```
+
+**常用命令：**
+
+- `x`：解压保留路径。
+- `e`：解压到当前目录（忽略路径）。
+- `l`：列出压缩包内容。
+- `t`：测试压缩包完整性。
+- `p`：打印文件到标准输出。
+
+**常用参数：**
+
+- `-p[密码]`：指定密码（如 `-p123`）。
+- `-o+`：覆盖已存在文件。
+- `-o-`：不覆盖文件。
+- `-y`：所有操作均回答“是”。
+
+**典型使用示例**
+
+1. 完整解压到当前目录
+
+   ```bash
+   unrar e archive.rar  # 不保留路径
+   unrar x archive.rar  # 保留路径
+   ```
+
+   `unrar e`和 `unrar x` 对比，如果压缩包 archive.rar 内文件如下：
+
+   ```log
+   project/
+   ├── src/
+   │   └── app.c
+   └── config.yaml
+   ```
+
+   - **`unrar e` 行为**：将所有文件解压到**当前目录**，**忽略压缩包内的目录结构**，所有文件都会平铺在当前文件夹中。
+     解压后当前目录会变成：
+
+     ```log
+     app.c       # 原路径 project/src/app.c
+     config.yaml # 原路径 project/config.yaml
+     ```
+
+     **注意**：同名文件会被覆盖（可通过`-o+`强制覆盖或`-o-`跳过）！
+
+     **适用场景**：
+
+     - 压缩包内文件没有层级目录，或你不需要保留目录结构。
+     - 希望所有文件直接解压到当前目录，避免嵌套文件夹。
+
+   - **`unrar x` 行为**：严格按照压缩包内的目录结构解压，**还原完整的文件路径**。如果路径中的目录不存在，会自动创建。
+
+     ```log
+     project/
+     ├── src/
+     │   └── app.c
+     └── config.yaml
+     ```
+
+     **适用场景**：
+
+     - 压缩包内有复杂的目录结构需要保留。
+     - 解压后需维持原始文件组织方式（如软件源码、项目文档等）。
+
+2. 解压到指定目录
+
+   - 使用 `x` 时，可指定目标路径（自动创建子目录）
+
+     ```bash
+     unrar x archive.rar /target/path/  # 保持结构解压到/target/path/
+     ```
+
+   - 使用 `e` 时，需先进入目标目录（否则文件会散落在当前目录）：
+
+     ```bash
+     cd /target/path/ && unrar e /path/to/archive.rar
+     ```
+
+3. 只解压指定文件
+
+   ```bash
+   unrar x archive.rar file1.txt
+   ```
+
+4. 查看压缩包内容
+
+   ```bash
+   unrar l archive.rar
+   ```
+
+5. 解压加密文件
+
+   ```bash
+   unrar x -p123 secret.rar
    ```
 
 # 文件显示命令
