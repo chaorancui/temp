@@ -948,31 +948,6 @@ tar -rvf archive.tar newfile.txt
 
 ## rar 包
 
-1. `unrar` 解压：
-
-   `unrar` 是一个开源工具，通常用于解压 `.rar` 文件。Debian/Ubuntu 系统上安装：`sudo apt-get install unrar`
-
-   **解压 `.rar` 文件**：
-
-   ```bash
-   # 解压到当前目录中
-   unrar x archive.rar
-   ```
-
-   - `x`：表示解压并保持文件夹结构。
-
-   **解压到指定目录**： 如果你想将 `.rar` 文件解压到指定目录，可以使用 `-d` 选项：
-
-   ```bash
-   unrar x archive.rar -d /path/to/extract/directory/
-   ```
-
-   **列出 `.rar` 文件内容**（不解压）： 如果你只想查看 `.rar` 文件内包含的文件列表，可以使用：
-
-   ```bash
-   unrar l archive.rar
-   ```
-
 在 Linux 下，`.rar` 格式不是开源的压缩格式，需要安装官方的 **RAR** 工具（通常包含 `rar` 和 `unrar` 两个命令）对 `.rar` 文件的压缩和解压。
 
 **RAR 格式简介**
