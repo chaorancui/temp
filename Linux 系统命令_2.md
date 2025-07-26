@@ -828,6 +828,8 @@ basename [OPTION] NAME [SUFFIX]
 | `-C <dir>`                     | 切换目录再操作（常用于解压时指定目标目录）  |
 | `--exclude=<pattern>`          | 排除匹配的文件/目录                         |
 
+### `tar -c` 压缩
+
 **常见用法示例**
 
 1. 创建归档文件（不压缩）
@@ -838,13 +840,7 @@ basename [OPTION] NAME [SUFFIX]
 
    - 将 `dir1` 和 `file2` 打包成 `archive.tar`，不压缩
 
-2. 解包归档文件（不解压）
-
-   ```bash
-   tar -xvf archive.tar
-   ```
-
-3. 创建 gzip 压缩包（`.tar.gz` 或 `.tgz`）
+2. 创建 gzip 压缩包（`.tar.gz` 或 `.tgz`）
 
    ```bash
    tar -czvf archive.tar.gz dir/
@@ -855,7 +851,37 @@ basename [OPTION] NAME [SUFFIX]
    - `v`: 显示详情
    - `f`: 指定文件名
 
-4. 解压 `tar.gz` 文件
+3. 创建归档时排除某些文件或目录
+
+   ```bash
+   tar --exclude='*.log' -czvf archive.tar.gz dir/
+   ```
+
+4. 追加文件到已存在的 `.tar` 文件中（仅限未压缩的 tar）
+
+   ```bash
+   tar -rvf archive.tar newfile.txt
+   ```
+
+5. 查看归档文件内容
+
+   ```bash
+   tar -tvf archive.tar.gz
+   ```
+
+   > 不解压，仅显示文件列表。
+
+### `tar -x` 解压
+
+**常见用法示例**
+
+1. 解包归档文件（不解压）
+
+   ```bash
+   tar -xvf archive.tar
+   ```
+
+2. 解压 `tar.gz` 文件
 
    ```bash
    # 到当前目录
@@ -864,19 +890,25 @@ basename [OPTION] NAME [SUFFIX]
    tar -xzvf archive.tar.gz -C /path/to/target/
    ```
 
-5. 解压 `.tar.bz2` 文件
+3. 解压 `.tar.bz2` 文件
 
    ```bash
    tar -xjvf archive.tar.bz2
    ```
 
-6. 解压 `.tar.xz` 文件
+4. 解压 `.tar.xz` 文件
 
    ```bash
    tar -xJvf archive.tar.xz
    ```
 
-7. 查看归档文件内容
+5. 仅解压指定文件（部分解压）
+
+   ```bash
+   tar -xzvf archive.tar.gz path/inside/tar.txt
+   ```
+
+6. 查看归档文件内容
 
    ```bash
    tar -tvf archive.tar.gz
@@ -884,25 +916,7 @@ basename [OPTION] NAME [SUFFIX]
 
    > 不解压，仅显示文件列表。
 
-8. 创建归档时排除某些文件或目录
-
-   ```bash
-   tar --exclude='*.log' -czvf archive.tar.gz dir/
-   ```
-
-9. 仅解压指定文件（部分解压）
-
-   ```bash
-   tar -xzvf archive.tar.gz path/inside/tar.txt
-   ```
-
-10. 追加文件到已存在的 `.tar` 文件中（仅限未压缩的 tar）
-
-```bash
-tar -rvf archive.tar newfile.txt
-```
-
-**后缀与压缩方式对照表**
+### 后缀与压缩方式对照表
 
 | 文件后缀           | 说明            | 命令中使用的参数 |
 | ------------------ | --------------- | ---------------- |
@@ -919,32 +933,169 @@ tar -rvf archive.tar newfile.txt
 
 ## zip 包
 
-在 Linux 系统中，解压 `.zip` 文件通常使用 `unzip` 命令。如果系统上没有安装 `unzip`，你可以先安装它。
+在 Linux 系统中，`zip`和`unzip`是处理 ZIP 压缩文件的标准工具。
 
-1. `unzip` 解压：
+**安装工具**
 
-   Debian/Ubuntu 系统上安装：`sudo apt-get install unzip`
+```bash
+# Ubuntu/Debian
+sudo apt update && sudo apt install zip unzip
+# CentOS/RHEL
+sudo yum install zip unzip
+# Arch Linux
+sudo pacman -S zip unzip
+```
 
-   **解压 `.zip` 文件**：
+### `zip` 压缩
+
+**基本语法**
+
+```bash
+zip [参数] 压缩包名.zip 文件或目录
+```
+
+**常用参数**
+
+| 参数          | 作用                               |
+| :------------ | :--------------------------------- |
+| `-r`          | 递归压缩目录（包含子目录）         |
+| `-q`          | 静默模式（不显示输出信息）         |
+| `-e`          | 加密压缩（设置密码）               |
+| `-1`~`-9`     | 压缩级别（1 最快压缩，9 最佳压缩） |
+| `-v`          | 显示详细压缩过程                   |
+| `-x`          | 排除指定文件/目录                  |
+| `-m`          | 压缩后删除原文件                   |
+| `-F`          | 修复损坏的 ZIP 文件                |
+| `-s 分割大小` | 分卷压缩（如 `-s 100M`）           |
+
+**典型示例**
+
+1. **压缩单个文件**：
 
    ```bash
-   # 解压到当前目录中
+   zip archive.zip file.txt
+   ```
+
+2. **递归压缩目录**（含子目录）：
+
+   ```bash
+   zip -r archive.zip /path/to/dir/
+   zip -r combined.zip dir1/ dir2/ file1.txt
+   ```
+
+3. **排除特定文件**：
+
+   ```bash
+   zip -r archive.zip dir/ -x "*.tmp" "temp/*"
+   ```
+
+4. **分卷压缩**（每卷 50MB）：
+
+   ```bash
+   zip -r -s 50M split_archive.zip large_dir/
+   ```
+
+   > 生成文件：`split_archive.z01`, `split_archive.z02`, ..., `split_archive.zip`
+
+5. **管道操作**
+
+   压缩日志文件并直接传输：
+
+   ```bash
+   cat /var/log/syslog | zip logs.zip -
+   ```
+
+6. **最快压缩（低压缩率）**：
+
+   ```bash
+   zip -1 fast.zip large_file.iso
+   ```
+
+7. **加密压缩**（会提示输入密码）：
+
+   ```bash
+   zip -e secret.zip sensitive_file.txt
+   ```
+
+### `unzip` 解压
+
+**基本语法**
+
+```bash
+unzip [参数] 压缩包名.zip -d 目标目录
+```
+
+**常用参数**
+
+| 参数      | 作用                                 |
+| :-------- | :----------------------------------- |
+| `-d`      | 指定解压目录                         |
+| `-l`      | 仅列出压缩包内容（不解压）           |
+| `-o`      | 强制覆盖已存在文件                   |
+| `-n`      | 不覆盖已存在文件                     |
+| `-P 密码` | 直接指定密码（不安全，建议交互输入） |
+| `-q`      | 静默解压                             |
+| `-j`      | 忽略路径，所有文件解压到同一目录     |
+
+**典型示例**
+
+1. **解压到当前目录**：
+
+   ```bash
    unzip archive.zip
    ```
 
-   - `x`：表示解压并保持文件夹结构。
-
-   **解压到指定目录**： 如果你想将 `.zip` 文件解压到指定目录，可以使用 `-d` 选项：
+2. **解压到指定目录**：
 
    ```bash
-   unzip archive.zip -d /path/to/destination/
+   unzip archive.zip -d /target/path/
    ```
 
-   **列出 `.zip` 文件内容**（不解压）： 如果你只想查看 `.zip` 文件内包含的文件列表，可以使用：
+3. **强制覆盖解压**：
+
+   ```bash
+   unzip -o archive.zip
+   ```
+
+4. **解压时排除文件**
+
+   ```bash
+   unzip archive.zip -x "*.bak" "temp/*"
+   ```
+
+5. **列出压缩包内容**：
 
    ```bash
    unzip -l archive.zip
    ```
+
+6. **解压加密 ZIP**（交互式输入密码）：
+
+   ```bash
+   unzip secret.zip
+   ```
+
+7. **解压分卷 ZIP**：
+
+   ```bash
+   zip -F split_archive.zip --out repaired.zip  # 先修复（可选）
+   unzip repaired.zip
+   ```
+
+**注意事项**
+
+1. ZIP 格式默认不保留 Linux 文件权限（需用`-X`参数保留 UID/GID）。
+2. 分卷压缩时，分卷文件需放在同一目录下才能解压。
+3. 加密密码在命令行中使用`-P`会暴露历史记录，建议交互输入。
+
+对比`zip`与`tar.gz`
+
+| 特性       | ZIP                 | tar.gz             |
+| :--------- | :------------------ | :----------------- |
+| **压缩率** | 中等                | 通常更高           |
+| **功能**   | 支持加密/分卷       | 保留权限/符号链接  |
+| **跨平台** | Windows/Linux/macOS | 主要类 Unix 系统   |
+| **速度**   | 较快                | 较慢（高压缩率时） |
 
 ## rar 包
 
@@ -967,9 +1118,7 @@ sudo yum install epel-release
 sudo yum install rar unrar
 ```
 
-**2. 常用命令与参数**
-
-**1、压缩工具 `rar`**
+### `rar` 压缩
 
 **基本语法：**
 
@@ -1055,7 +1204,7 @@ rar <命令> [参数] <压缩文件.rar> <文件或目录>
    rar l archive.rar
    ```
 
-**2、解压工具 `unrar`**
+### `unrar` 解压
 
 **基本语法：**
 
