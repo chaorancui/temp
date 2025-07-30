@@ -114,6 +114,47 @@
     print(p.resolve())   # 返回规范化的绝对路径
     ```
 
+11. **替换后缀**
+
+    批量替换 `.txt` 为 `.log`
+
+    ```python
+    from pathlib import Path
+
+    p = Path("example.txt")
+
+    new_path = p.with_suffix(".log")
+    print(new_path)  # 输出：example.log
+    ```
+
+    **注意事项**
+
+    - `with_suffix()` **替换原有后缀**，包括点 `.`。若原路径没有后缀，`with_suffix()` 会直接添加新的后缀：
+
+      ```python
+      Path("file").with_suffix(".log")  # 得到 file.log
+      ```
+
+    - 保留原始文件名 + 添加额外后缀（非替换）
+
+      如果你想保留 `.dump` 并变成 `.dump.log`，不能用 `with_suffix()`，应这样写：
+
+      ```python
+      new_name = file.with_name(file.name + ".log")
+      ```
+
+    - 若文件是**双重后缀**（如 `.tar.gz`），只替换最后一个：
+
+      ```python
+      Path("archive.tar.gz").with_suffix(".zip")  # archive.tar.zip
+      ```
+
+    - 如果你要真正**重命名文件**，加上 `.rename()` 即可：
+
+      ```python
+      p.rename(p.with_suffix(".log"))
+      ```
+
 **总结常用 API（备忘表）**
 
 | 功能       | 方法                                                     |
@@ -124,7 +165,6 @@
 | 遍历目录   | `.iterdir()`, `.glob()`, `.rglob()`                      |
 | 文件操作   | `.read_text()`, `.write_text()`, `.unlink()`, `.mkdir()` |
 | 规范化路径 | `.resolve()`                                             |
-
 
 **推荐使用场景**
 
