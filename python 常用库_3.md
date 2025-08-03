@@ -584,7 +584,7 @@ print(array)
 # 输出数据的形状和数据类型
 print("数据形状:", array.shape)
 print("数据类型:", array.dtype)
-print(f"name: {str('文件名')+',':<20} shape: {str(array.shape)+',':<15} size: {str(array.nbytes)+',':<15} nbytes: {str(array.nbytes)+',':<15} dtype: {str(array.dtype):<10}")
+print(f"name: {str('array')+',':<20} shape: {str(array.shape)+',':<15} size: {str(array.nbytes)+',':<15} nbytes: {str(array.nbytes)+',':<15} dtype: {str(array.dtype):<10}")
 # 打印内存排布信息
 print(array.flags)
 ```
@@ -777,7 +777,7 @@ print(loaded_array)
    # 保存到文本文件，格式化为小数点后两位，逗号分隔
    np.savetxt("array_data.txt", array, fmt="%10.4f", delimiter=",")
    np.savetxt("array_data_1d.txt", array.reshape(1, -1), fmt="%f", delimiter=',', newline=' ') # delimiter 仅对二维数组有效，因此 reshape(1, -1)
-   print(f"{'array:': <15} shape: {str(array.shape)+',': <20} nbytes: {str(array.nbytes)+',': <10} dtype: {str(array.dtype)+',': <10}")
+   print(f"name: {str('array')+',':<20} shape: {str(array.shape)+',':<15} size: {str(array.nbytes)+',':<15} nbytes: {str(array.nbytes)+',':<15} dtype: {str(array.dtype):<10}")
    ```
 
    **大于 2 维的数组写入文件函数**：
