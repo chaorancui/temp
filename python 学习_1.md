@@ -1897,6 +1897,27 @@ import pdb; pdb.set_trace()
 - `ipdb` 提供更好的用户体验，尤其在需要频繁交互、使用历史记录、补全等功能时非常强大。
 - 两者接口一致，`set_trace()` 等使用方式几乎相同，方便替换。
 
+## 注意事项
+
+1. `ipdb` 无法进行交互
+   原因是是**运行它的终端环境没有启用 readline 或没有走交互式终端输入模式**，所以上下左右箭头的按键转义序列（`^[[A`、`^[[B` 等）没有被解析成历史记录或光标移动。
+
+   **常见原因**
+
+   1. **ipdb 运行在非交互终端（stdin 不是 tty）**
+      比如你是通过 `python script.py 2>&1 | tee log.txt` 运行，或在 `tmux` / `screen` 的非交互模式里运行，
+      这时标准输入输出被管道重定向，`ipdb` 以为自己没有终端控制能力。
+
+   2. **没有安装 `readline` 或 `prompt_toolkit`**
+      `ipdb` 默认依赖 Python 的 `readline` 模块（Linux/macOS 内置，Windows 需要 `pyreadline`）。
+      如果缺失，按键就会原样显示 `^[[A`。
+
+   3. **远程环境缺少正确的 TERM 设置**
+      如果 `$TERM` 变量没设置（或设置成 `dumb`），终端控制符就不会被识别。
+
+   4. **使用了 minimal shell 或容器里缺少终端库（如 ncurses）**
+      有些精简镜像里 `libncurses` 不全，`readline` 功能就失效。
+
 # PyQt5
 
 ## [PyQt5 关于 Qt Designer 的初步应用和打包过程详解](http://www.codebaoku.com/it-python/it-python-223940.html)
