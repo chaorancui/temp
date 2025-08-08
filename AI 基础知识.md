@@ -124,6 +124,75 @@ $$ \text{Each head's dimension} = \frac{d\_{\text{model}}}{h} $$
 
 通过计算 Query 与 Key 的相似度并加权 Value，自注意力机制可以动态聚焦序列中的重要部分，极大地提升了模型在自然语言处理等任务中的表现能力。
 
+## attention mask
+
+详细拆解一下 Transformer 推理时注意力 mask（attention mask）矩阵的用途、构造方式，以及代码生成示例。
+
+### 为什么推理时需要 attention mask
+
+在 **Transformer** 里，注意力（attention）是这样计算的：
+
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}} + \text{mask}\right) V $$
+
+这里的 **mask** 是为了限制哪些 token 可以互相看到（即控制注意力范围）。
+
+- **对不允许看到的位置加一个非常大的负数**（通常是 `-inf`，在浮点数里可以用一个很大的负数模拟，比如 `-65504` 这种 float16 可表示的最小值）。
+- **softmax 时，这些位置的概率接近 0**。
+
+在推理（inference）场景下：
+
+- 我们是 **自回归生成**（auto-regressive generation），即每一步只能看到之前生成的 token，不能看到未来的。
+- 因此需要 **因果 mask**（causal mask），又叫 **上三角 mask**（upper-triangular mask）。
+
+### mask 的生成过程
+
+- **`torch.full(shape, fill_value, ...)`**：创建一个指定形状、所有元素都等于 `fill_value` 的张量。
+  - `fill_value` 一般为 `-inf` 或数据类型最小值。这样就得到了一个 **“全部位置都被屏蔽”** 的初始 mask。
+- **`torch.triu(input, diagonal=k)`**：取输入张量的上三角部分（包含主对角线 `k=0`），其余位置置为 0。
+  - `diagonal=prev_pos + 1`：会让对角线从 `(prev_pos + 1)` 处开始。
+  - `prev_pos` 通常表示缓存中**最后一个已处理 token 的位置**。
+
+结合起来：
+
+- 原始 mask：全部是极大负数（表示全部屏蔽）。
+- `triu` 操作：把下三角部分（允许访问的位置）改为 0。
+
+结果：
+
+- **在注意力计算里，0 表示可访问，极大负数表示屏蔽**。
+- **对未来 token 位置**：值保持 `-65504`（mask 掉）。
+- **对可访问的历史 token 位置**：值变为 0（允许注意力计算）。
+
+### mask 的直观例子
+
+假设：
+
+- `fwd_size = 3`（当前要预测 3 个 token）
+- `kv_cache_max_len = 6`（缓存长度 6）
+- `prev_pos = 2`
+
+构造的 mask（去掉 batch/head 维）会是：
+
+```log
+0     0     0  -65504  -65504  -65504
+0     0     0  -65504  -65504  -65504
+0     0     0  -65504  -65504  -65504
+```
+
+这里 `0` 表示可以 attend（访问），`-65504` 表示禁止访问。
+
+### 推理中的意义
+
+- 在**训练**时，通常会用一个固定的因果 mask（上三角全局 mask）。
+- 在**推理**时，由于我们用 **KV Cache** 机制，不会每次从头计算，所以 mask 需要考虑：
+  1. 历史缓存里 token 的数量（`prev_pos`）
+  2. 当前批次要预测的 token 数量（`fwd_size`）
+
+这样才能保证：
+
+- 模型不会“偷看”未来的 token
+- 节省计算量（只对可见位置做 softmax）
+
 ## lora
 
 在大模型（例如大型语言模型、深度学习模型）中，​**LoRA**​（Low-Rank Adaptation）是一种有效的**模型微调**方法，用于提高预训练大模型在**特定任务上**的表现，同时大幅减少训练过程中所需的计算资源和存储开销。
@@ -206,7 +275,7 @@ FFN 由多个神经元（Neuron）组成，通常包含以下几层：
 
 **前向传播**：
 
-FFN 主要依赖**前向传播（Forward Propagation）**计算输出：
+FFN 主要依赖**前向传播（Forward Propagation）** 计算输出：
 
 1. 每个神经元计算加权和：
 
@@ -222,7 +291,7 @@ FFN 主要依赖**前向传播（Forward Propagation）**计算输出：
 
 **训练过程**：
 
-FFN 采用**反向传播（Backpropagation）**和**梯度下降（Gradient Descent）**优化权重：
+FFN 采用**反向传播（Backpropagation）** 和**梯度下降（Gradient Descent）** 优化权重：
 
 1. 计算损失函数（如 MSE、交叉熵）。
 2. 反向传播误差，更新权重 $ W $ 和偏置 $ b $： $ W \leftarrow W - \eta \frac{\partial L}{\partial W} $ 其中 $ \eta $ 是学习率，$ L $ 是损失函数。
