@@ -1802,6 +1802,12 @@ import pdb; pdb.set_trace()
 | `whatis expr` | 查看表达式类型                     |
 | `source expr` | 尝试获取对象源代码（如函数）       |
 
+1. 查看当前函数的所有局部变量
+   `p locals()` 会返回一个字典，key 是变量名，value 是当前值.
+   或 `pp locals()`，（pretty print）让结果更易读。
+2. 查看全局变量
+   `p globals()` 或 `pp globals()`。
+
 ### 显示表达式值
 
 | 命令               | 说明                                     |
