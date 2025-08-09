@@ -453,11 +453,269 @@ RoPE 的核心思想是在注意力计算时，将输入向量的不同维度按
 
    <!--prettier-ignore-->
    RoPE 的旋转操作通常可以使用复数或者实数域上的旋转矩阵来实现。给定输入向量 $ \mathbf{x}_i $ 的偶数维度 $ x_{2k} $ 和奇数维度 $ x_{2k+1} $，其经过 RoPE 变换后的新坐标可以表示为：
-   $$ \begin{aligned} x_{2k}' &= x_{2k} \cos(\theta_i) - x_{2k+1} \sin(\theta_i) \\ x_{2k+1}' &= x_{2k} \sin(\theta_i) + x_{2k+1} \cos(\theta_i) \end{aligned} $$
+   $$ R(\theta) = \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta & \cos\theta \end{bmatrix} $$
+
+   $$ \begin{aligned} x*{2k}' &= x*{2k} \cos(\theta*i) - x*{2k+1} \sin(\theta*i) \\ x*{2k+1}' &= x*{2k} \sin(\theta_i) + x*{2k+1} \cos(\theta_i) \end{aligned} $$
 
    其中，$ \theta_i $ 是根据位置 $ i $ 生成的角度，通常设定为与位置 $ i $ 和维度 $ k $ 相关的固定函数，例如：$ \theta_i = i / 10000^{2k/d} $，其中 $ d $ 是输入向量的维度。
 
    通过这种方式，RoPE 能够在注意力计算时嵌入序列位置信息，且不会显著增加计算复杂度。
+
+## RoPe 算子
+
+**一、RoPE 是什么**
+
+RoPE 全称 **Rotary Positional Embedding**（旋转位置编码），最早由 [Su et al., 2021](https://arxiv.org/abs/2104.09864) 提出，用来给 **注意力机制**（Attention）中的 `Q` 和 `K` 向量引入位置信息。
+
+与 **绝对位置编码（Absolute Positional Encoding）** 或 **可学习位置编码（Learnable Positional Embedding）** 不同，RoPE 是一种 **相对位置编码** 的实现方式，而且它直接作用在 `Q` 和 `K` 向量上，而不是加到 token embedding 上。
+
+**二、RoPE 的作用**
+
+RoPE 的核心思想：
+
+- 将 `Q` 和 `K` 的每一对偶数维度 `(2i, 2i+1)` 看作平面上的一个二维向量
+
+- 根据 **token 的位置 pos** 进行二维平面旋转
+
+- 旋转的角度由位置和频率共同决定
+  <!--prettier-ignore-->
+  $$ \theta_{pos, i} = pos \cdot \omega_i $$
+
+  其中 $ \omega_i $ 是频率参数（随维度变化）。通常设定为：$ \omega_i = 1 / 10000^{2k/d} $，其中 $ d $ 是输入向量的维度。
+
+这样做的好处：
+
+1. **编码相对位置信息**：旋转后的 Q 和 K 的点积内积结果只与相对位置有关
+2. **不需要额外的可训练参数**
+3. **推理时可扩展序列长度**（因为频率公式是解析的，不依赖固定表）
+
+**三、数学公式**
+
+假设 token 在位置 $p$，维度索引为 $i$（偶数维），频率为 $\omega_i$，二维旋转矩阵为：
+
+$$R_{\theta} =  \begin{bmatrix} \cos\theta & -\sin\theta \\ \sin\theta &  \cos\theta \end{bmatrix}$$
+
+RoPE 对向量 $(x_{2i}, x_{2i+1})$ 旋转：
+
+$$\begin{bmatrix} x'_{2i} \\ x'_{2i+1} \end{bmatrix} = R_{\theta_{p,i}} \cdot \begin{bmatrix} x_{2i} \\ x_{2i+1} \end{bmatrix}$$
+
+**四、在大模型中的位置**
+
+在 Transformer 的多头注意力中，RoPE 作用在：
+
+1. 计算 $Q = XW_Q$
+2. 计算 $K = XW_K$
+3. **对 Q 和 K 进行旋转编码**
+4. 再去计算注意力分数 $QK^T / \sqrt{d}$
+
+📌 RoPE 不直接作用在 V（Value）上，因为位置关系只影响相似度计算。
+
+RoPE 在注意力中如何旋转 Q/K 的示意图：
+
+```log
+             ┌─────────────────────────────┐
+             │          输入向量 X          │
+             └──────────────┬──────────────┘
+                            ↓
+                    W_Q         W_K
+                  (权重矩阵)  (权重矩阵)
+                   ↓             ↓
+                 Q 向量         K 向量
+        (batch, seq, dim) (batch, seq, dim)
+
+           每对偶数维 + 奇数维
+      ┌───────────────────────────┐
+      │ (q0, q1), (q2, q3), ...    │
+      └──────────────┬─────────────┘
+                     ↓
+         根据 token 位置 pos 计算角度 θ
+               θ_i = pos * ω_i
+                     ↓
+     对每个二维向量应用旋转矩阵 Rθ：
+        ┌──────────────────────┐
+        │ q0' = q0*cosθ - q1*sinθ │
+        │ q1' = q0*sinθ + q1*cosθ │
+        └──────────────────────┘
+                     ↓
+             RoPE 处理后的 Q 向量
+             RoPE 处理后的 K 向量
+                     ↓
+             计算注意力分数：
+             Attention = softmax(Q'·K'^T / √d)
+```
+
+**五、实际 PyTorch 示例**
+
+假设我们有 1 个 token 的 `Q` 向量（dim=4），位置 `pos=2`，RoPE 频率用简单版公式实现。
+
+```python
+import torch
+import math
+
+def apply_rope(q, pos, base=10000):
+    """
+    q: [seq_len, dim] 或 [batch, seq_len, dim]
+    pos: 位置索引（int）
+    base: RoPE 基数
+    """
+    dim = q.shape[-1]
+    half_dim = dim // 2
+    # 根据维度计算频率
+    freq_seq = torch.arange(0, half_dim, dtype=torch.float32)
+    inv_freq = 1.0 / (base ** (freq_seq / half_dim))
+
+    # 计算旋转角度
+    theta = pos * inv_freq  # [half_dim]
+    cos_theta = torch.cos(theta)
+    sin_theta = torch.sin(theta)
+
+    # 偶数维和奇数维
+    q1 = q[..., ::2]
+    q2 = q[..., 1::2]
+
+    # 旋转公式
+    q_rotated_even = q1 * cos_theta - q2 * sin_theta
+    q_rotated_odd  = q1 * sin_theta + q2 * cos_theta
+
+    # 交错合并回原 shape
+    q_out = torch.stack([q_rotated_even, q_rotated_odd], dim=-1).reshape(q.shape)
+    return q_out
+
+# 示例：一个 token，dim=4
+q = torch.tensor([[1.0, 2.0, 3.0, 4.0]])  # shape [1,4]
+pos = 2
+
+q_rot = apply_rope(q, pos)
+print("原 Q:", q)
+print("RoPE 后 Q:", q_rot)
+```
+
+输出示例（数值会因频率不同而变化）：
+
+```log
+原 Q: tensor([[1., 2., 3., 4.]])
+RoPE 后 Q: tensor([[0.8896, 2.3020, 2.6428, 4.4751]])
+```
+
+**六、总结**
+
+- **RoPE** 是一种直接在 Q/K 上做二维旋转的相对位置编码方法
+- 优点：
+  - 不需要额外参数
+  - 推理可外推到更长序列
+  - 计算和内存开销低
+- 在大模型推理中，它让注意力分数与**相对位置**相关，而不是绝对位置
+
+## RoPE 中计算频率的公式
+
+假设 embedding 维度为 $d$，通常 $d$ 是偶数。
+
+我们将维度拆成 $d/2$ 个「频率对」，对每个频率对计算一个频率 $\omega_i$：
+
+$$\omega_i = \frac{1}{10000^{\frac{2i}{d}}} \quad \text{或} \quad \omega_i = \frac{1}{10000^{\frac{i}{d/2}}}$$
+
+其中：
+
+- $i = 0, 1, 2, \ldots, \frac{d}{2} - 1$ 是频率对的索引
+- **10000 是一个超参数**，表示基数（也有用其他数的，10000 是 Transformer 里常用的）
+
+**公式含义**
+
+- 这里对不同维度的频率 $\omega_i$ 按指数衰减分布
+- RoPE 中的频率 $\omega_i$ 随维度索引 $i$ 的增大，呈指数衰减：
+  - 维度越大，频率越低，变化越慢；
+  - 维度越小，频率越高，变化越快。
+- 不同维度频率下，旋转角度 $\theta = pos \times \omega_i$ 随 token 位置 $pos$ 的变化：
+  - 高频维度（如 dim 0）旋转角度增长快，周期短，适合捕获近距离位置信息；
+  - 低频维度（如 dim 63）旋转角度缓慢，周期长，能编码长距离依赖。
+
+这就是 RoPE 频率设计成指数分布的原因，可以**覆盖多尺度相对位置编码**。
+能保证 RoPE 中旋转角度随维度不同而有不同变化速率，从而使**不同维度携带不同层次的位置信息**。
+
+**为什么要这样设计？**
+
+1. **多尺度编码**
+   频率从慢变到快，可以捕获不同距离的相对位置信息。低频对应的旋转变化慢，适合编码较远的相对位置；高频对应变化快，适合捕获近邻 token 的精细差别。
+2. **平衡频率覆盖**
+   指数分布保证了频率在对数尺度上均匀分布，不会集中在某个频率段，避免频率过于单一导致编码效果下降。
+3. **与绝对位置编码对应**
+   这个频率设计沿用了 Transformer 绝对位置编码的思路（Vaswani et al., 2017），也保证 RoPE 在连续序列中能自然衔接。
+4. **数学优雅**
+   频率 $\omega_i$​ 越大，对应旋转角度越快变化，保持旋转编码的数学连续性和平滑性。
+
+## onnx 中 RoPE 实现
+
+**一、为什么 ONNX 里没有 RoPE 算子**
+
+- RoPE 是一种比较新的、专用的相对位置编码方法，它本质上是用二维旋转矩阵对 token 的隐藏表示做旋转操作。
+- ONNX 目前提供的是比较通用和基础的张量运算算子集合，不会专门针对某一模型或特定算法设计定制算子。
+- RoPE 实际上可以<font color=red>拆解成现有的基础算子组合实现（比如 slice、mul、add、concat、reshape 等）</font>，没有必要单独设计专用算子。
+
+**二、用 ONNX 基础算子实现 RoPE 的思路**
+
+- **Slice**：切分隐藏向量，比如偶数维和奇数维分开，或者切出某些维度。
+- **Mul**：对切片后的向量分别乘以 cos 和 sin 矩阵。
+- **Concat**：将变换后的向量片段拼接回完整形状。
+- **Add/Sub**：计算旋转时的加减法。
+- **Reshape/Transpose**：调整维度方便计算。
+
+**三、数学上的等价变换过程**
+
+1. RoPE 数学背景和变换公式
+
+   RoPE 的核心是对隐藏向量中不同维度的元素，按一定频率用二维旋转矩阵做旋转，模拟相对位置编码。
+
+   假设隐藏向量长度为 $d$，对偶数维和奇数维分别做如下变换：
+
+   - 定义一个角度 $\theta_i$ （i 是维度索引）：
+
+   $$\theta_i = \frac{1}{10000^{2i/d}}, \quad i=0,1,2,..., d/2-1$$
+
+   - 对第 $k$ 个 token 的隐藏向量 $x*k \in \mathbb{R}^d$，拆分成偶数位 $x*{k,2i}$ 和奇数位 $x_{k,2i+1}$，然后用旋转矩阵乘以对应维度对：
+
+   $$\begin{bmatrix} x'_{k,2i} \\ x'_{k,2i+1} \end{bmatrix} = \begin{bmatrix} \cos(k \theta*i) & -\sin(k \theta_i) \\ \sin(k \theta_i) & \cos(k \theta_i) \end{bmatrix} \begin{bmatrix} x_{k,2i} \\ x_{k,2i+1} \end{bmatrix}$$
+
+2. 用 ONNX 基础算子实现的思路
+
+输入和维度
+
+- 输入 $X$ 形状： $(B, S, D)$，B 是 batch，S 是序列长度，D 是隐藏维度（假设是偶数）。
+- 频率角度张量 $\theta$ 形状： $(D/2,)$ ，对应每对维度的频率。
+- 位置索引 $k$ 张量形状： $(S,)$，每个序列位置的索引。
+
+具体步骤
+
+| 步骤编号 | 计算步骤                  | ONNX 算子             | 形状说明                                                                                      | 输出结果说明                                                        |
+| -------- | ------------------------- | --------------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| 1        | 拆分偶数和奇数维          | `Slice`               | 输入 $X$: (B,S,D) → 偶数维 $X_{even}$: (B,S,D/2)，奇数维 $X_{odd}$: (B,S,D/2)                 | 分别获得偶数维和奇数维的向量片段                                    |
+| 2        | 计算旋转角度              | `Mul`                 | 位置向量 $k$: (S,1) 和频率 $\theta$: (1,D/2) → 角度张量 $\alpha$: (S,D/2)                     | 每个位置和频率相乘得到旋转角度 $\alpha_{s,i} = k_s \times \theta_i$ |
+| 3        | 计算旋转矩阵的 cos 和 sin | `Cos`, `Sin`          | 对 $\alpha$ 计算得到 $\cos(\alpha)$, $\sin(\alpha)$，形状均为 (S,D/2)                         | 分别得到旋转矩阵中的 cos 和 sin 值                                  |
+| 4        | 扩展 cos 和 sin 形状      | `Unsqueeze`、`Expand` | 把 (S,D/2) 扩展成 (B,S,D/2)，和 $X_{even}, X_{odd}$ 维度匹配                                  | 方便后续逐元素乘法                                                  |
+| 5        | 计算旋转后的偶数维分量    | `Mul`                 | $X'_{even} = X_{even} \times \cos(\alpha) - X\_{odd} \times \sin(\alpha)$，结果形状 (B,S,D/2) | 旋转矩阵乘法第一行                                                  |
+| 6        | 计算旋转后的奇数维分量    | `Mul`                 | $X'_{odd} = X_{even} \times \sin(\alpha) + X\_{odd} \times \cos(\alpha)$，结果形状 (B,S,D/2)  | 旋转矩阵乘法第二行                                                  |
+| 7        | 合并旋转后的偶数和奇数维  | `Concat`              | 把 $X'_{even}, X'_{odd}$ 按最后一维拼接，形状回到 (B,S,D)                                     | 得到完整的旋转后隐藏向量                                            |
+
+数学等价性解释
+
+- **拆分偶数、奇数维**就是把向量拆成二维坐标对 $\vec{v_i} = (x_{2i}, x\_{2i+1})$，是旋转操作的输入向量。
+- **计算 $\alpha = k \times \theta$** 是给每个 token 和每对维度算对应的旋转角度。
+- **cos/sin 的计算和扩展**是构造旋转矩阵里的元素。
+- **乘加操作组合**实现了旋转矩阵乘向量的点乘，完全等价于二维旋转变换。
+- **Concat 合并**是把每个二维对重新拼回完整隐藏维度。
+
+各步骤输出形状与意义汇总表
+
+| 步骤 | 操作                  | 输入形状             | 输出形状             | 说明                     |
+| ---- | --------------------- | -------------------- | -------------------- | ------------------------ |
+| 1    | Slice 偶数、奇数维    | (B,S,D)              | (B,S,D/2), (B,S,D/2) | 拆成二维对的两个分量     |
+| 2    | Mul 计算角度 α\alphaα | (S,1), (1,D/2)       | (S,D/2)              | 每个序列位置对应频率乘积 |
+| 3    | Cos、Sin              | (S,D/2)              | (S,D/2)              | 旋转矩阵参数             |
+| 4    | Expand                | (S,D/2), (B,S,D/2)   | (B,S,D/2)            | 对齐维度，准备广播计算   |
+| 5    | 旋转偶数维分量计算    | (B,S,D/2), (B,S,D/2) | (B,S,D/2)            | 旋转矩阵乘法第一行       |
+| 6    | 旋转奇数维分量计算    | (B,S,D/2), (B,S,D/2) | (B,S,D/2)            | 旋转矩阵乘法第二行       |
+| 7    | Concat                | (B,S,D/2), (B,S,D/2) | (B,S,D)              | 合并完整旋转后向量       |
+
+如果需要，我可以帮你写一段伪代码或对应的 ONNX node 配置示例，或者帮你把 PyTorch 的 RoPE 代码示范如何导出成 ONNX！你看怎么样？
 
 ## Concat 算子
 
@@ -605,47 +863,93 @@ RoPE 的核心思想是在注意力计算时，将输入向量的不同维度按
 
 ## slice 算子
 
-在大模型（如深度学习模型）中，`slice` 算子**通常用于提取张量（tensor）的一部分**。它根据指定的索引和维度，截取输入张量的一部分，并返回一个新的张量。这个操作在数据预处理、模型构建、以及在不同层之间传递数据时非常常见。
+在大模型（Transformer、LLM 等）中，**Slice（切片）算子**的作用就是从输入张量中**按指定的维度和范围截取一部分数据**。它和 Python 的切片语法类似（`tensor[start:end:step]`），但在深度学习算子里更强调**可配置性和硬件友好性**。
 
-1. **功能**
-   具体来说，`slice` 算子的作用是从输入张量中按照指定的起始位置、终止位置和步长来提取子张量。通常有以下几种常见形式的参数：
+**一、核心参数**
 
-   1. **起始索引**：指定从哪个位置开始截取。
-   2. **结束索引**：指定截取的结束位置。
-   3. **步长**：指定每个维度上切片的步长，常用于跳跃式切片。
+无论是在 ONNX、TensorFlow 还是 Ascend/昇腾等硬件框架中，Slice 通常有几个核心参数：
 
-2. **使用场景**
+1. **starts**：每个维度的起始索引
+2. **ends**：每个维度的结束索引（不包含该位置）
+3. **axes**：指定在哪些维度上切片
+4. **steps**：步长（默认为 1）
 
-   - **子集选择**：在神经网络中，你可能希望根据不同的层或不同的输入特征选择子集。
-   - **数据预处理**：在进行数据增强或特征选择时，可能需要通过 `slice` 从原始数据中提取部分信息。
-   - **批处理**：在处理大规模数据时，通过 `slice` 对数据进行切片，以便分批处理。
+例如：
 
-3. **注意事项**
+```log
+编辑输入: shape = [batch, seq_len, hidden]
+切片: starts=[0, 10, 0], ends=[1, 20, hidden], axes=[0, 1, 2], steps=[1, 1, 1]
+```
 
-   - `slice` 操作并不创建输入张量的副本（除非在某些框架中明确指定）。它只是返回对原始数据的视图。
-   - 根据使用的深度学习框架（如 TensorFlow、PyTorch 等），`slice` 的具体实现和语法可能有所不同，但其基本功能是类似的。
+表示取：
 
-4. **代码示例**
+- 第一个 batch（0 到 1）
+- 第 10 到 19 的序列 token
+- 所有 hidden 维度
 
-   ```python
-   import torch
+**二、大模型中 Slice 算子的常见用途**
 
-   tensor = torch.tensor([[1, 2, 3, 4],
-                          [5, 6, 7, 8],
-                          [9, 10, 11, 12],
-                          [13, 14, 15, 16]])
+1. **取某一部分 KV Cache**
+   在推理时，如果只需要从 KV Cache 中取出当前 token 对应的一段数据，就会用 Slice。
 
-   # 从第1行到第2行，选择所有列
-   sliced_tensor = tensor[1:3, :]
-   print(sliced_tensor)
-   # 输出：
-   '''
-   [[ 5,  6,  7,  8],
-    [ 9, 10, 11, 12]]
-   '''
+   ```log
+   KV_cache[:, start_pos:end_pos, ...]
    ```
 
-这些操作在实际开发中非常常见，尤其是在处理高维数据（如图像、序列数据等）时，`slice` 算子能够有效地减少不必要的计算，提取出有用的信息。
+2. **裁剪输入序列**
+   有时输入序列超过最大长度，需要截取最后 N 个 token：
+
+   ```log
+   input_ids[:, -max_len:, ...]
+   ```
+
+3. **多头注意力中的 head 分离**
+   在 `Q, K, V` 的维度变换时，有时用 Slice 从大张量中按 head 切出子张量。
+
+4. **分 batch 或分层处理**
+   如果模型中某部分只处理一部分 batch 或某几层的数据，也会用 Slice 算子。
+
+**三、PyTorch 中的 Slice 示例**
+
+下面我用一个简单的例子演示：
+假设我们有一个 `[batch=2, seq_len=8, hidden=4]` 的张量，我们想取**第一个 batch，序列第 2~5 个 token**。
+
+```python
+import torch
+
+# 模拟输入张量
+x = torch.arange(2*8*4).reshape(2, 8, 4)
+print("原始张量形状:", x.shape)
+print(x)
+# 原始张量形状: torch.Size([2, 8, 4])
+# tensor([...])
+
+
+# PyTorch 切片（相当于 Slice 算子）
+# 取第一个 batch，seq_len 范围是 [2, 6)
+slice_result = x[0:1, 2:6, :]
+print("\n切片后的形状:", slice_result.shape)
+print(slice_result)
+# 切片后的形状: torch.Size([1, 4, 4])
+# tensor([...])
+```
+
+**四、高级用法：等效 ONNX Slice**
+
+PyTorch 的切片本质上就是用 **`Tensor.index_select` / `Tensor.narrow` / `Tensor.slice`** 操作实现的。
+比如：
+
+```python
+# 等价实现（narrow: 从指定维度开始取固定长度）
+slice_result = x.narrow(dim=1, start=2, length=4)
+```
+
+这和 ONNX/AscendC 里的 Slice 参数是一一对应的：
+
+- starts = [0, 2, 0]
+- ends = [1, 6, 4]
+- axes = [0, 1, 2]
+- steps = [1, 1, 1]
 
 ## unsqueeze 算子
 
