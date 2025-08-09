@@ -646,9 +646,9 @@ $$\omega_i = \frac{1}{10000^{\frac{2i}{d}}} \quad \text{或} \quad \omega_i = \f
 
    $$\theta_i = \frac{1}{10000^{2i/d}}, \quad i=0,1,2,..., d/2-1$$
 
-   - 对第 $k$ 个 token 的隐藏向量 $x*k \in \mathbb{R}^d$，拆分成偶数位 $x*{k,2i}$ 和奇数位 $x_{k,2i+1}$，然后用旋转矩阵乘以对应维度对：
+   - 对第 $k$ 个 token 的隐藏向量 $x_k \in \mathbb{R}^d$，拆分成偶数位 $x_{k,2i}$ 和奇数位 $x_{k,2i+1}$，然后用旋转矩阵乘以对应维度对：
 
-   $$\begin{bmatrix} x'_{k,2i} \\ x'_{k,2i+1} \end{bmatrix} = \begin{bmatrix} \cos(k \theta*i) & -\sin(k \theta_i) \\ \sin(k \theta_i) & \cos(k \theta_i) \end{bmatrix} \begin{bmatrix} x_{k,2i} \\ x_{k,2i+1} \end{bmatrix}$$
+   $$\begin{bmatrix} x'_{k,2i} \\ x'_{k,2i+1} \end{bmatrix} = \begin{bmatrix} \cos(k \theta_i) & -\sin(k \theta_i) \\ \sin(k \theta_i) & \cos(k \theta_i) \end{bmatrix} \begin{bmatrix} x_{k,2i} \\ x_{k,2i+1} \end{bmatrix}$$
 
 2. 用 ONNX 基础算子实现的思路
 
