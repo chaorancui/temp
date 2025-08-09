@@ -10,6 +10,8 @@
 4. [Transformers 快速入门 - 第三章：注意力机制](https://transformers.run/c1/attention/) -- 清晰
 5. [ransformer 大模型详解——transformer 模型](http://www.uml.org.cn/ai/202410254.asp)
 6. [youtube How might LLMs store facts | DL7](https://www.youtube.com/watch?v=9-Jl0dxWQs8)
+7. [3Blue1Brown《直观解释 Transformer》](https://47saikyo.moe/Artificial%20Intelligence/Article/3Blue1Brown%E3%80%8A%E7%9B%B4%E8%A7%82%E8%A7%A3%E9%87%8ATransformer%E3%80%8B/)
+8. [3blue1brown 又出新作，动画 attention 注意力，我斗胆把它转成了文章（二）](https://www.bilibili.com/opus/937204109319077926)
 
 # 大模型相关知识
 
