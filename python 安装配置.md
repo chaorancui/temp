@@ -263,6 +263,7 @@ windows 查看安装 python 版本：py -0
        - `column_limit=120`：列限制为 120 字符。
        - `continuation_align_style=SPACE`：续行对齐使用空格。
        - `split_before_dict_set_generator=True`：字典/集合生成器前换行。
+       - `split_before_semicolon = True`：分号前会自动换行
 
 **三、vscode 配置**
 
@@ -300,6 +301,8 @@ disable_split_list_with_comment = False
 split_before_named_assigns = False
 # 是否列表每个元素强制换行
 each_dict_entry_on_separate_line = False
+# 是否分号前会自动换行
+split_before_semicolon = False
 ```
 
 # pip 命令
