@@ -433,3 +433,231 @@ Set --> Generic
 @enduml
 
 ```
+
+# dataclasses
+
+**一、`dataclasses` 简介**
+
+`dataclasses` 是 Python 3.7 引入的一个标准库模块（3.6 可以用 backport 包 `dataclasses` 安装），
+它的主要目的是简化“**数据容器类**”的定义，减少样板代码（boilerplate），尤其是 `__init__`、`__repr__`、`__eq__` 等方法的重复编写。
+
+传统写法：
+
+```python
+class Point:
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
+
+    def __repr__(self):
+        return f"Point(x={self.x}, y={self.y})"
+```
+
+使用 `@dataclass`：
+
+```python
+from dataclasses import dataclass
+
+@dataclass
+class Point:
+    x: int
+    y: int
+```
+
+**自动生成** `__init__`、`__repr__`、`__eq__` 等方法，减少手写代码。
+
+**二、核心功能**
+
+| 功能               | 描述                                                                    |
+| ------------------ | ----------------------------------------------------------------------- |
+| **自动生成方法**   | `__init__`、`__repr__`、`__eq__`、`__hash__`、`__lt__` 等               |
+| **类型标注支持**   | 用类型注解定义字段（推荐，但不是强制）                                  |
+| **可配置字段行为** | 通过 `field()` 控制字段的默认值、是否参与比较、是否出现在 `__repr__` 等 |
+| **不可变对象**     | 通过 `frozen=True` 创建不可变数据类                                     |
+| **排序支持**       | 通过 `order=True` 生成比较运算符                                        |
+| **辅助函数**       | `asdict()`、`astuple()`、`replace()`、`fields()` 等                     |
+
+**三、装饰器 `@dataclass` 常用参数**
+
+```python
+@dataclass(init=True, repr=True, eq=True, order=False, frozen=False)
+class MyClass:
+    ...
+```
+
+| 参数            | 默认值  | 含义                                                  |
+| --------------- | ------- | ----------------------------------------------------- |
+| `init`          | `True`  | 自动生成 `__init__` 方法                              |
+| `repr`          | `True`  | 自动生成 `__repr__` 方法(可读的字符串，主要用于调试)  |
+| `eq`            | `True`  | 自动生成 `__eq__` 方法                                |
+| `order`         | `False` | 自动生成排序比较方法（需要 `eq=True`）                |
+| `frozen`        | `False` | 生成不可变对象（字段赋值会报错）                      |
+| `unsafe_hash`   | `False` | 自动生成 `__hash__`，即使 `eq=True` 且 `frozen=False` |
+| `slots` (3.10+) | `False` | 使用 `__slots__` 节省内存                             |
+
+注意事项：
+
+- `@dataclass` 里的字段必须有类型注解（除非你用 `field()` 明确声明）。
+- 如果字段有**可变默认值**（`list`, `dict` 等），一定要用 `field(default_factory=...)`，否则会出现共享引用的坑。
+
+**四、`field()` 的作用**
+
+`field()` 用于为单个字段设置细粒度控制。
+
+常用参数：
+
+```python
+from dataclasses import field
+
+@dataclass
+class Person:
+    name: str
+    age: int = 18
+    id: int = field(default_factory=lambda: random.randint(1000, 9999))
+    temp_data: list = field(default_factory=list, repr=False, compare=False)  # 每个对象独立的列表
+```
+
+| 参数              | 作用                               |
+| ----------------- | ---------------------------------- |
+| `default`         | 字段默认值                         |
+| `default_factory` | 默认值工厂（避免可变默认值陷阱）   |
+| `init`            | 是否出现在 `__init__` 参数中       |
+| `repr`            | 是否出现在 `__repr__` 输出中       |
+| `compare`         | 是否参与比较运算（`__eq__`、排序） |
+| `metadata`        | 存放自定义元数据字典               |
+
+注意事项：
+
+- 如果字段是可变类型（`list`, `dict`, `set`），**不要用 `default=[]`**，要用 `default_factory=list`，否则多个实例会共享一个列表。
+
+**五、常用辅助函数**
+
+```python
+from dataclasses import asdict, astuple, replace, fields, is_dataclass
+
+p = Person(name="Alice")
+
+asdict(p)       # {'name': 'Alice', 'age': 18, 'id': 1234, 'temp_data': []}
+astuple(p)      # ('Alice', 18, 1234, [])
+replace(p, age=20)  # 创建一个新对象，修改部分字段
+fields(p)       # 获取字段元信息
+is_dataclass(p) # True
+```
+
+| 函数                                | 用途                               |
+| ----------------------------------- | ---------------------------------- |
+| `asdict(obj)`                       | 递归转 `dict`                      |
+| `astuple(obj)`                      | 转 `tuple`                         |
+| `replace(obj, **kwargs)`            | 创建修改版对象                     |
+| `fields(obj)`                       | 获取字段元信息（`Field` 对象列表） |
+| `is_dataclass(obj)`                 | 检查是否为数据类                   |
+| `make_dataclass(name, fields, ...)` | 动态创建数据类                     |
+
+**六、`__post_init__()` 生命周期钩子**
+
+`__post_init__()` 会在自动生成的 `__init__` 执行后调用，可用于**二次初始化**或验证字段。
+
+```python
+@dataclass
+class User:
+    name: str
+    age: int
+
+    def __post_init__(self):
+        if self.age < 0:
+            raise ValueError("年龄不能为负数")
+```
+
+**七、典型应用场景**
+
+- 配置对象（如解析 YAML/JSON 配置后映射成类）
+- 简单数据结构（点、向量、树节点）
+- 数据传输对象（DTO）
+- 单元测试数据模型
+- 与 `from_dict()` / `to_dict()` 配合，进行序列化和反序列化
+
+**八、总结**
+
+| 方法 / 装饰器      | 作用                                                                     | 常见参数                                                                                                                                 | 使用示例                                                           | 使用场景                                 |
+| ------------------ | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------- |
+| `@dataclass`       | 将一个普通类转为数据类，自动生成 `__init__`、`__repr__`、`__eq__` 等方法 | `init=True` / `False`（是否生成 `__init__`） `repr=True`（是否生成 `__repr__`） `frozen=True`（不可变对象） `order=True`（生成比较方法） | `@dataclass(frozen=True, order=True) class Point: x: int; y: int ` | 定义只存储数据、不需要手写方法的类       |
+| `field()`          | 为某个字段自定义默认值、默认工厂、是否出现在 `__init__` 等               | `default=...`（默认值） `default_factory=...`（工厂函数） `init=False`（不在构造函数出现） `repr=False`（不显示在 `repr`）               | `scores: list = field(default_factory=list) `                      | 列表、字典等可变类型默认值；控制字段行为 |
+| `asdict()`         | 将数据类实例转为 `dict`（递归转换）                                      | /                                                                                                                                        | `asdict(obj) `                                                     | 序列化到 JSON、日志输出                  |
+| `astuple()`        | 将数据类实例转为元组                                                     | /                                                                                                                                        | `astuple(obj) `                                                    | 快速打包成元组，便于比较                 |
+| `replace()`        | 创建对象副本，并修改部分字段                                             | /                                                                                                                                        | `new_obj = replace(obj, x=10) `                                    | 不可变对象的更新                         |
+| `fields()`         | 获取数据类字段的元数据                                                   | /                                                                                                                                        | `for f in fields(Point): print(f.name, f.type) `                   | 反射、动态生成表单                       |
+| `is_dataclass()`   | 判断对象或类是否为数据类                                                 | /                                                                                                                                        | `is_dataclass(Point) `                                             | 类型检查                                 |
+| `make_dataclass()` | 动态创建数据类                                                           | /                                                                                                                                        | `Point = make_dataclass("Point", [("x", int), ("y", int)]) `       | 动态生成类结构                           |
+| `__post_init__()`  | 构造完成后自动调用，用于额外初始化                                       | /                                                                                                                                        | `def __post_init__(self): self.z = self.x + self.y `               | 复杂初始化逻辑                           |
+
+使用建议
+
+- **可变类型**（list/dict/set）要用 `field(default_factory=...)`，避免共享引用。
+- 需要 JSON 序列化时，可以配合 `asdict()`。
+- 如果需要不可变数据类（比如键值缓存），使用 `@dataclass(frozen=True)`。
+- `replace()` 非常适合更新不可变对象。
+- `__post_init__()` 在需要额外验证或计算派生字段时很好用。
+
+```plantuml
+@startuml
+title dataclasses 常用 API 关系图
+
+package "dataclasses 核心" {
+    class "@dataclass" as DC {
+        + 自动生成 __init__, __repr__, __eq__
+        + 支持 frozen, order, init, repr 等参数
+    }
+    class "field()" as FIELD {
+        + default
+        + default_factory
+        + init
+        + repr
+    }
+}
+
+package "实例操作" {
+    class "asdict()" as ASDICT {
+        + 实例 → dict (递归)
+    }
+    class "astuple()" as ASTUPLE {
+        + 实例 → tuple
+    }
+    class "replace()" as REPLACE {
+        + 创建副本并修改部分字段
+    }
+}
+
+package "类/反射工具" {
+    class "fields()" as FIELDS {
+        + 获取字段元数据
+    }
+    class "is_dataclass()" as ISDC {
+        + 判断是否为数据类
+    }
+    class "make_dataclass()" as MKDC {
+        + 动态创建数据类
+    }
+}
+
+package "特殊方法" {
+    class "__post_init__()" as POST {
+        + 构造后自动执行
+        + 可进行额外初始化
+    }
+}
+
+DC --> FIELD : 定义字段
+DC --> POST : 构造后调用
+DC --> ASDICT : 实例转换
+DC --> ASTUPLE : 实例转换
+DC --> REPLACE : 实例复制更新
+
+ISDC --> DC : 类型检查
+FIELDS --> DC : 获取元信息
+MKDC --> DC : 动态生成
+
+ASDICT ..> FIELDS : 递归获取字段
+ASTUPLE ..> FIELDS : 按字段顺序生成元组
+
+@enduml
+```
