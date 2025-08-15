@@ -21,7 +21,7 @@
 
   ```python
   import script1
-  
+
   script1.greet("Alice")
   ```
 
@@ -42,7 +42,7 @@
 
   ```python
   from script1 import greet
-  
+
   greet("Bob")
   ```
 
@@ -141,7 +141,7 @@ print(s)
    ```python
    # 正则表达式示例
    import re
-   
+
    pattern = r"\d+"  # 匹配一个或多个数字
    text = "123 abc 456"
    matches = re.findall(pattern, text)
@@ -204,3 +204,89 @@ print(html)  # 输出: <div class="container">Content</div>
 ### 总结
 
 原始字符串（`r"..."`）是一种非常有用的工具，可以让你避免在字符串中频繁使用反斜杠进行转义。它尤其适用于处理文件路径、正则表达式以及任何包含特殊字符的字符串。
+
+## 组织数据 - 仿 struct
+
+在 Python 里，其实没有像 C/C++ 那样的原生 `struct` 类型，但可以用好几种方式实现“结构体”效果，具体取决于你是想 **像 C 那样操作内存** 还是 **只是想用结构化的字段访问数据**。
+
+- 如果是为了**Python 和 C 共享数据**（比如调用 `dll`、`so`），建议用 `ctypes.Structure`。
+- 如果是为了**组织数据方便读写**，建议用 `dataclass` 或 `namedtuple`。
+
+1. **如果只是想有“字段”的结构**
+
+   最简单的方法是用 **`dataclass`** 或 **`namedtuple`**
+
+   1. **`dataclass` 示例**
+
+      ```python
+      from dataclasses import dataclass
+
+      @dataclass
+      class Point:
+          x: int
+          y: int
+
+      def get_point():
+          return Point(1, 2)
+
+      p = get_point()
+      print(p.x, p.y)  # 1 2
+      ```
+
+      - 可变，更像普通 Python 类
+      - 代码简洁，自动生成 `__init__`、`__repr__`
+
+   2. **`namedtuple` 示例**
+
+      ```python
+      from collections import namedtuple
+
+      Point = namedtuple("Point", ["x", "y"])
+      def get_point():
+         return Point(1, 2)
+
+      p = get_point()
+      print(p.x, p.y)  # 1 2
+      ```
+
+      - 不可变（类似 C struct 常量）
+      - 可以用字段名访问
+
+2. **如果要 C 风格内存对齐**
+
+   可以用 **`struct` 模块** 或 **`ctypes.Structure`**
+
+   1. **`struct` 模块（用于打包/解包二进制）**
+
+      ```python
+      import struct
+
+      def get_struct():
+          return struct.pack("if", 1, 3.14)  # int + float
+
+      data = get_struct()
+      print(data)               # b'\x01\x00\x00\x00\xc3\xf5H@'
+      print(struct.unpack("if", data))  # (1, 3.140000104904175)
+      ```
+
+      - 常用于文件/网络二进制传输
+      - 不直接返回“字段对象”，而是打包的字节串
+
+   2. **`ctypes.Structure`（真正的 C 结构体）**
+
+      ```python
+      from ctypes import Structure, c_int, c_float
+
+      class Point(Structure):
+          _fields_ = [("x", c_int),
+                      ("y", c_float)]
+
+      def get_point():
+          return Point(1, 3.14)
+
+      p = get_point()
+      print(p.x, p.y)  # 1 3.14
+      ```
+
+      - 完全对应 C 结构体内存布局
+      - 可用于 Python 与 C 库交互（`ctypes`）
