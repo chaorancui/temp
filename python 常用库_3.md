@@ -1008,6 +1008,19 @@ numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, 
    - 常用在数据比较、验证条件、过滤等场景
    - 搭配 `np.isclose`、`np.isnan`、`arr > 0` 等布尔条件特别好用
 
+### tobytes() 二进制一致
+
+numpy 数组最精确的二进制一致性对比方法：
+
+```python
+print(a.tobytes() == b.tobytes())  # True
+```
+
+特点：
+
+- 直接按字节比较，dtype、endianness、NaN bit pattern 都会影响结果。
+- 如果需要绝对的 bit-level 一致，这个方法最好。
+
 ## 字节流
 
 > 1. [Binary Sequence Types — bytes, bytearray, memoryview](https://docs.python.org/3/library/stdtypes.html#binary-sequence-types-bytes-bytearray-memoryview)
