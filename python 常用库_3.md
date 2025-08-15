@@ -283,7 +283,7 @@ np.array([1.0, 2.0], dtype=np.float32)  # 显式指定 float32
 
 常用的数据类型描述符
 
-#### 整数类型
+**一、整数类型**
 
 - `i`：有符号整数（signed integer）
   - `i1`：1 字节（8 位）
@@ -296,20 +296,20 @@ np.array([1.0, 2.0], dtype=np.float32)  # 显式指定 float32
   - `u4`：4 字节（32 位）
   - `u8`：8 字节（64 位）
 
-#### 浮点类型
+**二、浮点类型**
 
 - `f`：浮点数（floating point）
   - `f2`：2 字节（16 位）半精度浮点数
   - `f4`：4 字节（32 位）单精度浮点数
   - `f8`：8 字节（64 位）双精度浮点数
 
-#### 复数类型
+**三、复数类型**
 
 - `c`：复数（complex number）
   - `c8`：8 字节（32 位实数和 32 位虚数）
   - `c16`：16 字节（64 位实数和 64 位虚数）
 
-#### 字节序前缀
+**四、字节序前缀**
 
 - `>`：大端字节序（big-endian）
 - `<`：小端字节序（little-endian）
@@ -464,7 +464,7 @@ print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}
 
 ### 随机数生成
 
-#### 基本随机数生成
+**一、基本随机数生成**
 
 - `numpy.random.rand(d0, d1, ..., dn)`
   生成指定形状的随机样本，样本值均在 0 到 1 的区间内（均匀分布）。
@@ -488,7 +488,7 @@ print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}
   random_int = np.random.randint(1, 10, size=5)  # 生成5个1到9之间的随机整数
   ```
 
-#### 特定分布的随机数生成
+**二、特定分布的随机数生成**
 
 - `numpy.random.uniform(low=0.0, high=1.0, size=None)`
   从均匀分布[low, high)中生成随机数。
@@ -525,7 +525,7 @@ print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}
   random_exponential = np.random.exponential(1, size=5)  # 生成5个指数分布样本，平均间隔为1
   ```
 
-#### 其他随机数生成函数
+**三、其他随机数生成函数**
 
 - `numpy.random.choice(a, size=None, replace=True, p=None)`
   从一维数组 a 中随机抽取样本。replace 表示是否有放回地抽样，p 为每个元素被抽取的概率。
@@ -551,7 +551,7 @@ print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}
   permuted_arr = np.random.permutation(arr)  # 生成arr的一个随机排列
   ```
 
-#### 随机数生成器控制
+**四、随机数生成器控制**
 
 - `numpy.random.seed(seed)`
   设置随机数生成器的种子，保证每次运行结果一致。
@@ -570,7 +570,7 @@ print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}
 
 下面是一个示例代码，演示如何读取和保存 `.npy` 文件：
 
-#### 打开并读取 `.npy` 文件
+**一、打开并读取 `.npy` 文件**
 
 ```python
 import numpy as np
@@ -591,7 +591,7 @@ print(array.flags)
 
 使用 NumPy 加载 `.npy` 文件时会**自动识别数据的形状和类型**，因此只需要指定文件路径即可。
 
-#### 保存数组为 `.npy` 文件
+**二、保存数组为 `.npy` 文件**
 
 ```python
 import numpy as np
@@ -607,7 +607,7 @@ np.save('文件路径.npy', array)
 
 `.npz` 文件是 NumPy 的一种用于存储多个数组的压缩文件格式。使用 `.npz` 文件可以将多个 NumPy 数组保存到一个文件中，方便数据的组织和管理。每个数组在 `.npz` 文件中都会以键值对的形式存储，可以单独读取其中的每个数组。
 
-#### 保存多个数组到 `.npz` 文件
+**一、保存多个数组到 `.npz` 文件**
 
 可以使用 `numpy.savez` 或 `numpy.savez_compressed` 保存多个数组。`savez_compressed` 会进行压缩，可以减小文件大小。
 
@@ -630,7 +630,7 @@ np.savez("arrays.npz", arr1=array1, arr2=array2)
 np.savez_compressed("arrays_compressed.npz", arr1=array1, arr2=array2)
 ```
 
-#### 从 `.npz` 文件读取数据
+**二、从 `.npz` 文件读取数据**
 
 可以使用 `numpy.load` 函数加载 `.npz` 文件，并通过键名访问其中的每个数组。加载后的 `.npz` 文件是一个类似字典的对象，可以通过数组的键名访问。
 
@@ -650,7 +650,7 @@ print("array1:", array1)
 print("array2:", array2)
 ```
 
-#### `.npz` 文件的优点
+**三、`.npz` 文件的优点**
 
 1. **便捷**：可以将多个数组存储在一个文件中，便于组织。
 2. **压缩**：可以选择压缩文件，减少磁盘空间使用。
@@ -662,7 +662,7 @@ print("array2:", array2)
 
 `.bin` 文件通常是指包含二进制数据的文件，未指定特定格式。与 `.npy` 或 `.npz` 文件不同，**`.bin` 文件不包含任何元数据（例如数组的形状、数据类型等），只包含原始的二进制数据**。因此，`.bin` 文件在读取和写入时，需要提前知道数据的格式（形状和数据类型），并手动指定这些信息。
 
-#### 保存数组到 `.bin` 文件
+**一、保存数组到 `.bin` 文件**
 
 可以使用 `numpy.ndarray.tofile` 方法将 NumPy 数组直接保存为 `.bin` 文件：
 
@@ -681,7 +681,7 @@ array.tofile("array_data.bin")
 - `tofile` 方法会将数组按顺序保存为二进制数据，不包含任何关于数组的形状、数据类型等元信息。
 - 可以通过指定 `dtype`，来选择要保存的数据类型，例如 `np.int32`, `np.float64` 等。
 
-#### 从 `.bin` 文件读取数据
+**二、从 `.bin` 文件读取数据**
 
 使用 `numpy.fromfile` 方法从 `.bin` 文件中读取数据：
 
@@ -858,6 +858,155 @@ numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, 
 - **floatmode**: 控制浮点数的显示模式，可以是 `maxprec`, `fixed`, `unique`, `maxprec_equal`。
 - **suffix**: 每行的后缀。
 - **legacy**: 控制旧版格式输出。
+
+### np.isclose
+
+`np.isclose` 是 NumPy 用来判断两个数组（或数值）在**数值上是否足够接近**的函数，常用于浮点数比较，避免直接用 `==` 造成精度问题。
+
+1. **基本语法**
+
+   ```python
+   numpy.isclose(a, b, rtol=1e-05, atol=1e-08, equal_nan=False)
+   ```
+
+   **参数说明：**
+
+   - **`a`, `b`**
+     可以是标量（单个数）、列表、NumPy 数组，形状需要能广播到相同形状。
+   - **`rtol`**（Relative tolerance，相对误差容忍度，默认 `1e-5`）
+     控制相对误差阈值。
+   - **`atol`**（Absolute tolerance，绝对误差容忍度，默认 `1e-8`）
+     控制绝对误差阈值。
+   - **`equal_nan`**（默认 `False`）
+     如果设为 `True`，那么 `NaN` 和 `NaN` 会被视为相等。
+
+2. **判断标准**
+
+   `np.isclose(a, b)` 的判断依据是：
+
+   $$|a - b| \le (\text{atol} + \text{rtol} \times |b|)$$
+
+   也就是说：
+
+   - **`atol`** 控制的是数值特别小的情况（绝对误差）
+   - **`rtol`** 控制的是数值特别大的情况（相对误差）
+
+3. **示例**
+
+   1. **浮点数比较**
+
+      ```python
+      import numpy as np
+
+      a = np.array([1.0, 2.0, 3.0])
+      b = np.array([1.0, 2.0000001, 3.1])
+
+      print(np.isclose(a, b))
+      # 输出: [ True  True False ]
+      ```
+
+      前两个元素的误差在容忍范围内，所以返回 `True`，最后一个差 0.1 超过了默认容忍度，返回 `False`。
+
+   2. **NaN 处理**
+
+      ```python
+      a = np.array([np.nan, 1.0])
+      b = np.array([np.nan, 1.00000001])
+
+      print(np.isclose(a, b))  # [False  True]
+      print(np.isclose(a, b, equal_nan=True))  # [ True  True ]
+      ```
+
+4. **常见搭配**
+
+   如果需要判断**整个数组是否接近**，可以配合 `np.all` 使用：
+
+   ```python
+   if np.all(np.isclose(arr1, arr2)):
+       print("两个数组几乎相等")
+   ```
+
+### np.all
+
+`np.all` 是 NumPy 里一个非常实用的逻辑判断函数，用来检查**数组里的所有元素**是否全部满足某个条件。
+
+1. **基本语法**
+
+   ```python
+   numpy.all(a, axis=None, out=None, keepdims=False, *, where=True)
+   ```
+
+   参数说明：
+
+   - **`a`**
+     要检查的输入数组，可以是布尔数组，也可以是数值（会自动转换为布尔值，0/False 视为假，其它为真）。
+   - **`axis`**（默认 `None`）
+     - `None`：检查整个数组是否全为 True
+     - 指定整数或元组：按指定维度检查。
+   - **`out`**
+     可选，用于存放结果的输出数组（一般用不到）。
+   - **`keepdims`**（默认 `False`）
+     是否保持原有维度，方便广播。
+   - **`where`**
+     只对满足条件的位置计算（NumPy 1.20+ 新增）。
+
+2. **工作原理**
+
+   - 输入如果是布尔数组，`np.all` 直接检查是否全为 `True`。
+   - 输入如果是数值数组，会先转成布尔值（`0` → False，非零 → True）。
+   - 返回单个布尔值（或按 `axis` 返回布尔数组）。
+
+3. **示例**
+
+   1. **布尔数组**
+
+      ```python
+      import numpy as np
+
+      arr = np.array([True, True, True])
+      print(np.all(arr))  # True
+
+      arr = np.array([True, False, True])
+      print(np.all(arr))  # False
+      ```
+
+   2. **数值数组**
+
+      ```python
+      arr = np.array([1, 2, 3])
+      print(np.all(arr))  # True（所有数都非零）
+
+      arr = np.array([1, 0, 3])
+      print(np.all(arr))  # False（有 0）
+      ```
+
+   3. **按维度检查**
+
+      ```python
+      arr = np.array([[True, True], [True, False]])
+
+      # axis=0 → 按列检查
+      print(np.all(arr, axis=0))  # [ True False ]
+
+      # axis=1 → 按行检查
+      print(np.all(arr, axis=1))  # [ True False ]
+      ```
+
+   4. **配合条件判断**
+
+      ```python
+      a = np.array([1.0, 1.000001, 1.000002])
+      b = np.array([1.0, 1.0, 1.0])
+
+      # 判断两个数组是否全部接近
+      print(np.all(np.isclose(a, b, atol=1e-5)))  # True
+      ```
+
+4. **总结**：
+
+   - `np.all` = **全都为真** 的判断器
+   - 常用在数据比较、验证条件、过滤等场景
+   - 搭配 `np.isclose`、`np.isnan`、`arr > 0` 等布尔条件特别好用
 
 ## 字节流
 
