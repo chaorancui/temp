@@ -358,6 +358,16 @@ print(f"File mode string: {mode_string}")
    - `%(levelname)s` 表示日志级别名称
    - `%(message)s` 表示日志消息
 
+   format 宽度及对齐:
+
+   `logging` 中，`Formatter` 支持 **标准的 Python 字符串格式化语法**，也就是说你可以在格式化字符串里指定 **最小宽度、对齐方式**，类似 Python 的 f-string 或 `%` 格式化。
+
+   | 对齐方式 | 格式示例            | 说明                   |
+   | -------- | ------------------- | ---------------------- |
+   | 左对齐   | `%-20s` 或 `{:<20}` | 字符串占 20 位，左对齐 |
+   | 右对齐   | `%20s` 或 `{:>20}`  | 字符串占 20 位，右对齐 |
+   | 居中     | `{:^20}`            | 字符串居中，占 20 位   |
+
 2. **创建自定义 logger，将日志同时输出到控制台和文件**
 
    ```python
@@ -700,6 +710,81 @@ Python 的 `logging` 模块提供了多种 **handlers** 用于将日志输出到
   - 配置日志格式（`Formatter`）。
   - 将 `Handler` 添加到 `Logger`。
   - 可以使用多个 `Handler` 将日志输出到不同的目标（如控制台和文件）。
+
+### 缓冲区
+
+同时使用 `logging` 和 `print()`，会出现**输出交错顺序不稳定**，这是 Python I/O 缓冲机制导致的常见问题。下面详细分析原因和解决方案。
+
+一、为什么输出顺序可能混乱
+
+1. **缓冲区机制不同**
+
+   - `print()` 默认写入 **`sys.stdout`**，默认是 **行缓冲**（line-buffered），在终端上通常每行立即刷新，但如果重定向到文件或管道，可能变为全缓冲（buffered）。
+   - `logging` 默认使用 **`StreamHandler`** 写入 **`sys.stderr`**，也是缓冲的，但和 `stdout` 的缓冲区独立。
+
+   > 也就是说，你的 `print()` 写在 `stdout`，`logging` 写在 `stderr`，两个缓冲区不同步，所以打印顺序看起来乱。
+
+2. **多线程或异步写入**
+
+   - 如果程序里有多线程或异步处理，每个线程写 `stdout`/`stderr` 的顺序也可能不一致。
+
+二、如何保证输出顺序正常
+
+1. 统一输出到 **stdout**
+
+   ```python
+   import logging
+   import sys
+
+   logging.basicConfig(
+       stream=sys.stdout,   # 原来是 stderr，改为 stdout
+       level=logging.DEBUG,  # 日志级别 DEBUG/INFO/WARNING/ERROR/CRITICAL
+       format='%(asctime)s - %(name)s - %(levelname)-7s - %(message)s'  # 日志格式
+   )
+   ```
+
+   - 这样 `logging` 和 `print` 都写到同一个缓冲区。
+   - 注意仍需确保刷新。
+
+2. 在 `print` 中加 `flush=True`
+
+   ```python
+   print("some info", flush=True)
+   ```
+
+   - 强制立即刷新 `stdout`，防止和 `logging` 的输出错位。
+
+3. 在 `logging` 里使用 `flush`
+
+   `StreamHandler` 默认会在每条消息后 flush，但如果自定义 Handler，确保：
+
+   ```python
+   handler = logging.StreamHandler(sys.stdout)
+   handler.flush = True
+   ```
+
+4. 全部使用 `logging`，不要混用 `print`
+
+   - 如果你把所有输出都改为 `logging.info/warning/debug`，默认输出顺序会更稳定。
+   - 可以自定义不同日志级别显示不同颜色或者前缀替代 print。
+
+5. 强制同步
+
+   ```python
+   import sys
+   sys.stdout.flush()
+   sys.stderr.flush()
+   ```
+
+   - 在关键点手动刷新 stdout/stderr，保证两者顺序正确。
+
+**总结**：
+
+- `print()` 写 `stdout`，`logging` 默认写 `stderr` → 两个缓冲区独立 → 输出顺序可能混乱。
+- 解决办法：
+  1. 统一输出到同一个流（stdout 或 stderr）
+  2. 强制 flush（`flush=True` 或 `sys.stdout.flush()`）
+  3. 尽量只用 `logging`，不要混用 `print`
 
 ## struct 模块
 
