@@ -1,6 +1,8 @@
 [toc]
 
-# pathlib
+# python 常用库\_4
+
+## pathlib
 
 官方文档: <https://docs.python.org/3/library/pathlib.html>
 
@@ -176,7 +178,7 @@
 | 替代 os/os.path 写法             | 更可读、更现代化                 |
 | 与 `open()`, `with` 搭配读写文件 | 可直接用路径对象，无需字符串转换 |
 
-# typing 库
+## typing 库
 
 Python 的 `typing` 库是 **类型提示（Type Hints）** 的核心工具库，Python 3.5 以后引入，旨在给 Python 这种动态语言增加静态类型检查的能力，提高代码可读性和可靠性，同时可以配合 IDE 或类型检查工具（如 `mypy`、Pyright）发现潜在错误。
 
@@ -434,7 +436,7 @@ Set --> Generic
 
 ```
 
-# dataclasses
+## dataclasses
 
 **一、`dataclasses` 简介**
 
@@ -661,3 +663,126 @@ ASTUPLE ..> FIELDS : 按字段顺序生成元组
 
 @enduml
 ```
+
+## pprint 库
+
+`pprint` 是 Python 标准库里的 **Pretty Print** 工具，专门用于 **美观、易读地打印复杂数据结构**。它在调试和日志记录时尤其常用。
+
+**一、`pprint` 基础用法**
+
+```python
+import pprint
+
+data = {
+    "user": "alice",
+    "roles": ["admin", "editor", "viewer"],
+    "config": {
+        "theme": "dark",
+        "notifications": {"email": True, "sms": False}
+    }
+}
+
+pprint.pprint(data)
+```
+
+输出效果比普通 `print(data)` 更清晰：
+
+```python
+{'config': {'notifications': {'email': True, 'sms': False}, 'theme': 'dark'},
+ 'roles': ['admin', 'editor', 'viewer'],
+ 'user': 'alice'}
+```
+
+相比 `print()`，`pprint` 会：
+
+- 自动缩进和换行
+- 控制行宽（避免一行太长）
+- 保持键排序一致（默认按字典 key 排序）
+- 让嵌套结构更容易读
+
+**二、常用 API**
+
+1. **`pprint.pprint(object, stream=None, indent=1, width=80, depth=None, compact=False, sort_dicts=True)`**
+
+   - `object`：要打印的对象
+   - `stream`：输出目标（默认是 `sys.stdout`）
+   - `indent`：缩进级别（默认 1）
+   - `width`：行宽（默认 80 字符，超过会换行）
+   - `depth`：限制打印深度，超过层级会用 `...` 代替
+   - `compact`：是否尽量紧凑打印列表/元组
+   - `sort_dicts`：是否对字典 key 排序（Python 3.8+ 默认 True）
+
+   ```python
+   pprint.pprint(data, indent=4, width=60, depth=2, compact=True)
+   ```
+
+2. **`pprint.pformat(object, ...)`**
+
+   - 和 `pprint()` 类似，但返回的是 **字符串**，而不是直接打印。
+   - 适合写入日志或文件。
+
+   ```python
+   s = pprint.pformat(data, indent=2)
+   print("Formatted data:\n", s)
+   ```
+
+3. **`pprint.isreadable(object)`**
+
+   - 判断对象是否能被 `eval(repr(obj))` 正确还原。
+
+4. **`pprint.isrecursive(object)`**
+
+   - 判断对象是否包含自引用（比如一个 list 包含自己）。
+
+**三、典型使用场景**
+
+1. **调试复杂数据结构**
+
+   - 打印嵌套的字典、列表、JSON 数据时，让输出更清晰。
+
+   ```python
+   import json
+   data = json.loads('{"a":1,"b":{"x":[1,2,3],"y":true}}')
+   pprint.pprint(data)
+   ```
+
+2. **日志记录**
+
+   - 在日志中输出结构化数据时，用 `pprint.pformat` 生成更可读的字符串。
+
+   ```python
+   import logging
+   logging.basicConfig(level=logging.INFO)
+   logging.info("Args: %s", pprint.pformat(vars(args)))
+   ```
+
+3. **配置文件或参数展示**
+
+   - 在程序启动时，把命令行参数或配置项以漂亮的方式打印出来，便于检查。
+
+   ```python
+   args_dict = vars(args)
+   print("Current configuration:")
+   pprint.pprint(args_dict)
+   ```
+
+4. **交互式调试（REPL、Jupyter Notebook）**
+
+   - 直接 `pprint` 大数据结构，避免一行滚屏。
+
+5. **输出可控层级**
+
+   - 数据很深时，可以限制 `depth` 只看一部分，避免信息爆炸。
+
+   ```python
+   pprint.pprint(data, depth=1)
+   ```
+
+**四、和 `json.dumps(..., indent=4)` 的区别**
+
+- `pprint` 更通用（适用于任意 Python 对象，比如类实例、集合等）。
+- `json.dumps` 只能处理 JSON 兼容对象（字典、列表、字符串、数值、布尔、None）。
+- `pprint` 打印的是 **合法 Python 表达式**，而不是 JSON。
+
+**总结**：
+`pprint` 的典型使用场景是 **调试、日志记录、参数打印、复杂数据可视化**。核心 API 是 `pprint()`（直接打印）和 `pformat()`（返回字符串）。
