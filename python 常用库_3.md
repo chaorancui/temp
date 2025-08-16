@@ -1401,6 +1401,104 @@ if __name__ == "__main__":
     main()
 ```
 
+五、argparse 库使用惯例
+
+**一、个人写法推荐**
+
+argparse 写在：
+
+- **main 函数里（推荐做法）**
+- **全局作用域**
+
+1. **写在 `main()` 函数里（推荐做法）**
+
+   ```python
+   import argparse
+
+   def main():
+       parser = argparse.ArgumentParser(description="Example program")
+       parser.add_argument('--verbose', action='store_true')
+       args = parser.parse_args()
+
+       if args.verbose:
+           print("Verbose mode on")
+
+   if __name__ == "__main__":
+       main()
+   ```
+
+   **优点：**
+
+   - 遵循 Python 程序的入口惯例（`if __name__ == "__main__":`）。
+   - 方便封装逻辑，后续可以复用 `main()` 或在单元测试时绕过参数解析。
+   - 避免全局作用域在 import 时就执行 `argparse.parse_args()`（会导致导入时报错）。
+
+   这是 Python 官方文档和大多数项目推荐的方式。
+
+2. **写在全局作用域**
+
+   ```python
+   import argparse
+
+   parser = argparse.ArgumentParser(description="Example program")
+   parser.add_argument('--verbose', action='store_true')
+   args = parser.parse_args()   # ⚠️ 在导入时就会执行
+   ```
+
+   **缺点：**
+
+   - 如果这个文件被其他模块 import，会立刻尝试解析命令行参数，通常会报错（因为没有传递参数）。
+   - 不利于测试和扩展，几乎没有大型项目这样写。
+
+   适用场景：
+
+   - 小脚本（one-off scripts），只在命令行运行，且不会被 import。
+   - 临时工具，个人使用。
+
+**二、Python 官方库/工具的写法**
+Python **标准库**和**官方工具**的源码，普遍写法是：
+
+1. **argparse 写在 main 函数内，parse_args 在 main 中调用**
+
+   **`venv` 标准库**（Python 的虚拟环境工具）就是这样：
+
+   ```python
+   def main(args=None):
+       import argparse
+       parser = argparse.ArgumentParser(...)
+       parser.add_argument(...)
+       options = parser.parse_args(args)
+       ...
+
+   if __name__ == '__main__':
+       sys.exit(main())
+   ```
+
+2. **函数参数传递 args（便于单元测试）**
+
+   很多官方库不会直接 `parse_args()`，而是允许 `main(args)` 接收一个参数：
+
+   - **`pydoc` 源码** 和 **`unittest` CLI** 都是这样写的。
+   - 这样测试时可以直接传一个 `list` 作为参数，而不是依赖命令行。
+
+   ```python
+   def main(argv=None):
+       parser = argparse.ArgumentParser()
+       parser.add_argument('--foo')
+       args = parser.parse_args(argv)
+       print(args.foo)
+
+   if __name__ == "__main__":
+       import sys
+       main(sys.argv[1:])
+   ```
+
+**总结（最佳实践）**
+
+1. **推荐写在 `main()` 函数里**，并在 `if __name__ == "__main__":` 里调用。
+2. 如果要做测试/复用，建议 `main(argv=None)` 并把 `parse_args(argv)` 放里面。
+3. 全局作用域里写 argparse 只适合一次性的小脚本。
+
 ## argcomplete 库
 
 > 1. [Python 命令补全神器 argcomplete](https://vra.github.io/2023/05/28/python-autocomplete-with-argcomplete/)
