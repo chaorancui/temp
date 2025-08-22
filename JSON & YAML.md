@@ -50,7 +50,66 @@ JSON 不支持注释的主要原因是，其创建者道格拉斯·克罗克福�
 
   可以使用 npm 的 json5 库，用法与 JSON 库类似。JSON5 规范见：https://json5.org/
 
-## NDJSON
+## JSON 文件的顶层结构
+
+合法的 JSON 文档，最外层可以是：
+
+- **对象（object）**：`{ ... }`
+- **数组（array）**：`[ ... ]`
+
+对应到 Python：
+
+- JSON 对象 (`{}`) → Python `dict`
+- JSON 数组 (`[]`) → Python `list`
+
+**举例**
+
+1. 文件顶层是对象
+
+   ```json
+   {
+     "name": "Tom",
+     "age": 25
+   }
+   ```
+
+   读取：
+
+   ```json
+   import json
+   with open("data.json", "r", encoding="utf-8") as f:
+       obj = json.load(f)
+
+   print(type(obj))  # <class 'dict'>
+   ```
+
+2. 文件顶层是数组
+
+   ```json
+   [
+     { "name": "Tom", "age": 25 },
+     { "name": "Jerry", "age": 22 }
+   ]
+   ```
+
+   读取：
+
+   ```json
+   import json
+   with open("data.json", "r", encoding="utf-8") as f:
+       obj = json.load(f)
+
+   print(type(obj))  # <class 'list'>
+   ```
+
+如果你不确定文件结构，可以先打印：
+
+```json
+print(repr(obj)[:200])   # 看前200个字符
+print(type(obj))
+```
+
+# NDJSON
 
 好的 👍 我来详细介绍一下 **NDJSON (Newline Delimited JSON)**，也叫 **JSON Lines (jsonl)**。
 
