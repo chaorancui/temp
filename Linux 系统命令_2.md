@@ -828,6 +828,7 @@ basename [OPTION] NAME [SUFFIX]
 | `--lzma`                       | 使用 lzma 压缩（`.tar.lzma`）               |
 | `-C <dir>`                     | 切换目录再操作（常用于解压时指定目标目录）  |
 | `--exclude=<pattern>`          | 排除匹配的文件/目录                         |
+| `--wildcards '*.txt'`          | 使用通配符提取所有 .txt 文件                |
 
 ### `tar -c` 压缩
 
