@@ -50,6 +50,111 @@ JSON 不支持注释的主要原因是，其创建者道格拉斯·克罗克福�
 
   可以使用 npm 的 json5 库，用法与 JSON 库类似。JSON5 规范见：https://json5.org/
 
+## NDJSON
+
+好的 👍 我来详细介绍一下 **NDJSON (Newline Delimited JSON)**，也叫 **JSON Lines (jsonl)**。
+
+**一、NDJSON 是什么**
+
+**NDJSON (Newline Delimited JSON)**，也叫 **JSON Lines (jsonl)**，是一种序列化格式，本质上是 **多个 JSON 对象，每行一个**，文件整体不是一个数组，也没有逗号分隔。
+
+例如，一个 NDJSON 文件内容可能是这样的：
+
+```json
+{"name": "Tom", "age": 25}
+{"name": "Jerry", "age": 22}
+{"name": "Spike", "age": 30}
+```
+
+特点：
+
+- 每行是一个合法的 **JSON 对象**。
+- 多行拼接起来就是 NDJSON。
+- 不需要将所有数据包裹在数组 `[]` 中（相比标准 JSON，更加流式化）。
+- 方便 **逐行处理、追加写入、流式传输**。
+
+**二、NDJSON vs JSON**
+
+| 特点     | JSON                                         | NDJSON                       |
+| -------- | -------------------------------------------- | ---------------------------- |
+| 数据结构 | 整个文件必须是一个完整的 JSON 值（比如数组） | 每行是独立的 JSON 对象       |
+| 读取方式 | 一次性加载整个文件解析                       | 可以逐行解析，支持流式处理   |
+| 修改方式 | 改一条记录可能要改整个文件（因为数组结构）   | 追加/删除记录只需操作一行    |
+| 适合场景 | 配置文件、小规模数据                         | 日志、大规模数据流、数据交换 |
+
+**三、典型使用场景**
+
+1. 日志记录
+
+   应用日志、监控日志，往往需要逐行写入，NDJSON 格式非常自然：
+
+   ```json
+   {"timestamp": "2025-08-22T12:00:00Z", "level": "INFO", "msg": "service started"}
+   {"timestamp": "2025-08-22T12:01:00Z", "level": "ERROR", "msg": "connection failed"}
+   ```
+
+   优点：日志分析工具（如 ELK Stack, Splunk）能直接解析。
+
+2. 大规模数据处理（流式）
+
+   - 大数据框架（Hadoop, Spark, Flink）常用 NDJSON 作为输入输出格式。
+   - 例如一千万条记录，如果用 JSON 数组存储，解析时必须一次性读完整个数组；而 NDJSON 可以一行一行处理。
+
+3. 机器学习/数据科学
+
+   很多训练数据集用 NDJSON/JSONL 格式存储：
+
+   ```json
+   {"input": "你好", "output": "Hello"}
+   {"input": "谢谢", "output": "Thanks"}
+   ```
+
+   便于 Python、Pandas、PyTorch、TensorFlow 逐行读取和处理。
+
+4. Web API 传输
+
+   有些 API 返回的数据很大，如果用 JSON 数组，会导致客户端必须等到 **所有数据生成完毕** 才能开始解析。
+   而 NDJSON 可以边生成、边传输、边解析。
+
+**四、Python 处理 NDJSON**
+
+1. 标准库 `json`（逐行解析）
+2. 第三方库 `ndjson`
+
+   ```json
+   import json
+
+   def load_ndjson(file_path):
+       try:
+           import ndjson
+           with open(file_path, "r", encoding="utf-8") as f:
+               return ndjson.load(f)
+       except ImportError:
+           with open(file_path, "r", encoding="utf-8") as f:
+               return [json.loads(line) for line in f if line.strip()]
+
+   json_file = Path(f"xxxx.json")
+   json_data = load_ndjson(json_file)
+   print(json_data[0])
+   ```
+
+3. Pandas
+
+   ```json
+   import pandas as pd
+
+   df = pd.read_json("data.ndjson", lines=True)
+   print(df.head())
+   ```
+
+   输出会直接是 DataFrame，方便做分析。
+
+**总结**
+
+- **NDJSON** 是一种轻量、可扩展的 JSON 变种，核心思想就是 **“一行一个 JSON 对象”**。
+- 优点：支持流式处理，方便追加，适合日志、大规模数据、API 流传输。
+- 缺点：文件本身不是标准 JSON，不能直接用 `json.load()` 读取成数组，需要逐行解析或用专门库。
+
 # YAML
 
 YAML（**YAML Ain't Markup Language**）是一种人类可读的**数据序列化格式**，常用于配置文件，替代 JSON 或 XML。它语法简洁，适合表达结构化数据。
