@@ -1,3 +1,5 @@
+[toc]
+
 # python 学习
 
 ## Python 中调用 Python
@@ -290,3 +292,52 @@ print(html)  # 输出: <div class="container">Content</div>
 
       - 完全对应 C 结构体内存布局
       - 可用于 Python 与 C 库交互（`ctypes`）
+
+## 时间戳
+
+1. 生成字符串形式
+
+   ```python
+   from datetime import datetime
+
+   now = datetime.now()
+   timestamp_str = now.strftime("%Y%m%d%H%M%S")
+   print(timestamp_str)  # 例如: '20250822113345'
+   ```
+
+   - `%Y` → 4 位年份
+   - `%m` → 月（01-12）
+   - `%d` → 日（01-31）
+   - `%H` → 时（00-23）
+   - `%M` → 分（00-59）
+   - `%S` → 秒（00-59）
+
+2. 转成整数形式
+
+   ```python
+   timestamp_int = int(timestamp_str)
+   print(timestamp_int)  # 例如: 20250822113345
+   ```
+
+   这样可以直接用于 **文件名、日志记录、唯一标识**。
+
+3. 封装成函数
+
+   ```python
+   from datetime import datetime
+
+   def current_ymdhms(timestamp_type="str"):
+       now = datetime.now()
+       s = now.strftime("%Y%m%d_%H%M%S")
+       return s if timestamp_type == "str" else int(s)
+
+   print(current_ymdhms("str"))  # '20250822_113345'
+   print(current_ymdhms("int"))  # 20250822113345
+   ```
+
+**总结**
+
+- `strftime("%Y%m%d%H%M%S")` 可以直接得到年月日时分秒
+- 需要整数可用 `int()` 转换
+- 常用于文件名、日志、批处理标识
+
