@@ -1105,6 +1105,33 @@ echo "${VAR:-default}" # 使用默认值
 - `"${VAR}"`：更安全、通用，**推荐养成习惯**总是加大括号。
 - **小技巧**：加双引号 `"` 防止字符串带空格被分割，如 `echo "${FILE}"`。
 
+## Shell 中调用 Python
+
+除了直接以 `python xxx.py` 的方式运行 py 文件，对于简单的 python 代码，还可以使用 `python -c`。
+`python -c` 是 Python 提供的一个命令行参数，意思是 **直接在命令行执行一段 Python 代码字符串**。
+
+```python
+python -c "代码"
+```
+
+比如：
+
+```shell
+yaml_file="xxx.yaml"
+config_file=$(python3 -c "
+import yaml,sys
+with open('$yaml_file') as f:
+    data = yaml.safe_load(f)
+print(data['config_file'])
+")
+```
+
+注意事项
+
+- 代码一般用 **双引号** `"..."` 包裹，如果里面也要用引号，需要转义。
+- 多行语句可以用 `;` 分隔。
+- 如果逻辑太复杂，不建议用 `-c`，而是写到 `.py` 脚本里。
+
 # shell 编程学习
 
 ## 学习笔记
