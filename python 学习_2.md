@@ -86,6 +86,196 @@ runpy.run_path('script1.py')
 
 选择合适的方法取决于你的需求。
 
+## Shell 中调用 Python
+
+除了直接以 `python xxx.py` 的方式运行 py 文件，对于简单的 python 代码，还可以使用 `python -c`。
+`python -c` 是 Python 提供的一个命令行参数，意思是 **直接在命令行执行一段 Python 代码字符串**。
+
+### 一、基本语法
+
+```python
+python -c "代码"
+```
+
+比如：
+
+```python
+python -c "print('Hello, world!')"
+# 输出：
+# Hello, world!
+```
+
+### 二、典型使用场景
+
+1. **快速执行一小段 Python 代码**
+
+   例如测试表达式、计算结果：
+
+   ```python
+   python -c "print(2**10)"
+   # 输出：
+   # 1024
+   ```
+
+2. **当作脚本替代品**
+
+   有时候我们不想写一个 `.py` 文件，就可以用 `python -c`。
+
+   比如 **文件行数统计**：
+
+   ```python
+   python -c "import sys; print(sum(1 for _ in open(sys.argv[1])))" filename.txt
+   ```
+
+3. **结合 Shell 脚本处理数据**
+
+   比如从 JSON 提取字段（不依赖 `jq`）：
+
+   ```python
+   echo '{"name": "Alice", "age": 25}' | python -c "import sys, json; print(json.load(sys.stdin)['name'])"
+   # 输出：
+   # Alice
+   ```
+
+4. **读取/修改 YAML 或 JSON 配置文件**
+
+   用 `python -c` + `PyYAML/json` 解析配置，然后在 shell 里取值。
+
+   ```python
+   python -c "import yaml;print(yaml.safe_load(open('config.yaml'))['output']['file'])"
+   ```
+
+5. **调用 Python 库做简单计算**
+
+   有些任务用 Shell 工具不好算，可以直接调用 Python：
+
+   ```python
+   python -c "import math; print(math.sin(math.pi/2))"
+   # 输出：
+   # 1.0
+   ```
+
+6. **管道处理**
+
+   接收前一个命令的输出，再用 Python 处理：
+
+   ```python
+   ls | python -c "import sys; print('\n'.join(sorted(sys.stdin.read().split())))"
+   ```
+
+   （相当于 `ls | sort`）
+
+注意事项
+
+- 代码一般用 **双引号** `"..."` 包裹，如果里面也要用引号，需要转义。
+- 多行语句可以用 `;` 分隔。
+- 如果逻辑太复杂，不建议用 `-c`，而是写到 `.py` 脚本里。
+
+### Python -c One-liner 速查表
+
+1. **数学计算**
+
+   ```python
+   # 幂运算
+   python -c "print(2**10)"             # 1024
+
+   # 开平方
+   python -c "import math;print(math.sqrt(49))"   # 7.0
+
+   # 三角函数
+   python -c "import math;print(math.sin(math.pi/2))"  # 1.0
+
+   # 随机数
+   python -c "import random;print(random.randint(1,100))"
+   ```
+
+2. 文件处理
+
+   ```python
+   # 统计文件行数
+   python -c "import sys;print(sum(1 for _ in open(sys.argv[1])))" file.txt
+
+   # 打印文件前 5 行
+   python -c "import sys;[print(next(open(sys.argv[1])).rstrip()) for _ in range(5)]" file.txt
+
+   # 去重并排序文件行
+   python -c "import sys;print('\n'.join(sorted(set(open(sys.argv[1])))))" file.txt
+   ```
+
+3. 文本/管道处理
+
+   ```python
+   # 反转字符串
+   echo hello | python -c "import sys;print(sys.stdin.read()[::-1])"
+
+   # 统计单词频率
+   echo 'a b a c b a' | python -c "import sys,collections;print(collections.Counter(sys.stdin.read().split()))"
+   ```
+
+4. JSON 处理（替代 jq）
+
+   ```python
+   # 提取字段
+   echo '{"name":"Alice","age":25}' | python -c "import sys,json;print(json.load(sys.stdin)['name'])"
+
+   # 格式化 JSON
+   echo '{"name":"Alice","age":25}' | python -c "import sys,json;print(json.dumps(json.load(sys.stdin), indent=2))"
+   ```
+
+5. YAML 处理（需要 PyYAML）
+
+   ```python
+   # 读取字段
+   python -c "import yaml;print(yaml.safe_load(open('config.yaml'))['output']['file'])"
+
+   # 打印整个 YAML
+   python -c "import yaml;print(yaml.safe_load(open('config.yaml')))"
+   ```
+
+6. 时间与日期
+
+   ```python
+   # 当前时间戳
+   python -c "import time;print(int(time.time()))"
+
+   # 格式化时间
+   python -c "import datetime;print(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'))"
+
+   # N 天前日期
+   python -c "import datetime;print((datetime.datetime.now()-datetime.timedelta(days=7)).strftime('%Y-%m-%d'))"
+   ```
+
+7. 系统/工具
+
+   ```python
+   # Python 版本
+   python -c "import sys;print(sys.version)"
+
+   # 获取环境变量
+   python -c "import os;print(os.getenv('HOME'))"
+
+   # 获取命令行参数
+   python -c "import sys;print(sys.argv)" foo bar
+   ```
+
+8. 实用示例
+
+   ```python
+   # 计算平均值
+   echo "1 2 3 4 5" | python -c "import sys;nums=list(map(int,sys.stdin.read().split()));print(sum(nums)/len(nums))"
+
+   # 生成 10 个随机密码（每个 8 位）
+   python -c "import random,string;[print(''.join(random.choices(string.ascii_letters+string.digits,k=8))) for _ in range(10)]"
+   ```
+
+总结：
+
+- **数据计算** → math/random
+- **文件处理** → sys/open
+- **JSON/YAML** → json/yaml
+- **时间** → datetime
+- **管道** → sys.stdin
+
 ## 原始字符串（raw string）
 
 在 Python 中，**原始字符串**（raw string）是一种特殊的字符串类型，可以通过在字符串前添加小写字母 `r` 或 `R` 来定义。
@@ -340,4 +530,3 @@ print(html)  # 输出: <div class="container">Content</div>
 - `strftime("%Y%m%d%H%M%S")` 可以直接得到年月日时分秒
 - 需要整数可用 `int()` 转换
 - 常用于文件名、日志、批处理标识
-
