@@ -642,6 +642,8 @@ import numpy as np
 # 加载 .npz 文件
 data = np.load("arrays.npz")
 
+print(data.files) # 查看有哪些 key，或
+pprint.pprint(data.files, compact=False, sort_dicts=False) # 查看有哪些 key
 # 访问其中的数组
 array1 = data['arr1']
 array2 = data['arr2']
