@@ -637,6 +637,7 @@ np.savez_compressed("arrays_compressed.npz", arr1=array1, arr2=array2)
 **示例**：
 
 ```python
+import os, sys, logging, pprint
 import numpy as np
 
 # 加载 .npz 文件
@@ -650,6 +651,15 @@ array2 = data['arr2']
 
 print("array1:", array1)
 print("array2:", array2)
+
+def print_npz_info(npz_file):
+    # 加载 .npz 文件
+    data = np.load(npz_file)
+    pprint.pprint(data.files, compact=False, sort_dicts=False) # 查看有哪些 key
+    # 遍历其中的所有数组
+    for key in data.files:   # data.files 是所有的 key 列表
+        arr = data[key]
+        print(f"{key}: shape={arr.shape}, dtype={arr.dtype}")
 ```
 
 **三、`.npz` 文件的优点**
