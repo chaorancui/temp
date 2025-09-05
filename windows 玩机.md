@@ -1,3 +1,5 @@
+[toc]
+
 # windows 玩机
 
 ## 系统相关记录
@@ -89,6 +91,60 @@ type env:path
 ```powershell
 (type env:path) -split ';'
 ```
+
+## 使用 rar gzip 命令行
+
+### 使用 rar 命令
+
+在 Windows 下使用`rar`命令行工具需要先安装 WinRAR 软件，WinRAR 软件安装后的目录中包含 `Rar.exe` 和 `UnRAR.exe`，然后就可以在 CMD 或 powershell 中直接使用命令 `rar a`（添加文件压缩）和 `rar x`（解压文件）。
+
+- **步骤一：安装 WinRAR**
+- **步骤二：把 WinRAR 添加到系统环境变量**
+  如把 `C:\Program Files\WinRAR` 添加到系统环境变量。
+- **步骤三：执行 RAR 命令**
+
+  - **压缩文件**：
+
+    使用`rar a`命令来创建压缩包。
+
+    - **命令格式**:
+
+      `rar a <输出压缩包名.rar> <文件或文件夹名称>`
+      示例：`rar a -r my_archive.rar my_folder`（将`my_folder`文件夹及其所有内容压缩到`my_archive.rar`文件中，`-r`参数用于递归处理子目录）。
+
+  - **解压文件**：
+
+    使用`rar x`命令来解压压缩包。
+
+    - **命令格式**:
+
+      `rar x <压缩包名.rar> <目标目录>`
+      示例：`rar x my_archive.rar C:\Extract`（将`my_archive.rar`解压到`C:\Extract`目录）。
+
+  **常见命令和参数**
+
+  - `a`：将文件添加到压缩文件中。
+
+  - `x`：解压文件。
+
+  - `-r`：递归地将目录中的所有文件和子目录添加到压缩文件中。
+
+  - `-ag`：在创建压缩文件时，附加当前日期和时间字符串（如`backupYYYYMMDDHHMMSS.rar`）。
+
+  - `-p<password>`：为压缩文件设置密码，密码必须紧跟`-p`后面。
+
+  - `-o+`：覆盖已存在的解压文件。
+
+### 使用 gzip 命令
+
+Gun Win 项目为 Win32 提供了 GNU Linux 平台的一些工具包，可以在 Window 平台使用 Linux 的部分工具, [具体介绍和工具列表](http://gnuwin32.sourceforge.net/summary.html)
+
+打开[下载地址](https://gnuwin32.sourceforge.net/packages/gzip.htm)，这里我们可以选择使用第一个(Complete package, except sources 安装包方式)或者第三个(Binaries 二进制文件)，两个使用方法略有不同：
+
+**安装包方式**
+安装下载的 exe 文件，安装完成之后设置环境变量，我本机安装在了 C:\Program Files (x86)\GnuWin32\bin\ 把这个变量配置到系统环境变量的 PATH 中，即可在命令行中使用 gzip 命令进行压缩文件
+**二进制文件方式**
+解压下载的 zip 文件，在 bin 目录下有 gzip.exe 可执行文件，可以配置当前 bin 目录到 PATH，或者直接在命令行中直接使用 exe 进行压缩。
 
 ## 软件使用记录
 
