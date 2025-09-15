@@ -2,6 +2,24 @@
 
 # shell 配置
 
+## 查看 shell
+
+在 Shell 中查看当前使用的是哪种 Shell，有以下几种方法：
+
+```bash
+echo $SHELL
+# 显示你的**默认登录 Shell**（在 `/etc/passwd` 中设置的），不一定是当前正在使用的 Shell。
+
+echo $0
+# 显示**当前运行的 Shell** 的名称。
+
+ps -p $$
+# 显示当前进程的详细信息，包括 Shell 名称。
+
+echo $BASH_VERSION    # 如果是 Bash，会显示版本号
+echo $ZSH_VERSION     # 如果是 Zsh，会显示版本号
+```
+
 ## shell 配置文件介绍
 
 > [详解/etc/profile、/etc/bash.bahsrc、\~/.profile、\~/.bashrc 的用途](https://blog.csdn.net/jirryzhang/article/details/70833544?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-12-70833544-blog-138886149.235^v43^pc_blog_bottom_relevance_base3&spm=1001.2101.3001.4242.7&utm_relevant_index=15)
