@@ -815,20 +815,23 @@ basename [OPTION] NAME [SUFFIX]
 
 以下是 `tar` 的常用参数（区分长短参数形式）：
 
-| 参数                           | 含义                                        |
-| ------------------------------ | ------------------------------------------- |
-| `-c` 或 `--create`             | 创建新归档文件（archive）                   |
-| `-x` 或 `--extract`            | 解包归档文件                                |
-| `-t` 或 `--list`               | 查看归档文件内容                            |
-| `-f <file>` 或 `--file=<file>` | 指定归档文件名（必须紧跟 `-f`）             |
-| `-v` 或 `--verbose`            | 显示处理过程中的文件名（verbose 模式）      |
-| `-z` 或 `--gzip`               | 使用 gzip 压缩或解压（`.tar.gz` 或 `.tgz`） |
-| `-j` 或 `--bzip2`              | 使用 bzip2 压缩（`.tar.bz2`）               |
-| `-J` 或 `--xz`                 | 使用 xz 压缩（`.tar.xz`）                   |
-| `--lzma`                       | 使用 lzma 压缩（`.tar.lzma`）               |
-| `-C <dir>`                     | 切换目录再操作（常用于解压时指定目标目录）  |
-| `--exclude=<pattern>`          | 排除匹配的文件/目录                         |
-| `--wildcards '*.txt'`          | 使用通配符提取所有 .txt 文件                |
+| 参数                           | 含义                                                   |
+| ------------------------------ | ------------------------------------------------------ |
+| `-c` 或 `--create`             | 创建新归档文件（archive）                              |
+| `-x` 或 `--extract`            | 解包归档文件                                           |
+| `-t` 或 `--list`               | 查看归档文件内容                                       |
+| `-f <file>` 或 `--file=<file>` | 指定归档文件名（必须紧跟 `-f`）                        |
+| `-v` 或 `--verbose`            | 显示处理过程中的文件名（verbose 模式）                 |
+| `-z` 或 `--gzip`               | 使用 gzip 压缩或解压（`.tar.gz` 或 `.tgz`）            |
+| `-j` 或 `--bzip2`              | 使用 bzip2 压缩（`.tar.bz2`）                          |
+| `-J` 或 `--xz`                 | 使用 xz 压缩（`.tar.xz`）                              |
+| `--lzma`                       | 使用 lzma 压缩（`.tar.lzma`）                          |
+| `-C <dir>`                     | 切换目录再操作（常用于解压时指定目标目录）             |
+| `--exclude=<pattern>`          | 排除匹配的文件/目录                                    |
+| `--include=<pattern>`          | 包含匹配的文件/目录，仅包含要配合 `--exclude="*"` 使用 |
+| `--wildcards '*.txt'`          | 启用 shell 风格的通配符匹配（\*, ?, []）               |
+
+> 注：默认情况下 `--exclude` 里的模式是 字面量匹配，必须配合 `--wildcards` 才能按通配符匹配。
 
 ### `tar -c` 压缩
 
@@ -853,19 +856,29 @@ basename [OPTION] NAME [SUFFIX]
    - `v`: 显示详情
    - `f`: 指定文件名
 
-3. 创建归档时排除某些文件或目录
+3. 创建归档时**排除**某些文件或目录
 
    ```bash
    tar --exclude='*.log' -czvf archive.tar.gz dir/
    ```
 
-4. 追加文件到已存在的 `.tar` 文件中（仅限未压缩的 tar）
+4. 创建归档时**仅包含**某些文件或目录
+
+   ```bash
+   tar -cvf code.tar \
+       --wildcards \
+       --include="*.c" \
+       --include="*.h" \
+       --exclude="*"
+   ```
+
+5. 追加文件到已存在的 `.tar` 文件中（仅限未压缩的 tar）
 
    ```bash
    tar -rvf archive.tar newfile.txt
    ```
 
-5. 查看归档文件内容
+6. 查看归档文件内容
 
    ```bash
    tar -tvf archive.tar.gz
