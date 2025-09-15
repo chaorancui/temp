@@ -801,74 +801,74 @@ vars()、locals()、globals() 都是 Python 里很“轻量级”的内置函数
 
 **二、对比示例**
 
-### 1. `globals()`
+1. `globals()`
 
-```python
-x = 1
+   ```python
+   x = 1
 
-def foo():
-    print(globals().keys())  # 全局变量表
+   def foo():
+       print(globals().keys())  # 全局变量表
 
-foo()
-```
+   foo()
+   ```
 
-可能输出：
+   可能输出：
 
-```python
-dict_keys(['__name__', '__doc__', '__package__', ..., 'x', 'foo'])
-```
+   ```python
+   dict_keys(['__name__', '__doc__', '__package__', ..., 'x', 'foo'])
+   ```
 
-### 2. `locals()`
+2. `locals()`
 
-```python
-def foo(a, b):
-    c = a + b
-    print(locals())
+   ```python
+   def foo(a, b):
+       c = a + b
+       print(locals())
 
-foo(2, 3)
-```
+   foo(2, 3)
+   ```
 
-输出：
+   输出：
 
-```python
-{'a': 2, 'b': 3, 'c': 5}
-```
+   ```python
+   {'a': 2, 'b': 3, 'c': 5}
+   ```
 
-> :warning: 注意：在函数中，`locals()` 返回的是局部变量的字典快照。**直接修改 locals() 不一定会反映到实际局部变量上**。
+   > :warning: 注意：在函数中，`locals()` 返回的是局部变量的字典快照。**直接修改 locals() 不一定会反映到实际局部变量上**。
 
-结论（记忆规则）：
+   结论（记忆规则）：
 
-- **全局作用域下**：`locals()` 可写（等价于 `globals()`），修改一定生效。
-- **函数局部作用域下**：`locals()` 是 **只读快照**，修改不保证生效；只有在 `exec` 这样的场景下，解释器可能会同步。
-- **对象上用 `vars(obj)`**：直接操作 `obj.__dict__`，修改一定生效。
+   - **全局作用域下**：`locals()` 可写（等价于 `globals()`），修改一定生效。
+   - **函数局部作用域下**：`locals()` 是 **只读快照**，修改不保证生效；只有在 `exec` 这样的场景下，解释器可能会同步。
+   - **对象上用 `vars(obj)`**：直接操作 `obj.__dict__`，修改一定生效。
 
-### 3. `vars()`
+3. `vars()`
 
-- **无参时 = `locals()`**
+   - **无参时 = `locals()`**
 
-```python
-a = 10
-print(vars())   # 和 locals() 一样
-```
+   ```python
+   a = 10
+   print(vars())   # 和 locals() 一样
+   ```
 
-- **有对象参数时 → 对象的 `__dict__`**
+   - **有对象参数时 → 对象的 `__dict__`**
 
-```python
-class Person:
-    def __init__(self, name):
-        self.name = name
+   ```python
+   class Person:
+       def __init__(self, name):
+           self.name = name
 
-p = Person("Alice")
-print(vars(p))   # {'name': 'Alice'}
-```
+   p = Person("Alice")
+   print(vars(p))   # {'name': 'Alice'}
+   ```
 
-> :warning: 注意：
->
-> 1. **仅适用于具有`__dict__`属性的对象**：`vars()`函数仅适用于那些有`__dict__`属性的对象（通常是用户定义的对象）。对于内置对象（如整数、字符串等），调用`vars()`会引发`TypeError`。
-> 2. **只包含实例变量**：返回的字典**只包含对象的实例变量**，不包括类变量或方法。
-> 3. **动态属性**：如果对象在**运行时动态添加了新的属性**，这些属性也会包含在`vars()`返回的字典中。
+   > :warning: 注意：
+   >
+   > 1. **仅适用于具有`__dict__`属性的对象**：`vars()`函数仅适用于那些有`__dict__`属性的对象（通常是用户定义的对象）。对于内置对象（如整数、字符串等），调用`vars()`会引发`TypeError`。
+   > 2. **只包含实例变量**：返回的字典**只包含对象的实例变量**，不包括类变量或方法。
+   > 3. **动态属性**：如果对象在**运行时动态添加了新的属性**，这些属性也会包含在`vars()`返回的字典中。
 
-## 三、修改行为对比
+**三、修改行为对比**
 
 ```python
 x = 1
@@ -888,7 +888,7 @@ vars(cfg)['lr'] = 0.01
 print(cfg.lr)   # 0.01 ✅ 修改生效
 ```
 
-## 四、总结区别
+**四、总结区别**
 
 速查表：`locals()` / `globals()` / `vars()`
 
