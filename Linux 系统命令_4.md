@@ -238,7 +238,7 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
 
 **常见选项：**
 
-- `-a`: 归档模式，表示递归复制并保持文件的权限、时间戳等属性
+- `-a`: 归档模式，表示递归复制并保持文件的权限、时间戳等属性(已包含 `-r`)
 - `-z`: 压缩文件数据，减少传输数据量，以减少传输时间
 - `-r`: 递归复制整个目录
 - `-u`: 仅复制源文件比目标文件新的文件
@@ -373,7 +373,7 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
       先使用 `--include`/`--include-from` 指定要同步的内容，最后用 `--exclude='*'` 排除其他所有内容。
 
       > :warning: 注意：`--include` 中路径是相对于 `source/` 的，不是绝对路径。
-      > 如果想匹配 source/ 的内层目录的文件而不指定内层目录如下面 subdir，需要加上 --include='_/'，这样就可以进入内层目录去找到你想要的 `_.xx/` 等文件。如果不加，rsync 会一上来就排除整个目录，连里面的文件都不会检查。
+      > 如果想匹配 source/ 的内层目录的文件而不指定内层目录（如下面 `subdir`），需要加上 `--include='*/'`，这样就可以进入内层目录去找到你想要的 `*.xx/` 等文件。如果不加，rsync 会一上来就排除整个目录，连里面的文件都不会检查。
 
       ```bash
       rsync -av \
