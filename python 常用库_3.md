@@ -1033,6 +1033,112 @@ print(a.tobytes() == b.tobytes())  # True
 - 直接按字节比较，dtype、endianness、NaN bit pattern 都会影响结果。
 - 如果需要绝对的 bit-level 一致，这个方法最好。
 
+### 数组堆叠和拼接
+
+堆叠和拼接操作会复制原数组元素。
+
+**一、任意轴拼接**
+
+`concatenate(tuple)` 将相同轴数的数组元组进行拼接。结果数组不改变轴数。之所以首先介绍该函数，在于下面的 stack 系列函数最终都是通过它实现的（`np.c_` 和 `np.r_` 最终也通过它实现，实际上它是 C 语言的接口函数）。
+
+拼接二维数组可以指定要拼接的轴，默认 axis = 0。
+
+```python
+A = np.array([[1, 2, 3]])
+B = np.array([[4, 5, 6]])
+C = np.concatenate((A, B), axis=0) # 增加行数
+print(C)
+D = np.concatenate((A, B), axis=1) # 增加列数
+print(D)
+
+>>>
+[[1 2 3]
+ [4 5 6]]
+[[1 2 3 4 5 6]]
+
+# 高维数组拼接
+import numpy as np
+
+a = np.ones((2, 3, 4, 5))
+b = np.zeros((2, 3, 4, 5))
+
+print(np.concatenate((a, b), axis=0).shape)  # (4, 3, 4, 5)
+print(np.concatenate((a, b), axis=1).shape)  # (2, 6, 4, 5)
+print(np.concatenate((a, b), axis=2).shape)  # (2, 3, 8, 5)
+print(np.concatenate((a, b), axis=3).shape)  # (2, 3, 4, 10)
+
+# for 循环数组拼接
+data_list = []
+for file in work_path.rglob('*.bin'):
+    print(f"find file: {file}")
+    data = np.fromfile(file, dtype=np.float32)
+    print(f"data shape: {data.shape}, dtype: {data.dtype}")
+    data_list.append(data)
+data = np.concatenate(data_list, axis=0)
+```
+
+与聚合操作比较，可以发现聚合操作默认会减少轴数，而拼接操作不会改变轴数。concatenate 要求所有数组除了拼接的轴上的 shape 值无需相同，其他的轴上的 shape 值必须相同，否则无法拼接。
+
+**二、垂直堆叠**
+
+vstack(tuple) 接受一个由数组组成的元组，每个数组在列上的元素个数必须相同。
+等价于 `concatenate(map(atleast_2d,tup), axis=0)`，显然要进行垂直堆叠操作，数组至少是 2D 的，转换后在行上堆叠：
+
+- 在 2D 时：把行堆叠起来。
+- 在 3D / 4D 时：也就是在 第 0 维 上拼接。
+- vstack 在 1D 上堆叠会返回 2D 数组。
+
+```python
+A = np.array([1, 2, 3])
+B = np.array([[4, 5, 6], [7, 8, 9]])
+print(np.vstack((A, B, A)))
+
+>>>
+[[1 2 3]
+ [4 5 6]
+ [7 8 9]
+ [1 2 3]]
+
+# 高维数组拼接
+import numpy as np
+
+a = np.ones((2, 3, 4, 5))
+b = np.zeros((2, 3, 4, 5))
+
+print(np.vstack((a, b)).shape)  # (4, 3, 4, 5)
+```
+
+vstack 垂直堆叠示意图：
+[![borders](https://mlhowto.readthedocs.io/en/latest/_images/vstack.png)](https://mlhowto.readthedocs.io/en/latest/_images/vstack.png)
+
+**三、水平堆叠**
+
+hstack(tuple) 与 vstack(tuple) 类似，按第二个轴依次取数据，数组行数必须相同。
+等价于 `concatenate(map(atleast_2d,tup), axis=1)`，水平堆叠只需要保证数组有 1D 即可，但有细节：
+
+- 如果数组是一维：会在最后一个维度拼接。
+- 如果是 2D 以上：固定在 第 1 维 拼接。
+
+```python
+A = np.array([0, 1, 2])
+B = np.array([30,40])
+print(np.hstack((A, B, A)))
+
+>>>
+[0, 1, 2, 30, 40, 0, 1, 2]
+
+# 高维数组拼接
+import numpy as np
+
+a = np.ones((2, 3, 4, 5))
+b = np.zeros((2, 3, 4, 5))
+
+print(np.hstack((a, b)).shape)  # (2, 6, 4, 5)
+```
+
+hstack 水平堆叠示意图：
+[![borders](https://mlhowto.readthedocs.io/en/latest/_images/hstack.png)](https://mlhowto.readthedocs.io/en/latest/_images/hstack.png)
+
 ## 字节流
 
 > 1. [Binary Sequence Types — bytes, bytearray, memoryview](https://docs.python.org/3/library/stdtypes.html#binary-sequence-types-bytes-bytearray-memoryview)
