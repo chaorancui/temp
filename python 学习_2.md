@@ -1173,6 +1173,331 @@ print(result)
 
 `eval()` 主要用于动态执行字符串形式的 Python 表达式，但需要谨慎使用，特别是在涉及不受信任的数据时。
 
+## sorted()
+
+**`sorted` 是 Python 内置函数**。
+
+**一、基本介绍**
+
+- **作用**：返回一个排序后的新列表，不会修改原始数据。
+- **语法**：
+
+```python
+sorted(iterable, *, key=None, reverse=False)
+```
+
+- **参数说明**：
+  - `iterable`：任何可迭代对象（list、tuple、str、dict、set、生成器等）。
+  - `key`：函数，用于从元素中提取比较值。默认是元素自身。
+  - `reverse`：是否倒序，默认为 `False`（升序）。
+- **返回值**：一个新的 `list`。
+
+**二、基本用法**
+
+1. 对数字排序
+
+   ```python
+   nums = [5, 2, 9, 1]
+   print(sorted(nums))         # [1, 2, 5, 9]
+   print(sorted(nums, reverse=True))  # [9, 5, 2, 1]
+   ```
+
+2. 对字符串排序
+
+   ```python
+   s = "python"
+   print(sorted(s))  # ['h', 'n', 'o', 'p', 't', 'y']  按字符 ASCII 排序
+   ```
+
+3. 对元组 / 列表的列表排序
+
+   ```python
+   pairs = [(2, 'b'), (1, 'c'), (2, 'a')]
+   print(sorted(pairs))
+   # [(1, 'c'), (2, 'a'), (2, 'b')]  先按第一个元素，再按第二个元素
+   ```
+
+4. 按 key 排序
+
+   - 按字符串长度
+
+     ```python
+     words = ["python", "is", "great"]
+     print(sorted(words, key=len))
+     # ['is', 'great', 'python']
+     ```
+
+   - 忽略大小写
+
+     ```python
+     words = ["banana", "Apple", "cherry"]
+     print(sorted(words, key=str.lower))
+     # ['Apple', 'banana', 'cherry']
+     ```
+
+   - 文件名排序
+
+     ```python
+     files = sorted(Path('./').rglob('*.md'), key=lambda p: p.name)
+     for file in files:
+         print(f"find file: {file}")
+     ```
+
+5. 对字典排序
+
+   默认字典迭代的是 **键**：
+
+   ```python
+   d = {"b": 2, "c": 3, "a": 1}
+   print(sorted(d))            # ['a', 'b', 'c'] (按 key 排序)
+   print(sorted(d.items()))    # [('a', 1), ('b', 2), ('c', 3)]
+   print(sorted(d.items(), key=lambda x: x[1]))
+   # [('a', 1), ('b', 2), ('c', 3)] 按 value 排序
+   ```
+
+6. 自定义排序函数
+
+   ```python
+   nums = [5, -2, 9, -1]
+   print(sorted(nums, key=abs))
+   # [-1, -2, 5, 9] 按绝对值排序
+   ```
+
+7. 排序生成器 / 集合
+
+   ```python
+   print(sorted({3, 1, 2}))       # [1, 2, 3]
+   print(sorted(x*x for x in [3, -1, 2]))  # [1, 4, 9]
+   ```
+
+8. 多级排序
+
+   比如：先按分数排，再按姓名
+
+   ```python
+   students = [("Alice", 88), ("Bob", 75), ("Charlie", 88), ("David", 92)]
+   print(sorted(students, key=lambda x: (-x[1], x[0])))
+   # [('David', 92), ('Alice', 88), ('Charlie', 88), ('Bob', 75)]
+   ```
+
+9. 稳定排序
+
+   Python 的排序是 **稳定的**，即当两个元素的 key 相同时，保持原有顺序。
+
+   ```python
+   data = [('a', 2), ('b', 1), ('c', 2)]
+   print(sorted(data, key=lambda x: x[1]))
+   # [('b', 1), ('a', 2), ('c', 2)]  保留了 a 和 c 的原顺序
+   ```
+
+Python `sorted` 用法速查表
+
+| 场景                                     | 示例代码                                                                                                       | 输出结果                                                   |
+| ---------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| **数字排序（升序/降序）**                | `sorted([5, 2, 9, 1])` `sorted([5, 2, 9, 1], reverse=True)`                                                    | `[1, 2, 5, 9]` `[9, 5, 2, 1]`                              |
+| **字符串排序**                           | `sorted("python")`                                                                                             | `['h', 'n', 'o', 'p', 't', 'y']`                           |
+| **元组排序（按第一个元素，再按第二个）** | `sorted([(2,'b'), (1,'c'), (2,'a')])`                                                                          | `[(1, 'c'), (2, 'a'), (2, 'b')]`                           |
+| **按字符串长度排序**                     | `sorted(["python","is","great"], key=len)`                                                                     | `['is', 'great', 'python']`                                |
+| **忽略大小写排序**                       | `sorted(["banana","Apple","cherry"], key=str.lower)`                                                           | `['Apple', 'banana', 'cherry']`                            |
+| **字典按键排序**                         | `sorted({"b":2, "c":3, "a":1})`                                                                                | `['a', 'b', 'c']`                                          |
+| **字典按值排序**                         | `sorted({"b":2,"c":3,"a":1}.items(), key=lambda x:x[1])`                                                       | `[('a', 1), ('b', 2), ('c', 3)]`                           |
+| **按绝对值排序**                         | `sorted([5, -2, 9, -1], key=abs)`                                                                              | `[-1, -2, 5, 9]`                                           |
+| **排序生成器/集合**                      | `sorted({3, 1, 2})` `sorted(x*x for x in [3, -1, 2])`                                                          | `[1, 2, 3]` `[1, 4, 9]`                                    |
+| **多级排序（先分数，再姓名）**           | `students=[("Alice",88),("Bob",75),("Charlie",88),("David",92)]` `sorted(students, key=lambda x:(-x[1],x[0]))` | `[('David',92), ('Alice',88), ('Charlie',88), ('Bob',75)]` |
+| **稳定排序（保持相对顺序）**             | `sorted([('a',2), ('b',1), ('c',2)], key=lambda x:x[1])`                                                       | `[('b', 1), ('a', 2), ('c', 2)]`                           |
+
+**小结**
+
+- **`sorted`** 总是返回 **新列表**，不改变原 iterable。
+- 常见用法：
+  - 数值、字符串排序
+  - 按 key 排序（长度、大小写、绝对值、自定义规则）
+  - 对字典的 key 或 value 排序
+  - 多级排序（结合 tuple）
+  - 稳定排序可保证相等 key 时顺序不乱
+
+## map()
+
+**Python 内置的 `map()` 函数**。
+
+**一、基本介绍**
+
+- `map()` 用于**把一个函数作用到可迭代对象的每个元素上**，返回一个新的迭代器。
+- 常用于**批量处理数据**，比如对列表里的所有元素平方、取绝对值、转换类型等。
+
+```python
+map(function, iterable, ...)
+```
+
+- **function**：要应用的函数（可以是 `def` 定义的函数，或 `lambda` 匿名函数）。
+- **iterable**：一个或多个可迭代对象（list、tuple、str 等）。
+- **返回值**：一个 **迭代器 (map object)**，通常需要用 `list()`、`tuple()`、`set()` 等转换。
+
+**二、基本用法**
+
+1. 基本示例
+
+   ```python
+   # 把列表中每个元素平方
+   nums = [1, 2, 3, 4]
+   squares = map(lambda x: x**2, nums)
+   print(list(squares))
+   # 输出: [1, 4, 9, 16]
+   ```
+
+2. 使用多个 iterable
+
+   如果传入多个可迭代对象，`map` 会并行取它们的元素，作为参数传给函数：
+
+   ```python
+   a = [1, 2, 3]
+   b = [4, 5, 6]
+
+   sums = map(lambda x, y: x + y, a, b)
+   print(list(sums))
+   # 输出: [5, 7, 9]
+   ```
+
+   > :pushpin: 注意：**取最短的 iterable 长度**，多余部分会被忽略。
+
+3. 结合内置函数
+
+   ```python
+   # 转换数据类型
+   nums = ["1", "2", "3"]
+   ints = map(int, nums)
+   print(list(ints))
+   # 输出: [1, 2, 3]
+   # 把字符串全部大写
+   words = ["hello", "world"]
+   uppercased = map(str.upper, words)
+   print(list(uppercased))
+   # 输出: ['HELLO', 'WORLD']
+   ```
+
+4. 注意点
+
+- `map` 返回的是一个 **惰性迭代器**，只会在你 `list()` 或遍历时才真正计算。
+
+- 如果你只需要结果，通常写成列表推导式更直观：
+
+  ```python
+  nums = [1, 2, 3]
+  print([x*2 for x in nums])   # 更清晰
+  ```
+
+- `map` 的优势在于 **和现成函数/多个 iterable 搭配** 时更简洁。
+
+## lambda 表达式
+
+**一、基本介绍**
+
+- **定义**：`lambda` 用于创建 **匿名函数**（没有名字的函数）。
+
+- **语法**：
+
+  ```python
+  lambda 参数列表: 表达式
+  ```
+
+- 返回值：是一个 **函数对象**，可以赋值给变量，或者直接传给其他函数。
+
+相当于：
+
+```python
+lambda x: x + 1
+# 等价于：
+def f(x):
+    return x + 1
+```
+
+**二、基本用法**
+
+1. 最简单的例子
+
+   ```python
+   f = lambda x: x + 1
+   print(f(5))  # 6
+   ```
+
+2. 多个参数
+
+   ```python
+   add = lambda a, b: a + b
+   print(add(3, 7))  # 10
+   ```
+
+3. 结合 `sorted` 使用（常见）
+
+   按第二个元素排序：
+
+   ```python
+   pairs = [(1, 'c'), (2, 'a'), (2, 'b')]
+   print(sorted(pairs, key=lambda x: x[1]))
+   # [(2, 'a'), (2, 'b'), (1, 'c')]
+   ```
+
+4. 结合 `map`
+
+   ```python
+   nums = [1, 2, 3]
+   print(list(map(lambda x: x**2, nums)))
+   # [1, 4, 9]
+   ```
+
+5. 结合 `filter`
+
+   ```python
+   nums = [1, 2, 3, 4, 5]
+   print(list(filter(lambda x: x % 2 == 0, nums)))
+   # [2, 4]
+   ```
+
+6. 结合 `reduce`
+
+   ```python
+   from functools import reduce
+   nums = [1, 2, 3, 4]
+   print(reduce(lambda a, b: a * b, nums))
+   # 24 (阶乘)
+   ```
+
+**三、特点和限制**
+
+1. **只能写单个表达式**
+
+   ```python
+   f = lambda x: x + 1  # 合法
+   f = lambda x: print(x); x+1  # 不允许多条语句
+   ```
+
+2. **没有 `return`**
+   表达式的结果会自动返回。
+
+3. **常用场景**：适合写小的、一次性的函数，比如：
+
+   - 排序的 `key`
+   - `map` / `filter` / `reduce`
+   - GUI 回调、并行任务参数
+
+Python `lambda` vs `def` 对比表
+
+| 特性         | `lambda` 表达式                                                               | `def` 函数定义                                               |
+| ------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| **语法**     | `lambda 参数: 表达式` 例如：`lambda x: x+1`                                   | `def 函数名(参数):` `    return 结果`                        |
+| **返回值**   | 自动返回表达式的值（不能写 `return`）                                         | 必须显式用 `return` 返回值（否则返回 `None`）                |
+| **代码块**   | **只能写单个表达式**，不能有多行语句                                          | 可以写多行逻辑，包含控制流、循环等                           |
+| **可读性**   | 简洁但复杂时难懂                                                              | 结构清晰，可读性更好                                         |
+| **命名**     | 匿名函数（通常赋给变量）                                                      | 有函数名，利于调试与文档化                                   |
+| **调试**     | 名称显示为 `<lambda>`，不易追踪                                               | 有明确函数名，调试堆栈更直观                                 |
+| **适用场景** | - 需要临时函数时 - 作为参数传递给 `map`、`sorted`、`filter` 等 - 一次性小逻辑 | - 逻辑复杂、多处调用时 - 需要文档化或单元测试 - 需要高可读性 |
+| **示例**     | `sorted(data, key=lambda x: x[1])`                                            | `python\ndef add(x, y):\n    return x+y\n`                   |
+
+**一句话口诀：**
+
+- **简单、小型、一次性** ➝ 用 `lambda`
+- **复杂、复用、可维护** ➝ 用 `def`
+
 # pdb
 
 官方文档：<https://docs.python.org/3/library/pdb.html>
