@@ -1132,6 +1132,88 @@ print(data['config_file'])
 - 多行语句可以用 `;` 分隔。
 - 如果逻辑太复杂，不建议用 `-c`，而是写到 `.py` 脚本里。
 
+## Shell 中 `return`
+
+**一、`return` 的基本概念**
+
+`return` 用于从**函数**或**被 source 的脚本**中返回，并可以设置返回值（退出状态）。
+
+`return` vs `exit` 的区别：
+
+| 命令   | 作用范围                 | 效果                              |
+| ------ | ------------------------ | --------------------------------- |
+| exit   | 整个进程                 | 终止当前进程（脚本或 Shell 会话） |
+| return | 当前函数或 source 的脚本 | 从函数或 source 返回到调用者      |
+
+二、**`return` 的使用场景**
+
+1. 在函数中使用
+
+   ```bash
+   #!/bin/bash
+
+   my_function() {
+       echo "In function"
+       return 5        # 从函数返回，设置退出状态为5
+       echo "Never printed"
+   }
+
+   echo "Before function call"
+   my_function
+   echo "Function exit code: $?"
+   echo "Script continues"
+   ```
+
+   **输出：**
+
+   ```bash
+   Before function call
+   In function
+   Function exit code: 5
+   Script continues
+   ```
+
+2. 在被 source 的脚本中使用
+
+   ```bash
+   # lib.sh
+   #!/bin/bash
+   echo "In lib.sh"
+   return 10           # 从source返回
+   echo "Never printed"
+
+   # main.sh
+   #!/bin/bash
+   echo "Before source"
+   source lib.sh
+   echo "Source exit code: $?"
+   echo "Main script continues"
+   ```
+
+   **输出：**
+
+   ```bash
+   Before source
+   In lib.sh
+   Source exit code: 10
+   Main script continues
+   ```
+
+3. 在主脚本中直接使用 `return`（错误用法）
+
+   ```bash
+   #!/bin/bash
+   echo "Start"
+   return 1            # 错误！会导致 "can only return from function or sourced script"
+   echo "Never reached"
+   ```
+
+**三、`return` 的退出状态**
+
+- `return` 不带参数：返回上一个命令的退出状态
+- `return 0`：成功返回
+- `return 1-255`：带错误代码返回
+
 # shell 编程学习
 
 ## 学习笔记
