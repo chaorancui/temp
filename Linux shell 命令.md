@@ -467,20 +467,88 @@ source filename
 
 你看，进程的 PID 都是一样的，当然是同一个进程了。
 
-## 理解$0 和 BASH_SOURCE
+## $0 变量详解
 
-如上所述，一个 shell(bash)脚本有两种执行方式：
+`$0` 是 Shell 的内置变量，表示**当前脚本的名称**或**Shell 会话的名称**。
+
+**不同执行方式下的 `$0` 差异**
+
+1. 直接执行脚本
+
+   ```bash
+   # 创建测试脚本 test.sh
+   cat > test.sh << 'EOF'
+   #!/bin/bash
+   echo "Script name: $0"
+   EOF
+
+   chmod +x test.sh
+
+   # 不同的直接执行方式
+   ./test.sh           # $0 = "./test.sh"
+   bash test.sh        # $0 = "test.sh"
+   /full/path/test.sh  # $0 = "/full/path/test.sh"
+   ```
+
+2. Source 执行
+
+   ```bash
+   source test.sh      # $0 = 当前Shell的名称（如 "/usr/bin/bash" 或启动脚本名）
+   . test.sh          # 同上
+   ```
+
+3. 在脚本中调用
+
+   ```bash
+   # parent.sh 内容
+   #!/bin/bash
+   echo "Parent $0: $0"
+   ./test.sh           # test.sh 中的 $0 = "./test.sh"
+   source test.sh      # test.sh 中的 $0 = "./parent.sh"
+   ```
+
+4. 管道和重定向
+
+   ```bash
+   cat test.sh | bash    # $0 = "bash"
+   bash < test.sh        # $0 = "bash"
+   ```
+
+5. 不同 Shell 环境
+
+   ```bash
+   bash test.sh    # $0 = "test.sh"
+   sh test.sh      # $0 = "test.sh"
+   zsh test.sh     # $0 = "test.sh"
+   ```
+
+**Source 执行时 `$0` 的特殊性**
+
+当使用 `source` 时，**$0 不会改变**，仍然是调用 source 的脚本名：
+
+bash
+
+```bash
+# main.sh
+#!/bin/bash
+echo "Main script $0: $0"  # $0 = "./main.sh"
+source other.sh
+
+# other.sh
+#!/bin/bash
+echo "Other script $0: $0"  # $0 = "./main.sh" (继承自main.sh)
+```
+
+## BASH_SOURCE 变量
+
+一个 shell(bash)脚本有两种执行方式：
 
 - 直接执行，新起进程执行，类似于执行二进制程序
 - source 执行，当前进程从文件读取和执行命令，类似于加载库文件
 
-`$0`保存了被执行脚本的程序名称。注意，它保存的是以二进制方式执行的脚本名而非以 source 方式加载的脚本名称。
-
-例如，执行 a.sh 时，a.sh 中的 `$0`的值是 a.sh，如果 a.sh 执行 b.sh，b.sh 中的 `$0`的值是 b.sh，如果 a.sh 中 source b.sh，则 b.sh 中的 `$0`的值为 a.sh。
+`$0` 是 Shell 的内置变量，表示**当前脚本的名称**或**Shell 会话的名称**。
 
 除了 `$0`，bash 还提供了一个数组变量 `BASH_SOURCE`，该数组保存了 bash 的 SOURCE 调用层次。这个层次是怎么体现的，参考下面的示例。
-
-执行 shell 脚本 a.sh 时，shell 脚本的程序名 `a.sh`将被添加到 `BASH_SOURCE`数组的第一个元素中，即 `${BASH_SOURCE[0]}`的值为 `a.sh`，这时 `${BASH_SOURCE[0]}`等价于 `$0`。
 
 当在 a.sh 中执行 b.sh 时：
 
@@ -524,30 +592,7 @@ $0 --> "a.sh"
 ${BASH_SOURCE[0]} -> "c.sh"
 ${BASH_SOURCE[1]} -> "b.sh"
 ${BASH_SOURCE[2]} -> "a.sh"
-```
-
-使用脚本来验证一下 `BASH_SOURCE`和 `$0`。在 x.sh 中 source y.sh，在 y.sh 中 source z.sh：
-
-```shell
-# x.sh
-source y.sh
-echo "x.sh: ${BASH_SOURCE[@]}"
-
-# y.sh
-source z.sh
-echo "y.sh: ${BASH_SOURCE[@]}"
-
-# z.sh
-echo "z.sh: ${BASH_SOURCE[@]}"
-```
-
-执行 x.sh 输出结果：
-
-```shell
-$ bash x.sh
-z.sh: z.sh y.sh x.sh
-y.sh: y.sh x.sh
-x.sh: x.sh
+${BASH_SOURCE[@]} -> "c.sh b.sh a.sh"
 ```
 
 ## 取消 tab 补全报警声
