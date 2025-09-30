@@ -644,6 +644,123 @@ sort [选项] [文件...]
   sort --parallel=4 -T /tmp bigfile.txt
   ```
 
+## ripgrep 工具
+
+`rg` 是 **ripgrep** 的命令行工具缩写，它是一个用 Rust 写的文本搜索工具，主要功能和 `grep` 类似，但速度更快，特别适合在大规模代码仓库里查找。
+
+**一、ripgrep (`rg`) 的特点**
+
+1. **高性能**
+   - 使用 Rust 实现，性能优于传统 `grep` 和 `ack`。
+   - 内置了对 `.gitignore` 的支持，会自动忽略 Git 忽略的文件。
+2. **默认递归搜索**
+   - 不需要额外加 `-r`，直接递归子目录。
+3. **智能文件过滤**
+   - 默认只搜索文本文件，自动跳过二进制文件。
+   - 支持 `--type` 选项，比如 `--type py` 只搜索 Python 文件。
+4. **强大的正则支持**
+   - 使用 Rust 的 `regex` 库，语法和 PCRE 类似（但不完全一样）。
+
+**二、安装**
+
+1. Linux
+
+   大部分发行版仓库都提供了 `ripgrep` 包：
+
+   ```bash
+   # Debian / Ubuntu
+   sudo apt update
+   sudo apt install ripgrep
+   # Arch Linux
+   sudo pacman -S ripgrep
+   # macOS
+   brew install ripgrep
+   ```
+
+2. Windows
+
+   - 包管理工具
+
+     ```bash
+     # 方法一：用 scoop
+     scoop install ripgrep
+     # 方法二：用 chocolatey
+     choco install ripgrep
+     ```
+
+   - 二进制程序安装
+
+     直接从 GitHub Releases 下载预编译二进制：
+     <https://github.com/BurntSushi/ripgrep/releases>
+
+**三、用法**
+
+```bash
+USAGE:
+    rg [OPTIONS] PATTERN [PATH ...]
+    rg [OPTIONS] -e PATTERN ... [PATH ...]
+    rg [OPTIONS] -f PATTERNFILE ... [PATH ...]
+    rg [OPTIONS] --files [PATH ...]
+    rg [OPTIONS] --type-list
+    command | rg [OPTIONS] PATTERN
+    rg [OPTIONS] --help
+    rg [OPTIONS] --version
+```
+
+示例：
+
+```bash
+# 配合正则
+rg "func\s+\w+\("
+# 限制目录/文件
+rg pattern path/to/dir
+rg pattern file.txt
+```
+
+> :pushpin: `rg` 默认开启行号、默认递归、默认大小写敏感。
+
+`rg` 常用参数速查表：
+
+| 参数                   | 功能                                      | 示例                                              |
+| ---------------------- | ----------------------------------------- | ------------------------------------------------- |
+| `-i`                   | 忽略大小写（默认大小写敏感）              | `rg -i error log.txt`                             |
+| `-n`                   | 显示行号（默认开启，可手动指定）          | `rg -n foo file.txt`                              |
+| `-l`                   | 只显示**匹配的文件名**                    | `rg -l TODO`                                      |
+| `-L`                   | 显示不包含匹配的文件（哪些文件没写 main） | `rg -L main`                                      |
+| `-c`                   | 统计每个文件匹配的次数                    | `rg -c import -t py`                              |
+| `-o`                   | 只输出匹配内容                            | `rg -o "\d{4}-\d{2}-\d{2}" log.txt`               |
+| `-v`                   | 反向匹配（显示不匹配的行）                | `rg -v DEBUG app.log`                             |
+| `-w`                   | 匹配整个单词                              | `rg -w main`                                      |
+| `-x`                   | 整行匹配                                  | `rg -x "Hello World"`                             |
+| `-t <type>`            | 按**文件类型**搜索                        | `rg foo -t py`                                    |
+| `--type-list`          | 列出支持的文件类型                        | `rg --type-list`                                  |
+| `--ignore <pattern>`   | 忽略指定文件/目录                         | `rg "pattern" --ignore "*.log" --ignore "build/"` |
+| `--ignore-file <file>` | 忽略 <file> 里指定文件/目录               | `rg foo --ignore-file .ignore`                    |
+| `--no-ignore`          | 即使 `.gitignore` 忽略的文件也强制搜索    | `rg foo --no-ignore`                              |
+| `-a`                   | **强制把二进制**文件当文本搜索            | `rg -a password binary.dat`                       |
+| `-U`                   | 启用多行搜索                              | `rg -U "foo\nbar"`                                |
+| `--color=always`       | 强制彩色输出                              | `rg --color=always foo`                           |
+| `--json`               | 输出 JSON 结果（脚本处理用）              | `rg foo --json`                                   |
+
+代码相关：
+
+| 场景            | 命令                             | 说明                 |
+| --------------- | -------------------------------- | -------------------- |
+| 查找函数定义    | `rg "def\s+\w+\(" -t py`         | 查找 Python 函数定义 |
+| 查找类定义      | `rg "^class\s+\w+" -t py`        | Python 类            |
+| 查找 C 函数声明 | `rg "^\w+\s+\w+\(.*\)\s*{" -t c` | C 语言函数           |
+| 查找 TODO/FIXME | `rg "TODO \| FIXME"`             | TODO 位置            |
+| 查找变量赋值    | `rg "^\s*my_var\s*=" -t py`      | 精确定位变量         |
+
+配置文件 / 日志：
+
+| 场景             | 命令                                          | 说明            |
+| ---------------- | --------------------------------------------- | --------------- |
+| 查找配置项       | `rg "max_connections" -t conf`                | 找配置参数      |
+| 查找日志里的报错 | `rg -i "error" /var/log/syslog`               | 日志排障        |
+| 查找 IP 地址     | `rg -o "\b\d{1,3}(\.\d{1,3}){3}\b"`           | 提取日志中的 IP |
+| 查找时间戳       | `rg -o "\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}"` | 抓取日志时间    |
+
 # 文件操作命令
 
 ## cp 命令
