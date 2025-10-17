@@ -1535,7 +1535,7 @@ import pdb; pdb.set_trace()
 
 | 命令                                           | 说明                                       |
 | ---------------------------------------------- | ------------------------------------------ |
-| `break [file:line\|function][, condition]`/`b` | 设置断点                                   |
+| `break [file:line\|function][, condition]`/`b` | 设置断点，也可查看断点                     |
 | `tbreak`                                       | 临时断点，命中后自动删除                   |
 | `clear [file:line\| bpnum]`/`cl`               | 清除断点，不带参数则清除所有断点           |
 | `disable bpnum`                                | 禁用指定断点                               |
@@ -1544,6 +1544,11 @@ import pdb; pdb.set_trace()
 | `condition bpnum [condition]`                  | 设置断点触发条件                           |
 | `commands [bpnum]`                             | 为断点设置命令序列，结束于 `end`           |
 | `silent`                                       | 不显示断点命中信息（配合 `commands` 使用） |
+
+> `ipdb` 中无法保存/加载断点：
+>
+> - 因为 `pdb.Pdb` 类里实现了 `do_save()`、`do_restore()` 等命令。
+> - `ipdb` 是对 `pdb` 的一层包装（基于 IPython 的交互增强），它默认 **没有注册 `save` / `restore` 命令**。
 
 ### 执行控制
 
