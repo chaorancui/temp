@@ -917,13 +917,19 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 1. 切换与创建分支
 
    ```shell
-   git checkout <branch_name > 切换分支
-   #git switch <branch_name> 切换分支
-   git checkout -b <branch_name> 创建并切换至分支
-   # git switch -c <branch_name> 创建并切换至分支
+   # 切换分支
+   git checkout <branch_name>
+   git switch <branch_name>
+   
+   # 创建并切换至分支
+   git checkout -b <branch_name>
+   git switch -c <branch_name>
+   
+   # 从远端创建本地分支。这条命令做了两件事：1.新建本地分支<branch_name> 2.设置它跟踪远端的origin/<branch_name>
+   git checkout -b <branch_name> origin/<branch_name>
+   git switch -c <branch_name> origin/<branch_name>
    ```
 
-   **git checkout -b** <branch_name>**origin/**<branch_name> 在本地创建和远程分支对应的分支，本地和远程分支的名称最好一致
 
 2. 还原工作区（文件内容）
    git checkout – <file_name> 丢弃工作区的修改，并用最近一次的 commit 内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
@@ -940,6 +946,11 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
   ```bash
   git switch <branchName>
+
+  # 从远端创建本地分支。这条命令做了两件事：1.新建本地分支<branch_name> 2.设置它跟踪远端的origin/<branch_name>
+  git switch -c <branch_name> origin/<branch_name>
+  git checkout -b <branch_name> origin/<branch_name>
+
   # 如果要切换到某个commit-id，只能用 checkout，如
   git checkout commitid # 切换到某个commit id
   ```
