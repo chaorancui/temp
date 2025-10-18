@@ -15,6 +15,24 @@
 
 # 大模型相关知识
 
+## 行向量 vs 列向量的惯例
+
+1. **在深度学习中的惯例，Transformer/PyTorch 惯例**
+
+   数据矩阵： $X = (batch, seq_len, d_model)$
+   每一行是一个样本/token
+   权重矩阵：$W (d_in, d_out)$
+   前向传播：$Y = XW$
+
+   **这是"行向量惯例"（Row-vector convention）**
+
+2. **在传统线性代数中，传统数学惯例**
+
+   向量是列向量：$x ∈ ℝ^d (d×1)$
+   矩阵变换：$y = Ax$
+
+   **这是"列向量惯例"（Column-vector convention）**
+
 ## Transformer 中 Q K V
 
 在 Transformer 架构中，**Q**、**K** 和 **V** 分别指 **Query**、**Key** 和 **Value**，它们是 **自注意力机制**（Self-Attention Mechanism）的核心组件。Transformer 模型的成功很大程度上依赖于这种自注意力机制，它能够在处理序列时捕捉全局信息，使得模型可以理解序列中的上下文关系。
