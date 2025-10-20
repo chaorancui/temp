@@ -859,6 +859,10 @@ echo ~/${user}_file{1,2}.{txt,log}
 
    # 获取当前工作目录
    pwd_dir=$(pwd)
+
+   # 获取当前脚本路径
+   SCRIPT_DIR=$(realpath "$(dirname "$0")")
+   echo "$SCRIPT_DIR"
    ```
 
 2. 从绝对路径提取部分路径:
