@@ -522,6 +522,160 @@ ImportWarning: xxxxxx.find_spec() not found; falling back to find_module()`
 这个日志中的警告信息表明，在程序运行时，Python 的 `importlib` 模块中发生了一些导入机制上的警告。
 `xxxxxx.find_spec()` 方法没有找到。在 Python 3 中，`find_spec()` 是导入模块时首选的方式，而 `find_module()` 是 Python 2 中的旧方法。日志中的提示意味着程序回退到使用较老的 `find_module()` 方法来查找模块。
 
+## json 解析
+
+c++ 中用 nlohmann::json 解析 json 的嵌套结构体，并赋值到对应的嵌套结构体变量中。
+
+1. 方式一：使用 `from_json()` 自定义反序列化函数
+
+   `nlohmann::json` 支持用户自定义类型的反序列化，只需要在同一命名空间下定义 `from_json()`。每个嵌套层级都要定义。
+
+   ```cpp
+   #include <iostream>
+   #include <fstream>          // ✅ 用于读取文件
+   #include <nlohmann/json.hpp>
+
+
+   using json = nlohmann::json;
+
+   // -------------------- 定义结构体 --------------------
+   struct User {
+       std::string usern;
+       std::string password;
+   };
+
+   struct Network {
+       std::string ip;
+       int port;
+       User user;
+   };
+
+   struct Config {
+       int key;
+       Network net1;
+       Network net2;
+   };
+
+   // -------------------- 定义 JSON 解析函数 --------------------
+   void from_json(const json& j, User& u) {
+       j.at("usern").get_to(u.usern);
+       j.at("password").get_to(u.password);
+   }
+
+   void from_json(const json& j, Network& n) {
+       j.at("ip").get_to(n.ip);
+       j.at("port").get_to(n.port);
+       j.at("user").get_to(n.user);
+   }
+
+   void from_json(const json& j, Config& c) {
+       j.at("key").get_to(c.key);
+       j.at("net1").get_to(c.net1);
+       j.at("net2").get_to(c.net2);
+   }
+
+   // -------------------- 主函数：从文件读取并解析 --------------------
+   /* config.json
+   {
+     "key": 123,
+     "net1": {
+       "ip": "192.168.1.10",
+       "port": 8080,
+       "user": {
+         "usern": "admin",
+         "password": "123456"
+       }
+     },
+     "net2": {
+       "ip": "10.0.0.2",
+       "port": 9090,
+       "user": {
+         "usern": "guest",
+         "password": "guestpass"
+       }
+     }
+   }
+   */
+   int main() {
+       // 打开文件
+       std::ifstream file("config.json");
+       if (!file.is_open()) {
+           std::cerr << "无法打开 config.json 文件！" << std::endl;
+           return 1;
+       }
+
+       // 解析 JSON
+       json j;
+       file >> j;
+
+       // 映射到结构体
+       Config cfg = j.get<Config>();
+
+       // 打印结果验证
+       std::cout << "Key: " << cfg.key << "\n";
+       std::cout << "Net1 IP: " << cfg.net1.ip
+                 << ", Port: " << cfg.net1.port
+                 << ", User: " << cfg.net1.user.usern << "\n";
+       std::cout << "Net2 IP: " << cfg.net2.ip
+                 << ", Port: " << cfg.net2.port
+                 << ", User: " << cfg.net2.user.usern << "\n";
+
+       return 0;
+   }
+   ```
+
+2. 方式二：宏或模板自动生成（可选进阶）
+
+   如果结构较多、层级深，可以借助宏模板自动定义 `from_json`。
+   比如定义一个辅助宏：
+
+   ```cpp
+   #define JSON_GET_TO(field) j.at(#field).get_to(obj.field)
+   ```
+
+   然后简化写法：
+
+   ```cpp
+   void from_json(const json& j, Config::Network& obj) {
+       JSON_GET_TO(ip);
+       JSON_GET_TO(port);
+   }
+
+   void from_json(const json& j, Config::Database& obj) {
+       JSON_GET_TO(user);
+       JSON_GET_TO(password);
+   }
+
+   void from_json(const json& j, Config& obj) {
+       JSON_GET_TO(network);
+       JSON_GET_TO(database);
+   }
+   ```
+
+3. 方式三：使用 `get_to()` 直接赋值（适合一次性解析）
+
+   如果结构比较简单，也可以不用自定义函数，直接按路径解析：
+
+   ```cpp
+   Config cfg;
+   json j = json::parse(json_str);
+
+   cfg.network.ip = j["network"]["ip"].get<std::string>();
+   cfg.network.port = j["network"]["port"].get<int>();
+   cfg.database.user = j["database"]["user"].get<std::string>();
+   cfg.database.password = j["database"]["password"].get<std::string>();
+   ```
+
+   这种写法虽然简单，但**可维护性差**，结构体字段多时容易出错。
+
+**小结**
+
+| 方法                 | 适用场景           | 优点               | 缺点       |
+| -------------------- | ------------------ | ------------------ | ---------- |
+| 自定义 `from_json()` | 结构清晰、复用性强 | 一次定义，反复使用 | 代码稍多   |
+| 宏/模板自动化        | 大规模结构解析     | 代码生成方便       | 可读性略差 |
+| 手动 `get_to()`      | 快速解析简单结构   | 快速、直观         | 可维护性差 |
+
 # 大型项目技巧
 
 ## 文件路径合法性校验
