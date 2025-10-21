@@ -634,8 +634,6 @@ Micro-scaling 代表了模型量化技术的一个重要发展方向，在保持
 
    实际部署中可以混合使用：
 
-   python
-
    ```python
    # Transformer模型的混合策略
    model_config = {
