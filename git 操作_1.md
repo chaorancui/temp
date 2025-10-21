@@ -473,6 +473,12 @@ git clone <版本库的网址>
 git clone <版本库的网址> <本地目录名>
 ```
 
+- 拉取特定分支（而不是整个仓库所有分支）
+
+```bash
+git clone -b <branch-name> <repo-url>
+```
+
 ### git fetch
 
 git fetch 命令命令用于从远程获取代码库。
@@ -920,16 +926,15 @@ git log [<options>] [<revision range>] [[\--] <path>…]
    # 切换分支
    git checkout <branch_name>
    git switch <branch_name>
-   
+
    # 创建并切换至分支
    git checkout -b <branch_name>
    git switch -c <branch_name>
-   
+
    # 从远端创建本地分支。这条命令做了两件事：1.新建本地分支<branch_name> 2.设置它跟踪远端的origin/<branch_name>
    git checkout -b <branch_name> origin/<branch_name>
    git switch -c <branch_name> origin/<branch_name>
    ```
-
 
 2. 还原工作区（文件内容）
    git checkout – <file_name> 丢弃工作区的修改，并用最近一次的 commit 内容还原到当前工作区（对文件中内容的操作，无法对添加文件、删除文件起作用）
