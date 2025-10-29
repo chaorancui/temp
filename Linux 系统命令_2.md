@@ -1013,11 +1013,14 @@ realpath /tmp/mylink
 realpath --relative-to=/home /home/user/mydir
 # 输出：user/mydir
 
-# 4. 脚本中获取当前脚本路径
-SCRIPT_DIR=$(realpath "$(dirname "$0")") # 可解析符号链接
-echo "$SCRIPT_DIR"
-
+# 脚本所在目录
+SCRIPT_DIR=$(realpath "$(dirname "$0")")  # 可解析符号链接
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd) # 跨平台兼容性好
+echo "SCRIPT_DIR: $SCRIPT_DIR"
+
+# 运行脚本的工作目录
+RUN_DIR=$(realpath "$(pwd)")
+echo "RUN_DIR: $RUN_DIR"
 ```
 
 `realpath` 命令非常适用于需要在脚本中确保路径一致性的场景。
