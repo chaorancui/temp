@@ -1014,8 +1014,10 @@ realpath --relative-to=/home /home/user/mydir
 # 输出：user/mydir
 
 # 4. 脚本中获取当前脚本路径
-SCRIPT_DIR=$(realpath "$(dirname "$0")")
+SCRIPT_DIR=$(realpath "$(dirname "$0")") # 可解析符号链接
 echo "$SCRIPT_DIR"
+
+SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd) # 跨平台兼容性好
 ```
 
 `realpath` 命令非常适用于需要在脚本中确保路径一致性的场景。
@@ -1097,6 +1099,106 @@ basename [OPTION] NAME [SUFFIX]
        echo "Processing $name"
    done
    ```
+
+## dirname 命令
+
+`dirname`它主要用于**从路径中提取目录部分（即去掉文件名）**。
+
+**一、基本作用**
+
+> **`dirname` 从给定路径中删除最后一个 `/` 及其后面的内容。**
+
+语法：
+
+```bash
+dirname PATH
+```
+
+**二、常见用法示例**
+
+| 命令                          | 输出         | 说明                                    |
+| ----------------------------- | ------------ | --------------------------------------- |
+| `dirname /home/user/file.txt` | `/home/user` | 去掉最后一级文件名                      |
+| `dirname /home/user/dir/`     | `/home/user` | 去掉最后的目录名（如果路径以 `/` 结尾） |
+| `dirname file.txt`            | `.`          | 当前目录（因为路径中没有 `/`）          |
+| `dirname /file.txt`           | `/`          | 根目录                                  |
+| `dirname ../src/main.c`       | `../src`     | 保留相对路径部分                        |
+
+**与 `basename` 配合使用（常见搭档）**
+
+`dirname` 和 `basename` 通常搭配使用：
+
+```bash
+path="/home/user/project/file.txt"
+echo "目录名:   $(dirname "$path")"
+echo "文件名:   $(basename "$path")"
+
+# 输出：
+# 目录名:   /home/user/project
+# 文件名:   file.txt
+```
+
+**三、在脚本中常用的组合**
+
+1. 获取当前脚本所在目录（经典写法）
+
+   ```bash
+   SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)    # 兼容性好
+   SCRIPT_DIR=$(realpath "$(dirname "$0")")     # 可解析符号链接
+   echo "$SCRIPT_DIR"
+   ```
+
+   解释：
+
+   - `$0`：脚本路径（可能是相对路径）
+   - `dirname "$0"`：取出脚本所在目录
+   - `cd ... && pwd`：转为绝对路径
+
+   > 用处：在脚本中访问相对路径的配置文件、依赖等。
+
+2. 获取上级目录
+
+   ```bash
+   # 获取上2级目录
+   PARENT_DIR=$(dirname "$(dirname "$path")")      # 连续两次 `dirname` 即可
+
+   for ((i=0; i<2; i++)); do DIR=$(dirname "$DIR"); done
+   ```
+
+   函数写法：
+
+   ```bash
+   #!/bin/bash
+   set -e
+
+   get_dir_up() {
+      local n=${2:-1}
+      local dir
+      dir=$(realpath "$1")
+      while [ "$n" -gt 0 ]; do
+         dir=$(dirname "$dir")
+         n=$((n-1))
+      done
+      echo "$dir"
+   }
+
+   SCRIPT_DIR=$(realpath "$(dirname "$0")")
+   ROOT_DIR=$(get_dir_up "$SCRIPT_DIR" 3)
+   echo "当前脚本: $SCRIPT_DIR"
+   echo "项目根目录: $ROOT_DIR"
+   ```
+
+   > 如果不传第二个参数，默认取上一级。
+
+**四、边界与特殊情况**
+
+| 输入       | 输出       | 解释                       |
+| ---------- | ---------- | -------------------------- |
+| `/`        | `/`        | 根目录的 dirname 是它自己  |
+| `/foo`     | `/`        | 去掉 `foo`，剩下 `/`       |
+| `foo`      | `.`        | 当前目录                   |
+| `foo/bar/` | `foo`      | 去掉最后的 `/`             |
+| 空字符串   | （未定义） | 可能报错 “missing operand” |
 
 # 压缩解压命令
 
