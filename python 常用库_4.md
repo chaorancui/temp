@@ -963,3 +963,22 @@ end note
 
 @enduml
 ```
+
+## 是否包含中文字符及标点
+
+`[\u4e00-\u9fff]` 是中日韩统一汉字的主要范围。
+中文标点不在，需要扩展范围：
+
+```python
+import re
+
+def has_chinese_or_punc(s: str) -> bool:
+    pattern = r'[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]'
+    return re.search(pattern, s) is not None
+
+str=""""
+"。，你好！"
+"""
+print(has_chinese_or_punc(str))
+print(has_chinese_or_punc("hello"))        # False
+```
