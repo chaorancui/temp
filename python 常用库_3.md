@@ -271,7 +271,77 @@ np.array([1.0, 2.0], dtype=np.float32)  # 显式指定 float32
 - **结构化数据**：用 `dtype=[('field', 'type')]`。
 - **时间数据**：用 `'M8[ns]'` 或 `np.datetime64`。
 
-### numpy 实现 reinterpret cast
+### numpy 中 view()
+
+在 **NumPy** 里要实现 **“把 N×K 的 uint8 数据重新解释成 N×(K/2) 的 uint16 数据”**，相当于 C++ 中的 `reinterpret_cast`，可以直接使用 **`view()`** 来做到 **零拷贝 reinterpret**。
+
+**一、使用 `view(np.uint16)`（推荐）**
+
+**前提:**
+
+- 原数组 dtype = `uint8`
+- 每一行长度 K 必须是 **偶数**（否则没法两字节组成一个 uint16）
+
+```python
+import numpy as np
+
+N, K = 3, 6
+a = np.arange(N*K, dtype=np.uint8).reshape(N, K)
+
+# reinterpret_cast: u8 → u16
+b = a.view(np.uint16).reshape(N, K // 2)
+
+print(b)
+```
+
+解释：
+
+- `view(np.uint16)` 会将底层 buffer 按 **两个字节** 组成一个 `uint16`
+- 不发生复制（zero-copy），和 C++ `reinterpret_cast` 几乎一致
+- 最终 reshape 成尺寸 `N × (K/2)`
+
+**:warning: <font color=blue>注意点（必须读）</font>**
+
+1. **字节序（endianness）**
+
+   - NumPy 默认使用 **本机字节序（little-endian）**
+   - 如果你的数据是 big-endian，则需指定：
+
+   ```python
+   b = a.view('>u2').reshape(N, K // 2)  # big-endian uint16
+   ```
+
+2. **数据必须连续（C-contiguous）**
+
+   - 如果你的原数组不是 C 连续的，例如经过**切片**或**转置**：
+
+   ```python
+   a = a[:, ::2]  # 这种可能不连续
+   a = a.transpose()  # 这种可能不连续
+   # 使用前需要：
+   a = np.ascontiguousarray(a)
+   ```
+
+3. **K 必须是偶数**
+   否则：
+
+   ```python
+   ValueError: When changing to a larger dtype, its size must be a divisor ...
+   ```
+
+**二、使用 `np.frombuffer`（不推荐但参考）**
+
+如果你已经有原始 uint8 buffer：
+
+```python
+b = np.frombuffer(a.tobytes(), dtype=np.uint16).reshape(N, K//2)
+```
+
+但这里会复制 buffer，因此不如 `view()` 好。
+
+### numpy 转换数据类型
+
+> `astype` 不能实现类似 c++ 的 reinterpret cast。
 
 在 `numpy` 中，`astype` 方法用于转换数组的数据类型。`>i4` 是一种数据类型描述符，其中：
 
@@ -1502,6 +1572,7 @@ b'\x00\x00\x02\x00\x01\x00\x03\x00'
 **四、示例代码**
 
 ```python
+import os, sys, shutil, re
 import argparse
 
 def main():
@@ -1525,7 +1596,7 @@ def main():
     print(f"Mode: {args.mode}")
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
 ```
 
 五、argparse 库使用惯例
