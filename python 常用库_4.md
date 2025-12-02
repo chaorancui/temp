@@ -157,6 +157,60 @@
       p.rename(p.with_suffix(".log"))
       ```
 
+12. **过滤文件**
+
+    `pathlib.Path.glob()` 本身**一次只能匹配一个 pattern**，但你可以用多种方式匹配多个 pattern，例如：`*.log`、`*.txt`、`*.dump` 等。下面是推荐的做法：
+
+    1. 用 `rglob()` 支持递归搜索多类型文件（推荐）
+
+       ```python
+       from pathlib import Path
+
+       p = Path("your_directory")
+       files = []
+
+       for pat in ["*.log", "*.txt", "*.dump"]:
+           files.extend(p.rglob(pat))  # 递归搜索
+
+       for f in files:
+           print(f)
+       ```
+
+    2. 用多个 `.glob()` 合并结果
+
+       ```python
+       from pathlib import Path
+
+       p = Path("your_directory")
+
+       files = []
+       for pattern in ("*.log", "*.txt", "*.dump"):
+           files.extend(p.glob(pattern))
+
+       for f in files:
+           print(f)
+       ```
+
+    3. 用 `rglob()` 匹配查找
+
+       ```python
+       from pathlib import Path
+
+       p = Path("your_dir")
+
+       keywords = ["_succ", "_failed"]
+
+       files = [f for f in p.rglob("*") if f.is_file() and any(k in f.name for k in keywords)]
+
+       for f in files:
+           print(f)
+       ```
+
+    | 方式                | 是否支持递归 | 多模式优雅度 | 推荐度 |
+    | ------------------- | ------------ | ------------ | ------ |
+    | `.rglob()` + 多模式 | 是           | 高           | 推荐   |
+    | 多次 `.glob()` 合并 | 否           | 中等         | 推荐   |
+
 **总结常用 API（备忘表）**
 
 | 功能       | 方法                                                     |
