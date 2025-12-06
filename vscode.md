@@ -156,6 +156,87 @@ exit
 
 - **CMake Tools**：CMake Tools 为原生开发人员提供了针对 Visual Studio Code 中基于 CMake 的**项目**的功能齐全、便捷且强大的工作流程。可直接查看/配置项目。
 
+- `.clang-format` 配置
+
+```yaml
+BasedOnStyle: LLVM
+# 基础设置
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
+
+# 大括号规则：函数/类换行；控制语句不换行；else 同行
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterClass: true
+  AfterControlStatement: Never
+  AfterEnum: true
+  AfterFunction: true
+  AfterNamespace: false # namespace 的 { 不换行
+  AfterStruct: true
+  AfterUnion: true
+  BeforeCatch: false
+  BeforeElse: false # else 与 } 同行
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+
+# 缩进与命名空间
+NamespaceIndentation: None
+IndentCaseLabels: true
+AccessModifierOffset: -4
+
+# 空格与操作符
+SpaceBeforeParens: ControlStatements
+SpaceAroundPointerQualifiers: Default
+PointerAlignment: Right # 指针符号紧挨变量
+ReferenceAlignment: Right # 引用符号紧挨变量
+SpacesBeforeTrailingComments: 2
+
+# 关键修改：函数参数配置
+BinPackParameters: true
+BinPackArguments: true
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowAllArgumentsOnNextLine: false
+# 新增配置：控制第一个参数位置
+AlignAfterOpenBracket: DontAlign # 不在开括号后对齐
+PenaltyBreakOpenParenthesis: 1000 # 增加开括号后换行的惩罚，避免第一个参数换行
+PenaltyBreakFirstLessLess: 120 # 降低第一个<<前的换行惩罚
+PenaltyExcessCharacter: 100 # 超过列限制的字符惩罚
+PenaltyReturnTypeOnItsOwnLine: 200 # 返回类型在自己行的惩罚
+
+# 换行规则
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
+AlwaysBreakTemplateDeclarations: Yes # 模板声明总是换行
+
+# 运算符换行
+BreakBeforeBinaryOperators: None
+BreakConstructorInitializers: BeforeColon
+
+# 注释与 include
+ReflowComments: true
+SortIncludes: Never # 不对头文件排序
+IncludeBlocks: Preserve # 保持原有的 include 块结构
+
+# 其他格式细节
+KeepEmptyLinesAtTheStartOfBlocks: false
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignTrailingComments: true
+
+# 允许连续空白行数量
+MaxEmptyLinesToKeep: 2
+
+# 保持定义块之间空行
+SeparateDefinitionBlocks: Leave
+```
+
 ### 反汇编插件
 
 - x86 and x86_64 Assembly：
@@ -185,8 +266,8 @@ exit
 2. shellcheck - Timon Wong
    语法错误检查
 
-3. shell-format - foxundermoon
-   快捷键：Ctrl + Shift + I
+3. shell-format-rev - lumirelle
+   快捷键：Ctrl + Shift + F
 
    - **功能**:
 
@@ -539,6 +620,262 @@ exit
         "MD045": false, // 禁用图片 alt text
     },
 ```
+
+### shell 脚本格式化配置
+
+**一、shfmt 常用参数**
+
+- **基础格式化参数**
+
+  ```bash
+  # 缩进设置
+  -i 2        # 使用2个空格缩进（推荐）
+  -i 4        # 使用4个空格缩进
+  -i 0        # 使用制表符缩进
+
+  # 其他格式化选项
+  -ci         # switch/case 语句缩进
+  -sr         # 重定向操作符后保留空格
+  -ln bash    # 指定 shell 方言：bash、posix、mksh
+  -w          # 直接写入文件（覆盖原文件）
+  -d          # 显示差异而不写入
+
+  # 运算符换行风格
+  -bn         # 二进制运算符换行（管道、&&、||等）
+  -fn         # 函数体换行风格
+
+  # 代码简化
+  -s          # 简化代码（移除冗余语法）
+
+  # 对齐选项
+  -kp         # 保持列对齐（数组、赋值等）
+  ```
+
+- **组合参数示例**
+
+  ```bash
+  # 最常用组合
+  shfmt -i 2 -ci -sr -w script.sh
+
+  # 带方言指定
+  shfmt -i 2 -ci -sr -ln bash -w script.sh
+
+  # 显示差异
+  shfmt -i 2 -ci -d script.sh
+  ```
+
+**二、业界推荐格式化风格**
+
+- **Google Shell 风格指南** ⭐ 最常用
+
+  ```bash
+  # Google 官方风格
+  shfmt -i 2 -ci -sr -ln bash
+
+
+  # 阿里云/腾讯云内部常用配置
+  shfmt -i 4 -ci -sr -ln bash
+
+  # 特点：
+  # - 4空格缩进，增强可读性
+  # - 严格变量引用：必须使用 "${var}"
+  # - 函数必须显式声明 local 变量
+  # - 超过 80 字符需要换行
+
+
+  # 字节跳动/快手风格 -- 更严格的风格
+  shfmt -i 2 -ci -sr -s -ln bash
+
+  # 特点：
+  # - 强制简化代码 (-s)
+  # - 必须使用 [[ ]] 代替 [ ]
+  # - 管道符必须换行对齐
+  # - 禁止使用 eval
+
+
+  # Meta/Facebook 风格 -- 混合风格
+  shfmt -i 2 -ci -sr -bn -ln bash
+
+  # 特点：
+  # - 操作符换行 (-bn)
+  # - 使用 shebang 指定解释器
+  # - 所有脚本必须通过 ShellCheck
+  # - 使用 set -euo pipefail 作为默认安全选项
+  ```
+
+**三、推荐的 VSCode 完整配置**
+
+**最佳实践配置**
+
+```json
+// settings.json
+{
+  // Shell 文件特定设置
+  "[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.shellcheck": true
+    },
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    "editor.rulers": [80, 120]
+  },
+
+  // shell-format 配置
+  "shellformat.path": "shfmt",
+  "shellformat.flag": "-i 2 -ci -sr -s -ln bash",
+
+  // ShellCheck 配置
+  "shellcheck.enable": true,
+  "shellcheck.exclude": ["SC1090", "SC1091"],
+  "shellcheck.customArgs": ["--severity=warning"],
+
+  // 文件关联
+  "files.associations": {
+    "*.bash": "shellscript",
+    "*.zsh": "shellscript",
+    "*.env": "shellscript",
+    "Dockerfile*": "dockerfile"
+  }
+}
+```
+
+**.editorconfig 跨编辑器配置**
+
+```ini
+# .editorconfig
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+max_line_length = 100
+
+[*.{sh,bash,zsh}]
+indent_style = space
+indent_size = 2
+shell_variant = bash
+binary_next_line = false
+switch_case_indent = true
+space_redirects = true
+keep_padding = false
+function_next_line = false
+```
+
+**四、现代化 Shell 脚本模板**
+
+**符合大厂规范的模板**
+
+```bash
+#!/usr/bin/env bash
+# -*- coding: utf-8 -*-
+#
+# 脚本描述
+# @author 作者
+# @version 1.0.0
+
+set -Eeuo pipefail
+trap cleanup SIGINT SIGTERM ERR EXIT
+
+# 常量定义
+readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+readonly SCRIPT_NAME="$(basename "$0")"
+readonly LOG_FILE="/tmp/${SCRIPT_NAME}.log"
+
+# 颜色定义
+readonly RED='\033[0;31m'
+readonly GREEN='\033[0;32m'
+readonly YELLOW='\033[1;33m'
+readonly NC='\033[0m' # No Color
+
+# 函数定义
+usage() {
+  cat << EOF
+Usage: ${SCRIPT_NAME} [-h] [-v] [-f] [-l <log_level>]
+
+Available options:
+    -h, --help          Print this help and exit
+    -v, --verbose       Print script debug info
+    -f, --force         Force execution without confirmation
+    -l, --log-level     Set log level (debug, info, warn, error)
+EOF
+  exit
+}
+
+main() {
+  parse_params "$@"
+
+  # 主逻辑
+  log_info "Starting ${SCRIPT_NAME}"
+
+  # 业务代码...
+
+  log_success "Completed successfully"
+}
+
+# 辅助函数
+log_info() { echo -e "${GREEN}[INFO]${NC} $*" | tee -a "${LOG_FILE}"; }
+log_warn() { echo -e "${YELLOW}[WARN]${NC} $*" | tee -a "${LOG_FILE}"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $*" | tee -a "${LOG_FILE}"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $*" | tee -a "${LOG_FILE}"; }
+
+# 脚本入口
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    main "$@"
+fi
+```
+
+**腾讯云运维规范**
+
+```bash
+# 格式化 + 检查脚本
+#!/bin/bash
+set -euo pipefail
+
+# 格式化
+shfmt -i 4 -ci -sr -ln bash -d "$1" && \
+shfmt -i 4 -ci -sr -ln bash -w "$1"
+
+# 静态检查
+shellcheck --severity=warning "$1"
+
+# 检查最大行长度
+if awk 'length > 120 { exit 1 }' "$1"; then
+    echo "✓ 行长度检查通过"
+else
+    echo "✗ 存在超过120字符的行"
+fi
+```
+
+**五、总结建议**
+
+**推荐配置**
+
+```bash
+# 格式化命令
+shfmt -i 2 -ci -sr -ln bash -w script.sh
+
+# 配合检查
+shellcheck --severity=warning --shell=bash script.sh
+
+# CI/CD 集成（GitHub Actions 示例）
+- name: Shell Format Check
+  run: shfmt -i 2 -ci -sr -d .
+
+- name: ShellCheck
+  uses: ludeeus/action-shellcheck@master
+```
+
+**关键建议**
+
+1. **统一缩进**：团队内统一使用 2 或 4 空格
+2. **启用安全模式**：脚本开头添加 `set -euo pipefail`
+3. **结合 ShellCheck**：格式化后必须进行静态检查
+4. **版本控制**：将 `.editorconfig` 和格式化配置纳入版本管理
+5. **CI/CD 集成**：在流水线中自动格式化和检查
 
 ## 软件功能配置
 
