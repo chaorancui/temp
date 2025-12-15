@@ -721,26 +721,28 @@ rg pattern file.txt
 
 `rg` 常用参数速查表：
 
-| 参数                   | 功能                                      | 示例                                              |
-| ---------------------- | ----------------------------------------- | ------------------------------------------------- |
-| `-i`                   | 忽略大小写（默认大小写敏感）              | `rg -i error log.txt`                             |
-| `-n`                   | 显示行号（默认开启，可手动指定）          | `rg -n foo file.txt`                              |
-| `-l`                   | 只显示**匹配的文件名**                    | `rg -l TODO`                                      |
-| `-L`                   | 显示不包含匹配的文件（哪些文件没写 main） | `rg -L main`                                      |
-| `-c`                   | 统计每个文件匹配的次数                    | `rg -c import -t py`                              |
-| `-o`                   | 只输出匹配内容                            | `rg -o "\d{4}-\d{2}-\d{2}" log.txt`               |
-| `-v`                   | 反向匹配（显示不匹配的行）                | `rg -v DEBUG app.log`                             |
-| `-w`                   | 匹配整个单词                              | `rg -w main`                                      |
-| `-x`                   | 整行匹配                                  | `rg -x "Hello World"`                             |
-| `-t <type>`            | 按**文件类型**搜索                        | `rg foo -t py`                                    |
-| `--type-list`          | 列出支持的文件类型                        | `rg --type-list`                                  |
-| `--ignore <pattern>`   | 忽略指定文件/目录                         | `rg "pattern" --ignore "*.log" --ignore "build/"` |
-| `--ignore-file <file>` | 忽略 <file> 里指定文件/目录               | `rg foo --ignore-file .ignore`                    |
-| `--no-ignore`          | 即使 `.gitignore` 忽略的文件也强制搜索    | `rg foo --no-ignore`                              |
-| `-a`                   | **强制把二进制**文件当文本搜索            | `rg -a password binary.dat`                       |
-| `-U`                   | 启用多行搜索                              | `rg -U "foo\nbar"`                                |
-| `--color=always`       | 强制彩色输出                              | `rg --color=always foo`                           |
-| `--json`               | 输出 JSON 结果（脚本处理用）              | `rg foo --json`                                   |
+| 参数                   | 功能                                                   | 示例                                                |
+| ---------------------- | ------------------------------------------------------ | --------------------------------------------------- |
+| `-i`                   | 忽略大小写（默认大小写敏感）                           | `rg -i error log.txt`                               |
+| `-n`                   | 显示行号（默认开启，可手动指定）                       | `rg -n foo file.txt`                                |
+| `-l`                   | 只显示**匹配的文件名**                                 | `rg -l TODO`                                        |
+| `-L`                   | 显示不包含匹配的文件（哪些文件没写 main）              | `rg -L main`                                        |
+| `-c`                   | 统计每个文件匹配的次数                                 | `rg -c import -t py`                                |
+| `-o`                   | 只输出匹配内容                                         | `rg -o "\d{4}-\d{2}-\d{2}" log.txt`                 |
+| `-v`                   | 反向匹配（显示不匹配的行）                             | `rg -v DEBUG app.log`                               |
+| `-w`                   | 匹配整个单词                                           | `rg -w main`                                        |
+| `-x`                   | 整行匹配                                               | `rg -x "Hello World"`                               |
+| `-f <pattern_file>`    | 从 `pattern_file` 中指定的**文件**搜索                 | `rg "pattern" -f filelist.txt`                      |
+| `-g`                   | 用**全局过滤规则**指定多个文件，适合按文件名或后缀过滤 | `rg "config_value" -g "app.yaml" -g "default.yaml"` |
+| `-t <type>`            | 按**文件类型**搜索                                     | `rg foo -t py`                                      |
+| `--type-list`          | 列出支持的文件类型                                     | `rg --type-list`                                    |
+| `--ignore <pattern>`   | 忽略指定文件/目录                                      | `rg "pattern" --ignore "*.log" --ignore "build/"`   |
+| `--ignore-file <file>` | 忽略 <file> 里指定文件/目录                            | `rg foo --ignore-file .ignore`                      |
+| `--no-ignore`          | 即使 `.gitignore` 忽略的文件也强制搜索                 | `rg foo --no-ignore`                                |
+| `-a`                   | **强制把二进制**文件当文本搜索                         | `rg -a password binary.dat`                         |
+| `-U`                   | 启用多行搜索                                           | `rg -U "foo\nbar"`                                  |
+| `--color=always`       | 强制彩色输出                                           | `rg --color=always foo`                             |
+| `--json`               | 输出 JSON 结果（脚本处理用）                           | `rg foo --json`                                     |
 
 代码相关：
 
