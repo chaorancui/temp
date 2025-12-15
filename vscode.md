@@ -723,7 +723,7 @@ SeparateDefinitionBlocks: Leave
   },
 
   // shell-format 配置
-  "shellformat.path": "shfmt",
+  "shellformat.path": "/usr/bin/shfmt",
   "shellformat.flag": "-i 2 -ci -sr -s -ln bash",
 
   // ShellCheck 配置
