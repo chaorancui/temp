@@ -260,6 +260,10 @@ Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
 
    - `N` 可以是 `+N`（大于），`-N`（小于），`N`（等于）。
    - 正则表达式中，如果想要匹配**特殊字符则需要转义**，如 `* . ? + $ ^ [ ] ( ) { } | \ /`，。
+   - 测试条件根据需要加 `\( \)`，避免歧义：
+     如：`find ${src_dir} -type f -name "*.log" -o -name "*.txt"` 被理解为：
+     - `( -type f -a -name "*.log" )  -o  ( -name "*.txt" )`，而不是
+     - `-type f \( -name "_.log" -o -name "_.txt" \)`
 
 5. **动作（actions）**
 
@@ -267,7 +271,8 @@ Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
 
    | 参数                  | 功能                                       |
    | --------------------- | ------------------------------------------ |
-   | `-print`              | 打印路径（默认动作）                       |
+   | `-print`              | 打印路径（默认是换行符 `\n` 分隔符输出）   |
+   | `-print0`             | 打印路径（用 `\0`（NUL 字符） 分隔符输出） |
    | `-ls`                 | 类似 `ls -l` 的详细列表                    |
    | `-delete`             | 删除匹配文件（⚠️ 危险操作）                |
    | `-exec COMMAND {} \;` | 对每个文件执行命令（如：`cp {} /backup/`） |
@@ -370,6 +375,132 @@ Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
 | 使用 `scp` 拷贝所有 `.log` 文件到远程主机 | `find . -type f -name "*.txt" -exec cp {} /backup/ \;`                           |
 | 使用 `rsync` 批量拷贝并保留目录结构       | `find ./data -type f -name "*.bin" -exec rsync -R {} user@host:/remote/data/ \;` |
 | `scp` 加速小技巧（用 `xargs` 批量处理）   | `find . -name "\*.cfg" \| xargs -I {} scp {} user@host:/remote/configs/`         |
+
+四、遍历文件夹，执行操作
+
+```shell
+# GNU find 可以使用
+find "$src_dir" -type f \( -name "*.log" -o -name "*.txt" \) -print0 |
+  while IFS= read -r -d '' file; do
+    cp "$file" "$dst_dir/"
+  done
+
+# toybox find 可以使用，因为其 -print0 在某些find版本下行为不可靠
+adb shell 'find "'"$src_dir"'" -type f \( -name "*.log" -o -name "*.txt" \) -printf "%p\n"' |
+  tr -d '\r' |
+  while IFS= read -r file; do
+    adb pull -a "$file" "$dst_dir/"
+  done
+```
+
+命令分析：
+一、`find` 命令的解析（重点）
+
+1. `find` 的语法本质不是**参数式命令**，而是一个**表达式解释器**。
+
+   ```bash
+   find <路径> <测试条件> <逻辑运算符> <动作>
+   ```
+
+   每一个 `-type`、`-name`、`-o`、`-print0` 都是表达式的一部分。
+
+   但`find` 里**有一个非常关键的优先级问题**：
+
+   | 运算符                   | 优先级 |
+   | ------------------------ | ------ |
+   | 测试（`-type`, `-name`） | 高     |
+   | `-a`（AND，默认）        | 中     |
+   | `-o`（OR）               | **低** |
+
+   而且：
+   **多个条件默认用 `-a` 连接**
+
+   不加括号会发生什么？
+
+   如果你写成：
+
+   ```bash
+   # 不加括号
+   find "$src_dir" -type f -name "*.log" -o -name "*.txt"
+   # 实际理解为:
+   ( -type f -a -name "*.log" )  -o  ( -name "*.txt" )
+
+   # 加括号
+   -type f \( -name "*.log" -o -name "*.txt" \)
+   ```
+
+2. `-print0` 作用是
+
+   - 每找到一个文件
+   - 用 **`\0`（NUL 字符）** 作为分隔符输出。而不是默认的换行符 `\n`。
+
+   **目的：** 支持文件名包含：空格、制表符、换行、各种奇怪字符。这是和后面的 `read -d ''` **成对使用的**。
+
+二、`while IFS= read -r -d '' file` 逐项拆解
+
+1. `while ...; do ... done`
+
+   这是标准 shell 循环：
+
+   ```bash
+   while <命令>; do
+       ...
+   done
+   ```
+
+   只要 `<命令>` 返回成功（0），循环就继续。
+
+2. 管道的含义
+
+   ```bash
+   find ... -print0 | while ...
+   ```
+
+   把 `find` 的输出一条一条“喂”给 `read`
+
+3. `IFS= read -r -d '' file` 作用
+
+   这不是两个命令，而是**一条命令 + 临时环境赋值**，这是 **POSIX shell 的标准语法**。
+
+   ```bash
+   IFS= read -r -d '' file
+   <变量临时赋值>  <命令>  <参数...>
+   VAR=value command arg1 arg2
+   ```
+
+   - `IFS=` 置空
+     IFS 被设置为“空值（unset-like empty）”，在 POSIX shell 中，其效果是：
+
+     - **禁用字段分割**
+     - read 会把整行（或整个记录）原样读入变量，**不做任何分隔**
+
+     这是 read 官方推荐的用法。
+     而 `IFS=''` 会随 shell 版本不同行为不一致，不推荐。
+
+     这是严格模式下**必须的防御性写法**。
+
+   - `read -r -d '' file` 表示：
+
+     从标准输入读数据，直到遇到 **NUL 字符**，把内容存入变量 `file`。
+
+     | 选项    | 含义                               |
+     | ------- | ---------------------------------- |
+     | `-d ''` | 分隔符是 `\0`（与 `-print0` 对应） |
+     | `-r`    | 不处理反斜杠转义（防止路径被破坏） |
+     | `file`  | 存放读到的完整文件路径             |
+
+4. 总结（给你一个记忆锚点）
+
+   - `\( ... -o ... \)`
+     → **控制 OR 的作用范围**
+   - `-print0 + read -d ''`
+     → **安全处理任意文件名**
+   - `IFS=`
+     → **禁止拆词**
+   - `-r`
+     → **禁止反斜杠转义**
+
+   这是一段**生产级、安全、严格模式兼容**的标准写法。
 
 ## grep 命令
 
@@ -1231,9 +1362,13 @@ echo "文件名:   $(basename "$path")"
 | `-C <dir>`                     | 切换目录再操作（常用于解压时指定目标目录）             |
 | `--exclude=<pattern>`          | 排除匹配的文件/目录                                    |
 | `--include=<pattern>`          | 包含匹配的文件/目录，仅包含要配合 `--exclude="*"` 使用 |
-| `--wildcards '*.txt'`          | 启用 shell 风格的通配符匹配（\*, ?, []）               |
+| `--wildcards '*.txt'`          | 启用 shell 风格的通配符匹配(default for exclusion)     |
 
-> 注：默认情况下 `--exclude` 里的模式是 字面量匹配，必须配合 `--wildcards` 才能按通配符匹配。
+> :pushpin: **注：**
+>
+> - `--exclude` 默认就是通配符语义。
+> - `--include` 默认是“字面路径匹配”，必须配合 `--wildcards` 才能按通配符匹配。
+>   如 `tar -xvf a.tar '*.log'` 未加 --wildcards 时，tar 会尝试匹配一个名字就叫 `*.log` 的文件，通常结果是：解不出任何文件。
 
 ### `tar -c` 压缩
 
@@ -1296,7 +1431,12 @@ echo "文件名:   $(basename "$path")"
 
    ```bash
    tar -xvf archive.tar
+   # 按pattern解包文件，如解包所有子目录下的 .bin 文件
+   tar -xvf archive.tar --wildcards '**/*.bin'
    ```
+
+   - pattern 是 **tar 内部看到的路径**，通常包含相对路径。
+   - pattern 必须用**单引号**，避免被 shell 提前展开。
 
 2. 解压 `tar.gz` 文件
 
