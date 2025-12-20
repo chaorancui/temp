@@ -358,6 +358,91 @@ git remote add origin https://gitee.com/cuichaoran/git-test.git
 git push -u origin "master"
 ```
 
+下面按**最常见、最规范的流程**，分两种场景说明：
+1）本地新项目，从零创建仓库并推送到远端
+2）已有远端仓库，本地初始化后关联
+
+**零、前提：配置用户信息（只需做一次）**
+
+```bash
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+# 验证：
+git config --list
+```
+
+**一、从零开始：本地新项目 → 推送到远端**
+
+1. 进入项目目录并初始化仓库并提交
+
+   ```bash
+   # 进入项目目录并初始化仓库
+   cd your_project_dir
+   git init    # 执行后会生成 `.git/` 目录，本地仓库初始化完成。
+
+   # 查看当前状态
+   git status
+
+   # 添加文件到暂存区
+   git add .
+
+   # 提交到本地仓库
+   git commit -m "Initial commit"
+   ```
+
+2. 创建远端仓库
+
+   在 GitHub / GitLab / Gitee 上**新建一个空仓库**
+   注意：
+
+   - 不要勾选 “Initialize with README / .gitignore / LICENSE”（否则会产生冲突）
+
+   远端仓库地址一般是：
+
+   ```bash
+   https://github.com/xxx/your_repo.git
+   # 或
+   git@github.com:xxx/your_repo.git
+   ```
+
+3. 添加远端仓库并推送到远端（首次）
+
+   ```bash
+   # 添加远端仓库
+   git remote add origin <远端仓库地址>
+   # 验证：
+   git remote -v
+
+   # 推送到远端（首次）
+   git branch -M main
+   git push -u origin main
+   ```
+
+   说明：
+
+   - `-M main`：将当前分支命名为 main（新标准）
+   - `-u`：设置上游分支，后续只需 `git push`
+
+**二、已有远端仓库 → 本地初始化并关联**
+
+方式 1（推荐）：直接 clone
+
+```bash
+git clone <远端仓库地址>
+cd your_repo
+```
+
+方式 2：本地已有代码，关联已有远端仓库
+
+```bash
+git init
+git add .
+git commit -m "Initial commit"
+git remote add origin <远端仓库地址>
+git branch -M main
+git push -u origin main
+```
+
 ### `.gitmodules` 介绍
 
 `.gitmodules` 是一个位于 Git 仓库根目录的文本文件，它用于跟踪 Git 子模块（submodule）的信息。子模块是一个 Git 仓库中的嵌套 Git 仓库，允许你在一个项目中包含另一个独立的 Git 仓库。通过子模块，你可以管理和引用外部库或代码仓库，使其作为你项目的一部分，同时保持这些外部库的独立性。
