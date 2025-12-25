@@ -19,9 +19,9 @@
 
 1. **在深度学习中的惯例，Transformer/PyTorch 惯例**
 
-   数据矩阵： $X = (batch, seq_len, d_model)$
-   每一行是一个样本/token
-   权重矩阵：$W (d_in, d_out)$
+   数据矩阵： $X = (batch, seq\_len, d\_model)$
+   每一行是一个样本 token
+   权重矩阵：$W (d_{in}, d_{out})$
    前向传播：$Y = XW$
 
    **这是"行向量惯例"（Row-vector convention）**
