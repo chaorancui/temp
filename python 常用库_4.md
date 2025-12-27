@@ -487,7 +487,335 @@ Tuple --> Generic
 Set --> Generic
 
 @enduml
+```
 
+## typing.Mapping
+
+**一、`typing.Mapping` 是什么**
+
+`Mapping[K, V]` 是 **typing 模块中对“映射类型”的抽象类型注解**，表示：
+
+> **任何“键 → 值”的只读映射接口**
+
+它并不要求具体实现是 `dict`，只要对象**符合映射协议**即可。
+
+```python
+from typing import Mapping
+
+def f(cfg: Mapping[str, int]) -> None:
+    ...
+```
+
+这里的含义是：
+
+- `cfg` 是一个“映射”
+- key 类型是 `str`
+- value 类型是 `int`
+- **不承诺它是可变的**
+
+**二、 `Mapping` 的位置（类型体系）**
+
+在 typing 中，映射类型是一个**层级结构**：
+
+```python
+object
+ └── collections.abc.Mapping
+       ├── typing.Mapping[K, V]     （抽象、只读）
+       └── typing.MutableMapping[K, V]
+             └── dict
+```
+
+关键点：
+
+- `Mapping` ≈ **只读 dict 接口**
+- `MutableMapping` ≈ **可修改 dict 接口**
+- `dict` 是 `MutableMapping` 的具体实现
+
+**三、 `Mapping` vs `Dict` 的核心区别**
+
+| 对比点            | `Dict[K, V]` | `Mapping[K, V]` |
+| ----------------- | ------------ | --------------- |
+| 是否限定为 `dict` | 是           | 否              |
+| 是否允许修改      | 是           | 否（语义上）    |
+| 抽象程度          | 具体         | 抽象            |
+| API 约束          | 强           | 弱              |
+| 推荐使用场景      | 构造、修改   | 只读访问        |
+
+示例对比
+
+```python
+from typing import Dict, Mapping
+
+def bad(cfg: Dict[str, int]) -> None:
+    cfg["x"] = 1    # 合法，调用者必须接受修改
+
+def good(cfg: Mapping[str, int]) -> None:
+    cfg["x"] = 1    # ❌ 类型检查器会报错
+```
+
+**工程含义**：
+
+- `Mapping` 明确告诉调用者：**我不会改你的数据**
+- 这是“接口契约”的一部分
+
+**四、 为什么工程中更推荐 `Mapping`**
+
+1. 接口更稳定（面向接口编程）
+
+   ```python
+   def parse_cfg(cfg: Mapping[str, str]) -> None:
+       ...
+   ```
+
+   调用方可以传入：
+
+   - `dict`
+   - `defaultdict`
+   - `ChainMap`
+   - `MappingProxyType`
+   - 任何自定义映射类型
+
+   而不破坏接口。
+
+2. 防止“意外修改”配置
+
+   **这是 `Mapping` 最常见的工程用途**
+
+   ```python
+   def load_compare_cfg(cfg: Mapping[str, object]) -> CompareCfg:
+       ...
+   ```
+
+   语义非常明确：
+
+   - `cfg` 是输入配置
+   - 函数只读取，不负责修改
+
+   这对**配置解析、YAML/JSON 反序列化、dataclass.from_dict** 尤其重要。
+
+3. 类型系统层面的“只读语义”
+
+   Python 运行时不会阻止你改：
+
+   ```python
+   cfg["x"] = 1  # 运行时仍然能改
+   ```
+
+   但：
+
+   - mypy / pyright / pylance 会直接报错
+   - IDE 会提示不合法
+
+   这是**静态约束**，不是运行时约束。
+
+**五、`Mapping` 支持的最小接口**
+
+`Mapping` 要求对象至少实现：
+
+```python
+__getitem__(key)
+__iter__()
+__len__()
+```
+
+因此可以安全使用：
+
+```python
+def f(cfg: Mapping[str, int]) -> None:
+    v = cfg["a"]
+    for k in cfg:
+        ...
+    if "x" in cfg:
+        ...
+    cfg.get("y", 0)
+```
+
+但**不能假设**以下方法存在：
+
+```python
+cfg.pop(...)
+cfg.update(...)
+cfg.clear()
+```
+
+**六、与 dataclass / from_dict 的结合（强烈推荐）**
+
+❌ 不推荐
+
+```python
+@staticmethod
+def from_dict(data: dict) -> CompareCfg:
+    ...
+```
+
+问题：
+
+- 强制调用方只能传 `dict`
+- 暗示函数可能修改入参
+
+✅ 推荐
+
+```python
+from typing import Mapping, Any
+
+@staticmethod
+def from_dict(data: Mapping[str, Any]) -> CompareCfg:
+    ...
+```
+
+好处：
+
+- 表达“只读配置”
+- 可接收任意映射类型
+- API 语义更清晰
+
+**七、`Mapping` vs `TypedDict`**
+
+这是一个常见疑问。
+
+| 对比         | `Mapping[str, Any]` | `TypedDict`        |
+| ------------ | ------------------- | ------------------ |
+| 键是否固定   | 否                  | 是                 |
+| 是否声明结构 | 否                  | 是                 |
+| 灵活性       | 高                  | 中                 |
+| 严格性       | 低                  | 高                 |
+| 典型场景     | 通用配置            | 协议 / JSON Schema |
+
+示例
+
+```python
+class CompareCfgDict(TypedDict, total=False):
+    expect_shape: list[int]
+    real_shape: list[int]
+    expect_dtype: str
+```
+
+工程实践中常见组合：
+
+```python
+def from_dict(data: Mapping[str, Any]) -> CompareCfg:
+    ...
+# 或
+def from_dict(data: CompareCfgDict) -> CompareCfg:
+    ...
+```
+
+**八、何时“必须”用 `Mapping`**
+
+**强烈推荐用 `Mapping` 的场景**：
+
+- 配置解析（YAML / JSON / CLI）
+- from_dict / parse_xxx
+- 工具函数只读访问 dict
+- 库对外暴露的接口参数
+
+**可以用 `Dict` 的场景**：
+
+- 构造数据
+- 明确要修改入参
+- 内部实现细节（非公共 API）
+
+**一句话总结**
+
+> **`Mapping` 是“只读字典接口”的类型注解，是 Python 中“面向接口编程”的最佳实践之一。**
+
+```plantuml
+@startuml
+title Python typing Collection / Mapping / Sequence 分层继承关系图
+
+skinparam linetype ortho
+skinparam ranksep 80
+skinparam nodesep 60
+
+' 强制从上到下布局
+top to bottom direction
+
+' ===========================
+' 第一层：基础抽象类
+' ===========================
+package "Layer 1: Base ABC" <<Rectangle>> {
+    interface "Iterable" as ITER
+    interface "Sized" as SIZED
+    interface "Container" as CONTAINER
+}
+
+ITER -[hidden]right- SIZED
+SIZED -[hidden]right- CONTAINER
+
+' ===========================
+' 第二层：抽象子类
+' ===========================
+package "Layer 2: Abstract Collections" <<Rectangle>> {
+    interface "Collection" as COLLECTION
+    interface "Sequence" as SEQ
+    interface "MutableSequence" as MSEQ
+    interface "Mapping" as MAP
+    interface "MutableMapping" as MMAP
+}
+
+COLLECTION -[hidden]right- SEQ
+SEQ -[hidden]right- MSEQ
+MAP -[hidden]right- MMAP
+
+' ===========================
+' 第三层：typing 泛型
+' ===========================
+package "Layer 3: Generic Types" <<Rectangle>> {
+    interface "Iterable[T]" as ITER_T
+    interface "Collection[T]" as COLLECTION_T
+    interface "Sequence[T]" as SEQ_T
+    interface "MutableSequence[T]" as MSEQ_T
+    interface "Mapping[K,V]" as MAP_T
+    interface "MutableMapping[K,V]" as MMAP_T
+}
+
+ITER_T -[hidden]right- COLLECTION_T
+COLLECTION_T -[hidden]right- SEQ_T
+SEQ_T -[hidden]right- MSEQ_T
+MAP_T -[hidden]right- MMAP_T
+
+' ===========================
+' 第四层：具体类型
+' ===========================
+package "Layer 4: Concrete Types" <<Rectangle>> {
+    interface "List[T]" as LIST_T
+    interface "Dict[K,V]" as DICT_T
+    interface "Tuple[T,...]" as TUPLE_T
+}
+
+LIST_T -[hidden]right- DICT_T
+DICT_T -[hidden]right- TUPLE_T
+
+' ===========================
+' 继承关系
+' ===========================
+
+' 第一层到第二层
+ITER --> COLLECTION
+SIZED --> COLLECTION
+CONTAINER --> COLLECTION
+
+COLLECTION --> SEQ
+COLLECTION --> MAP
+SEQ --> MSEQ
+MAP --> MMAP
+
+' 第二层到第三层
+ITER --> ITER_T
+COLLECTION --> COLLECTION_T
+SEQ --> SEQ_T
+MSEQ --> MSEQ_T
+MAP --> MAP_T
+MMAP --> MMAP_T
+
+' 第三层到第四层
+SEQ_T --> LIST_T
+MSEQ_T --> LIST_T
+SEQ_T --> TUPLE_T
+MAP_T --> DICT_T
+MMAP_T --> DICT_T
+
+@enduml
 ```
 
 ## dataclasses
