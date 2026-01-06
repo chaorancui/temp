@@ -1158,41 +1158,177 @@ git diff <commit_hash> <commit_hash> <file_name>
 
 ### git rebase
 
-rebase 的作用简要概括为：可以对某一段线性提交历史进行编辑、删除、复制、粘贴；因此，合理使用 rebase 命令可以使我们的提交历史干净、简洁！
+一、什么是 `git rebase`
 
-**使用 git rebase 合并多次 commit：**
+`git rebase` 的本质：改变一组提交的**基线（base commit）**，把这些提交按顺序重新应用到新的基线上。
 
-- 方法 1：指名要合并的版本号区间
+关键词：
 
-  ```bash
-  git rebase -i  [startpoint]  [endpoint]
-  ```
+- **基线改变**
+- **提交被“重放”**
+- **提交 hash 一定会变化**
 
-  其中 `-i` 的意思是 `--interactive`，即弹出交互式的界面让用户编辑完成合并操作，`[startpoint] [endpoint]`则指定了一个编辑区间，如果不指定`[endpoint]`，则该区间的终点默认是当前分支 HEAD 所指向的 commit （注：该区间指定的是一个前开后闭的区间，`[startpoint]` **本身不参与合并**，可以把它当做一个坐标）。
+rebase 底层视角：
 
-- 方法 2：从 HEAD 版本开始往过去数 3 个版本
+```bash
+# 假设：
+A --- B --- C --- D   dev
+             \
+              E --- F   master
 
-  ```bash
-  git rebase -i HEAD~3
-  ```
+# 在 `dev` 上执行
+git rebase master
 
-  在弹出的 vim 编辑窗口中，会列出要合并的 commit message，提交时间最早的列在上面，最晚的在下面，由于 squash 是要和前一个 commit 合并，因此**最早的一个填 pick，比较晚的几个都填 squash**，然后 `:wq` 即可。
+# 结果：
+A --- B --- C --- E --- F --- D'   dev
+                        ^
+                      master
+```
 
-  > 指令解释（交互编辑时使用）：
-  >
-  > pick：保留该 commit（缩写:p）
-  >
-  > reword：保留该 commit，但我需要修改该 commit 的注释（缩写:r）
-  >
-  > edit：保留该 commit, 但我要停下来修改该提交(不仅仅修改注释)（缩写:e）
-  >
-  > squash：将该 commit 和前一个 commit 合并（缩写:s）
-  >
-  > fixup：将该 commit 和前一个 commit 合并，但我不要保留该提交的注释信息（缩写:f）
-  >
-  > exec：执行 shell 命令（缩写:x）
-  >
-  > drop：我要丢弃该 commit（缩写:d）
+Git 实际做了三步：
+
+1. 找到 dev 和 master 的 **共同祖先**：`C`
+2. 暂存 dev 上的提交：`D`
+3. 在 master 的 HEAD（F）之后：
+   - 重新生成一个 **内容相同、hash 不同** 的 `D'`
+
+二、最核心的 5 种 rebase 用法（必须掌握）
+
+1. 基于最新主线更新自己的 dev 分支（**90% 的 rebase 使用场景**）
+
+   ```bash
+   git checkout dev
+   git rebase master
+   git push --force-with-lease
+   ```
+
+   **标准流程，语义**：让 dev 看起来像是从当前 master 拉出来的。
+
+2. 交互式 rebase（**整理提交历史**）
+
+   - 方法 1：指名要合并的版本号区间
+
+     ```bash
+     git rebase -i  [startpoint]  [endpoint]
+     ```
+
+     其中 `-i` 的意思是 `--interactive`，即弹出交互式的界面让用户编辑完成合并操作，`[startpoint] [endpoint]`则指定了一个编辑区间，如果不指定`[endpoint]`，则该区间的终点默认是当前分支 HEAD 所指向的 commit （注：该区间指定的是一个前开后闭的区间，`[startpoint]` **本身不参与合并**，可以把它当做一个坐标）。
+
+   - 方法 2：从 HEAD 版本开始往过去数 3 个版本
+
+     ```bash
+     git rebase -i HEAD~3
+     ```
+
+     在弹出的 vim 编辑窗口中，会列出要合并的 commit message，提交时间最早的列在上面，最晚的在下面，由于 squash 是要和前一个 commit 合并，因此**最早的一个填 pick，比较晚的几个都填 squash**，然后 `:wq` 即可。
+
+     常用操作指令：
+
+     | 指令   | 含义                                                                     |
+     | ------ | ------------------------------------------------------------------------ |
+     | pick   | 保留该 commit（缩写:p）                                                  |
+     | reword | 保留该 commit，但我需要修改该 commit 的注释（缩写:r）                    |
+     | edit   | 保留该 commit, 但我要停下来修改该提交(不仅仅修改注释)（缩写:e）          |
+     | squash | 将该 commit 和前一个 commit 合并（缩写:s）                               |
+     | fixup  | 将该 commit 和前一个 commit 合并，但我不要保留该提交的注释信息（缩写:f） |
+     | exec   | 执行 shell 命令（缩写:x）                                                |
+     | drop   | 我要丢弃该 commit（缩写:d）                                              |
+
+3. rebase 过程中解决冲突
+
+   ```bash
+   # 解决冲突
+   git add <file>
+   git rebase --continue
+   ```
+
+   辅助命令：
+
+   ```bash
+   git rebase --abort    # 放弃
+   git rebase --skip     # 跳过当前提交
+   ```
+
+4. rebase 指定范围的提交`--onto`（进阶）
+
+   `git rebase --onto` 的作用是：**把「某一段提交」从原来的基线上“剪下来”，再“粘到”另一个基线上。**
+
+   它做的不是“整个分支 rebase”，而是：**精确指定：哪一段提交 + 新的落点**。:pushpin: 使用场景：**子分支迁移、错误分支修正**。
+
+   完整语法拆解（逐参数解释）：
+
+   ```bash
+   git rebase --onto <new_base> <old_base> <branch>
+   ```
+
+   三个参数，缺一不可（逻辑上）：
+
+   | 参数         | 意义                                   |
+   | ------------ | -------------------------------------- |
+   | `<old_base>` | **切割点**：从这里之后的提交才会被移动 |
+   | `<branch>`   | 要处理的分支                           |
+   | `<new_base>` | **新的基线**：这些提交要贴到哪里       |
+
+   > 真正被移动的提交范围是：`(old_base, branch]`，也就是 branch 上、但不包含 old_base 的那一串提交
+
+   示例，现在假设：
+
+   - dev 是错误地从 C 拉出来的
+   - 正确基线应该是 D（或另一个分支）
+
+   ```bash
+   # 初始状态
+   A --- B --- C --- D --- E        master
+                \
+                 F --- G --- H    dev
+
+   # 执行命令
+   git rebase --onto D C dev
+
+   # 结果
+   A --- B --- C --- D --- F' --- G' --- H'    dev
+   ```
+
+   Git 实际做了什么：
+
+   - 找到 dev 和 C 之后的提交：F G H
+   - 把它们从原位置“剪掉”
+   - 把 F' G' H' 重新生成到 D 之后
+
+   最终：
+
+   - F/G/H 内容相同
+   - hash 全变
+   - C 不再是 dev 的祖先
+
+5. rebase 远端分支（谨慎）
+
+   ```bash
+   git pull --rebase
+   ```
+
+   等价于：
+
+   ```bash
+   git fetch
+   git rebase origin/master
+   ```
+
+   📌 **保持本地提交在线性历史之上**
+
+三、rebase vs merge（工程角度对比）
+
+| 维度           | rebase       | merge      |
+| -------------- | ------------ | ---------- |
+| 历史           | 线性、干净   | 分叉       |
+| commit hash    | 会变         | 不变       |
+| 是否改历史     | 是           | 否         |
+| 公共分支安全性 | ❌           | ✅         |
+| 适合场景       | feature 分支 | main / dev |
+
+**一句话总结**：
+
+> **rebase 用于“整理过去”，merge 用于“记录事实”。**
 
 ```shell
 # 重新打开vim窗口
