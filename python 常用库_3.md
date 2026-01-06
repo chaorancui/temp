@@ -536,13 +536,13 @@ print(f"整数数 {int_value[0]:<10} 的二进制表示: {binary_representation}
 
 **一、基本随机数生成**
 
-- `numpy.random.random(d0, d1, ..., dn)`
+- `random.random(size=None)` or `random.random_sample(size=None)`
   生成指定形状的随机样本，样本值均在半开区间 $[0.0, 1.0)$ 内“连续均匀”分布的随机浮点数。
-  若要生成 $[a, b)$ 区间的随机数：$(b - a) * random_sample() + a$
+  若要生成 $[a, b)$ 区间的随机数：$(b - a) * random\_sample() + a$
 
   ```python
   import numpy as np
-  random_array = np.random.random(3, 2)  # 生成3x2的二维数组，值在[0, 1)之间
+  random_array = np.random.random((3, 2))  # 生成3x2的二维数组，值在[0, 1)之间
   ```
 
 - `numpy.random.rand(d0, d1, ..., dn)`
