@@ -2,595 +2,14 @@
 
 # shell 编程
 
-## shell 中转义字符$
-
-在 linux shell 脚本中经常用到字符`$`，下面是`$`的一些常见用法
-
-| 名称 | 含义                                                                    |
-| ---- | ----------------------------------------------------------------------- |
-| $#   | 传给脚本的参数个数                                                      |
-| $0   | 脚本本身的名字                                                          |
-| $1   | 传递给该 shell 脚本的第一个参数                                         |
-| $2   | 传递给该 shell 脚本的第二个参数                                         |
-| $@   | 传给脚本的所有参数的列表                                                |
-| $\*  | 以一个单字符串显示所有向脚本传递的参数，与位置变量不同，参数可超过 9 个 |
-| $$   | 脚本运行的当前进程 ID 号                                                |
-| $?   | 显示最后命令的退出状态，0 表示没有错误，其他表示有错误                  |
-
-- 文件名`test`
-
-```shell
-#!/bin/sh
-echo "number:$#"
-echo "scname:$0"
-echo "first :$1"
-echo "second:$2"
-echo "argume:$@"
-```
-
-- 运行结果
-
-```shell
-number:2   //$# 是传给脚本的参数个数
-scname:./test //$0 是脚本本身的名字
-first: aa  //$1是传递给该shell脚本的第一个参数
-second:bb  //$2是传递给该shell脚本的第二个参数
-argume:aa bb //$@ 是传给脚本的所有参数的列表
-```
-
-## IFS 环境变量
-
-Shell 中的 **IFS (Internal Field Separator)** 是一个特殊的环境变量，它定义了 Shell 在**分割字符串为多个字段时使用的分隔符**，默认值通常是**空格、制表符 (Tab) 和换行符**。当 Shell 处理变量替换、命令替换或`read`命令时，会根据 IFS 中的字符来拆分文本。用户可以修改 IFS 的值来定制分隔符，以处理特定格式的文本，比如用逗号、冒号等作为分隔符。
-
-**IFS 的主要作用**
-
-- **单词分割**：在没有引号包围的情况下，Shell 会用 IFS 中的字符将字符串拆分成单词或字段。
-- **`read`命令**：用于将输入行分割成多个字段，并赋给多个变量。
-- **列表展开**：控制`$*`和`$@`（当`$@`未用引号时）展开时的分隔符。
-
-**默认值**
-
-- `IFS` 默认包含空格、制表符和换行符 ( ``、`\t`、`\n` )。
-
-**自定义示例**
-
-- **忽略换行符，只用空格/制表符**：`IFS=$' \t'`。
-- **使用逗号作为分隔符**：`IFS=','`。
-- **使用冒号**：`IFS=':'`。
-- **自定义 IP 地址分割**：`IFS='.'` 来反转 IP 地址。
-
-## 重定向
-
-在 Shell 中，输出重定向是一种将命令的标准输出（stdout）或标准错误（stderr）保存到文件或传递给另一个命令的技术。输出重定向使你能够灵活地管理和处理命令的输出。
-
-1. 基本输出重定向
-   将标准输出重定向到文件
-
-   - `>`：将命令的标准输出重定向到一个文件。如果文件已经存在，会覆盖文件的内容。
-
-     ```shell
-     command > filename
-
-     echo "Hello, World!" > output.txt
-     # 这会将 "Hello, World!" 保存到 output.txt 文件中。如果 output.txt 已存在，其内容会被覆盖。
-     ```
-
-   - `>>`：将命令的标准输出追加到文件的末尾。如果文件不存在，会创建文件；如果文件已经存在，新的输出内容会追加到文件末尾。
-
-     ```shell
-     command >> filename
-
-     echo "Hello again!" >> output.txt
-     # 这会将 "Hello again!" 追加到 output.txt 的末尾，而不会覆盖之前的内容。
-     ```
-
-2. 重定向标准错误
-   标准错误输出（stderr）通常用于输出错误信息，可以将其重定向到文件。
-
-   - `2>`：将标准错误输出重定向到文件。
-
-     ```shell
-     command 2> errorfile.txt
-
-     ls non_existent_file 2> error.txt
-     # 这会将 ls 命令的错误信息保存到 error.txt 文件中。
-     ```
-
-3. 同时重定向标准输出和标准错误
-
-   - `&>` 或 `2>&1`：将标准输出和标准错误一起重定向到同一个文件。
-
-     ```shell
-     command &> outputfile.txt
-     # 等价于
-     command > outputfile.txt 2>&1
-
-     ls /nonexistent_directory &> all_output.txt
-     # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
-
-     # 重定向 + 管道组合
-     command 2>&1 | tee output.log
-     ```
-
-     注意：
-
-     - `&>` 是 Bash 的语法糖（语法简写），只能用于 Bash（不是 POSIX 标准，因此在 sh 或某些老版本 shell 中不支持）。
-     - `command 2>&1 | tee output.log` <font color=red>重定向 + 管道组合</font>：
-       - `2>&1`：先把标准错误（fd 2）重定向到标准输出（fd 1）
-       - 整个 stdout + stderr 一起通过 `|` 管道交给 tee
-       - `tee`：一边将输入写入 output.log，一边输出到终端（屏幕）
-     - `command > file 2>&1` <font color=red>顺序非常重要！</font>这表示：
-       - 先把 stdout 重定向到 file
-       - 再把 stderr 重定向到 stdout（此时 stdout 已经是 file）
-     - `command 2>&1 > file` 是错误写法：
-       - `2>&1`：把 stderr 重定向到当前的 stdout，此时 stdout 还指向终端
-       - `> file`：把 stdout 重定向到 file，但是 stderr 已经绑定到了“原始的终端 stdout”，不会跟着变
-       - 结果是：stdout 输出进 file，stderr 仍然输出到终端！
-
-4. 重定向到 `/dev/null`
-   `/dev/null` 是一个特殊的文件，任何写入它的数据都会被丢弃。可以使用它来忽略不需要的输出。
-
-   - 忽略标准输出/标准错误/标注输出和错误：
-
-     ```shell
-     # 忽略标准输出：
-     command > /dev/null
-
-     # 忽略标准错误：
-     command 2> /dev/null
-
-     # 忽略标准输出和标准错误：
-     command > /dev/null 2>&1
-
-     ls /nonexistent_directory > /dev/null 2>&1
-     # 这会忽略 ls 命令的所有输出。
-     ```
-
-5. 管道（|）
-   管道将一个命令的标准输出作为下一个命令的标准输入。常用于将多个命令串联起来处理数据。
-
-   - 使用管道：
-
-     ```shell
-     command1 | command2
-
-     ls -l | grep "^d"
-     这会将 ls -l 的输出传递给 grep 命令，只显示目录条目。
-     ```
-
-6. 文件描述符的重定向
-   在 Shell 中，文件描述符用于标识不同的输入和输出流：
-
-   - 标准输入 (stdin)：文件描述符 0
-   - 标准输出 (stdout)：文件描述符 1
-   - 标准错误 (stderr)：文件描述符 2
-
-   你可以使用文件描述符进行更精细的重定向控制。
-
-   ```shell
-   command 1> stdout.txt 2> stderr.txt
-   # 这会将标准输出重定向到 stdout.txt，将标准错误重定向到 stderr.txt。
-   ```
-
-7. Here Document (<<)
-   Here Document 用于将多行字符串作为输入传递给命令。
-
-   ```shell
-   command << EOF
-   line1
-   line2
-   EOF
-   ```
-
-   - command：这是需要接收多行输入的命令。
-   - <<：这个符号告诉 Shell 开始一个 Here Document。
-   - EOF：这个是标识符（delimiter），表示 Here Document 的开始和结束。EOF 只是一个常用的标识符名称，你可以用其他任何字符串代替，只要它在开始和结束时保持一致即可。
-
-   如下命令，在 << EOF 之后的所有内容都将作为输入传递给指定的命令，直到遇到结尾标识符（如 EOF）。
-
-   ```shell
-   cat << EOF > file.txt
-   This is line 1
-   This is line 2
-   EOF
-   # 这会将多行文本保存到 file.txt 中。
-   ```
-
-总结
-
-- `>`：将标准输出重定向到文件（覆盖文件内容）。
-- `>>`：将标准输出追加到文件末尾。
-- `2>`：将标准错误输出重定向到文件。
-- `&>` 或 `2>&1`：同时重定向标准输出和标准错误。
-- `/dev/null`：丢弃输出。
-- `|`：将一个命令的输出作为下一个命令的输入。
-- `Here Document (<<)`：用于传递多行输入。
-
-## shell 中 `;` `|` `()` `{}` `&&` `||` `!`
-
-在 Shell 编程中，`;`、`|`、`()`、`{}`、`&&`、`||`、`!` 等符号用于控制命令的执行顺序、条件判断和组合，以下是它们的详细介绍：
-
-1. **`;` (命令分隔符)**
-
-   `;` 用于在同一行中执行多个命令，命令之间没有依赖关系。无论前一个命令是否成功，后一个命令都会执行。
-
-   示例：
-
-   ```bash
-   echo "First command" ; sleep 2; echo "Second command"
-   ```
-
-   这里，`echo "First command"` 和 `echo "Second command"` 会**依次执行**。
-
-2. **`|` (管道操作符)**
-
-   `|` 是管道符号，用于将前一个命令的输出作为下一个命令的输入，即将一个命令的结果“管道”给另一个命令。
-
-   示例：
-
-   ```bash
-   ls -l | grep ^- | sort -k5 -nr
-   ```
-
-   - `ls -l`：以长格式列出文件和目录。
-   - `grep ^-`：过滤出文件（忽略目录）。在 ls -l 输出中，文件以 - 开头，目录以 d 开头，符号链接以 l 开头。
-   - `sort -k5 -nr`：按第 5 列（文件大小）进行数值排序（-n 表示数值排序，-r 表示从大到小排序）。
-
-3. **`()` (子 shell)**
-
-   `()` 用于在子 **Shell 中执行命令序列**，子 Shell 是一个独立的环境，子 Shell 中的变量或状态不会影响当前 Shell。
-
-   示例：
-
-   ```bash
-   (cd .. && ls)
-   ```
-
-   在子 Shell 中进入父目录并列出内容，执行完毕后，当前 Shell 仍在原来的目录。
-
-4. **`{}` (命令块)**
-
-   `{}` 表示命令块，内部的多个命令会在**当前 Shell 中执行**。不同于 `()`，它不会创建子 Shell。
-   **正确格式要求**：
-
-   - 大括号 `{` 和 `}` 必须与内部命令之间有**空格**。
-   - 多个命令之间需要用 `;` 或换行符分隔（即在 Shell 中，`{}` 内的命令必须用分号 `;` 连接，不能使用 `&&` 直接连接）。
-
-   ```bash
-   { cd ..; ls; }
-   # 或
-   {
-     cd ..
-     ls
-   }
-   ```
-
-   在当前 Shell 中进入父目录并列出内容，执行完毕后，当前 Shell 会切换至父目录。
-
-5. **`()` 和 `{}` 对比**
-
-   如果希望把几个命令合在一起执行，shell 提供了两种方法：
-
-   1. `()` 在子 shell 中执行一组命令
-   2. `{  }` 在当前 shell 中执行一组命令
-
-   ```shell
-   # () 在子 shell 中执行
-   A=1; echo $A; (A=2;); echo $A
-   1
-   1
-   # {  } 在当前 shell 中执行
-   A=1; echo $A; { A=2; }; echo $A
-   1
-   2
-   ```
-
-6. **`&&` (逻辑与, AND)**
-
-   `&&` 是逻辑与操作符，
-
-   - 表示前一个命令成功（退出状态码 $? 为 0）时才执行下一个命令。
-   - 只要有一个命令失败（退出状态码 $? 为 1），后面的命令就不会被执行。
-
-   示例：
-
-   ```bash
-   mkdir new_dir && cd new_dir
-   ```
-
-   如果 `mkdir new_dir` 成功，则 `cd new_dir` 会被执行。
-
-   > 技巧：
-   >
-   > - `cp xx && rm -f xx && echo "copy and rm success!"`，拷贝后删除原文件
-
-7. **`||` (逻辑或, OR)**
-
-   `||` 是逻辑或操作符，
-
-   - 表示前一个命令失败（退出状态码 $? 非 0）时才执行下一个命令。
-   - 只要有一个命令成功（退出状态码 $? 为 0），后面的命令就不会被执行。
-
-   示例 1：
-
-   ```bash
-   mkdir new_dir || echo "Failed to create directory"
-   ```
-
-   如果 `mkdir new_dir` 失败，则会执行 `echo "Failed to create directory"` 命令。
-
-   示例 2：
-
-   ```shell
-   ls dir &> /dev/null && echo"SUCCESS" || echo "FAIL"
-   # 如果 dir 目录存在，将输出 SUCCESS 提示信息；否则输出 FAIL 提示信息。
-
-   # shell 脚本中常用的组合示例
-   echo $BASH | grep -q 'bash' || { exec bash "$0" "$@" || exit 1; }
-   # 系统调用exec是以新的进程去代替原来的进程，但进程的PID保持不变。
-   # 因此可以这样认为，exec系统调用并没有创建新的进程，只是替换了原来进程上下文的内容。原进程的代码段，数据段，堆栈段被新的进程所代替。
-   ```
-
-   > `&&` 的优先级高于 `||`，会优先执行。`cmd1 && cmd2 || cmd3` 等价于 `(cmd1 && cmd2) || cmd3`。
-
-8. **`!` (逻辑非, NOT)**
-
-   `!` 是逻辑非操作符，用于取反。它会将一个命令的退出状态反转。即，如果命令成功，`!` 会将其视为失败；如果命令失败，`!` 会将其视为成功。
-
-   示例：
-
-   ```bash
-   ! ls nonexistent_file && echo "File does not exist"
-   ```
-
-   这里，`ls nonexistent_file` 失败，`!` 将其反转为成功状态，所以后面的 `echo` 命令会执行。
-
-9. **条件测试中与或非**
-
-   这些操作符主要用于 `test` 或 `[ ]` 结构中，用于测试文件属性或条件。
-
-   - **`!`**：逻辑非（NOT），用于取反。
-   - **`-a`**：逻辑与（AND），表示两个条件都必须为真。
-   - **`-o`**：逻辑或（OR），表示其中一个条件为真即可。
-
-   示例：
-
-   ```bash
-   [ ! -f "file.txt" ]  # 如果 file.txt 文件不存在，则返回真
-   [ -f "file1.txt" -a -f "file2.txt" ]  # 两个文件都存在则返回真
-   [ -f "file1.txt" -o -f "file2.txt" ]  # 其中一个文件存在则返回真
-   ```
-
-10. 条件测试中与或非和命令执行中与或非
-
-    在 Shell 表达式中，`!`、`-a`、`-o`、`&&`、`||` 等符号用于逻辑操作，但是它们用于不同的上下文和语法场景。
-
-    1. **条件测试中的逻辑与或非**（`!`、`-a`、`-o`）：
-
-       ```bash
-       if [ -f file1 -a -f file2 ]; then
-         echo "Both files exist"
-       fi
-       ```
-
-       这里 `-a` 检查两个文件是否都存在。
-
-    2. **命令执行中的逻辑与或非**（`&&`、`||`、`!`）：
-
-       ```bash
-       ! ls nonexistent_file && echo "File does not exist"
-       ```
-
-       这里 `!` 将 `ls nonexistent_file` 的失败状态反转为成功，从而执行后面的 `echo`。
-
-    **区别总结**：
-
-    - **`! -a -o`** 用于条件测试（如 `[ ]` 或 `test`），典型场景是检查文件状态、比较字符串等。
-    - **`&& ||`** 用于命令执行顺序控制，用来根据前一个命令的执行结果来决定是否执行后续命令。
-
-这些符号和操作符是 Shell 脚本中的基础工具，用于控制命令执行顺序和条件逻辑，帮助我们构建复杂的命令逻辑。
-
-## 运算符优先级
-
-> [Bash 脚本进阶指南：正文 > 第二部分 shell 基础 > 8. 运算符相关话题](https://linuxstory.gitbook.io/advanced-bash-scripting-guide-in-chinese/zheng-wen/part2/08_operations_and_related_topics/08_4_operator_precedence)
-
-## 单/双/反引号
-
-在 Shell 中，单引号 `' '`, 双引号 `" "`, 和反引号 ` `` ` 用于不同的目的，尤其是在处理字符串和命令替换时。它们的功能如下：
-
-1. 单引号 `' '`
-
-   - **功能**：将字符串完全保留为字面值，不进行变量和命令替换。
-
-   - **用途**：当你想确保字符串中的特殊字符（如 `$`, `*`, `\` 等）不被解释或替换时，使用单引号。
-
-   - 示例：
-
-     ```bash
-     echo 'Hello $USER'
-     ```
-
-     输出：`Hello $USER`（`$USER` 不会被解析）
-
-2. 双引号 `" "`
-
-   - **功能**：允许变量替换和命令替换，但保留大多数其他字符的字面意义。
-
-   - **用途**：当需要字符串保留特殊字符（如空格）并希望进行变量替换或命令替换时，使用双引号。
-
-   - 示例：
-
-     ```bash
-     echo "Hello $USER"
-     ```
-
-     输出：`Hello your_username`（`$USER` 被替换成实际的用户名）
-
-3. 反引号 ` `` ` 或 `$(...)`（推荐）
-
-   - **功能**：用于**命令替换**，即执行括号中的命令，并将结果插入到外部命令中。
-
-   - **用途**：当你需要将命令的输出用作另一个命令的参数时，使用反引号或 `$()`。
-
-   - 示例：
-
-     ```bash
-     echo "Today is `date`"
-     ```
-
-     或者：
-
-     ```bash
-     echo "Today is $(date)"
-     ```
-
-     两者输出相同，例如：`Today is Fri Nov 8 15:30:00 UTC 2024`
-
-   > **注意**：推荐使用 `$()` 语法，因为它支持嵌套，而反引号不支持。
-
-**小结**:
-
-- **单引号**：完全保留字符串内容。
-- **双引号**：允许变量替换和命令替换，但保留大多数字符。
-- **反引号或 `$()`**：用于命令替换，将命令的输出作为参数传递。
-
-## 双引号嵌套
-
-## shell 命令展开
-
-Shell 命令的展开是单次展开，按照固定顺序进行一次性展开。每种展开类型只会执行一次。不是递归展开。
-
-举例说明：
-
-1. 变量展开不会递归
-
-   ```bash
-   a='$b'
-   b='$c'
-   c='hello'
-   echo $a  # 输出 $b，而不是递归展开到 hello
-   ```
-
-2. 命令替换不会递归
-
-   ```bash
-   cmd1='$(echo $cmd2)'
-   cmd2='$(echo hello)'
-   echo $(echo $cmd1)  # 输出 $(echo $cmd2)，不会继续展开
-   ```
-
-3. 要实现多次展开，需要使用 eval
-
-   ```bash
-   # 使用eval实现递归展开
-   a='$b'
-   b='$c'
-   c='hello'
-   eval echo $a  # 输出 $c
-   eval eval echo $a  # 输出 hello
-   ```
-
-4. 实际应用示例
-
-   ```bash
-   # 单次展开
-   var1="world"
-   var2='$var1'
-   echo $var2  # 输出: $var1
-
-   # 使用eval强制多次展开
-   eval echo $var2  # 输出: world
-
-   # 命令替换也是单次
-   cmd='$(echo "$(date)")'
-   echo $cmd  # 输出: $(echo "$(date)")
-   eval echo $cmd  # 输出: 当前日期
-   ```
-
-**重要说明**：
-
-- shell 的标准展开是单次的
-- 需要多次展开时必须显式使用 eval
-- 过多的展开层次会使代码**难以维护和理解**
-- 应尽量**避免复杂的多层展开**
-
-## shell 命令展开优先级
-
-Shell 命令展开遵循特定的顺序，完整的展开优先级（从高到低）：
-
-- Brace expansion（大括号展开）
-- Tilde expansion（波浪号展开）
-- Parameter and variable expansion（参数和变量展开）
-- Command substitution（命令替换）
-- Arithmetic expansion（算术展开）
-- Word splitting（词分割）
-- Pathname expansion（路径名展开/通配符展开）
-
-1. 大括号展开
-
-   ```bash
-   echo th{i,a}t  # 展开为 thit that
-   ```
-
-2. 波浪号展开 (~)
-
-   ```bash
-   echo ~/dir  # 展开为 /home/user/dir
-   ```
-
-3. 参数和变量展开
-
-   ```bash
-   name="John"
-   echo $name    # 展开为 John
-   echo ${name}  # 同上
-   ```
-
-4. 命令替换
-
-   ```bash
-   echo $(date)  # 执行date命令并替换结果
-   echo `date`   # 同上
-   ```
-
-5. 算术展开
-
-   ```bash
-   echo $((2 + 2))  # 展开为 4
-   ```
-
-6. 单词分割(IFS)
-
-   ```bash
-   var="a b c"
-   echo $var     # 分割为三个单词：a b c
-   echo "$var"   # 保持为一个单词："a b c"
-   ```
-
-7. 路径名展开(通配符)
-
-   ```bash
-   echo *.txt    # 展开为所有.txt文件
-   ```
-
-**示例**：
+## 安全选项及调试
 
 ```bash
-# 展开顺序示例
-user="john"
-echo ~/${user}_file{1,2}.{txt,log}
-
-# 展开步骤：
-# 1. 大括号展开：~/john_file1.txt ~/john_file1.log ~/john_file2.txt ~/john_file2.log
-# 2. 波浪号展开：/home/user/john_file1.txt ...
-# 3. 变量展开：已在步骤1中完成
+#!/bin/bash
+set -euo pipefail
+export PS4='+ ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+[ "${DEBUG:-false}" = true ] && set -x
 ```
-
-**注意事项**：
-
-- 展开顺序是固定的，不可更改
-- 引号会影响展开行为
-- 展开结果会作为命令的参数
 
 ## `set` 命令
 
@@ -1422,6 +841,596 @@ fi
 4. **需要较少性能开销的调试**
 
 `trap`命令的这些高级用法可以大大增强 shell 脚本的调试能力、稳定性和可维护性。在实际使用中,你可以根据需求组合使用这些技术,构建更加健壮和专业的 shell 脚本。需要注意的是,过度使用 trap 可能会影响脚本性能,建议在开发调试阶段启用详细追踪,在生产环境中使用更轻量级的监控。
+
+## shell 中转义字符$
+
+在 linux shell 脚本中经常用到字符`$`，下面是`$`的一些常见用法
+
+| 名称 | 含义                                                                    |
+| ---- | ----------------------------------------------------------------------- |
+| $#   | 传给脚本的参数个数                                                      |
+| $0   | 脚本本身的名字                                                          |
+| $1   | 传递给该 shell 脚本的第一个参数                                         |
+| $2   | 传递给该 shell 脚本的第二个参数                                         |
+| $@   | 传给脚本的所有参数的列表                                                |
+| $\*  | 以一个单字符串显示所有向脚本传递的参数，与位置变量不同，参数可超过 9 个 |
+| $$   | 脚本运行的当前进程 ID 号                                                |
+| $?   | 显示最后命令的退出状态，0 表示没有错误，其他表示有错误                  |
+
+- 文件名`test`
+
+```shell
+#!/bin/sh
+echo "number:$#"
+echo "scname:$0"
+echo "first :$1"
+echo "second:$2"
+echo "argume:$@"
+```
+
+- 运行结果
+
+```shell
+number:2   //$# 是传给脚本的参数个数
+scname:./test //$0 是脚本本身的名字
+first: aa  //$1是传递给该shell脚本的第一个参数
+second:bb  //$2是传递给该shell脚本的第二个参数
+argume:aa bb //$@ 是传给脚本的所有参数的列表
+```
+
+## IFS 环境变量
+
+Shell 中的 **IFS (Internal Field Separator)** 是一个特殊的环境变量，它定义了 Shell 在**分割字符串为多个字段时使用的分隔符**，默认值通常是**空格、制表符 (Tab) 和换行符**。当 Shell 处理变量替换、命令替换或`read`命令时，会根据 IFS 中的字符来拆分文本。用户可以修改 IFS 的值来定制分隔符，以处理特定格式的文本，比如用逗号、冒号等作为分隔符。
+
+**IFS 的主要作用**
+
+- **单词分割**：在没有引号包围的情况下，Shell 会用 IFS 中的字符将字符串拆分成单词或字段。
+- **`read`命令**：用于将输入行分割成多个字段，并赋给多个变量。
+- **列表展开**：控制`$*`和`$@`（当`$@`未用引号时）展开时的分隔符。
+
+**默认值**
+
+- `IFS` 默认包含空格、制表符和换行符 ( ``、`\t`、`\n` )。
+
+**自定义示例**
+
+- **忽略换行符，只用空格/制表符**：`IFS=$' \t'`。
+- **使用逗号作为分隔符**：`IFS=','`。
+- **使用冒号**：`IFS=':'`。
+- **自定义 IP 地址分割**：`IFS='.'` 来反转 IP 地址。
+
+## 重定向
+
+在 Shell 中，输出重定向是一种将命令的标准输出（stdout）或标准错误（stderr）保存到文件或传递给另一个命令的技术。输出重定向使你能够灵活地管理和处理命令的输出。
+
+1. 基本输出重定向
+   将标准输出重定向到文件
+
+   - `>`：将命令的标准输出重定向到一个文件。如果文件已经存在，会覆盖文件的内容。
+
+     ```shell
+     command > filename
+
+     echo "Hello, World!" > output.txt
+     # 这会将 "Hello, World!" 保存到 output.txt 文件中。如果 output.txt 已存在，其内容会被覆盖。
+     ```
+
+   - `>>`：将命令的标准输出追加到文件的末尾。如果文件不存在，会创建文件；如果文件已经存在，新的输出内容会追加到文件末尾。
+
+     ```shell
+     command >> filename
+
+     echo "Hello again!" >> output.txt
+     # 这会将 "Hello again!" 追加到 output.txt 的末尾，而不会覆盖之前的内容。
+     ```
+
+2. 重定向标准错误
+   标准错误输出（stderr）通常用于输出错误信息，可以将其重定向到文件。
+
+   - `2>`：将标准错误输出重定向到文件。
+
+     ```shell
+     command 2> errorfile.txt
+
+     ls non_existent_file 2> error.txt
+     # 这会将 ls 命令的错误信息保存到 error.txt 文件中。
+     ```
+
+3. 同时重定向标准输出和标准错误
+
+   - `&>` 或 `2>&1`：将标准输出和标准错误一起重定向到同一个文件。
+
+     ```shell
+     command &> outputfile.txt
+     # 等价于
+     command > outputfile.txt 2>&1
+
+     ls /nonexistent_directory &> all_output.txt
+     # 这会将 ls 命令的标准输出和错误输出都保存到 all_output.txt 文件中。
+
+     # 重定向 + 管道组合
+     command 2>&1 | tee output.log
+     ```
+
+     注意：
+
+     - `&>` 是 Bash 的语法糖（语法简写），只能用于 Bash（不是 POSIX 标准，因此在 sh 或某些老版本 shell 中不支持）。
+     - `command 2>&1 | tee output.log` <font color=red>重定向 + 管道组合</font>：
+       - `2>&1`：先把标准错误（fd 2）重定向到标准输出（fd 1）
+       - 整个 stdout + stderr 一起通过 `|` 管道交给 tee
+       - `tee`：一边将输入写入 output.log，一边输出到终端（屏幕）
+     - `command > file 2>&1` <font color=red>顺序非常重要！</font>这表示：
+       - 先把 stdout 重定向到 file
+       - 再把 stderr 重定向到 stdout（此时 stdout 已经是 file）
+     - `command 2>&1 > file` 是错误写法：
+       - `2>&1`：把 stderr 重定向到当前的 stdout，此时 stdout 还指向终端
+       - `> file`：把 stdout 重定向到 file，但是 stderr 已经绑定到了“原始的终端 stdout”，不会跟着变
+       - 结果是：stdout 输出进 file，stderr 仍然输出到终端！
+
+4. 重定向到 `/dev/null`
+   `/dev/null` 是一个特殊的文件，任何写入它的数据都会被丢弃。可以使用它来忽略不需要的输出。
+
+   - 忽略标准输出/标准错误/标注输出和错误：
+
+     ```shell
+     # 忽略标准输出：
+     command > /dev/null
+
+     # 忽略标准错误：
+     command 2> /dev/null
+
+     # 忽略标准输出和标准错误：
+     command > /dev/null 2>&1
+
+     ls /nonexistent_directory > /dev/null 2>&1
+     # 这会忽略 ls 命令的所有输出。
+     ```
+
+5. 管道（|）
+   管道将一个命令的标准输出作为下一个命令的标准输入。常用于将多个命令串联起来处理数据。
+
+   - 使用管道：
+
+     ```shell
+     command1 | command2
+
+     ls -l | grep "^d"
+     这会将 ls -l 的输出传递给 grep 命令，只显示目录条目。
+     ```
+
+6. 文件描述符的重定向
+   在 Shell 中，文件描述符用于标识不同的输入和输出流：
+
+   - 标准输入 (stdin)：文件描述符 0
+   - 标准输出 (stdout)：文件描述符 1
+   - 标准错误 (stderr)：文件描述符 2
+
+   你可以使用文件描述符进行更精细的重定向控制。
+
+   ```shell
+   command 1> stdout.txt 2> stderr.txt
+   # 这会将标准输出重定向到 stdout.txt，将标准错误重定向到 stderr.txt。
+   ```
+
+7. Here Document (<<)
+   Here Document 用于将多行字符串作为输入传递给命令。
+
+   ```shell
+   command << EOF
+   line1
+   line2
+   EOF
+   ```
+
+   - command：这是需要接收多行输入的命令。
+   - <<：这个符号告诉 Shell 开始一个 Here Document。
+   - EOF：这个是标识符（delimiter），表示 Here Document 的开始和结束。EOF 只是一个常用的标识符名称，你可以用其他任何字符串代替，只要它在开始和结束时保持一致即可。
+
+   如下命令，在 << EOF 之后的所有内容都将作为输入传递给指定的命令，直到遇到结尾标识符（如 EOF）。
+
+   ```shell
+   cat << EOF > file.txt
+   This is line 1
+   This is line 2
+   EOF
+   # 这会将多行文本保存到 file.txt 中。
+   ```
+
+总结
+
+- `>`：将标准输出重定向到文件（覆盖文件内容）。
+- `>>`：将标准输出追加到文件末尾。
+- `2>`：将标准错误输出重定向到文件。
+- `&>` 或 `2>&1`：同时重定向标准输出和标准错误。
+- `/dev/null`：丢弃输出。
+- `|`：将一个命令的输出作为下一个命令的输入。
+- `Here Document (<<)`：用于传递多行输入。
+
+## shell 中 `;` `|` `()` `{}` `&&` `||` `!`
+
+在 Shell 编程中，`;`、`|`、`()`、`{}`、`&&`、`||`、`!` 等符号用于控制命令的执行顺序、条件判断和组合，以下是它们的详细介绍：
+
+1. **`;` (命令分隔符)**
+
+   `;` 用于在同一行中执行多个命令，命令之间没有依赖关系。无论前一个命令是否成功，后一个命令都会执行。
+
+   示例：
+
+   ```bash
+   echo "First command" ; sleep 2; echo "Second command"
+   ```
+
+   这里，`echo "First command"` 和 `echo "Second command"` 会**依次执行**。
+
+2. **`|` (管道操作符)**
+
+   `|` 是管道符号，用于将前一个命令的输出作为下一个命令的输入，即将一个命令的结果“管道”给另一个命令。
+
+   示例：
+
+   ```bash
+   ls -l | grep ^- | sort -k5 -nr
+   ```
+
+   - `ls -l`：以长格式列出文件和目录。
+   - `grep ^-`：过滤出文件（忽略目录）。在 ls -l 输出中，文件以 - 开头，目录以 d 开头，符号链接以 l 开头。
+   - `sort -k5 -nr`：按第 5 列（文件大小）进行数值排序（-n 表示数值排序，-r 表示从大到小排序）。
+
+3. **`()` (子 shell)**
+
+   `()` 用于在子 **Shell 中执行命令序列**，子 Shell 是一个独立的环境，子 Shell 中的变量或状态不会影响当前 Shell。
+
+   示例：
+
+   ```bash
+   (cd .. && ls)
+   ```
+
+   在子 Shell 中进入父目录并列出内容，执行完毕后，当前 Shell 仍在原来的目录。
+
+4. **`{}` (命令块)**
+
+   `{}` 表示命令块，内部的多个命令会在**当前 Shell 中执行**。不同于 `()`，它不会创建子 Shell。
+   **正确格式要求**：
+
+   - 大括号 `{` 和 `}` 必须与内部命令之间有**空格**。
+   - 多个命令之间需要用 `;` 或换行符分隔（即在 Shell 中，`{}` 内的命令必须用分号 `;` 连接，不能使用 `&&` 直接连接）。
+
+   ```bash
+   { cd ..; ls; }
+   # 或
+   {
+     cd ..
+     ls
+   }
+   ```
+
+   在当前 Shell 中进入父目录并列出内容，执行完毕后，当前 Shell 会切换至父目录。
+
+5. **`()` 和 `{}` 对比**
+
+   如果希望把几个命令合在一起执行，shell 提供了两种方法：
+
+   1. `()` 在子 shell 中执行一组命令
+   2. `{  }` 在当前 shell 中执行一组命令
+
+   ```shell
+   # () 在子 shell 中执行
+   A=1; echo $A; (A=2;); echo $A
+   1
+   1
+   # {  } 在当前 shell 中执行
+   A=1; echo $A; { A=2; }; echo $A
+   1
+   2
+   ```
+
+6. **`&&` (逻辑与, AND)**
+
+   `&&` 是逻辑与操作符，
+
+   - 表示前一个命令成功（退出状态码 $? 为 0）时才执行下一个命令。
+   - 只要有一个命令失败（退出状态码 $? 为 1），后面的命令就不会被执行。
+
+   示例：
+
+   ```bash
+   mkdir new_dir && cd new_dir
+   ```
+
+   如果 `mkdir new_dir` 成功，则 `cd new_dir` 会被执行。
+
+   > 技巧：
+   >
+   > - `cp xx && rm -f xx && echo "copy and rm success!"`，拷贝后删除原文件
+
+7. **`||` (逻辑或, OR)**
+
+   `||` 是逻辑或操作符，
+
+   - 表示前一个命令失败（退出状态码 $? 非 0）时才执行下一个命令。
+   - 只要有一个命令成功（退出状态码 $? 为 0），后面的命令就不会被执行。
+
+   示例 1：
+
+   ```bash
+   mkdir new_dir || echo "Failed to create directory"
+   ```
+
+   如果 `mkdir new_dir` 失败，则会执行 `echo "Failed to create directory"` 命令。
+
+   示例 2：
+
+   ```shell
+   ls dir &> /dev/null && echo"SUCCESS" || echo "FAIL"
+   # 如果 dir 目录存在，将输出 SUCCESS 提示信息；否则输出 FAIL 提示信息。
+
+   # shell 脚本中常用的组合示例
+   echo $BASH | grep -q 'bash' || { exec bash "$0" "$@" || exit 1; }
+   # 系统调用exec是以新的进程去代替原来的进程，但进程的PID保持不变。
+   # 因此可以这样认为，exec系统调用并没有创建新的进程，只是替换了原来进程上下文的内容。原进程的代码段，数据段，堆栈段被新的进程所代替。
+   ```
+
+   > `&&` 的优先级高于 `||`，会优先执行。`cmd1 && cmd2 || cmd3` 等价于 `(cmd1 && cmd2) || cmd3`。
+
+8. **`!` (逻辑非, NOT)**
+
+   `!` 是逻辑非操作符，用于取反。它会将一个命令的退出状态反转。即，如果命令成功，`!` 会将其视为失败；如果命令失败，`!` 会将其视为成功。
+
+   示例：
+
+   ```bash
+   ! ls nonexistent_file && echo "File does not exist"
+   ```
+
+   这里，`ls nonexistent_file` 失败，`!` 将其反转为成功状态，所以后面的 `echo` 命令会执行。
+
+9. **条件测试中与或非**
+
+   这些操作符主要用于 `test` 或 `[ ]` 结构中，用于测试文件属性或条件。
+
+   - **`!`**：逻辑非（NOT），用于取反。
+   - **`-a`**：逻辑与（AND），表示两个条件都必须为真。
+   - **`-o`**：逻辑或（OR），表示其中一个条件为真即可。
+
+   示例：
+
+   ```bash
+   [ ! -f "file.txt" ]  # 如果 file.txt 文件不存在，则返回真
+   [ -f "file1.txt" -a -f "file2.txt" ]  # 两个文件都存在则返回真
+   [ -f "file1.txt" -o -f "file2.txt" ]  # 其中一个文件存在则返回真
+   ```
+
+10. 条件测试中与或非和命令执行中与或非
+
+    在 Shell 表达式中，`!`、`-a`、`-o`、`&&`、`||` 等符号用于逻辑操作，但是它们用于不同的上下文和语法场景。
+
+    1. **条件测试中的逻辑与或非**（`!`、`-a`、`-o`）：
+
+       ```bash
+       if [ -f file1 -a -f file2 ]; then
+         echo "Both files exist"
+       fi
+       ```
+
+       这里 `-a` 检查两个文件是否都存在。
+
+    2. **命令执行中的逻辑与或非**（`&&`、`||`、`!`）：
+
+       ```bash
+       ! ls nonexistent_file && echo "File does not exist"
+       ```
+
+       这里 `!` 将 `ls nonexistent_file` 的失败状态反转为成功，从而执行后面的 `echo`。
+
+    **区别总结**：
+
+    - **`! -a -o`** 用于条件测试（如 `[ ]` 或 `test`），典型场景是检查文件状态、比较字符串等。
+    - **`&& ||`** 用于命令执行顺序控制，用来根据前一个命令的执行结果来决定是否执行后续命令。
+
+这些符号和操作符是 Shell 脚本中的基础工具，用于控制命令执行顺序和条件逻辑，帮助我们构建复杂的命令逻辑。
+
+## 运算符优先级
+
+> [Bash 脚本进阶指南：正文 > 第二部分 shell 基础 > 8. 运算符相关话题](https://linuxstory.gitbook.io/advanced-bash-scripting-guide-in-chinese/zheng-wen/part2/08_operations_and_related_topics/08_4_operator_precedence)
+
+## 单/双/反引号
+
+在 Shell 中，单引号 `' '`, 双引号 `" "`, 和反引号 ` `` ` 用于不同的目的，尤其是在处理字符串和命令替换时。它们的功能如下：
+
+1. 单引号 `' '`
+
+   - **功能**：将字符串完全保留为字面值，不进行变量和命令替换。
+
+   - **用途**：当你想确保字符串中的特殊字符（如 `$`, `*`, `\` 等）不被解释或替换时，使用单引号。
+
+   - 示例：
+
+     ```bash
+     echo 'Hello $USER'
+     ```
+
+     输出：`Hello $USER`（`$USER` 不会被解析）
+
+2. 双引号 `" "`
+
+   - **功能**：允许变量替换和命令替换，但保留大多数其他字符的字面意义。
+
+   - **用途**：当需要字符串保留特殊字符（如空格）并希望进行变量替换或命令替换时，使用双引号。
+
+   - 示例：
+
+     ```bash
+     echo "Hello $USER"
+     ```
+
+     输出：`Hello your_username`（`$USER` 被替换成实际的用户名）
+
+3. 反引号 ` `` ` 或 `$(...)`（推荐）
+
+   - **功能**：用于**命令替换**，即执行括号中的命令，并将结果插入到外部命令中。
+
+   - **用途**：当你需要将命令的输出用作另一个命令的参数时，使用反引号或 `$()`。
+
+   - 示例：
+
+     ```bash
+     echo "Today is `date`"
+     ```
+
+     或者：
+
+     ```bash
+     echo "Today is $(date)"
+     ```
+
+     两者输出相同，例如：`Today is Fri Nov 8 15:30:00 UTC 2024`
+
+   > **注意**：推荐使用 `$()` 语法，因为它支持嵌套，而反引号不支持。
+
+**小结**:
+
+- **单引号**：完全保留字符串内容。
+- **双引号**：允许变量替换和命令替换，但保留大多数字符。
+- **反引号或 `$()`**：用于命令替换，将命令的输出作为参数传递。
+
+## 双引号嵌套
+
+## shell 命令展开
+
+Shell 命令的展开是单次展开，按照固定顺序进行一次性展开。每种展开类型只会执行一次。不是递归展开。
+
+举例说明：
+
+1. 变量展开不会递归
+
+   ```bash
+   a='$b'
+   b='$c'
+   c='hello'
+   echo $a  # 输出 $b，而不是递归展开到 hello
+   ```
+
+2. 命令替换不会递归
+
+   ```bash
+   cmd1='$(echo $cmd2)'
+   cmd2='$(echo hello)'
+   echo $(echo $cmd1)  # 输出 $(echo $cmd2)，不会继续展开
+   ```
+
+3. 要实现多次展开，需要使用 eval
+
+   ```bash
+   # 使用eval实现递归展开
+   a='$b'
+   b='$c'
+   c='hello'
+   eval echo $a  # 输出 $c
+   eval eval echo $a  # 输出 hello
+   ```
+
+4. 实际应用示例
+
+   ```bash
+   # 单次展开
+   var1="world"
+   var2='$var1'
+   echo $var2  # 输出: $var1
+
+   # 使用eval强制多次展开
+   eval echo $var2  # 输出: world
+
+   # 命令替换也是单次
+   cmd='$(echo "$(date)")'
+   echo $cmd  # 输出: $(echo "$(date)")
+   eval echo $cmd  # 输出: 当前日期
+   ```
+
+**重要说明**：
+
+- shell 的标准展开是单次的
+- 需要多次展开时必须显式使用 eval
+- 过多的展开层次会使代码**难以维护和理解**
+- 应尽量**避免复杂的多层展开**
+
+## shell 命令展开优先级
+
+Shell 命令展开遵循特定的顺序，完整的展开优先级（从高到低）：
+
+- Brace expansion（大括号展开）
+- Tilde expansion（波浪号展开）
+- Parameter and variable expansion（参数和变量展开）
+- Command substitution（命令替换）
+- Arithmetic expansion（算术展开）
+- Word splitting（词分割）
+- Pathname expansion（路径名展开/通配符展开）
+
+1. 大括号展开
+
+   ```bash
+   echo th{i,a}t  # 展开为 thit that
+   ```
+
+2. 波浪号展开 (~)
+
+   ```bash
+   echo ~/dir  # 展开为 /home/user/dir
+   ```
+
+3. 参数和变量展开
+
+   ```bash
+   name="John"
+   echo $name    # 展开为 John
+   echo ${name}  # 同上
+   ```
+
+4. 命令替换
+
+   ```bash
+   echo $(date)  # 执行date命令并替换结果
+   echo `date`   # 同上
+   ```
+
+5. 算术展开
+
+   ```bash
+   echo $((2 + 2))  # 展开为 4
+   ```
+
+6. 单词分割(IFS)
+
+   ```bash
+   var="a b c"
+   echo $var     # 分割为三个单词：a b c
+   echo "$var"   # 保持为一个单词："a b c"
+   ```
+
+7. 路径名展开(通配符)
+
+   ```bash
+   echo *.txt    # 展开为所有.txt文件
+   ```
+
+**示例**：
+
+```bash
+# 展开顺序示例
+user="john"
+echo ~/${user}_file{1,2}.{txt,log}
+
+# 展开步骤：
+# 1. 大括号展开：~/john_file1.txt ~/john_file1.log ~/john_file2.txt ~/john_file2.log
+# 2. 波浪号展开：/home/user/john_file1.txt ...
+# 3. 变量展开：已在步骤1中完成
+```
+
+**注意事项**：
+
+- 展开顺序是固定的，不可更改
+- 引号会影响展开行为
+- 展开结果会作为命令的参数
 
 ## 路径处理
 
