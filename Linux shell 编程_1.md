@@ -1288,11 +1288,31 @@ Shell 中的 **IFS (Internal Field Separator)** 是一个特殊的环境变量�
 
    > **注意**：推荐使用 `$()` 语法，因为它支持嵌套，而反引号不支持。
 
-**小结**:
+**小结：**
 
 - **单引号**：完全保留字符串内容。
 - **双引号**：允许变量替换和命令替换，但保留大多数字符。
 - **反引号或 `$()`**：用于命令替换，将命令的输出作为参数传递。
+
+**经验示例：**
+
+1. 命令拼接尽量整体加双引号
+
+   > :point_right: 只要变量可能包含空格，就必须整体加双引号。
+   > 另：无需给变量引用单独加双引号，整体加即可。
+
+   ```bash
+   # 当路径中含有空格
+   INPUT_PATH="/path/with space"
+   # 正确且推荐
+   --input="${INPUT_PATH}/data/input1.bin"
+   --input=/path/with space/data/input1.bin  # 作为一个完整参数传递给程序
+
+   # 不加引号错误展开后如下
+   --input=${INPUT_PATH}/data/input1.bin
+   --input=/path/with
+   space/model/configs/cl_customization.conf # 程序实际收到的是两个参数，直接炸。
+   ```
 
 ## 双引号嵌套
 
@@ -1504,243 +1524,6 @@ echo ~/${user}_file{1,2}.{txt,log}
    - `##` - 从开头匹配删除，删除最长匹配
    - `%` - 从结尾匹配删除，删除最短匹配
    - `%%` - 从结尾匹配删除，删除最长匹配
-
-## 参数默认值处理
-
-默认值操作符：`:-`、`:=`、`:+`、`:?`
-
-```bash
-# :- 如果变量未设置或为空，则使用默认值
-echo ${var:-default}   # var未设置，输出: default
-var=""; echo ${var:-default}  # var为空，输出: default
-var="value"; echo ${var:-default}  # var有值，输出: value
-
-# := 如果变量未设置或为空，则设置默认值并返回
-echo ${var:=default}   # 设置var为default并输出
-
-# :? 如果变量未设置或为空，则显示错误信息并退出（生产脚本常用）
-MODEL_PATH=${MODEL_PATH:?MODEL_PATH must be set}
-
-# :+ 如果变量设置且非空，则使用替代值
-var="value"
-echo ${var:+replaced}  # 输出: replaced
-```
-
-## 字符串大小写操作
-
-只在 **Bash 4.0+** 支持，**不是 POSIX sh**，在 `dash / ash / busybox sh` 中不可用。
-
-```bash
-# 全部转小写：`,,`
-var=${var,,}
-mode=DEBUG
-echo "${mode^^}"   # debug
-
-# 全部转大写：`^^`
-var=${var^^}
-mode=debug
-echo "${mode^^}"   # DEBUG
-
-# 仅首字母转小写：`,`（单个）
-var=${var,}
-Var=TRUE
-echo "${Var,}"     # tRUE
-
-# 仅首字母转大写：`^`
-var=${var^}
-mode=debug
-echo "${mode^}"    # Debug
-
-# 对特定字符集转换（进阶）
-var=${var,,[A-Z]}
-var=${var^^[a-z]}
-str="AbC123"
-echo "${str,,[A-Z]}"   # abc123
-```
-
-> **脚本内部字符串处理，优先用 Bash 参数展开**
-
-示例：
-
-```bash
-GDB=${GDB:-false}
-GDB=${GDB,,}
-
-case "$GDB" in
-  true|1|yes|on) ENABLE_GDB=true ;;
-  *)             ENABLE_GDB=false ;;
-esac
-```
-
-这已经是 Shell 脚本处理布尔开关的“工业级模板”。
-
-## 参数展开操作符
-
-**Shell 参数展开操作符的介绍**：
-
-1. 基本的参数展开：`${}`
-
-   ```bash
-   var="hello"
-   echo ${var}        # 等同于 $var
-   echo ${var}world   # 拼接字符串，输出: helloworld
-   ```
-
-2. 长度获取：`#`
-
-   ```bash
-   str="hello"
-   echo ${#str}      # 输出字符串长度: 5
-
-   array=(1 2 3 4 5)
-   echo ${#array[@]} # 输出数组长度: 5
-   ```
-
-3. 从开头删除匹配模式：`#` 和 `##`
-
-   ```bash
-   path="/usr/local/bin/python"
-   # #  从开头删除最短匹配
-   echo ${path#*/}      # 输出: usr/local/bin/python
-   # ## 从开头删除最长匹配
-   echo ${path##*/}     # 输出: python
-
-   # 实际应用：提取文件名
-   filename="script.test.sh"
-   echo ${filename#*.}  # 输出: test.sh
-   echo ${filename##*.} # 输出: sh
-   ```
-
-4. 从结尾删除匹配模式：`%` 和 `%%`
-
-   ```bash
-   path="/usr/local/bin/python"
-   # %  从结尾删除最短匹配
-   echo ${path%/*}      # 输出: /usr/local/bin
-   # %% 从结尾删除最长匹配
-   echo ${path%%/*}     # 输出: (空)
-
-   # 实际应用：删除文件扩展名
-   filename="script.test.sh"
-   echo ${filename%.*}  # 输出: script.test
-   echo ${filename%%.*} # 输出: script
-   ```
-
-5. 替换模式：`/` 和 `//`
-
-   ```bash
-   text="hello hello world"
-   # / 替换第一次匹配
-   echo ${text/hello/hi}   # 输出: hi hello world
-   # // 替换所有匹配
-   echo ${text//hello/hi}  # 输出: hi hi world
-
-   # 实际应用：替换路径分隔符
-   path="C:\Windows\System32"
-   echo ${path//\\/\/}    # 输出: C:/Windows/System32
-   ```
-
-6. 子字符串提取：`:offset` 和 `:offset:length`
-
-   ```bash
-   str="Hello World"
-   echo ${str:6}      # 输出: World
-   echo ${str:0:5}    # 输出: Hello
-   echo ${str: -5}    # 输出: World (注意空格)
-   echo ${str: -5:2}  # 输出: Wo
-   ```
-
-**典型使用场景**：
-
-1. 文件路径处理
-
-   ```bash
-   # 提取文件目录
-   full_path="/home/user/docs/file.txt"
-   dir=${full_path%/*}         # 输出: /home/user/docs
-
-   # 提取文件名
-   filename=${full_path##*/}   # 输出: file.txt
-
-   # 提取不带扩展名的文件名
-   name=${filename%.*}         # 输出: file
-
-   # 提取扩展名
-   ext=${filename##*.}         # 输出: txt
-   ```
-
-2. URL 处理
-
-   ```bash
-   url="https://example.com/path/to/page.html"
-   # 提取域名
-   domain=${url#*//}
-   domain=${domain%%/*}       # 输出: example.com
-
-   # 提取路径
-   path=${url##*/}           # 输出: page.html
-   ```
-
-3. 批量重命名
-
-   ```bash
-   # 将所有.txt文件重命名为.md文件
-   for file in *.txt; do
-       mv "$file" "${file%.txt}.md"
-   done
-   ```
-
-4. 环境变量处理
-
-   ```bash
-   # 添加路径到PATH，避免重复
-   export PATH="${PATH:+$PATH:}/new/path"
-
-   # 设置默认值
-   TIMEOUT=${TIMEOUT:-30}
-   ```
-
-5. 字符串处理
-
-   ```bash
-   # 移除字符串中的所有空格
-   str="hello world"
-   echo ${str// /}      # 输出: helloworld
-
-   # 将字符串中的下划线替换为空格
-   var="hello_world_test"
-   echo ${var//_/ }     # 输出: hello world test
-   ```
-
-## 引用变量：`$VAR` 和 `${VAR}`
-
-在 Shell 中，`$VAR` 和 `${VAR}` 都是用来引用变量 `VAR` 的，**在大多数情况下它们是等价的**。但 `${VAR}` 更加**稳健、推荐使用**，因为在某些上下文中能避免歧义。
-
-| 表达式   | 含义                                   | 推荐度 |
-| -------- | -------------------------------------- | ------ |
-| `$VAR`   | 简写形式，适用于没有后缀的情况         | 简洁   |
-| `${VAR}` | 标准形式，能防止歧义、支持更多扩展功能 | 推荐   |
-
-情况 1：后面跟着其他字符时，`${VAR}` 能防止歧义
-
-```bash
-NAME="file"
-echo "$NAME.txt"      # 输出空，Shell 会尝试找变量 NAME.txt
-echo "${NAME}.txt"    # 正确输出：file.txt
-```
-
-情况 2：变量名后跟数组或替换表达式，必须用 `${}`：
-
-```bash
-echo "${ARRAY[0]}"    # 正确
-echo "${VAR:-default}" # 使用默认值
-```
-
-结论：
-
-- `"$VAR"`：在变量后无其他紧跟字符时可以用，简洁。
-- `"${VAR}"`：更安全、通用，**推荐养成习惯**总是加大括号。
-- **小技巧**：加双引号 `"` 防止字符串带空格被分割，如 `echo "${FILE}"`。
 
 ## Shell 中调用 Python
 
