@@ -1066,6 +1066,18 @@ LazyVim 是一个基于 [💤 lazy.nvim](https://github.com/folke/lazy.nvim) 的
 注意，需要修改 terminal 的字体为 nerdfonts 中才不会出现乱码。
 
 Nerd Fonts 字体下载：<https://www.nerdfonts.com/#home>
+个人推荐：
+
+- `CommitMono Nerd Font`：
+  - Info: An anonymous and neutral programming typeface
+  - `0, g` 等字符格式比较喜欢，整体无槽点
+- `FiraCode Nerd Font`：
+  - Info: Programming ligatures, extension of Fira Mono font, enlarged operators
+  - `0, g` 等字符格式比较规整，但是不喜欢连起来的判等号
+- `FiraMono Nerd Font`：
+
+  - Info: Mozilla typeface, dotted zero
+  - `0, g` 等 字符差点意思，整体挺好
 
 - **Windows 安装字体**：所有字体都存储在 `C:\Windows\Fonts` 文件夹中。只需将字体文件从提取的文件文件夹拖动到此文件夹中即可添加字体。
 
