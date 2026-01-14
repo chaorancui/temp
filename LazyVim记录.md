@@ -92,6 +92,33 @@ LazyVim 的插件管理机制虽然初看复杂，但其核心逻辑其实非常
 | `ui.lua`         | 主题（Colorscheme）、状态栏、看板等外观配置。           |
 | `editor.lua`     | 类似 `flash.nvim`、`telescope`、文件树等通用工具。      |
 
+## 配置文件
+
+### `config/xx.lua`
+
+通常情况下，配置文件路径：`~/.config/nvim/lua/config/xx.lua`
+
+1. `~/.config/lua/config/autocmds.lua`：
+
+   ```Lua
+   -- 自动命令：恢复文件标签。可以摆脱手动按 `<leader>qs`。
+   -- 只有在不带参数打开 nvim 时才自动恢复会话（防止 nvim filename 时也触发）
+   vim.api.nvim_create_autocmd("VimEnter", {
+     group = vim.api.nvim_create_augroup("restore_session", { clear = true }),
+     callback = function()
+       if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
+         require("persistence").load()
+       end
+     end,
+     nested = true,
+   })
+   ```
+
+### `plugins/xx.lua`
+
+通常情况下，配置文件路径：`~/.config/nvim/lua/plugins/xx.lua`
+**`import = "plugins"`**：这就是“魔法”所在。它告诉 `lazy.nvim` 去扫描 `lua/plugins/` 目录下的所有 `.lua` 文件。
+
 # LazyVim 技巧
 
 ## 快速上下移动整行代码
@@ -269,6 +296,115 @@ LazyVim 默认集成的是 **Comment.nvim**。
    ```
 
    搜索 `Comment.nvim`。
+
+## 代码高亮
+
+1. 场景一：阅读时高亮（视觉辅助）
+
+   如果你觉得 `vim-illuminate` 的默认高亮不够明显，或者想让它在光标移动时响应更快，可以通过配置该插件来实现。
+
+   配置方法：
+
+   在 `~/.config/nvim/lua/plugins/ui.lua` (如果没有该文件则新建) 中添加：
+
+   ```Lua
+   return {
+     {
+       "RRethy/vim-illuminate",
+       opts = {
+         delay = 100, -- 延迟 100ms 后自动高亮，默认通常较长
+         large_file_cutoff = 2000, -- 超过 2000 行的文件禁用，保证性能
+         under_cursor = true, -- 光标下的单词也高亮
+       },
+       config = function(_, opts)
+         require("illuminate").configure(opts)
+         -- 设置高亮颜色（可选）：这里将其改为淡蓝色背景
+         vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
+         vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
+         vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
+       end,
+     },
+   }
+   ```
+
+   - **阅读技巧：** 配合 `[[` 和 `]]` 在高亮的单词间快速跳转。
+
+   LazyVim 默认集成了 **Treesitter** 和 **LazyVim 核心快捷键**，它们将 `[[` 和 `]]` 定义为跳转到“上一个/下一个类或函数的开始”。
+
+   当你安装并配置了 `vim-illuminate` 时，它也尝试使用这两个快捷键来跳转到“高亮的单词”。在 Neovim 中，**后加载的配置或特定插件的优先级**可能会导致行为不符合你的预期。
+
+   可以重新进行按键映射：
+
+   ```lua
+   return {
+     {
+       "RRethy/vim-illuminate",
+       opts = {
+         delay = 100,
+         large_file_cutoff = 2000,
+         under_cursor = true,
+       },
+       config = function(_, opts)
+         require("illuminate").configure(opts)
+
+         -- 显式定义跳转快捷键
+         local function map(key, dir, buffer)
+           vim.keymap.set("n", key, function()
+             require("illuminate")["goto_" .. dir .. "_reference"](false)
+           end, { desc = dir:sub(1, 1):upper() .. dir:sub(2) .. " Reference", buffer = buffer })
+         end
+
+         -- map("]]", "next") -- 会抢占函数跳转
+         -- map("[[", "prev") -- 会抢占函数跳转
+         map("<a-n>", "next") -- Alt + n 跳转到下一个高亮单词
+         map("<a-p>", "prev") -- Alt + p 跳转到上一个高亮单词
+       end,
+     },
+   }
+   ```
+
+2. 场景二：修改时高亮（批量编辑）
+
+   对于批量修改，LazyVim 社区最推荐的是类似 VS Code 的**多光标 (Multi-cursor)** 体验，或者更具 Vim 哲学的 **`gn` 操作**。
+
+   **方案 A**：Vim 原生高亮 + `cgn` (推荐：最符合 LazyVim 逻辑)
+
+   这种方式不需要安装新插件，利用搜索高亮进行修改。
+
+   1. **高亮：** 光标移动到单词上，按 `*`。此时所有相同单词都会高亮。
+   2. **修改：** 输入 `cgn`。这会删除当前单词并进入插入模式。
+   3. **输入：** 输入新单词，按 `<Esc>` 退出。
+   4. **重复：** 按 `.` (点号)，Vim 会自动跳到下一个高亮的单词并应用同样的修改。
+      - _优点：_ 你可以有选择性地跳过某个单词（按 `n` 跳过，按 `.` 修改）。
+
+   **方案 B**：使用 `ironnsump/grim` (类似 VS Code 多光标)
+
+   如果你喜欢用鼠标或快捷键一次性选中多个单词并同时输入，可以安装 `mini.surround` 的作者开发的插件或常见的 `vim-visual-multi`。
+
+   在 `~/.config/nvim/lua/plugins/edit.lua` 中添加：
+
+   ```Lua
+   return {
+     {
+       "mg979/vim-visual-multi",
+       event = "VeryLazy",
+     }
+   }
+   ```
+
+   - **使用方法：**
+     - `Ctrl + n`：选中当前单词并高亮，再次按 `Ctrl + n` 选中下一个。
+     - `Ctrl + Up/Down`：向上/下垂直创建光标。
+     - 按下 `c` 或 `i` 即可进入**多行同时编辑模式**。
+
+**总结建议：**
+
+| **需求场景**            | **推荐方案**       | **操作 / 快捷键**                    |
+| ----------------------- | ------------------ | ------------------------------------ |
+| **纯阅读/查看引用**     | `vim-illuminate`   | 停顿 100ms 自动高亮，`]]` 跳转       |
+| **快速批量重命名**      | `LSP Rename`       | `leader + cr` (LazyVim 默认，最智能) |
+| **非 LSP 单词批量修改** | `vim-visual-multi` | `Ctrl + n` 选中多个 -> `c` 修改      |
+| **精准可控的修改**      | `cgn` 技巧         | `*` 高亮 -> `cgn` 修改 -> `.` 重复   |
 
 # 配置
 
@@ -639,3 +775,65 @@ tree-sitter --version
    - ✅ OK tar 1.34.0 (/usr/bin/tar)
    - ✅ OK curl 7.81.0 (/usr/bin/curl)
    ```
+
+## neo-tree.nvim
+
+### 回复上次文件状态
+
+在 LazyVim 中，想要实现类似 VSCode 那样“再次打开项目时恢复上次的文件标签和目录树状态”，主要依靠 **Persistence.nvim**（LazyVim 默认已包含的会话管理器）和一些 **Neo-tree** 的配置。
+
+1. 恢复文件标签（Session 恢复）
+
+   LazyVim 默认集成了 `persistence.nvim`，它会自动保存你每个项目的会话。
+
+   - **手动恢复：** 当你进入一个项目目录并打开 nvim 时，可以使用以下快捷键：
+     - `<leader>qs`：恢复**当前目录**的上次会话（最常用，等同于 VSCode 恢复项目）。
+     - `<leader>ql`：恢复**最后一次**使用的会话（不限目录）。
+   - **自动恢复（进阶）：** 如果你希望每次打开 nvim 时**全自动**恢复上次的状态，而不需要按快捷键，可以在 `lua/config/options.lua` 或 `lua/plugins/` 下创建一个文件来配置。
+
+2. 让 Neo-tree 记住路径和状态
+
+   Neo-tree 默认可能在恢复会话后不会自动聚焦到上次的文件，或者显示不一致。你可以通过以下配置增强它的“记忆力”：
+
+   在你的 `lua/plugins/example.lua`（或专门的 `neotree.lua`）中添加：
+
+   ```Lua
+   return {
+     {
+       "nvim-neo-tree/neo-tree.nvim",
+       opts = {
+         filesystem = {
+           -- 核心配置：让 Neo-tree 始终跟随当前编辑的文件
+           follow_current_file = {
+             enabled = true, -- 每次切换标签页，左侧目录树会自动展开并定位到该文件
+             leave_dirs_open = true, -- 切换文件时保持之前打开的目录不折叠
+           },
+           -- 配合会话管理，确保重新打开时处于正确的 CWD
+           bind_to_cwd = true,
+         },
+       },
+     },
+   }
+   ```
+
+3. 实现“完全自动恢复”的终极配置
+
+   如果你想彻底摆脱手动按 `<leader>qs`，可以添加一个自动命令。在 `lua/config/autocmds.lua` 中加入：
+
+   ```Lua
+   -- 只有在不带参数打开 nvim 时才自动恢复会话（防止 nvim filename 时也触发）
+   vim.api.nvim_create_autocmd("VimEnter", {
+     group = vim.api.nvim_create_augroup("restore_session", { clear = true }),
+     callback = function()
+       if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
+         require("persistence").load()
+       end
+     end,
+     nested = true,
+   })
+   ```
+
+**总结：**
+
+- **文件标签：** 依靠 `persistence.nvim`。按 `<leader>qs` 即可找回所有 Tab。
+- **侧边栏位置：** 在 Neo-tree 配置中开启 `follow_current_file`，这样只要文件恢复了，侧边栏会自动同步到对应的位置。
