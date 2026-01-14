@@ -223,7 +223,7 @@ git config --global credential.helper wincred
 
 有时候在电脑挂了梯子的情况下，clone 外网代码需要配置代理，**不用时再取消**：
 
-下载公司内部代码，不需要代理。但下载外网代码，如<https://gitee.com和https://github.com，又需要代理。>
+下载公司内部代码，不需要代理。但下载外网代码，如 `https://gitee.com` 和 `https://github.com`，又需要代理。
 
 - 方法一：给指定的域名设置代理，其他不做代理
 
