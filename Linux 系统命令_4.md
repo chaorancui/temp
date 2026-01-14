@@ -8,6 +8,49 @@
 
 # 网络协议命令
 
+## 终端设置代理
+
+**方法一：通过环境变量（最推荐，最通用）**
+
+这是最标准的方法。大部分 Linux 程序（包括 `curl`、`wget`、`nvim` 等）都会自动读取 `http_proxy` 和 `https_proxy` 环境变量。
+
+在你的终端执行：
+
+```bash
+export http_proxy="http://proxy.com:port"
+export https_proxy="http://proxy.com:port"
+
+# 如果代理需要账号密码，格式如下：
+export http_proxy="http://user:password@proxy.com:port"
+export https_proxy="http://user:password@proxy.com:port"
+```
+
+**如果要永久生效：** 将上述两行添加到你的 `~/.bashrc`（如果你用的是 bash）或 `~/.zshrc` 文件末尾，然后执行 `source ~/.bashrc`。
+
+**方法二：创建 curl 配置文件（类似 git config）**
+
+你可以专门为 `curl` 创建一个配置文件，这样即使不设置全局环境变量，`curl` 命令也会自动走代理。
+
+1. 创建或编辑文件：`~/.curlrc`
+2. 在文件中添加以下内容：
+
+   ```bash
+   proxy ="http://proxy.com:port"
+
+   # 如果代理需要账号密码，格式如下：
+   proxy = "http://user:password@proxy.com:port"
+   ```
+
+3. 让 curl 跳过 SSL 验证：
+
+   ```bash
+   insecure
+   ```
+
+   `insecure` 参数会告诉 `curl` 忽略 SSL 证书检查。
+
+保存后，你可以运行 `curl -I https://google.com` 测试一下是否成功。
+
 ## curl 命令
 
 > [curl 的用法指南](https://www.ruanyifeng.com/blog/2019/09/curl-reference.html)
