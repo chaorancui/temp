@@ -2,6 +2,108 @@
 
 # LazyVim 介绍
 
+## LazyVim 加载顺序
+
+在 LazyVim 中，理解配置文件的加载顺序是掌握这款配置框架的关键。由于 LazyVim 深度依赖 `lazy.nvim` 的懒加载机制，文件的加载顺序直接决定了你的配置是否能生效（或者是否会被插件覆盖）。
+
+**一、配置文件作用与加载顺序**
+
+LazyVim 的启动流程是严格定义的，按时间先后顺序如下：
+
+| **顺序** | **配置文件**              | **作用说明**                                                                                                                                                          |
+| -------- | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1**    | `lua/config/options.lua`  | **最先加载**。用于设置全局变量（如 `mapleader`）和 Neovim 内置选项（如 `relativenumber`）。此时插件系统还没启动。                                                     |
+| **2**    | `lua/config/lazy.lua`     | **插件系统的引擎**。负责初始化 `lazy.nvim`，并定义哪些目录（通常是 `lua/plugins`）会被扫描。                                                                          |
+| **3**    | `lua/plugins/*.lua`       | **插件规格加载**。`lazy.nvim` 开始扫描插件文件夹，合并你自定义的 `opts`、`keys` 等。注意：此时只是“注册”插件，不一定会立即“执行”插件代码（除非设置了 `lazy=false`）。 |
+| **4**    | `lua/config/keymaps.lua`  | **通用快捷键**。在插件规格注册后加载。建议只放不依赖特定插件的快捷键（如窗口切换、文字移动）。                                                                        |
+| **5**    | `lua/config/autocmds.lua` | **通用自动命令**。最后加载的通用配置。适合放一些简单的 Neovim 原生事件监听。                                                                                          |
+
+- 有时 `autocmds.lua` 命令会无效的原因：
+
+  因为 `autocmds.lua` 加载时，`persistence.nvim` 插件虽然被“注册”了，但它往往是按需加载的。如果在自动命令执行时，插件的 `require` 路径还没被加入 runtimepath，或者插件还没完成 `setup`，调用就会报错或无效。
+
+**二、插件配置的最佳组织方式**
+
+为了避免顺序导致的冲突，最合理的组织方式是 **“功能高内聚”**：将插件的安装、配置、快捷键、以及与之相关的自动命令**全部封装在 `lua/plugins/` 下的一个独立文件中**。
+
+推荐的目录结构：
+
+```log
+lua/
+├── config/
+│   ├── options.lua    -- 只放基础设置 (shiftwidth, leader key)
+│   ├── keymaps.lua    -- 只放全局快捷键 (jk 映射, 窗口跳转)
+│   └── autocmds.lua   -- 只放全局自动命令 (高亮复制内容)
+└── plugins/
+    ├── ui.lua         -- 组织 UI 相关插件 (bufferline, lualine)
+    ├── editor.lua     -- 组织编辑器功能 (neo-tree, flash.nvim)
+    └── session.lua    -- 组织会话管理 (persistence + 你的自动恢复逻辑)
+```
+
+**三、组织建议总结**
+
+1. **解耦**：如果配置不依赖插件（如：`set number`），放 `config/options.lua`。
+2. **联动**：如果配置强依赖插件（如：你的自动恢复逻辑），放 `plugins/` 对应插件的 `config` 或 `init` 函数里。
+3. **原子化**：尽量一个文件负责一个功能模块。比如 `ui.lua` 负责界面，`lsp.lua` 负责语言支持。
+
+[LazyVim configuration and demo](https://www.youtube.com/watch?v=N93cTbtLCIM)
+
+这个视频展示了 LazyVim 的基础安装和文件组织方式，能帮你更直观地理解 `config` 与 `plugins` 文件夹在实际开发中是如何配合的。
+
+- **`config/` 目录**：用于配置 Neovim 内置行为（比如按键、基础选项、全局自动命令）。
+- **`plugins/` 目录**：用于配置依赖于特定插件的行为。
+
+## 加载时序的冲突
+
+打开上次 buffer，文件不显示 git 状态，这是 **LazyVim 的懒加载机制（Lazy Loading）与会话恢复（Session Restore）之间的时序冲突**。
+
+在 LazyVim 中，Git 相关插件（如 `gitsigns`）通常被设置为 `event = "LazyFile"` 或 `event = "BufReadPost"` 触发。
+
+1. **时序问题**：当你通过 `persistence.load()` 恢复会话时，它会瞬间打开多个文件（Buffers）。
+2. **事件漏掉**：在某些情况下，由于会话恢复是在 `VimEnter` 瞬间完成的，`gitsigns` 插件可能还没来得及捕获到这些 Buffers 的打开事件，或者它的初始化逻辑在会话加载之后才完成，导致它没有为这些恢复的文件开启 Git 追踪。
+3. **Neo-tree 刷新**：Neo-tree 的 Git 状态依赖于底层的 Git 插件（如 `gitsigns` 或原生 git 指令）。如果底层没识别，侧边栏也就没有图标。
+
+**解决方案**：手动触发一次刷新
+
+我们可以在恢复会话后，通过代码强制让 Neovim 触发一次相关事件，或者手动调用一次刷新。请尝试修改 `lua/plugins/session.lua`：
+
+```Lua
+return {
+  {
+    "folke/persistence.nvim",
+    event = "VimEnter",
+    config = function(_, opts)
+      local persistence = require("persistence")
+      persistence.setup(opts)
+
+      vim.api.nvim_create_autocmd("VimEnter", {
+        group = vim.api.nvim_create_augroup("auto_restore_session", { clear = true }),
+        callback = function()
+          if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
+            -- 1. 恢复会话
+            persistence.load()
+
+            -- 2. 强制触发 BufReadPost 事件，确保 gitsigns 等插件开始工作
+            vim.schedule(function()
+              for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.api.nvim_buf_is_valid(buf) then
+                  vim.api.nvim_exec_autocmds("BufReadPost", { buffer = buf })
+                end
+              end
+            end)
+          end
+        end,
+      })
+    end,
+  },
+}
+```
+
+加上 `vim.schedule` 和 `BufReadPost` 的原因：
+
+- **`vim.schedule`**：这会将任务推迟到 Neovim 主循环的下一帧。这样可以确保在执行刷新之前，所有的会话文件都已经真正加载到了内存中。
+- **`BufReadPost`**：这是大多数 Git 插件启动的信号。我们遍历所有打开的窗口（Buffers），手动给它们发送这个信号，强迫 `gitsigns` 去检查这些文件的 Git 状态。
+
 ## 插件管理机制
 
 LazyVim 的插件管理机制虽然初看复杂，但其核心逻辑其实非常优雅。它主要基于一个叫 **`lazy.nvim`** 的插件管理器。
@@ -96,28 +198,130 @@ LazyVim 的插件管理机制虽然初看复杂，但其核心逻辑其实非常
 
 ### `config/xx.lua`
 
-通常情况下，配置文件路径：`~/.config/nvim/lua/config/xx.lua`
+通常情况下，配置文件路径：`~/.config/nvim/lua/config/xx.lua`，此目录用于配置 Neovim 内置行为（比如按键、基础选项、全局自动命令）。
 
-1. `~/.config/lua/config/autocmds.lua`：
+**`~/.config/lua/config/options.lua`**
 
-   ```Lua
-   -- 自动命令：恢复文件标签。可以摆脱手动按 `<leader>qs`。
-   -- 只有在不带参数打开 nvim 时才自动恢复会话（防止 nvim filename 时也触发）
-   vim.api.nvim_create_autocmd("VimEnter", {
-     group = vim.api.nvim_create_augroup("restore_session", { clear = true }),
-     callback = function()
-       if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
-         require("persistence").load()
-       end
-     end,
-     nested = true,
-   })
-   ```
+```Lua
+-- 1. 启用系统剪贴板
+vim.g.clipboard = {
+  name = 'OSC 52',
+  copy = {
+    ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+  },
+  paste = {
+    ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+    ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+  },
+}
+```
 
 ### `plugins/xx.lua`
 
-通常情况下，配置文件路径：`~/.config/nvim/lua/plugins/xx.lua`
-**`import = "plugins"`**：这就是“魔法”所在。它告诉 `lazy.nvim` 去扫描 `lua/plugins/` 目录下的所有 `.lua` 文件。
+通常情况下，配置文件路径：`~/.config/nvim/lua/plugins/xx.lua`，此目录用于配置依赖于特定插件的行为。
+
+**`~/.config/lua/plugins/ui.lua`**
+
+```Lua
+-- ~/.config/nvim/lua/plugins/ui.lua
+return {
+  {
+    "RRethy/vim-illuminate",
+    opts = {
+      delay = 100, -- 延迟 100ms 后自动高亮，默认通常较长
+      large_file_cutoff = 2000, -- 超过 2000 行的文件禁用，保证性能
+      under_cursor = true, -- 光标下的单词也高亮
+    },
+    config = function(_, opts)
+      require("illuminate").configure(opts)
+      -- 设置高亮颜色（可选）：这里将其改为淡蓝色背景
+      vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
+      vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
+      vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
+    end,
+  },
+}
+```
+
+**`~/.config/lua/plugins/editor.lua`**
+
+```Lua
+return {
+  -- 安装 cpp 语言
+  {
+    "nvim-treesitter/nvim-treesitter",
+    build = ":TSUpdate",
+    opts = function(_, opts)
+      local install = require("nvim-treesitter.install")
+      -- 1. 既然你的 git clone 通，强制用 git
+      install.prefer_git = true
+      -- 2. 既然没有能用的 CLI，强制用 gcc
+      install.compilers = { "gcc" }
+      -- 3. 核心：强制不使用外部 tree-sitter CLI
+      install.use_native_parsers = false
+
+      -- 确保基础语言在列表中
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, { "cpp", "c", "lua", "vim", "vimdoc" })
+    end,
+  },
+
+  -- 会话恢复后，Neo-tree 能够自动对齐到当前打开的文件
+  {
+    "nvim-neo-tree/neo-tree.nvim",
+    opts = {
+      filesystem = {
+        -- 核心配置：让 Neo-tree 始终跟随当前编辑的文件
+        follow_current_file = {
+          enabled = true, -- 每次切换标签页，左侧目录树会自动展开并定位到该文件
+          leave_dirs_open = true, -- 切换文件时保持之前打开的目录不折叠
+        },
+        -- 配合会话管理，确保重新打开时处于正确的 CWD
+        bind_to_cwd = true,
+      },
+    },
+  },
+
+}
+
+```
+
+**`~/.config/lua/plugins/session.lua`**
+
+```Lua
+return {
+  -- 进入项目且没有打开特定文件时，自动加载上次的标签页
+  {
+    "folke/persistence.nvim",
+    event = "VimEnter", -- 进入 Vim 之后触发
+    config = function(_, opts)
+      local persistence = require("persistence")
+      persistence.setup(opts)
+
+        -- 在这里注册自动命令，此时插件环境已经 Ready
+        vim.api.nvim_create_autocmd("VimEnter", {
+        group = vim.api.nvim_create_augroup("auto_restore_session", { clear = true }),
+        callback = function()
+            -- 仅在直接输入 nvim (argc == 0) 且不是从管道读入数据时恢复
+            if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
+            persistence.load()
+
+            -- 2. 强制触发 BufReadPost 事件，确保 gitsigns 等插件开始工作
+            vim.schedule(function()
+              for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                if vim.api.nvim_buf_is_valid(buf) then
+                  vim.api.nvim_exec_autocmds("BufReadPost", { buffer = buf })
+                end
+              end
+            end)
+          end
+        end,
+      })
+    end,
+  },
+}
+```
 
 # LazyVim 技巧
 
@@ -452,9 +656,6 @@ LazyVim 默认集成的是 **Comment.nvim**。
        ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
      },
    }
-
-   -- 确保 LazyVim 使用系统剪贴板寄存器
-   vim.opt.clipboard = "unnamedplus"
    ```
 
    > **注意**：如果你使用的是旧版 Neovim，建议安装插件 `ojroques/nvim-osc52`。但在 LazyVim 默认环境中，升级到最新的 Neovim 是最简单的解决方案。
