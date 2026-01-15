@@ -162,3 +162,35 @@ Gun Win 项目为 Win32 提供了 GNU Linux 平台的一些工具包，可以在
 
 关闭 IDM (internet download manager) 自动弹出自动更新的提示
 <https://blog.csdn.net/qq_29856169/article/details/137630040>
+
+### WezTerm
+
+**配置**
+
+可以参考[Wez's Terminal Emulator ---- Configuration](https://wezterm.org/config/files.html)
+
+在 Windows 的 WezTerm 配置文件中(通常是 `%USERPROFILE%\.wezterm.lua`)，如`C:\Users\cui\.wezterm.lua`:
+
+```lua
+-- Pull in the wezterm API
+local wezterm = require 'wezterm'
+
+-- This will hold the configuration.
+local config = wezterm.config_builder()
+
+-- This is where you actually apply your config choices.
+
+-- For example, changing the initial geometry for new windows:
+-- config.initial_cols = 120
+-- config.initial_rows = 28
+
+-- or, changing the font size and color scheme.
+-- config.font_size = 10
+config.color_scheme = 'AdventureTime'
+
+config.font = wezterm.font 'CommitMono Nerd Font'
+
+
+-- Finally, return the configuration to wezterm:
+return config
+```
