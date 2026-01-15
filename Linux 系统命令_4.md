@@ -926,4 +926,194 @@ Host my-server-alias                # hostName的别名
   ProxyJump [user@]jump_host[:port]
   # 也可以把跳板机也定义成一个 Host 别名方便复用，然后
   ProxyJump my-server-alias
+
+  # 关键配置：执行命令并保持交互
+  RequestTTY yes
+  RemoteCommand bash --rcfile <(echo 'source ~/.bashrc; cd /data/') # 环境加载完毕后再执行命令
+  # RemoteCommand cd /data/ && exec $SHELL -l # 连接后执行命令
 ```
+
+### ssh 远端执行命令
+
+**一、最简单的单条命令**
+
+如果你只是想去远程看一眼就回来（不留在那里），直接在 `ssh` 命令后面跟上字符串即可：
+
+```bash
+ssh user@hostname "cd /data && ls -lh"
+```
+
+- **行为：** 登录 -> 执行 `cd` -> 执行 `ls` -> **立即断开连接回到本地**。
+
+**二、在远程执行本地脚本 (非常实用)**
+
+假设你本地有一个脚本叫 `setup_env.sh`，你不想把它拷贝到远程，但想在远程运行它：
+
+```bash
+ssh user@hostname 'bash -s' < ./setup_env.sh
+```
+
+- 这会把本地脚本的内容通过标准输入（stdin）“喂”给远程的 bash。
+
+**三、执行命令后保持登录 (交互模式)**
+
+关键在于 `-t` 参数（强制分配伪终端）：
+
+```bash
+ssh -t user@hostname "cd /data && exec $SHELL -l"
+```
+
+- **`-t`**: 告诉 SSH 即使我要运行命令，也请给我准备好交互界面。
+- **`exec $SHELL -l`**: 这一步是在命令序列的最后，把当前的进程替换成一个全新的交互式 Shell。
+
+**四、这里的引号有讲究：单引号 vs 双引号**
+
+这是新手最容易踩坑的地方。
+
+- **双引号 `""`**：变量在**本地**解析。
+
+  ```bash
+  ssh user@hostname "echo $USER"  # 输出的是你【本地电脑】的用户名
+  ```
+
+- **单引号 `''`**：变量在**远程**解析。
+
+  ```bash
+  ssh user@hostname 'echo $USER'  # 输出的是【远程服务器】上的用户名
+  ```
+
+  所以，如果你要在 `cd` 后面跟一个远程的变量路径，记得用单引号。
+
+**五、使用 Heredoc 执行多行复杂命令**
+
+如果你要在连接后执行一大堆命令，写在引号里会非常乱，这时可以用 `<<-EOF`：
+
+```bash
+ssh -t user@hostname <<-'EOF'
+    cd /data
+    git status
+    export MY_VAR="hello"
+    exec $SHELL -l
+EOF
+```
+
+- 这种写法清晰直观，就像在写本地脚本一样。
+
+**总结表**
+
+| **场景**             | **命令写法**                           |
+| -------------------- | -------------------------------------- |
+| **只运行，不驻留**   | `ssh host "cmd"`                       |
+| **运行后停留在那里** | `ssh -t host "cmd; exec $SHELL"`       |
+| **运行本地脚本**     | `ssh host "bash -s" < local_script.sh` |
+| **复杂的自动化逻辑** | 使用 `EOF` 多行块                      |
+
+### ssh 连接后切换目录
+
+**二、SSH 命令行中**
+
+SSH 执行命令后保持登录 (交互模式)，关键在于 `-t` 参数（强制分配伪终端）：
+
+```bash
+ssh -t user@hostname "cd /data && exec $SHELL -l"
+```
+
+- **`-t`**: 告诉 SSH 即使我要运行命令，也请给我准备好交互界面。
+- **`exec $SHELL -l`**: 这一步是在命令序列的最后，把当前的进程替换成一个全新的交互式 Shell。
+
+**二、SSH 配置中**
+
+在标准的 `~/.ssh/config` 文件中，可以利用 `RequestTTY` 和 `RemoteCommand` 在连接后执行命令，这是 SSH 协议原生支持的方式。
+
+在 `~/.ssh/config` 中添加：
+
+```log
+Host my-server
+    HostName 1.2.3.4
+    User root
+    # 关键配置：执行命令并保持交互
+    RequestTTY yes
+    RemoteCommand cd /var/www/html && exec $SHELL -l
+    # 若 ~/.bashrc 有修改环境的代码（conda, cd等），尝试修改 RemoteCommand 为以下逻辑，极简环境可能不支持：
+    RemoteCommand exec $SHELL --rcfile <(echo 'source ~/.bashrc; cd /data')
+```
+
+**配置解析：**
+
+- **`RemoteCommand`**: 连接成功后立即执行的命令。
+- **`&& exec $SHELL -l`**: 这步非常关键！如果不加这一句，SSH 执行完 `cd` 就会直接退出。加上它，会让你在 `cd` 之后重新打开一个交互式的 Shell。
+- **`RequestTTY yes`**: 强制开启 TTY，否则你进不去交互界面。
+
+### ssh 远程配置文件
+
+在终端里（如 WezTerm 等），如果你想摆脱每次手动输入 `ssh user@host` 的繁琐过程，有几种非常优雅的实现方式。
+
+1. 最推荐：利用 SSH Config（系统级方案）
+
+   这是最标准的方法，不仅 WezTerm 能用，你以后在终端直接输入短别名也能登录。
+
+   1. 在你的本地电脑上编辑（或创建） `~/.ssh/config` 文件。
+
+   2. 添加如下内容：
+
+      ```config
+      Host my-server
+          HostName 1.2.3.4
+          User root
+          Port 22
+      ```
+
+   3. **效果：** 以后你在 WezTerm 里只需要输入 `ssh my-server` 即可。
+
+2. WezTerm 终端可以 **自动探测 (Automatic Discovery)**
+
+   WezTerm 默认会自动读取系统标准的 SSH 配置文件`~/.ssh/config`。你不需要在 `wezterm.lua` 中为每个服务器写一遍配置，只需要开启“包含”开关或者直接调用即可。
+
+   直接在 WezTerm 中：
+
+   1. 按下 **`CTRL + SHIFT + P`** 打开指令调色板。
+   2. 输入 **`Connect`**。
+   3. 你会看到一个选项叫做 **`Connect to SSH Host`**。
+   4. 选中后，WezTerm 会自动列出你 `~/.ssh/config` 里的所有 `Host` 别名。
+
+3. WezTerm SSH Domains（原生集成）
+
+   这是 WezTerm 最强大的功能。它不是简单的代发命令，而是让远程服务器像本地窗口一样被管理。
+
+   在 `wezterm.lua` 中配置：
+
+   ```Lua
+   local wezterm = require 'wezterm'
+   local config = wezterm.config_builder()
+
+   config.ssh_domains = {
+     {
+       -- 这里的 name 是你在 WezTerm 里看到的显示名称
+       name = 'my-server',
+
+       -- 1. 自定义端口：直接在地址后加 :端口号
+       remote_address = '1.2.3.4:2222',
+
+       -- 2. 用户名
+       username = 'root',
+
+       -- 3. 自定义 SSH Key 路径
+       -- 注意：这里的路径必须是本地电脑（WezTerm 运行端）的绝对路径
+       ssh_option = {
+         identityfile = 'C:/Users/YourName/.ssh/id_ed25519', -- Windows 示例
+         -- 如果是 Linux/Mac: identityfile = '/home/user/.ssh/id_ed25519',
+       },
+
+       -- 4. 进阶：如果你想让连接更稳定，可以设置多长时间检测一次心跳
+       -- Multiplexing 也是 WezTerm 的强项
+     },
+   }
+
+   return config
+   ```
+
+   **效果：**
+
+   - 你可以使用 `wezterm connect my-linux` 命令。
+   - 更重要的是，配合 `CTRL+SHIFT+P` 然后输入 `Connect`，你可以直接选择服务器。
+   - **优势：** 这种方式对多窗口管理和重新连接的支持更好。
