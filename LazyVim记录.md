@@ -224,33 +224,158 @@ vim.g.clipboard = {
 **`~/.config/lua/plugins/ui.lua`**
 
 ```Lua
--- ~/.config/nvim/lua/plugins/ui.lua
 return {
+  -- 1. 优化 Snacks.picker (处理长路径显示问题)
+  {
+    "folke/snacks.nvim",
+    opts = {
+      picker = {
+        formatters = {
+          file = {
+            filename_first = true, -- 文件名在前，路径在后，解决长路径截断看不清文件名的问题
+          },
+        },
+        sources = {
+          buffers = {
+            layout = { preset = "ivy" }, -- 使用底部全宽布局，给路径留出最大显示空间
+            devicons = true,
+          },
+        },
+      },
+    },
+    -- 覆盖 LazyVim 默认快捷键，确保调用我们配置好的 picker
+    keys = {
+      {
+        "<leader>bb",
+        function()
+          Snacks.picker.buffers()
+        end,
+        desc = "Buffers (Snacks)",
+      },
+      {
+        "<leader>,",
+        function()
+          Snacks.picker.buffers()
+        end,
+        desc = "Buffers (Snacks)",
+      },
+    },
+  },
+
   {
     "RRethy/vim-illuminate",
+    event = "VeryLazy",
     opts = {
-      delay = 100, -- 延迟 100ms 后自动高亮，默认通常较长
-      large_file_cutoff = 2000, -- 超过 2000 行的文件禁用，保证性能
-      under_cursor = true, -- 光标下的单词也高亮
+      delay = 100,
+      large_file_cutoff = 2000,
+      large_file_overrides = nil,
+      min_count_to_highlight = 2, -- 至少出现 2 次才高亮
+      -- 直接使用 filetypes_denylist 就够了，删除 should_enable
+      filetypes_denylist = {
+        "dirvish",
+        "fugitive",
+        "alpha",
+        "neo-tree",
+        "Trouble",
+        "lazy",
+        "mason",
+        "help",
+        "dashboard",
+        "TelescopePrompt",
+      },
+      under_cursor = true,
     },
     config = function(_, opts)
       require("illuminate").configure(opts)
-      -- 设置高亮颜色（可选）：这里将其改为淡蓝色背景
-      vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
-      vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
-      vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
+
+      -- 使用更柔和的颜色，避免与 Visual 混淆
+      -- 淡灰色背景 + 下划线，区别于 interestingwords 的彩色高亮
+      vim.api.nvim_set_hl(0, "IlluminatedWordText", {
+        bg = "#3a3a3a",
+        underline = false,
+      })
+      vim.api.nvim_set_hl(0, "IlluminatedWordRead", {
+        bg = "#3a3a3a",
+        underline = false,
+      })
+      vim.api.nvim_set_hl(0, "IlluminatedWordWrite", {
+        bg = "#4a4a4a",
+        underline = false,
+      })
+    end,
+  },
+
+
+  {
+    "nvim-lua/plenary.nvim", -- 大部分 LazyVim 插件都依赖它，确保它存在
+    config = function()
+      -- 定义颜色池（Catppuccin 风格）
+      local colors = {
+        { bg = "#89b4fa", fg = "#11111b" }, -- Blue
+        { bg = "#f38ba8", fg = "#11111b" }, -- Red
+        { bg = "#a6e3a1", fg = "#11111b" }, -- Green
+        { bg = "#f9e2af", fg = "#11111b" }, -- Yellow
+        { bg = "#fab387", fg = "#11111b" }, -- Orange
+        { bg = "#cba6f7", fg = "#11111b" }, -- Mauve
+      }
+
+      local current_color_idx = 1
+      local word_match_ids = {} -- 存储单词到 match id 的映射
+
+      -- 核心高亮函数
+      local function toggle_word_highlight()
+        local word = vim.fn.expand("<cword>")
+        if word == "" then
+          return
+        end
+
+        -- 如果该单词已经高亮，则取消它
+        if word_match_ids[word] then
+          vim.fn.matchdelete(word_match_ids[word])
+          word_match_ids[word] = nil
+          return
+        end
+
+        -- 获取下一个颜色
+        local color = colors[current_color_idx]
+        local group_name = "CustomWordHL" .. current_color_idx
+
+        -- 定义高亮组
+        vim.api.nvim_set_hl(0, group_name, { bg = color.bg, fg = color.fg, bold = true })
+
+        -- 执行高亮匹配
+        local match_id = vim.fn.matchadd(group_name, "\\<" .. word .. "\\>")
+        word_match_ids[word] = match_id
+
+        -- 循环索引
+        current_color_idx = (current_color_idx % #colors) + 1
+      end
+
+      -- 清除所有高亮函数
+      local function clear_all_highlights()
+        for word, id in pairs(word_match_ids) do
+          pcall(vim.fn.matchdelete, id)
+        end
+        word_match_ids = {}
+        current_color_idx = 1
+      end
+
+      -- 绑定快捷键 (LazyVim 风格)
+      vim.keymap.set("n", "<leader>hl", toggle_word_highlight, { desc = "Highlight Word (Cycle Color)" })
+      vim.keymap.set("n", "<leader>hc", clear_all_highlights, { desc = "Clear All Highlights" })
     end,
   },
 }
+
 ```
 
 **`~/.config/lua/plugins/editor.lua`**
 
 ```Lua
 return {
-  -- 安装 cpp 语言
   {
     "nvim-treesitter/nvim-treesitter",
+    version = "v0.9.2", -- 兼容 tree-sitter-cli 0.22.x
     build = ":TSUpdate",
     opts = function(_, opts)
       local install = require("nvim-treesitter.install")
@@ -283,6 +408,45 @@ return {
     },
   },
 
+  {
+    "ludovicchabant/vim-gutentags",
+    event = "VeryLazy",
+    config = function()
+      -- 项目根目录标识
+      vim.g.gutentags_project_root = { ".repo", ".git", ".svn", ".project" }
+
+      -- tags 文件存放位置
+      vim.g.gutentags_cache_dir = vim.fn.expand("~/.cache/nvim/tags")
+
+      -- 启用 gtags 模块（可选，用于更强大的代码索引）
+      vim.g.gutentags_modules = { "ctags" }
+
+      -- ctags 参数
+      vim.g.gutentags_ctags_extra_args = {
+        "--fields=+niazS",
+        "--extras=+q",
+        "--c++-kinds=+px",
+        "--c-kinds=+px",
+        "--languages=C,C++", -- 只索引 C/C++ 文件
+        "--exclude=.git",
+        "--exclude=build",
+        "--exclude=.cache",
+      }
+
+      -- 生成时机
+      vim.g.gutentags_generate_on_new = 1 -- 打开新文件时生成
+      vim.g.gutentags_generate_on_missing = 1 -- tags 文件不存在时生成
+      vim.g.gutentags_generate_on_write = 1 -- 保存文件时更新
+      vim.g.gutentags_generate_on_empty_buffer = 0 -- 空 buffer 不生成
+
+      -- 在状态栏显示 gutentags 状态（可选）
+      vim.g.gutentags_enabled = 1
+
+      -- 调试选项（如果有问题可以开启）
+      -- vim.g.gutentags_trace = 1
+      -- vim.g.gutentags_define_advanced_commands = 1
+    end,
+  },
 }
 
 ```
@@ -299,16 +463,18 @@ return {
       local persistence = require("persistence")
       persistence.setup(opts)
 
-        -- 在这里注册自动命令，此时插件环境已经 Ready
-        vim.api.nvim_create_autocmd("VimEnter", {
+      -- 在这里注册自动命令，此时插件环境已经 Ready
+      vim.api.nvim_create_autocmd("VimEnter", {
         group = vim.api.nvim_create_augroup("auto_restore_session", { clear = true }),
         callback = function()
-            -- 仅在直接输入 nvim (argc == 0) 且不是从管道读入数据时恢复
-            if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
+          -- 仅在直接输入 nvim (argc == 0) 且不是从管道读入数据时恢复
+          if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
+            -- 1. 恢复文件标签页
             persistence.load()
 
             -- 2. 强制触发 BufReadPost 事件，确保 gitsigns 等插件开始工作
             vim.schedule(function()
+              -- 解决 Git 状态不显示的问题
               for _, buf in ipairs(vim.api.nvim_list_bufs()) do
                 if vim.api.nvim_buf_is_valid(buf) then
                   vim.api.nvim_exec_autocmds("BufReadPost", { buffer = buf })
@@ -321,6 +487,7 @@ return {
     end,
   },
 }
+
 ```
 
 # LazyVim 技巧
@@ -503,116 +670,77 @@ LazyVim 默认集成的是 **Comment.nvim**。
 
 ## 代码高亮
 
-1. 场景一：阅读时高亮（视觉辅助）
+针对阅读时高亮（视觉辅助），下面的 lua 配置可以实现如下功能：**自动循环颜色、支持多单词高亮、一键清除**。
 
-   illuminate 的设计就是只高亮当前光标下的单词，如果需要持久高亮多个单词，**interestingwords.nvim** 是最佳选择。
-   可以同时使用两个插件：illuminate 用于快速查看当前单词的其他出现位置，interestingwords 用于标记需要持续关注的多个单词。
+```lua
+return {
+  {
+    "nvim-lua/plenary.nvim", -- 大部分 LazyVim 插件都依赖它，确保它存在
+    config = function()
+      -- 定义颜色池（Catppuccin 风格）
+      local colors = {
+        { bg = "#89b4fa", fg = "#11111b" }, -- Blue
+        { bg = "#f38ba8", fg = "#11111b" }, -- Red
+        { bg = "#a6e3a1", fg = "#11111b" }, -- Green
+        { bg = "#f9e2af", fg = "#11111b" }, -- Yellow
+        { bg = "#fab387", fg = "#11111b" }, -- Orange
+        { bg = "#cba6f7", fg = "#11111b" }, -- Mauve
+      }
 
-   推荐的配合配置
+      local current_color_idx = 1
+      local word_match_ids = {} -- 存储单词到 match id 的映射
 
-   ```lua
-   return {
-     -- illuminate：自动高亮光标下的单词（临时、动态）
-     {
-       "RRethy/vim-illuminate",
-       event = "VeryLazy",
-       opts = {
-         delay = 100,
-         large_file_cutoff = 2000,
-         large_file_overrides = nil,
-         min_count_to_highlight = 2, -- 至少出现 2 次才高亮
-         should_enable = function(bufnr)
-           -- 排除某些文件类型
-           local excludes = { "dirvish", "fugitive", "alpha", "neo-tree", "Trouble" }
-           local ft = vim.api.nvim_buf_get_option(bufnr, "filetype")
-           return not vim.tbl_contains(excludes, ft)
-         end,
-         filetypes_denylist = {
-           "dirvish",
-           "fugitive",
-           "alpha",
-           "neo-tree",
-           "Trouble",
-           "lazy",
-           "mason",
-         },
-         under_cursor = true,
-       },
-       config = function(_, opts)
-         require("illuminate").configure(opts)
+      -- 核心高亮函数
+      local function toggle_word_highlight()
+        local word = vim.fn.expand("<cword>")
+        if word == "" then return end
 
-         -- 使用更柔和的颜色，避免与 Visual 混淆
-         -- 淡灰色背景 + 下划线，区别于 interestingwords 的彩色高亮
-         vim.api.nvim_set_hl(0, "IlluminatedWordText", {
-           bg = "#3a3a3a",
-           underline = false
-         })
-         vim.api.nvim_set_hl(0, "IlluminatedWordRead", {
-           bg = "#3a3a3a",
-           underline = false
-         })
-         vim.api.nvim_set_hl(0, "IlluminatedWordWrite", {
-           bg = "#4a4a4a",
-           underline = false
-         })
+        -- 如果该单词已经高亮，则取消它
+        if word_match_ids[word] then
+          vim.fn.matchdelete(word_match_ids[word])
+          word_match_ids[word] = nil
+          return
+        end
 
-         -- 可选：添加快捷键在高亮的单词间跳转
-         vim.keymap.set("n", "]]", function()
-           require("illuminate").goto_next_reference(false)
-         end, { desc = "Next Reference" })
+        -- 获取下一个颜色
+        local color = colors[current_color_idx]
+        local group_name = "CustomWordHL" .. current_color_idx
+        
+        -- 定义高亮组
+        vim.api.nvim_set_hl(0, group_name, { bg = color.bg, fg = color.fg, bold = true })
+        
+        -- 执行高亮匹配
+        local match_id = vim.fn.matchadd(group_name, "\\<" .. word .. "\\>")
+        word_match_ids[word] = match_id
 
-         vim.keymap.set("n", "[[", function()
-           require("illuminate").goto_prev_reference(false)
-         end, { desc = "Prev Reference" })
-       end,
-     },
+        -- 循环索引
+        current_color_idx = (current_color_idx % #colors) + 1
+      end
 
-     -- interestingwords：手动持久高亮多个单词（永久、多彩）
-     {
-       "Mr-LLLLL/interestingwords.nvim",
-       keys = {
-         { "<leader>hm", mode = { "n", "v" }, desc = "Mark/Unmark Word" },
-         { "<leader>hM", desc = "Clear All Marks" },
-       },
-       config = function()
-         require("interestingwords").setup({
-           colors = {
-             "#aeee00", "#ff0000", "#0000ff", "#b88823",
-             "#ffa724", "#ff2c4b", "#8cffba", "#d4bfff"
-           },
-           search_count = true,  -- 显示匹配数量
-           navigation = true,    -- 启用 n/N 跳转
-           scroll_center = true, -- 跳转时居中显示
-           search_key = "<leader>hm",
-           cancel_search_key = "<leader>hM",
-         })
-       end,
-     },
-   }
-   ```
+      -- 清除所有高亮函数
+      local function clear_all_highlights()
+        for word, id in pairs(word_match_ids) do
+          pcall(vim.fn.matchdelete, id)
+        end
+        word_match_ids = {}
+        current_color_idx = 1
+      end
 
-   配置思路说明：
+      -- 绑定快捷键 (LazyVim 风格)
+      vim.keymap.set("n", "<leader>hl", toggle_word_highlight, { desc = "Highlight Word (Cycle Color)" })
+      vim.keymap.set("n", "<leader>hc", clear_all_highlights, { desc = "Clear All Highlights" })
+    end,
+  },
+}
+```
 
-   **功能分工：**
+此方案：
 
-   - **illuminate**：自动、临时、低调的灰色背景 → 用于快速浏览当前单词的所有出现位置
-   - **interestingwords**：手动、持久、鲜艳的彩色高亮 → 用于标记需要重点关注的多个单词
-
-   **视觉区分：**
-
-   - illuminate 用灰色背景，不抢眼，自动跟随光标
-   - interestingwords 用彩色高亮，醒目，手动标记后永久保留
-
-   **快捷键建议：**
-
-   - `]]` / `[[` - illuminate 的单词跳转（自动高亮的单词）
-   - `<leader>hm` - 标记/取消标记单词（手动高亮）
-   - `<leader>hM` - 清除所有手动标记
-   - `n` / `N` - interestingwords 的跳转（手动高亮的单词）
-
-   **颜色调整：** 如果你使用暗色主题，可以将 `#3a3a3a` 改为 `#2a2a2a`（更暗）；如果用亮色主题，改为 `#e0e0e0`（浅灰）。
-
-   这样配置后，两个插件互不干扰，各司其职，使用体验会很好！
+1. **绝对稳定**：使用的是 Neovim 内置的 `matchadd` API，不依赖第三方不稳定的代码结构。
+2. **逻辑透明**：
+   - **`<leader>hl`**：自动取下一个颜色高亮单词。再次按同一个单词则取消高亮。
+   - **`<leader>hc`**：瞬间清空所有手动标记的高亮。
+3. **完全自洽**：你可以直接在 `colors` 列表里添加或修改你喜欢的 hex 颜色值。
 
 ## 批量编辑
 
@@ -1313,87 +1441,3 @@ LazyVim 默认安装了 `bufferline.nvim`。它是 Bufferline 顶栏导航，相
 你的直觉非常准确。**新版 LazyVim（v14.0+）确实已经不再默认使用 Telescope 了**。
 
 作者 folke 对 LazyVim 进行了重大重构，现在默认的“全能插件”是 **`snacks.nvim`**。它内置了一个更轻量、速度更快的 **`Snacks.picker`**，用来替代原先 Telescope 的大部分功能（如文件搜索、Buffer 切换等）。
-
-## interestingwords.nvim
-
-在 LazyVim 中，你可以使用 **vim-illuminate** 配合 **vim-mark** 或者 **interestingwords.nvim** 来实现持久高亮多个单词的功能。
-
-**一、使用 interestingwords.nvim（推荐方案）**
-
-这个插件专门用于高亮多个单词，并且会一直保持高亮直到手动取消。
-
-安装配置：在 LazyVim 中创建配置文件 `~/.config/nvim/lua/plugins/interestingwords.lua`：
-
-```lua
-return {
-  {
-    "Mr-LLLLL/interestingwords.nvim",
-    config = function()
-      require("interestingwords").setup({
-        colors = {
-          "#aeee00", "#ff0000", "#0000ff", "#b88823",
-          "#ffa724", "#ff2c4b"
-        },
-        search_count = true,
-        navigation = true,
-        scroll_center = true,
-        search_key = "<leader>m",  -- 高亮/取消高亮当前单词
-        cancel_search_key = "<leader>M",  -- 取消所有高亮
-        color_key = "<leader>k",  -- 使用特定颜色高亮
-        cancel_color_key = "<leader>K",  -- 取消特定颜色的高亮
-      })
-    end,
-  },
-}
-```
-
-使用方法：
-
-- `<leader>m` - 高亮光标下的单词（每次使用不同颜色）
-- `<leader>M` - 取消所有高亮
-- `n` / `N` - 在高亮的单词之间跳转
-- 可以同时高亮多个不同的单词，每个单词用不同颜色区分
-
-**二、vim-mark（备选方案）**
-
-如果你更喜欢传统的 vim-mark 插件，可以使用：
-
-```lua
-return {
-  {
-    "inkarkat/vim-mark",
-    dependencies = { "inkarkat/vim-ingo-library" },
-    keys = {
-      { "<leader>m", "<Plug>MarkSet", mode = { "n", "x" }, desc = "Mark word" },
-      { "<leader>M", "<Plug>MarkClear", desc = "Clear all marks" },
-      { "<leader>n", "<Plug>MarkSearchNext", desc = "Next mark" },
-      { "<leader>N", "<Plug>MarkSearchPrev", desc = "Prev mark" },
-    },
-  },
-}
-```
-
-**三、配置 illuminate 不自动切换**
-
-如果你想保留 illuminate 但希望它不要在选中下一个单词时消失，可以调整配置：
-
-```lua
-return {
-  "RRethy/vim-illuminate",
-  opts = {
-    -- 延迟时间，设置为 0 可以立即高亮
-    delay = 200,
-    -- 大文件不启用
-    large_file_cutoff = 2000,
-    -- 不要在这些文件类型中启用
-    filetypes_denylist = {
-      "dirvish",
-      "fugitive",
-    },
-  },
-}
-```
-
-不过 illuminate 的设计就是只高亮当前光标下的单词，如果需要持久高亮多个单词，**interestingwords.nvim** 是最佳选择。
-
-你可以同时使用两个插件：illuminate 用于快速查看当前单词的其他出现位置，interestingwords 用于标记需要持续关注的多个单词。
