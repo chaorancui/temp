@@ -505,110 +505,362 @@ LazyVim 默认集成的是 **Comment.nvim**。
 
 1. 场景一：阅读时高亮（视觉辅助）
 
-   如果你觉得 `vim-illuminate` 的默认高亮不够明显，或者想让它在光标移动时响应更快，可以通过配置该插件来实现。
+   illuminate 的设计就是只高亮当前光标下的单词，如果需要持久高亮多个单词，**interestingwords.nvim** 是最佳选择。
+   可以同时使用两个插件：illuminate 用于快速查看当前单词的其他出现位置，interestingwords 用于标记需要持续关注的多个单词。
 
-   配置方法：
-
-   在 `~/.config/nvim/lua/plugins/ui.lua` (如果没有该文件则新建) 中添加：
-
-   ```Lua
-   return {
-     {
-       "RRethy/vim-illuminate",
-       opts = {
-         delay = 100, -- 延迟 100ms 后自动高亮，默认通常较长
-         large_file_cutoff = 2000, -- 超过 2000 行的文件禁用，保证性能
-         under_cursor = true, -- 光标下的单词也高亮
-       },
-       config = function(_, opts)
-         require("illuminate").configure(opts)
-         -- 设置高亮颜色（可选）：这里将其改为淡蓝色背景
-         vim.api.nvim_set_hl(0, "IlluminatedWordText", { link = "Visual" })
-         vim.api.nvim_set_hl(0, "IlluminatedWordRead", { link = "Visual" })
-         vim.api.nvim_set_hl(0, "IlluminatedWordWrite", { link = "Visual" })
-       end,
-     },
-   }
-   ```
-
-   - **阅读技巧：** 配合 `[[` 和 `]]` 在高亮的单词间快速跳转。
-
-   LazyVim 默认集成了 **Treesitter** 和 **LazyVim 核心快捷键**，它们将 `[[` 和 `]]` 定义为跳转到“上一个/下一个类或函数的开始”。
-
-   当你安装并配置了 `vim-illuminate` 时，它也尝试使用这两个快捷键来跳转到“高亮的单词”。在 Neovim 中，**后加载的配置或特定插件的优先级**可能会导致行为不符合你的预期。
-
-   可以重新进行按键映射：
+   推荐的配合配置
 
    ```lua
    return {
+     -- illuminate：自动高亮光标下的单词（临时、动态）
      {
        "RRethy/vim-illuminate",
+       event = "VeryLazy",
        opts = {
          delay = 100,
          large_file_cutoff = 2000,
+         large_file_overrides = nil,
+         min_count_to_highlight = 2, -- 至少出现 2 次才高亮
+         should_enable = function(bufnr)
+           -- 排除某些文件类型
+           local excludes = { "dirvish", "fugitive", "alpha", "neo-tree", "Trouble" }
+           local ft = vim.api.nvim_buf_get_option(bufnr, "filetype")
+           return not vim.tbl_contains(excludes, ft)
+         end,
+         filetypes_denylist = {
+           "dirvish",
+           "fugitive",
+           "alpha",
+           "neo-tree",
+           "Trouble",
+           "lazy",
+           "mason",
+         },
          under_cursor = true,
        },
        config = function(_, opts)
          require("illuminate").configure(opts)
 
-         -- 显式定义跳转快捷键
-         local function map(key, dir, buffer)
-           vim.keymap.set("n", key, function()
-             require("illuminate")["goto_" .. dir .. "_reference"](false)
-           end, { desc = dir:sub(1, 1):upper() .. dir:sub(2) .. " Reference", buffer = buffer })
-         end
+         -- 使用更柔和的颜色，避免与 Visual 混淆
+         -- 淡灰色背景 + 下划线，区别于 interestingwords 的彩色高亮
+         vim.api.nvim_set_hl(0, "IlluminatedWordText", {
+           bg = "#3a3a3a",
+           underline = false
+         })
+         vim.api.nvim_set_hl(0, "IlluminatedWordRead", {
+           bg = "#3a3a3a",
+           underline = false
+         })
+         vim.api.nvim_set_hl(0, "IlluminatedWordWrite", {
+           bg = "#4a4a4a",
+           underline = false
+         })
 
-         -- map("]]", "next") -- 会抢占函数跳转
-         -- map("[[", "prev") -- 会抢占函数跳转
-         map("<a-n>", "next") -- Alt + n 跳转到下一个高亮单词
-         map("<a-p>", "prev") -- Alt + p 跳转到上一个高亮单词
+         -- 可选：添加快捷键在高亮的单词间跳转
+         vim.keymap.set("n", "]]", function()
+           require("illuminate").goto_next_reference(false)
+         end, { desc = "Next Reference" })
+
+         vim.keymap.set("n", "[[", function()
+           require("illuminate").goto_prev_reference(false)
+         end, { desc = "Prev Reference" })
+       end,
+     },
+
+     -- interestingwords：手动持久高亮多个单词（永久、多彩）
+     {
+       "Mr-LLLLL/interestingwords.nvim",
+       keys = {
+         { "<leader>hm", mode = { "n", "v" }, desc = "Mark/Unmark Word" },
+         { "<leader>hM", desc = "Clear All Marks" },
+       },
+       config = function()
+         require("interestingwords").setup({
+           colors = {
+             "#aeee00", "#ff0000", "#0000ff", "#b88823",
+             "#ffa724", "#ff2c4b", "#8cffba", "#d4bfff"
+           },
+           search_count = true,  -- 显示匹配数量
+           navigation = true,    -- 启用 n/N 跳转
+           scroll_center = true, -- 跳转时居中显示
+           search_key = "<leader>hm",
+           cancel_search_key = "<leader>hM",
+         })
        end,
      },
    }
    ```
 
-2. 场景二：修改时高亮（批量编辑）
+   配置思路说明：
 
-   对于批量修改，LazyVim 社区最推荐的是类似 VS Code 的**多光标 (Multi-cursor)** 体验，或者更具 Vim 哲学的 **`gn` 操作**。
+   **功能分工：**
 
-   **方案 A**：Vim 原生高亮 + `cgn` (推荐：最符合 LazyVim 逻辑)
+   - **illuminate**：自动、临时、低调的灰色背景 → 用于快速浏览当前单词的所有出现位置
+   - **interestingwords**：手动、持久、鲜艳的彩色高亮 → 用于标记需要重点关注的多个单词
 
-   这种方式不需要安装新插件，利用搜索高亮进行修改。
+   **视觉区分：**
 
-   1. **高亮：** 光标移动到单词上，按 `*`。此时所有相同单词都会高亮。
-   2. **修改：** 输入 `cgn`。这会删除当前单词并进入插入模式。
-   3. **输入：** 输入新单词，按 `<Esc>` 退出。
-   4. **重复：** 按 `.` (点号)，Vim 会自动跳到下一个高亮的单词并应用同样的修改。
-      - _优点：_ 你可以有选择性地跳过某个单词（按 `n` 跳过，按 `.` 修改）。
+   - illuminate 用灰色背景，不抢眼，自动跟随光标
+   - interestingwords 用彩色高亮，醒目，手动标记后永久保留
 
-   **方案 B**：使用 `ironnsump/grim` (类似 VS Code 多光标)
+   **快捷键建议：**
 
-   如果你喜欢用鼠标或快捷键一次性选中多个单词并同时输入，可以安装 `mini.surround` 的作者开发的插件或常见的 `vim-visual-multi`。
+   - `]]` / `[[` - illuminate 的单词跳转（自动高亮的单词）
+   - `<leader>hm` - 标记/取消标记单词（手动高亮）
+   - `<leader>hM` - 清除所有手动标记
+   - `n` / `N` - interestingwords 的跳转（手动高亮的单词）
 
-   在 `~/.config/nvim/lua/plugins/edit.lua` 中添加：
+   **颜色调整：** 如果你使用暗色主题，可以将 `#3a3a3a` 改为 `#2a2a2a`（更暗）；如果用亮色主题，改为 `#e0e0e0`（浅灰）。
 
-   ```Lua
+   这样配置后，两个插件互不干扰，各司其职，使用体验会很好！
+
+## 批量编辑
+
+对于批量修改，LazyVim 社区最推荐的是类似 VS Code 的**多光标 (Multi-cursor)** 体验，或者更具 Vim 哲学的 **`gn` 操作**。
+
+**方案 A**：Vim 原生高亮 + `cgn` (推荐：最符合 LazyVim 逻辑)
+
+这种方式不需要安装新插件，利用搜索高亮进行修改。
+
+1. **高亮：** 光标移动到单词上，按 `*`。此时所有相同单词都会高亮。
+2. **修改：** 输入 `cgn`。这会删除当前单词并进入插入模式。
+3. **输入：** 输入新单词，按 `<Esc>` 退出。
+4. **重复：** 按 `.` (点号)，Vim 会自动跳到下一个高亮的单词并应用同样的修改。
+   - _优点：_ 你可以有选择性地跳过某个单词（按 `n` 跳过，按 `.` 修改）。
+
+**方案 B**：vim-visual-multi（推荐）
+
+这是最流行和功能最强大的 Neovim 多光标插件，类似 VSCode 的多光标体验。
+
+```lua
+return {
+  {
+    "mg979/vim-visual-multi",
+    branch = "master",
+    event = "VeryLazy",
+    init = function()
+      -- 使用 Ctrl 而不是默认的 \
+      vim.g.VM_maps = {
+        ["Find Under"] = "<C-d>", -- 选中当前单词并添加光标
+        ["Find Subword Under"] = "<C-d>", -- 同上
+        ["Select All"] = "<C-S-l>", -- 选中所有匹配项
+        ["Skip Region"] = "<C-x>", -- 跳过当前匹配
+        ["Remove Region"] = "<C-p>", -- 移除当前光标
+        ["Add Cursor Down"] = "<C-Down>", -- 向下添加光标
+        ["Add Cursor Up"] = "<C-Up>", -- 向上添加光标
+      }
+
+      -- 设置主题
+      vim.g.VM_theme = "iceblue"
+
+      -- 其他配置
+      vim.g.VM_highlight_matches = "underline" -- 匹配项显示下划线
+    end,
+  },
+}
+```
+
+使用方法：
+
+- `<C-d>` - 选中光标下的单词，再次按下选中下一个相同单词
+- `<C-x>` - 跳过当前匹配，继续下一个
+- `<C-p>` - 取消最后一个光标
+- `<C-Down>` / `<C-Up>` - 在上下行添加光标
+- `<C-S-l>` - 选中所有匹配的单词
+- `n` / `N` - 在多光标间导航
+- `q` - 退出多光标模式
+- 在多光标模式下，可以正常使用 `i`, `a`, `c`, `d` 等编辑命令
+
+## 代码跳转：字符匹配
+
+传统的 ctags 可以扫描生成 tag 以实现跳转，在 LazyVim 中，又可以使用 vim-gutentags 自动管理 tags。
+
+vim-gutentags 安装后会自动工作，但让我详细说明如何使用和验证：
+
+**一、基本使用**
+
+1. 基本使用方法
+
+   **vim-gutentags 会自动在后台生成 tags**，你不需要手动运行任何命令。当你：
+
+   - 打开项目文件
+   - 保存文件
+   - 新建文件
+
+   它都会自动更新 tags 文件。
+
+2. 跳转快捷键
+
+   一旦 tags 生成完成，使用以下命令跳转：
+
+   **基本跳转：**
+
+   - `<C-]>` - 跳转到光标下符号的定义
+   - `g<C-]>` - 如果有多个定义，显示列表让你选择
+   - `<C-t>` - 跳回上一个位置
+   - `<C-o>` - 跳回历史位置（可以多次跳回）
+
+   **使用 fzf-lua （LazyVim 新版默认）集成跳转（更友好）：**
+
+   - `:FzfLua tags` - 搜索所有 tags
+   - `:FzfLua btags` - 当前 buffer 的 tags
+
+   **或者使用 snacks.nvim 的功能：**
+
+   - `<leader>sg` " 全局搜索
+   - `<leader>sw` " 搜索当前单词
+
+3. 验证 vim-gutentags 是否工作
+
+   ```vim
+   " 检查 tags 文件是否生成：
+   ls ~/.cache/nvim/tags/
+
+   " 查看当前加载的 tags 文件：
+   :set tags?
+
+   " 在 Neovim 中查看状态：
+   :GutentagsUpdate!     " 手动强制更新 tags
+   :messages             " 查看是否有 gutentags 的消息
+   ```
+
+**二、优化配置**
+
+如果你想更好地控制，可以修改配置 `~/.config/nvim/lua/plugins/editor.lua`：
+
+```lua
+return {
+  "ludovicchabant/vim-gutentags",
+  event = "VeryLazy",
+  config = function()
+    -- 项目根目录标识
+    vim.g.gutentags_project_root = {'.repo', '.git', '.svn', '.project'}
+
+    -- tags 文件存放位置
+    vim.g.gutentags_cache_dir = vim.fn.expand('~/.cache/nvim/tags')
+
+    -- 启用 gtags 模块（可选，用于更强大的代码索引）
+    vim.g.gutentags_modules = {'ctags'}
+
+    -- ctags 参数
+    vim.g.gutentags_ctags_extra_args = {
+      '--fields=+niazS',
+      '--extras=+q',
+      '--c++-kinds=+px',
+      '--c-kinds=+px',
+      '--languages=C,C++',  -- 只索引 C/C++ 文件
+      '--exclude=.git',
+      '--exclude=build',
+      '--exclude=.cache',
+    }
+
+    -- 生成时机
+    vim.g.gutentags_generate_on_new = 1      -- 打开新文件时生成
+    vim.g.gutentags_generate_on_missing = 1  -- tags 文件不存在时生成
+    vim.g.gutentags_generate_on_write = 1    -- 保存文件时更新
+    vim.g.gutentags_generate_on_empty_buffer = 0  -- 空 buffer 不生成
+
+    -- 在状态栏显示 gutentags 状态（可选）
+    vim.g.gutentags_enabled = 1
+
+    -- 调试选项（如果有问题可以开启）
+    -- vim.g.gutentags_trace = 1
+    -- vim.g.gutentags_define_advanced_commands = 1
+  end,
+}
+```
+
+**三、常见问题排查**
+
+如果跳转不工作：
+
+1. 确认 ctags 已安装及版本：
+
+   ```bash
+   # 检查 ctags 版本
+   ctags --version
+
+   # 应该看到 "Universal Ctags"
+   # 如果是 "Exuberant Ctags" 就是旧版本，需要更新
+
+   # 旧版本更新：
+   sudo apt remove ctags
+   sudo apt remove exuberant-ctags
+   sudo apt install universal-ctags
+   ```
+
+2. 项目根目录未识别
+
+   vim-gutentags 依赖项目根目录标识（`.repo`, `.git` 等）。检查你的配置：
+
+   ```lua
    return {
-     {
-       "mg979/vim-visual-multi",
-       event = "VeryLazy",
-     }
+     "ludovicchabant/vim-gutentags",
+     event = "VeryLazy",
+     config = function()
+       -- 确保包含 .repo
+       vim.g.gutentags_project_root = {'.repo', '.git'}
+       vim.g.gutentags_cache_dir = vim.fn.expand('~/.cache/nvim/tags')
+
+       ......
+
+     end,
    }
    ```
 
-   - **使用方法：**
-     - `Ctrl + n`：选中当前单词并高亮，再次按 `Ctrl + n` 选中下一个。
-     - `Ctrl + Up/Down`：向上/下垂直创建光标。
-     - 按下 `c` 或 `i` 即可进入**多行同时编辑模式**。
+3. tags 文件生成中或失败
 
-**总结建议：**
+   第一次生成 tags 需要时间，特别是大型项目。等待几分钟后再试。
 
-| **需求场景**            | **推荐方案**       | **操作 / 快捷键**                    |
-| ----------------------- | ------------------ | ------------------------------------ |
-| **纯阅读/查看引用**     | `vim-illuminate`   | 停顿 100ms 自动高亮，`]]` 跳转       |
-| **快速批量重命名**      | `LSP Rename`       | `leader + cr` (LazyVim 默认，最智能) |
-| **非 LSP 单词批量修改** | `vim-visual-multi` | `Ctrl + n` 选中多个 -> `c` 修改      |
-| **精准可控的修改**      | `cgn` 技巧         | `*` 高亮 -> `cgn` 修改 -> `.` 重复   |
+vim-gutentags 最大的优势就是**全自动**，你只需要正常编辑代码，它会在后台默默工作，保持 tags 文件是最新的。
+
+## 代码缩进
+
+在 LazyVim 中,默认已经配置了**代码折叠(folding)**功能:
+
+1. 基本折叠命令
+
+   **按级别折叠:**
+
+   - `zM` - 折叠所有(关闭所有折叠)
+   - `zR` - 展开所有(打开所有折叠)
+   - `zm` - 增加折叠级别(折叠更多)
+   - `zr` - 减少折叠级别(展开更多)
+
+   **单个折叠操作:**
+
+   - `za` - 切换当前折叠的开/关
+   - `zo` - 打开当前折叠
+   - `zc` - 关闭当前折叠
+   - `zA` - 递归切换当前折叠
+   - `zO` - 递归打开当前折叠
+   - `zC` - 递归关闭当前折叠
+
+2. 按级别折叠(类似 VSCode)
+
+   如果你想要类似 `Ctrl+K Ctrl+1/2/3` 的效果:
+
+   - `zM` 然后按 `zr` 1 次 ≈ 折叠到级别 1
+   - `zM` 然后按 `zr` 2 次 ≈ 折叠到级别 2
+   - `zM` 然后按 `zr` 3 次 ≈ 折叠到级别 3
+
+   或者反向操作:
+
+   - `zR` 然后按 `zm` N 次 - 从展开状态折叠到特定级别
+
+3. 自定义快捷键
+
+   如果你想要更直接的快捷键,可以在 LazyVim 配置中添加:
+
+   ```lua
+   -- 在 ~/.config/nvim/lua/config/keymaps.lua 中添加
+   vim.keymap.set('n', '<leader>z1', 'zMzr', { desc = '折叠到级别1' })
+   vim.keymap.set('n', '<leader>z2', 'zMzrzr', { desc = '折叠到级别2' })
+   vim.keymap.set('n', '<leader>z3', 'zMzrzrzr', { desc = '折叠到级别3' })
+   vim.keymap.set('n', '<leader>z0', 'zR', { desc = '展开所有' })
+   ```
+
+   这样你就可以用 `<leader>z1`、`<leader>z2`、`<leader>z3` 来快速折叠到不同级别了(LazyVim 中 `<leader>` 默认是空格键)。
 
 # 配置
 
@@ -1038,3 +1290,110 @@ tree-sitter --version
 
 - **文件标签：** 依靠 `persistence.nvim`。按 `<leader>qs` 即可找回所有 Tab。
 - **侧边栏位置：** 在 Neo-tree 配置中开启 `follow_current_file`，这样只要文件恢复了，侧边栏会自动同步到对应的位置。
+
+## bufferline.nvim
+
+LazyVim 默认安装了 `bufferline.nvim`。它是 Bufferline 顶栏导航，相比于弹出搜索框，直接在顶部查看标签页通常更直观。
+
+- **快捷键**：使用 `[b` 和 `]b` 在 buffer 之间快速左右切换。
+- **点击**：如果你开启了鼠标支持，可以直接点击顶部的标签。
+- 如果你觉得顶部标签也太长，可以配置 bufferline 的截断策略：
+
+  ```Lua
+  -- 在 bufferline 的 opts 中
+  options = {
+    mode = "buffers",
+    max_name_length = 18,
+    tab_size = 18,
+  }
+  ```
+
+## snacks.nvim
+
+你的直觉非常准确。**新版 LazyVim（v14.0+）确实已经不再默认使用 Telescope 了**。
+
+作者 folke 对 LazyVim 进行了重大重构，现在默认的“全能插件”是 **`snacks.nvim`**。它内置了一个更轻量、速度更快的 **`Snacks.picker`**，用来替代原先 Telescope 的大部分功能（如文件搜索、Buffer 切换等）。
+
+## interestingwords.nvim
+
+在 LazyVim 中，你可以使用 **vim-illuminate** 配合 **vim-mark** 或者 **interestingwords.nvim** 来实现持久高亮多个单词的功能。
+
+**一、使用 interestingwords.nvim（推荐方案）**
+
+这个插件专门用于高亮多个单词，并且会一直保持高亮直到手动取消。
+
+安装配置：在 LazyVim 中创建配置文件 `~/.config/nvim/lua/plugins/interestingwords.lua`：
+
+```lua
+return {
+  {
+    "Mr-LLLLL/interestingwords.nvim",
+    config = function()
+      require("interestingwords").setup({
+        colors = {
+          "#aeee00", "#ff0000", "#0000ff", "#b88823",
+          "#ffa724", "#ff2c4b"
+        },
+        search_count = true,
+        navigation = true,
+        scroll_center = true,
+        search_key = "<leader>m",  -- 高亮/取消高亮当前单词
+        cancel_search_key = "<leader>M",  -- 取消所有高亮
+        color_key = "<leader>k",  -- 使用特定颜色高亮
+        cancel_color_key = "<leader>K",  -- 取消特定颜色的高亮
+      })
+    end,
+  },
+}
+```
+
+使用方法：
+
+- `<leader>m` - 高亮光标下的单词（每次使用不同颜色）
+- `<leader>M` - 取消所有高亮
+- `n` / `N` - 在高亮的单词之间跳转
+- 可以同时高亮多个不同的单词，每个单词用不同颜色区分
+
+**二、vim-mark（备选方案）**
+
+如果你更喜欢传统的 vim-mark 插件，可以使用：
+
+```lua
+return {
+  {
+    "inkarkat/vim-mark",
+    dependencies = { "inkarkat/vim-ingo-library" },
+    keys = {
+      { "<leader>m", "<Plug>MarkSet", mode = { "n", "x" }, desc = "Mark word" },
+      { "<leader>M", "<Plug>MarkClear", desc = "Clear all marks" },
+      { "<leader>n", "<Plug>MarkSearchNext", desc = "Next mark" },
+      { "<leader>N", "<Plug>MarkSearchPrev", desc = "Prev mark" },
+    },
+  },
+}
+```
+
+**三、配置 illuminate 不自动切换**
+
+如果你想保留 illuminate 但希望它不要在选中下一个单词时消失，可以调整配置：
+
+```lua
+return {
+  "RRethy/vim-illuminate",
+  opts = {
+    -- 延迟时间，设置为 0 可以立即高亮
+    delay = 200,
+    -- 大文件不启用
+    large_file_cutoff = 2000,
+    -- 不要在这些文件类型中启用
+    filetypes_denylist = {
+      "dirvish",
+      "fugitive",
+    },
+  },
+}
+```
+
+不过 illuminate 的设计就是只高亮当前光标下的单词，如果需要持久高亮多个单词，**interestingwords.nvim** 是最佳选择。
+
+你可以同时使用两个插件：illuminate 用于快速查看当前单词的其他出现位置，interestingwords 用于标记需要持续关注的多个单词。
