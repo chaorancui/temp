@@ -1,4 +1,9 @@
+# terminal
+
+## xxx
+
 ### terminal 美化
+
 <https://www.cnblogs.com/jiajiaobj/p/13681950.html>
 
 ### 说明
@@ -67,16 +72,16 @@ Ctrl – z ：挂起命令
 ### Bang(!)命令
 
 `!!`：执行上一条命令。
-`^foo^bar`：把上一条命令里的foo替换为bar，并执行。
-`!wget`：执行最近的以wget开头的命令。
-`!wget:p`：仅打印最近的以wget开头的命令，不执行。
-`!$`：上一条命令的最后一个参数， 与 Alt - . 和 $_ 相同。
+`^foo^bar`：把上一条命令里的 foo 替换为 bar，并执行。
+`!wget`：执行最近的以 wget 开头的命令。
+`!wget:p`：仅打印最近的以 wget 开头的命令，不执行。
+`!$`：上一条命令的最后一个参数， 与 Alt - . 和 $\_ 相同。
 `!*`：上一条命令的所有参数
-`!*:p`：打印上一条命令是所有参数，也即 !*的内容。
-`^abc`：删除上一条命令中的abc。
+`!*:p`：打印上一条命令是所有参数，也即 !\*的内容。
+`^abc`：删除上一条命令中的 abc。
 `^foo^bar`：将上一条命令中的 foo 替换为 bar
 `^foo^bar^`：将上一条命令中的 foo 替换为 bar
-`!-n `：执行前n条命令，执行上一条命令： !-1， 执行前5条命令的格式是： !-5
+`!-n `：执行前 n 条命令，执行上一条命令： !-1， 执行前 5 条命令的格式是： !-5
 
 ### 终端分页器
 
@@ -112,7 +117,7 @@ Ctrl – z ：挂起命令
 
 ## Shell、终端和控制台
 
-在此之前，我们首先要明确 Shell、 *终端(terminal)*、 *控制台(console)*这三个概念。想要详细了解的话，请参阅 [Enable Sysadmin](https://link.zhihu.com/?target=https%3A//www.redhat.com/sysadmin/terminals-shells-consoles) 博客上的相关文章。
+在此之前，我们首先要明确 Shell、 _终端(terminal)_、 *控制台(console)*这三个概念。想要详细了解的话，请参阅 [Enable Sysadmin](https://link.zhihu.com/?target=https%3A//www.redhat.com/sysadmin/terminals-shells-consoles) 博客上的相关文章。
 
 简而言之：
 
@@ -136,25 +141,25 @@ Ctrl – z ：挂起命令
 - `Ctrl-B ?` 查看帮助
 - `Ctrl-B d` 断开 `tmux` 并让其在后台运行（可以使用 `tmux attach` 重新进入）
 
-`tmux` 的一大好处是，在一台计算机上启动 `tmux` 会话之后，也可以从另一台计算机上进入到这个会话，由此可以看出，`tmux` 对 Shell 进行了 *守护进程化(daemonize)*。
+`tmux` 的一大好处是，在一台计算机上启动 `tmux` 会话之后，也可以从另一台计算机上进入到这个会话，由此可以看出，`tmux` 对 Shell 进行了 _守护进程化(daemonize)_。
 
 例如，当我在树莓派上运行 `tmux`，我就可以从计算机上连接到树莓派并登录 IRC，当我断开连接时，树莓派上的 `tmux` 会继续运行，并等待我的下一次连接，在此期间 IRC 是处于持续登录状态的。
 
 #### Terminator
 
-ctrl + alt + t  新建一个窗口
+ctrl + alt + t 新建一个窗口
 
-ctrl + shift + E  垂直分割
+ctrl + shift + E 垂直分割
 
-ctrl + shift +  O  水平分割
+ctrl + shift + O 水平分割
 
-ctrl +Tab    窗口跳转
+ctrl +Tab 窗口跳转
 
-ctrl + shift + C  复制
+ctrl + shift + C 复制
 
-ctrl + shift + V  粘贴
+ctrl + shift + V 粘贴
 
-F11这是全屏操作
+F11 这是全屏操作
 
 ### 【linux 命令】ll 命令不管用的问题
 
