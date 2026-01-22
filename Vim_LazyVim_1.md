@@ -950,3 +950,52 @@ LazyVim 默认安装了 `bufferline.nvim`。它是 Bufferline 顶栏导航，相
 你的直觉非常准确。**新版 LazyVim（v14.0+）确实已经不再默认使用 Telescope 了**。
 
 作者 folke 对 LazyVim 进行了重大重构，现在默认的“全能插件”是 **`snacks.nvim`**。它内置了一个更轻量、速度更快的 **`Snacks.picker`**，用来替代原先 Telescope 的大部分功能（如文件搜索、Buffer 切换等）。
+
+## blink.cmp
+
+在最近的 LazyVim 版本更新中，默认的补全引擎已经从旧的 `nvim-cmp` 切换到了 **`blink.cmp`**。
+
+`blink.cmp` 是一个用 Rust 编写的新一代补全插件，它的速度极快，且配置比 `nvim-cmp` 更简洁。LazyVim 官方认为它更稳定、性能更好，所以将其作为了默认选项。
+
+**`blink.cmp` 默认操作逻辑如下：**
+
+- **`Ctrl + n` / `Ctrl + p`**：在补全列表中上下移动。
+- **`Enter` (回车)**：确认选择当前高亮的项目。
+- **`Ctrl + y`**：也可以用来确认选择（有些老用户习惯这个）。
+- **`Ctrl + Space`**：手动触发补全。
+- **`Tab` 和 `Shift + Tab`**：
+  - 在有补全菜单时：**选择**下一个/上一个建议。
+  - 在没有补全菜单但在代码片段中时：**跳到**下一个/上一个占位符。
+
+**自定义 blink.cmp 的按键：**
+
+如果你想修改它的行为（例如想让补全菜单看起来更像 VS Code，或者修改 Tab 的逻辑），你需要修改 `blink.cmp` 的配置。
+
+在 `~/.config/nvim/lua/plugins/` 下创建一个文件（比如 `blink.lua`）：
+
+```Lua
+return {
+  "saghen/blink.cmp",
+  opts = {
+    keymap = {
+      preset = "default", -- 或者使用 'super-tab' 预设
+
+      -- 如果你想完全自定义，可以在这里覆盖
+      -- ['<CR>'] = { 'accept', 'fallback' },
+      -- ['<Tab>'] = { 'select_next', 'fallback' },
+    },
+    -- 你甚至可以开启补全框的边框
+    completion = {
+      menu = { border = "rounded" },
+      documentation = { window = { border = "rounded" } },
+    }
+  },
+}
+```
+
+确认补全是否生效：
+
+1. 输入代码触发提示（比如输入 `tab` 或 `os.`）。
+2. 使用 `Ctrl + n` 看到某个选项变色（被高亮）。
+3. 直接按 **回车**。
+4. 如果该项被填入代码中，说明补全成功。
