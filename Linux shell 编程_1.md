@@ -39,7 +39,6 @@
    **标准**：POSIX 定义的基础规范
    **工具代表**：传统 `grep`、`sed`（默认模式）
    **核心特点**：
-
    - **元字符需转义**：
      基础元字符（如 `.`、`*`、`^`、`$`）可直接使用，但扩展功能（如分组、量词）需转义：
      - `\( \)` 表示分组，`\+` 表示“1 次或多次”。
@@ -58,7 +57,6 @@
    **标准**：POSIX 扩展规范
    **工具代表**：`grep -E`、`egrep`、`awk`、`find -regextype posix-extended`
    **核心特点**：
-
    - **元字符无需转义**：
      直接使用 `+`、`?`、`|`、`()` 等：
      - `(ab)+` 匹配 `ab`、`abab` 等。
@@ -77,7 +75,6 @@
    **标准**：Perl 语言定义，事实上的现代标准
    **工具代表**：Perl、Python、Ruby、现代编程语言、`grep -P`（GNU 扩展）
    **核心特点**：
-
    - **元字符丰富且无需转义**：
      - 直接使用 `+`、`?`、`|`、`()`，支持 `\w`（单词字符）、`\d`（数字）、`\s`（空白）等。
    - **高级功能**：
@@ -229,9 +226,7 @@ PCRE: grep -P 'colou?r'          # 同 ERE，但可与其他 PCRE 特性组合
 > [ShellScipt：Docs --> 语法基础 --> 操作符](https://shellscript.readthedocs.io/zh-cn/latest/1-syntax/4-operator/index.html)
 >
 > - 引用操作符（变量引用、命令引用、字符引用）
->
 > - 算术操作符（执行算术表达式的操作符有 `$[算术表达式]`、`$((算术表达式))`）
->
 > - 条件测试操作符
 >
 >   > - 整数条件测试（如 `-eq` 等。执行整数条件测试表达式的操作符有 `[ 整数条件测试表达式 ]`、`[[ 整数条件测试表达式 ]]`，**注意前后有空格**）
@@ -239,7 +234,6 @@ PCRE: grep -P 'colou?r'          # 同 ERE，但可与其他 PCRE 特性组合
 >   > - 文件条件测试（如 `-e file`：文件是否存在，`-d directory`： 是否为目录文件等。执行文件条件测试表达式的操作符有 `[ 文件条件测试表达式 ]`、`[[ 文件条件测试表达式 ]]`，**注意前后有空格**）
 >
 > - 逻辑操作符（逻辑与`&&`，逻辑或`||`，逻辑非`!`。**注意：各种编译语言对逻辑真、假的定义不同，在 shell 中，状态值为 0 代表真，状态值为非 0 代表假**）
->
 > - 括号操作符（`()`，`(())`，`[]`，`[[]]`，`{}`）
 >
 > [ShellScipt：Docs --> 语法基础 --> 控制流程语句](https://shellscript.readthedocs.io/zh-cn/latest/1-syntax/5-control/index.html)
@@ -778,7 +772,6 @@ PCRE: grep -P 'colou?r'          # 同 ERE，但可与其他 PCRE 特性组合
   ```
 
 - 文件测试操作
-
   - `-e`：检测文件是否存在。`-a` 已被弃用，不推荐
   - `-f`：文件是常规文件(regular file)，而非目录或 [设备文件](http://tldp.org/LDP/abs/html/devref1.html#DEVFILEREF)
   - `-d`：文件是一个目录
@@ -787,14 +780,12 @@ PCRE: grep -P 'colou?r'          # 同 ERE，但可与其他 PCRE 特性组合
   - ...
 
 - 整数比较
-
   - `-eq`：等于。如 `if [ "$a" -eq "$b" ]`
   - 其他如 `-ne`，`-gt`，`-ge`，`-lt`，`-ge`
   - `<`：小于（使用 [双圆括号](http://tldp.org/LDP/abs/html/dblparens.html)）。如 `(("$a" < "$b"))`
   - 其他如 `<=`，`>`，`>=`
 
 - 字符串比较
-
   - `=`：等于。如 `if [ "$a" = "$b" ]`，**注意在`=`前后要加上空格**。`if [ "$a"="$b" ]` 和上面不等价（会被当成判断随机字符串，固定为真）。
 
     ```shell
@@ -865,7 +856,6 @@ PCRE: grep -P 'colou?r'          # 同 ERE，但可与其他 PCRE 特性组合
   ```
 
 - 复合比较
-
   - `-a`：逻辑与。`exp1 -a exp2` 返回真当且仅当 `exp1` 和 `exp2` 均为真。
   - `-o`：逻辑或。如果 `exp1` 或 `exp2` 为真，则 `exp1 -o exp2` 返回真。
 
@@ -920,11 +910,9 @@ PCRE: grep -P 'colou?r'          # 同 ERE，但可与其他 PCRE 特性组合
   与`let`命令类似，`(( ... ))` 结构允许**对算术表达式的扩展和求值**。它**是`let`命令的简化形式**。例如，a=$(( 5 + 3 )) 会将变量 a 赋值成 5 + 3，也就是 8。在 Bash 中，双圆括号结构也允许以 C 风格的方式操作变量。例如，(( var++ ))。
 
 - **运算符优先级**
-
   - 先乘除取余，后加减，与算数运算相似
   - 复合逻辑运算符，&&, ||, -a, -o 优先级较低
   - 优先级相同的操作按*从左至右*顺序求值
-
 
 # shell 脚本实践
 
@@ -945,4 +933,33 @@ fi
 # If no error, continue with the script
 echo "xxx command executed successfully."
 exit 0  # Exit with status 0 if everything is okay
+```
+
+## 获取固定路径
+
+```bash
+#!/bin/bash
+
+set -euo pipefail
+SCRIPT_PATH=$(realpath "$(dirname "$0")")
+WORK_CODE_PATH=${SCRIPT_PATH%%/work_code/*}/work_code
+echo "${WORK_CODE_PATH}"
+```
+
+## 后台 shell 抓日志
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+LOG_FILE=run.log
+log_collect_cmd > "$LOG_FILE" 2>&1 &
+LOG_PID=$!
+
+cleanup() {
+    kill "$LOG_PID" 2>/dev/null || true
+}
+trap cleanup EXIT INT TERM
+
+run_cmd
 ```
