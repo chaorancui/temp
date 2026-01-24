@@ -94,6 +94,9 @@ esac
 3. 从开头删除匹配模式：`#` 和 `##`
 
    ```bash
+   ${var#pattern}   # 从结尾删除 最短 匹配
+   ${var##pattern}  # 从结尾删除 最长 匹配
+
    path="/usr/local/bin/python"
    # #  从开头删除最短匹配
    echo ${path#*/}      # 输出: usr/local/bin/python
@@ -106,9 +109,20 @@ esac
    echo ${filename##*.} # 输出: sh
    ```
 
+   使用 **Bash 参数展开（parameter expansion）删除替换**，注意：
+   - `pattern` 使用的是 **shell 通配符（glob）**
+     - `*` 任意字符串
+     - `?` 单个字符
+     - `[abc]` 字符集合
+   - **不是正则**
+   - **不是普通文本**
+
 4. 从结尾删除匹配模式：`%` 和 `%%`
 
    ```bash
+   ${var%pattern}   # 从结尾删除 最短 匹配
+   ${var%%pattern}  # 从结尾删除 最长 匹配
+
    path="/usr/local/bin/python"
    # %  从结尾删除最短匹配
    echo ${path%/*}      # 输出: /usr/local/bin
@@ -454,7 +468,6 @@ echo "$@"    # 3 4 5
 > :warning:
 >
 > - `$*` 和 `$@` 参数有时会根据 [$IFS](https://tldp.org/LDP/abs/html/internalvariables.html#IFSREF) 的设置表现出不一致且令人困惑的行为。
->
 > - `$@` 和 `$*` 参数的区别仅在于双引号内使用时的表现不同。
 
 [Example 9-7](https://tldp.org/LDP/abs/html/internalvariables.html#APPREF). Inconsistent `$\*` and `$@` behavior
