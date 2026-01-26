@@ -257,7 +257,6 @@ Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
    | `-readable` / `-writable` / `-executable` | 是否可读 / 可写 / 可执行          |
 
    说明：
-
    - `N` 可以是 `+N`（大于），`-N`（小于），`N`（等于）。
    - 正则表达式中，如果想要匹配**特殊字符则需要转义**，如 `* . ? + $ ^ [ ] ( ) { } | \ /`，。
    - 测试条件根据需要加 `\( \)`，避免歧义：
@@ -287,7 +286,6 @@ Usage: find [-H] [-L] [-P] [-Olevel] [-D debugopts] [path...] [expression]
    ```
 
    用于调试 `find` 行为，一般不常用，比如：
-
    - `-D exec` 显示执行命令的详细过程；
    - `-D tree` 显示目录结构遍历过程；
    - `-D help` 显示所有调试项说明。
@@ -430,7 +428,6 @@ adb shell 'find "'"$src_dir"'" -type f \( -name "*.log" -o -name "*.txt" \) -pri
    ```
 
 2. `-print0` 作用是
-
    - 每找到一个文件
    - 用 **`\0`（NUL 字符）** 作为分隔符输出。而不是默认的换行符 `\n`。
 
@@ -470,7 +467,6 @@ adb shell 'find "'"$src_dir"'" -type f \( -name "*.log" -o -name "*.txt" \) -pri
 
    - `IFS=` 置空
      IFS 被设置为“空值（unset-like empty）”，在 POSIX shell 中，其效果是：
-
      - **禁用字段分割**
      - read 会把整行（或整个记录）原样读入变量，**不做任何分隔**
 
@@ -490,7 +486,6 @@ adb shell 'find "'"$src_dir"'" -type f \( -name "*.log" -o -name "*.txt" \) -pri
      | `file`  | 存放读到的完整文件路径             |
 
 4. 总结（给你一个记忆锚点）
-
    - `\( ... -o ... \)`
      → **控制 OR 的作用范围**
    - `-print0 + read -d ''`
@@ -809,7 +804,6 @@ sort [选项] [文件...]
    ```
 
 2. Windows
-
    - 包管理工具
 
      ```bash
@@ -913,37 +907,29 @@ Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY.
 **常用选项：**
 
 1. **`-r` 或 `--recursive`**：用于递归复制目录。如果源是一个目录，并且你希望复制目录内容及其子目录，那么需要使用这个选项。
-
    - 示例：`cp -r /home/user/source_dir /home/user/destination_dir`
 
 2. **`-f` 或 `--force`**：强制复制文件，并且如果目标文件无法写入，则会删除目标文件后重新复制。这对于避免覆盖的交互提示非常有用。
-
    - 示例：`cp -f file1.txt /home/user/destination/`
 
 3. **`-i` 或 `--interactive`**：在目标文件已经存在时，提示用户确认是否覆盖。
-
    - 示例：`cp -i file1.txt /home/user/destination/`
 
 4. **`-v` 或 `--verbose`**： 显示详细的复制过程，包括源文件和目标文件的路径。
-
    - 示例：`cp -v file1.txt /home/user/destination/`
 
 5. **`-p` 或 `--preserve`**：保留文件的属性（如修改时间、权限、所有者等）。通常在复制文件时，源文件的权限和时间戳不会被保留，使用该选项可以避免这种情况。
    - 示例：`cp -p file1.txt /home/user/destination/`
 6. **`-u` 或 `--update`**：仅在源文件比目标文件更新，或者目标文件不存在时才复制。
-
    - 示例：`cp -u file1.txt /home/user/destination/`
 
 7. **`-a` 或 `--archive`**：这个选项是 `-dR --preserve=all` 的组合，意味着会复制文件及其所有属性（包括符号链接、文件权限、时间戳等），并且递归地复制目录。
-
    - 示例：`cp -a source_dir /home/user/destination/`
 
 8. **`-l` 或 `--link`**：创建源文件的硬链接，而不是复制源文件。这意味着多个文件将指向相同的数据块。
-
    - 示例：`cp -l file1.txt /home/user/destination/`
 
 9. **`--no-clobber`**：如果目标文件已存在，则不复制，不会覆盖目标文件。
-
    - 示例：`cp --no-clobber file1.txt /home/user/destination/`
 
 **注意：**
@@ -1285,7 +1271,6 @@ echo "文件名:   $(basename "$path")"
    ```
 
    解释：
-
    - `$0`：脚本路径（可能是相对路径）
    - `dirname "$0"`：取出脚本所在目录
    - `cd ... && pwd`：转为绝对路径
@@ -1359,7 +1344,7 @@ echo "文件名:   $(basename "$path")"
 | `-j` 或 `--bzip2`              | 使用 bzip2 压缩（`.tar.bz2`）                          |
 | `-J` 或 `--xz`                 | 使用 xz 压缩（`.tar.xz`）                              |
 | `--lzma`                       | 使用 lzma 压缩（`.tar.lzma`）                          |
-| `-C <dir>`                     | 切换目录再操作（常用于解压时指定目标目录）             |
+| `-C <dir>`                     | 切换目录再操作（常用于压缩/解压时指定目标目录）        |
 | `--exclude=<pattern>`          | 排除匹配的文件/目录                                    |
 | `--include=<pattern>`          | 包含匹配的文件/目录，仅包含要配合 `--exclude="*"` 使用 |
 | `--wildcards '*.txt'`          | 启用 shell 风格的通配符匹配(default for exclusion)     |
@@ -1393,13 +1378,25 @@ echo "文件名:   $(basename "$path")"
    - `v`: 显示详情
    - `f`: 指定文件名
 
-3. 创建归档时**排除**某些文件或目录
+3. 切换目录后，打包目录下的所有内容
+
+   ```bash
+   tar -czf archive.tar.gz -C /data/dump .
+   ```
+
+   - 打包目录下的所有内容
+   - 不包含绝对路径
+   - 不受文件数量限制
+
+   这是 **生产环境最常用、最稳妥** 的写法。
+
+4. 创建归档时**排除**某些文件或目录
 
    ```bash
    tar --exclude='*.log' -czvf archive.tar.gz dir/
    ```
 
-4. 创建归档时**仅包含**某些文件或目录
+5. 创建归档时**仅包含**某些文件或目录
 
    ```bash
    tar -cvf code.tar \
@@ -1409,13 +1406,13 @@ echo "文件名:   $(basename "$path")"
        --exclude="*"
    ```
 
-5. 追加文件到已存在的 `.tar` 文件中（仅限未压缩的 tar）
+6. 追加文件到已存在的 `.tar` 文件中（仅限未压缩的 tar）
 
    ```bash
    tar -rvf archive.tar newfile.txt
    ```
 
-6. 查看归档文件内容
+7. 查看归档文件内容
 
    ```bash
    tar -tvf archive.tar.gz
@@ -1813,7 +1810,6 @@ unrar <命令> [参数] <压缩文件.rar> [目标目录]
      **注意**：同名文件会被覆盖（可通过`-o+`强制覆盖或`-o-`跳过）！
 
      **适用场景**：
-
      - 压缩包内文件没有层级目录，或你不需要保留目录结构。
      - 希望所有文件直接解压到当前目录，避免嵌套文件夹。
 
@@ -1827,12 +1823,10 @@ unrar <命令> [参数] <压缩文件.rar> [目标目录]
      ```
 
      **适用场景**：
-
      - 压缩包内有复杂的目录结构需要保留。
      - 解压后需维持原始文件组织方式（如软件源码、项目文档等）。
 
 2. 解压到指定目录
-
    - 使用 `x` 时，可指定目标路径（自动创建子目录）
 
      ```bash
@@ -2182,7 +2176,6 @@ printf FORMAT_STRING [ARGUMENTS...]
    - 格式字符串 `'=%.0s'`
 
      在这里，格式字符串是 `'=%.0s'`。这个格式字符串可以分解为以下部分：
-
      - **`=`**：这是要输出的字符。由于 `printf` 在处理格式字符串时，会将每个格式说明符与对应的参数结合起来输出，因此这里的 `=` 是固定的，它会被输出 20 次。
      - **`%.0s`**：这是格式说明符，表示以字符串形式输出。具体来说：
        - **`%s`** 表示输出字符串。
@@ -2454,7 +2447,6 @@ sed [OPTIONS] 'command' file
    ```
 
 2. 在行首/行尾添加文本
-
    - 在每行的开头添加文本：
 
    ```bash
@@ -2468,7 +2460,6 @@ sed [OPTIONS] 'command' file
    ```
 
 3. 删除行
-
    - 删除特定行：
 
    ```bash
@@ -2482,7 +2473,6 @@ sed [OPTIONS] 'command' file
    ```
 
 4. 选择特定行
-
    - 仅显示特定行：
 
    ```bash
@@ -2498,7 +2488,6 @@ sed [OPTIONS] 'command' file
 5. 使用正则表达式
 
    `sed` 支持基本正则表达式和扩展正则表达式：
-
    - 基本正则表达式（BRE）：
 
    ```bash
@@ -2764,7 +2753,6 @@ eval 命令用于计算并执行包含 shell 命令的字符串。有几个重�
 `eval` 后面跟不同类型的引号效果不同：
 
 1. 双引号 (")：
-
    - 变量会在 eval 执行前展开
    - 允许变量和命令替换
 
@@ -2774,7 +2762,6 @@ eval 命令用于计算并执行包含 shell 命令的字符串。有几个重�
    ```
 
 2. 单引号 (')：
-
    - 变量不会被展开
    - 内容会被原样解释
 
@@ -2784,7 +2771,6 @@ eval 命令用于计算并执行包含 shell 命令的字符串。有几个重�
    ```
 
 3. 反引号 (`) 或 $()：
-
    - 用于命令替换
    - 命令会被执行并返回结果
 
