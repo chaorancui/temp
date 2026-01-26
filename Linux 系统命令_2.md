@@ -1333,27 +1333,28 @@ echo "文件名:   $(basename "$path")"
 
 以下是 `tar` 的常用参数（区分长短参数形式）：
 
-| 参数                           | 含义                                                   |
-| ------------------------------ | ------------------------------------------------------ |
-| `-c` 或 `--create`             | 创建新归档文件（archive）                              |
-| `-x` 或 `--extract`            | 解包归档文件                                           |
-| `-t` 或 `--list`               | 查看归档文件内容                                       |
-| `-f <file>` 或 `--file=<file>` | 指定归档文件名（必须紧跟 `-f`）                        |
-| `-v` 或 `--verbose`            | 显示处理过程中的文件名（verbose 模式）                 |
-| `-z` 或 `--gzip`               | 使用 gzip 压缩或解压（`.tar.gz` 或 `.tgz`）            |
-| `-j` 或 `--bzip2`              | 使用 bzip2 压缩（`.tar.bz2`）                          |
-| `-J` 或 `--xz`                 | 使用 xz 压缩（`.tar.xz`）                              |
-| `--lzma`                       | 使用 lzma 压缩（`.tar.lzma`）                          |
-| `-C <dir>`                     | 切换目录再操作（常用于压缩/解压时指定目标目录）        |
-| `--exclude=<pattern>`          | 排除匹配的文件/目录                                    |
-| `--include=<pattern>`          | 包含匹配的文件/目录，仅包含要配合 `--exclude="*"` 使用 |
-| `--wildcards '*.txt'`          | 启用 shell 风格的通配符匹配(default for exclusion)     |
+| 参数                           | 含义                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------ |
+| `-c` 或 `--create`             | 创建新归档文件（archive）                                                |
+| `-x` 或 `--extract`            | 解包归档文件                                                             |
+| `-t` 或 `--list`               | 查看归档文件内容                                                         |
+| `-f <file>` 或 `--file=<file>` | 指定归档文件名（必须紧跟 `-f`）                                          |
+| `-v` 或 `--verbose`            | 显示处理过程中的文件名（verbose 模式）                                   |
+| `-z` 或 `--gzip`               | 使用 gzip 压缩或解压（`.tar.gz` 或 `.tgz`）                              |
+| `-j` 或 `--bzip2`              | 使用 bzip2 压缩（`.tar.bz2`）                                            |
+| `-J` 或 `--xz`                 | 使用 xz 压缩（`.tar.xz`）                                                |
+| `--lzma`                       | 使用 lzma 压缩（`.tar.lzma`）                                            |
+| `-C <dir>`                     | 切换目录再操作（常用于压缩/解压时指定目标目录）                          |
+| `--exclude=<pattern>`          | 排除匹配的文件/目录                                                      |
+| `--include=<pattern>`          | 包含匹配的文件/目录，仅包含要配合 `--exclude="*"` 使用                   |
+| `--wildcards '*/*.txt'`        | 启用 shell 风格的通配符匹配，匹配的是**完整路径**(default for exclusion) |
 
 > :pushpin: **注：**
 >
 > - `--exclude` 默认就是通配符语义。
 > - `--include` 默认是“字面路径匹配”，必须配合 `--wildcards` 才能按通配符匹配。
 >   如 `tar -xvf a.tar '*.log'` 未加 --wildcards 时，tar 会尝试匹配一个名字就叫 `*.log` 的文件，通常结果是：解不出任何文件。
+> - `--wildcards` **匹配的是完整路径**，因此如果报错找不到就要看下里面的文件结构 `tar -ztf xx.tar.gz`，然后换成 `--wildcards '*/*.txt'` 通配。
 
 ### `tar -c` 压缩
 
