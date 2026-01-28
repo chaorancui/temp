@@ -1389,7 +1389,45 @@ echo "文件名:   $(basename "$path")"
    - 不包含绝对路径
    - 不受文件数量限制
 
-   这是 **生产环境最常用、最稳妥** 的写法。
+   **缺点**：<font color=blue>空文件夹或文件夹不存在，也会创建空压缩包</font>
+   **解决**：
+
+   ```bash
+   # 目录不存在或空目录不压缩：
+   SRC_DIR=/data/folder1
+   OUT_TAR=/data/local/tmp/archive.tar.gz
+
+   if [ -d "$SRC_DIR" ] && [ "$(ls -A "$SRC_DIR" 2>/dev/null)" ]; then
+       tar czf "$OUT_TAR" -C "$SRC_DIR" .
+   else
+       echo "skip: $SRC_DIR not exist or empty"
+   fi
+
+   # 如果你对 嵌入式 / busybox / 奇葩环境 特别敏感，如下方法不依赖 ls 行为，不怕 alias
+   if [ -d "$SRC_DIR" ] && find "$SRC_DIR" -mindepth 1 -print -quit | grep -q .; then
+      tar czf "$OUT_TAR" -C "$SRC_DIR" .
+   fi
+
+   # 单行
+   adb shell '[ -d /data/vendor ] && ls -A /data/vendor >/dev/null 2>&1 && tar czf /data/local/tmp/kernel_dump.tar.gz -C /data/vendor . || echo skip'
+   ```
+
+   还可以封装成函数：
+
+   ```bash
+   tar_if_not_empty() {
+       local src="$1"
+       local out="$2"
+
+       if [ -d "$src" ] && [ "$(ls -A "$src" 2>/dev/null)" ]; then
+           tar czf "$out" -C "$src" .
+           return 0
+       fi
+
+       echo "skip: $src not exist or empty"
+       return 1
+   }
+   ```
 
 4. 创建归档时**排除**某些文件或目录
 
