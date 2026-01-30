@@ -140,7 +140,6 @@ export https_proxy="http://user:password@proxy.com:port"
 
    - 在后台运行
    - 进度写入 `wget-log`
-
    1. 断点续传（非常重要）
 
    ```bash
@@ -176,7 +175,6 @@ export https_proxy="http://user:password@proxy.com:port"
    很多网页中，点“下载”按钮，实际是跳转（302 / 301）。
 
    解决方案：
-
    - `curl`：必须加 `-L`
    - `wget`：默认会跟随
 
@@ -346,7 +344,6 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
 ```
 
 1. `rsync -av source/ destination/`
-
    - 拷贝的是 `source` **目录中的内容** 到 `destination` 目录中。
    - `destination` 目录最终变为：
 
@@ -357,7 +354,6 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
      ```
 
 2. `rsync -av source destination/`
-
    - 拷贝的是 `source` **整个目录（包括其名称）** 到 `destination`。
    - `destination` 目录最终变为：
 
@@ -368,14 +364,12 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
      ```
 
 3. `rsync -av source/ destination` vs `rsync -av source/ destination/`
-
    - 如果 `destination` 存在，它们效果是一样的；
    - 如果 `destination` 不存在：
      - `destination` 会被创建为新的目录；
      - 加 `/` 不影响拷贝内容，但更推荐用 `/` 表明是目录意图。
 
 4. 常见错误理解
-
    - **误以为加不加 `/` 没区别**：实际上差异很大，会导致最终目录结构不同。
    - **目标目录是否存在影响结果**：若目标目录不存在，`rsync` 会根据源路径决定最终路径。
 
@@ -422,7 +416,6 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
    - `--delete`：删除目标目录中在源目录中不存在的文件。这通常用于保持目标目录与源目录的完全一致。
 
 4. **排除/包含某些文件或目录**
-
    1. **排除指定文件或目录**
       使用 `--exclude` 选项，多个排除规则就写多次 `--exclude`。
       或使用 `--exclude-from` 选项，指定一个文件，该文件每行对应一个排除规则。
@@ -460,7 +453,6 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
       `--include` 本身**不会自动排除其他文件**。如果你只使用 `--include` 而不加 `--exclude='*'`，那么默认是「同步所有文件」，只是在你指定的 `--include` 文件上**优先匹配**，并不会阻止其他文件也被同步。因此若想「仅同步指定文件」，需加上写 `--exclude='*'`。
 
       `rsync` 的匹配规则是「顺序判断」的，流程大致如下：
-
       1. 遇到 `--include`：如果文件/路径匹配到，**标记为“保留”**。
       2. 遇到 `--exclude`：如果匹配到，**标记为“忽略”**。
       3. 如果什么都不匹配，默认是包含。
@@ -624,7 +616,6 @@ ssh -p 22 my@127.0.0.1
    ```
 
 3. **文件权限配置**
-
    - ssh 密钥登录时，用户的 `~/.ssh` 目录及其内部文件（如 `authorized_keys`）的权限设置必须严格（安全性考虑），**否则 SSH 认证会失败**。
    - 用户 Home 目录的权限过于宽松**也会导致 SSH 无法正常使用密钥认证**。该目录权限应该为 `755（drwxr-xr-x）`。
 
@@ -933,6 +924,148 @@ Host my-server-alias                # hostName的别名
   # RemoteCommand cd /data/ && exec $SHELL -l # 连接后执行命令
 ```
 
+### ssh 远端执行命令写法
+
+**一、结论**
+
+- ssh 后面的“远端命令”，本质上是**一整条命令字符串**
+- 是否加引号取决于你要“在哪一端展开”。
+  - 本地 shell 变量 → 双引号
+  - 远端 shell 变量 → 单引号
+- 复杂命令建议：**数组 / here-doc**
+
+**二、ssh 执行命令的真实执行流程（非常重要）**
+
+```bash
+ssh user@host CMD
+```
+
+真实流程是：
+
+1. **本地 shell 先解析 CMD**
+   - 变量替换
+   - 通配符展开
+   - 引号处理
+2. ssh 把“解析后的字符串”发给远端
+3. **远端 shell 再解析一次**
+
+> :point_right: 所以你其实面对的是 **两层 shell**
+
+**三、加不加引号分析**
+
+1. 不加引号（仅限极简单命令）
+
+   ```bash
+   ssh user@host ls
+
+   # 等价于：
+   ssh user@host "ls"
+   ```
+
+   因为没有空格、变量、通配符，**加不加都一样**。
+
+2. 必须加引号（99% 场景）
+   1. 错误写法
+
+      ```bash
+      ssh user@host cd /data && ls
+      ```
+
+      本地 shell 会解析成：
+
+      ```bash
+      ssh user@host cd /data
+      ls
+      ```
+
+      `ls` 在本地执行了
+
+   2. 正确写法（整体双引号）
+
+      ```bash
+      ssh user@host "cd /data && ls"
+      ```
+
+**五、单引号 vs 双引号（核心区别）**
+
+1. 双引号：**本地展开变量**
+
+   ```bash
+   DIR=/data
+   ssh user@host "cd $DIR && ls"
+   ```
+
+   远端收到的是：
+
+   ```bash
+   cd /data && ls
+   ```
+
+2. 单引号：**变量留给远端**
+
+   ```bash
+   ssh user@host 'cd $DIR && ls'
+   ```
+
+   远端实际执行的是：
+
+   ```bash
+   cd $DIR && ls
+   ```
+
+   `$DIR` 必须在远端定义
+
+**六、工程中最稳妥的 3 种写法**
+
+1. 最常见（本地变量 → 双引号）
+
+   ```bash
+   ssh "$dst" "cd /data && python3 run.py --model=$MODEL"
+   ```
+
+   - 适合：路径 / 参数在本地已确定
+
+2. 远端变量 / 配置 → 单引号
+
+   ```bash
+   ssh "$dst" 'source ~/.bashrc && echo $PATH'
+   ```
+
+3. ssh + 复杂命令，用 数组或here-doc
+   1. 数组（强烈推荐）：
+
+      ```bash
+      ssh_cmd=(
+        ssh "$dst"
+        'cd /data && python run.py'
+      )
+
+      "${ssh_cmd[@]}"
+      ```
+
+      **优点**
+      - 不怕空格
+      - 不怕嵌套
+      - 日志可复现
+      - 工程级安全
+
+   2. here-doc
+
+      ```bash
+      ssh "$dst" bash <<'EOF'
+      set -euo pipefail
+      cd /data
+      python run.py \
+        --input=xxx \
+        --output=xxx
+      EOF
+      ```
+
+      **关键点**
+      - `<<'EOF'`：**禁止本地展开**
+      - 所有变量都在远端解析
+      - 可读性最高
+
 ### ssh 远端执行命令
 
 **一、最简单的单条命令**
@@ -966,47 +1099,28 @@ ssh -t user@hostname "cd /data && exec $SHELL -l"
 - **`-t`**: 告诉 SSH 即使我要运行命令，也请给我准备好交互界面。
 - **`exec $SHELL -l`**: 这一步是在命令序列的最后，把当前的进程替换成一个全新的交互式 Shell。
 
-**四、这里的引号有讲究：单引号 vs 双引号**
+**四、单引号 vs 双引号**
 
-这是新手最容易踩坑的地方。
-
-- **双引号 `""`**：变量在**本地**解析。
-
-  ```bash
-  ssh user@hostname "echo $USER"  # 输出的是你【本地电脑】的用户名
-  ```
-
-- **单引号 `''`**：变量在**远程**解析。
-
-  ```bash
-  ssh user@hostname 'echo $USER'  # 输出的是【远程服务器】上的用户名
-  ```
-
-  所以，如果你要在 `cd` 后面跟一个远程的变量路径，记得用单引号。
-
-**五、使用 Heredoc 执行多行复杂命令**
-
-如果你要在连接后执行一大堆命令，写在引号里会非常乱，这时可以用 `<<-EOF`：
+这是最容易踩坑的地方。
 
 ```bash
-ssh -t user@hostname <<-'EOF'
-    cd /data
-    git status
-    export MY_VAR="hello"
-    exec $SHELL -l
-EOF
+# 双引号：变量在本地解析。
+ssh user@hostname "echo $USER"  # 输出的是你【本地电脑】的用户名
+
+# 单引号：变量在远程解析。
+ssh user@hostname 'echo $USER'  # 输出的是【远程服务器】上的用户名
 ```
 
-- 这种写法清晰直观，就像在写本地脚本一样。
+所以，如果你要在 `cd` 后面跟一个远程的变量路径，记得用单引号。
 
 **总结表**
 
-| **场景**             | **命令写法**                           |
-| -------------------- | -------------------------------------- |
-| **只运行，不驻留**   | `ssh host "cmd"`                       |
-| **运行后停留在那里** | `ssh -t host "cmd; exec $SHELL"`       |
-| **运行本地脚本**     | `ssh host "bash -s" < local_script.sh` |
-| **复杂的自动化逻辑** | 使用 `EOF` 多行块                      |
+| 场景             | 命令写法                               |
+| ---------------- | -------------------------------------- |
+| 只运行，不驻留   | `ssh host "cmd"`                       |
+| 运行后停留在那里 | `ssh -t host "cmd; exec $SHELL"`       |
+| 远端运行本地脚本 | `ssh host "bash -s" < local_script.sh` |
+| 复杂的自动化逻辑 | 使用 `EOF` 多行块                      |
 
 ### ssh 连接后切换目录
 
@@ -1051,7 +1165,6 @@ Host my-server
 1. 最推荐：利用 SSH Config（系统级方案）
 
    这是最标准的方法，不仅 WezTerm 能用，你以后在终端直接输入短别名也能登录。
-
    1. 在你的本地电脑上编辑（或创建） `~/.ssh/config` 文件。
 
    2. 添加如下内容：
@@ -1070,7 +1183,6 @@ Host my-server
    WezTerm 默认会自动读取系统标准的 SSH 配置文件`~/.ssh/config`。你不需要在 `wezterm.lua` 中为每个服务器写一遍配置，只需要开启“包含”开关或者直接调用即可。
 
    直接在 WezTerm 中：
-
    1. 按下 **`CTRL + SHIFT + P`** 打开指令调色板。
    2. 输入 **`Connect`**。
    3. 你会看到一个选项叫做 **`Connect to SSH Host`**。
@@ -1113,7 +1225,6 @@ Host my-server
    ```
 
    **效果：**
-
    - 你可以使用 `wezterm connect my-linux` 命令。
    - 更重要的是，配合 `CTRL+SHIFT+P` 然后输入 `Connect`，你可以直接选择服务器。
    - **优势：** 这种方式对多窗口管理和重新连接的支持更好。
