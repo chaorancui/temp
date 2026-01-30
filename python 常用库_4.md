@@ -130,7 +130,6 @@
     ```
 
     **注意事项**
-
     - `with_suffix()` **替换原有后缀**，包括点 `.`。若原路径没有后缀，`with_suffix()` 会直接添加新的后缀：
 
       ```python
@@ -160,7 +159,6 @@
 12. **过滤文件**
 
     `pathlib.Path.glob()` 本身**一次只能匹配一个 pattern**，但你可以用多种方式匹配多个 pattern，例如：`*.log`、`*.txt`、`*.dump` 等。下面是推荐的做法：
-
     1. 用 `rglob()` 支持递归搜索多类型文件（推荐）
 
        ```python
@@ -346,7 +344,6 @@ def greet(names: List[str]) -> None:
 **三、高级类型提示**
 
 1. **TypedDict（Python 3.8+）**
-
    - 给字典定义“结构化”字段类型
 
    ```python
@@ -361,7 +358,6 @@ def greet(names: List[str]) -> None:
    ```
 
 2. **Protocol / Structural Subtyping**
-
    - 类似接口/结构类型
 
    ```python
@@ -375,7 +371,6 @@ def greet(names: List[str]) -> None:
    ```
 
 3. **Annotated（Python 3.9+）**
-
    - 附加元信息，比如用于验证或框架提示：
 
    ```python
@@ -568,7 +563,6 @@ def good(cfg: Mapping[str, int]) -> None:
    ```
 
    调用方可以传入：
-
    - `dict`
    - `defaultdict`
    - `ChainMap`
@@ -587,7 +581,6 @@ def good(cfg: Mapping[str, int]) -> None:
    ```
 
    语义非常明确：
-
    - `cfg` 是输入配置
    - 函数只读取，不负责修改
 
@@ -602,7 +595,6 @@ def good(cfg: Mapping[str, int]) -> None:
    ```
 
    但：
-
    - mypy / pyright / pylance 会直接报错
    - IDE 会提示不合法
 
@@ -1085,7 +1077,6 @@ pprint.pprint(data)
 **二、常用 API**
 
 1. **`pprint.pprint(object, stream=None, indent=1, width=80, depth=None, compact=False, sort_dicts=True)`**
-
    - `object`：要打印的对象
    - `stream`：输出目标（默认是 `sys.stdout`）
    - `indent`：缩进级别（默认 1）
@@ -1099,7 +1090,6 @@ pprint.pprint(data)
    ```
 
 2. **`pprint.pformat(object, ...)`**
-
    - 和 `pprint()` 类似，但返回的是 **字符串**，而不是直接打印。
    - 适合写入日志或文件。
 
@@ -1109,17 +1099,14 @@ pprint.pprint(data)
    ```
 
 3. **`pprint.isreadable(object)`**
-
    - 判断对象是否能被 `eval(repr(obj))` 正确还原。
 
 4. **`pprint.isrecursive(object)`**
-
    - 判断对象是否包含自引用（比如一个 list 包含自己）。
 
 **三、典型使用场景**
 
 1. **调试复杂数据结构**
-
    - 打印嵌套的字典、列表、JSON 数据时，让输出更清晰。
 
    ```python
@@ -1129,7 +1116,6 @@ pprint.pprint(data)
    ```
 
 2. **日志记录**
-
    - 在日志中输出结构化数据时，用 `pprint.pformat` 生成更可读的字符串。
 
    ```python
@@ -1139,7 +1125,6 @@ pprint.pprint(data)
    ```
 
 3. **配置文件或参数展示**
-
    - 在程序启动时，把命令行参数或配置项以漂亮的方式打印出来，便于检查。
 
    ```python
@@ -1149,11 +1134,9 @@ pprint.pprint(data)
    ```
 
 4. **交互式调试（REPL、Jupyter Notebook）**
-
    - 直接 `pprint` 大数据结构，避免一行滚屏。
 
 5. **输出可控层级**
-
    - 数据很深时，可以限制 `depth` 只看一部分，避免信息爆炸。
 
    ```python
@@ -1219,13 +1202,11 @@ vars()、locals()、globals() 都是 Python 里很“轻量级”的内置函数
    > :warning: 注意：在函数中，`locals()` 返回的是局部变量的字典快照。**直接修改 locals() 不一定会反映到实际局部变量上**。
 
    结论（记忆规则）：
-
    - **全局作用域下**：`locals()` 可写（等价于 `globals()`），修改一定生效。
    - **函数局部作用域下**：`locals()` 是 **只读快照**，修改不保证生效；只有在 `exec` 这样的场景下，解释器可能会同步。
    - **对象上用 `vars(obj)`**：直接操作 `obj.__dict__`，修改一定生效。
 
 3. `vars()`
-
    - **无参时 = `locals()`**
 
    ```python
@@ -1364,3 +1345,10 @@ str=""""
 print(has_chinese_or_punc(str))
 print(has_chinese_or_punc("hello"))        # False
 ```
+
+## Matplotlib 库
+
+链接：
+
+- [fantastic-matplotlib](https://datawhalechina.github.io/fantastic-matplotlib/)
+- [教程— Matplotlib 3.10.3 文档](https://matplotlib.org.cn/stable/tutorials/index)
