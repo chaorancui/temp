@@ -963,3 +963,89 @@ trap cleanup EXIT INT TERM
 
 run_cmd
 ```
+
+## 使用数组拼接命令
+
+缺点：
+
+1. 不能在数组中添加 `|, &&, ;` 等 shell 符号
+
+```bash
+#!/bin/bash
+set -euo pipefail
+export PS4='+ ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+[ "${DEBUG:-false}" = true ] && set -x
+
+CMD_BIN="find"
+CMD_ARGS=(
+  ./
+  -maxdepth 1
+  -type f
+  #  -type d
+)
+
+"${CMD_BIN}" \
+  "${CMD_ARGS[@]}"
+```
+
+## 导出变量控制脚本执行
+
+```bash
+ENABLE_GDB=false
+GDB=${GDB:-false}
+GDB=${GDB,,}
+case "${GDB}" in
+  true | 1 | yes | on) ENABLE_GDB=true ;;
+  *) ENABLE_GDB=false ;;
+esac
+
+if [[ ${ENABLE_GDB} == true ]]; then
+  gdb --args \
+    "${CMD[@]}"
+else
+    "${CMD[@]}" \
+    2>&1 | tee -i "${OUTPUT_PATH}.log"
+fi
+```
+
+用法：
+
+```bash
+# 不使能GDB
+./exec.sh
+
+# 使能GDB
+GDB=true ./exec.sh
+```
+
+## ssh 远端执行命令
+
+```bash
+dst_linux="user@host"
+cmd=(
+  sshpass -p password ssh -t "${dst_linux}"
+  cd /data/ '&&'
+  python -u run.py
+  --input="${input_path}"
+  --mode="run"
+)
+
+"${cmd[@]}" 2>&1 | tee -ia "${LOG}.log"
+```
+
+注意：
+
+1. `dst_linux, input_path`在本地 shell 展开
+2. `'&&'`在远端 shell 展开
+
+## 命令打印到日志
+
+```bash
+{
+  printf '\n########\nCMD:'
+  printf ' %q' "${cmd[@]}"
+  printf '########\n\n'
+} | tee -a "${LOG}.log"
+```
+
+注：要加上 `{}`
