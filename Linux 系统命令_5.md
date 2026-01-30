@@ -168,3 +168,146 @@ pkill -t pts/0            # 杀死终端 `pts/0` 的所有进程
 | 缺点 | 需要先查 PID         | 可能误杀进程（需小心匹配）   |
 | 场景 | 已知 PID、写脚本     | 杀掉一类进程、快速命令行处理 |
 | 示例 | `kill -9 1234`       | `pkill -9 python`            |
+
+## read 命令
+
+在 Linux 的 Shell 脚本编程中，`read` 是一个非常实用的内置命令。它主要用于**从标准输入（键盘）或文件描述符中读取一行文本**，并将内容赋值给一个或多个变量。
+
+```bash
+read: read [-ers] [-a array] [-d delim] [-i text] [-n nchars] [-N nchars] [-p prompt] [-t timeout] [-u fd] [name ...]
+    Read a line from the standard input and split it into fields.
+
+    Reads a single line from the standard input, or from file descriptor FD
+    if the -u option is supplied.  The line is split into fields as with word
+    splitting, and the first word is assigned to the first NAME, the second
+    word to the second NAME, and so on, with any leftover words assigned to
+    the last NAME.  Only the characters found in $IFS are recognized as word
+    delimiters.
+
+    If no NAMEs are supplied, the line read is stored in the REPLY variable.
+```
+
+常见参数汇总：
+
+- `-p`: 显示提示信息
+- `-s`: 静默模式（不回显输入内容）
+- `-n`: 读取指定的 N 个字符后立即返回
+- `-t`: 设置超时秒数
+- `-r`: 原始模式（不转义反斜杠 `\`）
+- `-a`: 将读入的数据赋值给数组
+
+注意：
+
+- 如果不指定变量名，读取到的内容会默认存储在环境变量 `$REPLY` 中。
+
+### 常见用法
+
+```bash
+# 最简单的用法，程序会停下来等待用户输入并按回车。
+read name
+
+# 使用 `-p` 添加提示语
+read -p "请输入年龄: " age
+
+# 使用 `-s` 隐藏输入（用于密码）
+read -sp "请输入密码: " password
+
+# 使用 `-n` 或 `-N` 限制字符数（读取固定数量的字符后自动结束，无需按回车。常用于“Yes/No”的选择。）
+read -n 1 -p "是否继续? (y/n): " answer
+
+# 使用 `-t` 设置超时时间，防止程序死等。
+if ! read -rp "10 秒内输入 continue，否则退出: " -t 10 input; then
+   echo "超时，退出"
+   exit 1
+fi
+
+# 使用 `-a` 读取到数组（将输入的一行内容按照分隔符拆分并存入数组。）
+read -a colors -p "输入三种颜色（空格隔开）: "
+echo "第二种颜色是: ${colors[1]}"
+```
+
+### 进阶：如何处理文件内容
+
+`read` 常与 `while` 循环配合使用，用于**逐行读取文件**。这是运维脚本中最常见的场景之一。
+
+```bash
+cat file.txt | while read line
+do
+    echo "正在处理行内容: $line"
+done
+```
+
+_注：在处理包含特殊字符或反斜杠的文件时，建议使用 `read -r`，它能防止反斜杠被转义。_
+
+### 输入控制脚本执行
+
+这是 `read` 的标准用法之一，而且在工程脚本里非常常见。核心思路是：**循环读取 → 校验输入 → 不满足就继续阻塞**。
+
+1. 最规范、可读性最强（强烈推荐）
+
+   ```bash
+   while true; do
+       read -rp ">>> 输入 continue / c 继续: " input
+       case "$input" in
+           continue|c)
+               break
+               ;;
+           *)
+               echo "请输入 continue 或 c"
+               ;;
+       esac
+   done
+   ```
+
+   **优点**
+   - 语义清晰
+   - 易扩展（以后加 `quit` / `help` 很方便）
+   - 工程脚本最常见写法
+
+2. 严格模式兼容（`set -u` 安全）
+
+   如果脚本最开始设置了 `set -euo pipefail`，推荐用这种：
+
+   ```bash
+   while true; do
+       read -rp ">>> 输入 continue 继续执行: " input || continue
+       input=${input,,}   # 转小写（bash >= 4）
+       [ "$input" = "continue" ] && break
+       echo "请输入 continue"
+   done
+   ```
+
+   `read || continue` 可以避免 **EOF / Ctrl+D** 导致脚本退出。
+
+3. 支持超时（自动继续 / 自动退出）
+
+   ```bash
+   # 超时继续
+   if read -rp "10 秒内输入 continue 继续（超时自动继续）: " -t 10 input; then
+       [ "$input" != "continue" ] && echo "输入错误，继续执行"
+   fi
+   # 超时退出
+   if ! read -rp "10 秒内输入 continue，否则退出: " -t 10 input; then
+       echo "超时，退出"
+       exit 1
+   fi
+   ```
+
+4. **生产级暂停点函数模板**
+
+   ```bash
+   pause_until_continue() {
+       while true; do
+           read -rp ">>> 输入 continue 继续执行: " input || continue
+           [ "${input,,}" = "continue" ] && break
+           echo "请输入 continue"
+       done
+   }
+   ```
+
+   直接在脚本中：
+
+   ```bash
+   pause_until_continue
+   run_cmd
+   ```
