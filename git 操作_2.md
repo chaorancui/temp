@@ -706,7 +706,7 @@ git rebase 会以 branch_a 为参照，提取 branch_b 分支上的提交，将�
 
 通常而言，在开发过程中很少应用 git merge 合并代码，更常用的是 git rebase。此外在开发过程中，经常使用 git rebase 命令获取 master 主分支的最新提交代码，在完成个人的开发任务之后，也需要 rebase master 分支上的代码才能申请 Pull Request，自动合并。
 
-### Git 设置默认 Diff 工具
+### git mergetool 默认设置
 
 [Git 中的合并冲突如何解决](https://www.lsbin.com/tag/git中的合并冲突如何解决/)？为 设置默认差异工具**`git mergetool`**：
 
@@ -720,23 +720,29 @@ git rebase 会以 branch_a 为参照，提取 branch_b 分支上的提交，将�
 
    ```shell
    'git mergetool --tool=<tool>' may be set to one of the following:
-                   meld
-                   tortoisemerge
+                   nvimdiff
+                   nvimdiff1
+                   nvimdiff2
+                   nvimdiff3
                    vimdiff
                    vimdiff1
                    vimdiff2
-                   vimdiff
+                   vimdiff3
+
    The following tools are valid, but not currently available:
                    araxis
                    bc
                    bc3
                    bc4
+                   meld
+                   tortoisemerge
+                   winmerge
    ```
 
    根据选择的编辑器，可以使用不同的工具。例如：
-
    - **Emacs**差异工具：Ediff 或 emerge
-   - **Vim**差异工具：vimdiff、vimdiff2 或 vimdiff3
+   - **Vim**差异工具：vimdiff1、vimdiff2 或 vimdiff3
+   - **Nvim**差异工具：nvimdiff1、nvimdiff2 或 nvimdiff3、nvimdiff（默认为3）
 
    [Git 合并冲突的解决方法](https://www.lsbin.com/tag/git合并冲突的解决方法/)：进一步的步骤显示了如何为 Vim 设置**vimdiff**工具的示例。
 
@@ -762,9 +768,9 @@ git rebase 会以 branch_a 为参照，提取 branch_b 分支上的提交，将�
 
    Git 的 diff 工具设置已完成。
 
-### Mergetool 解决合并冲突
+### git mergetool 解决合并冲突
 
-如何解决 Git 中的合并冲突？要使用 `mergetool` 并查看差异，请运行：
+Git 中解决合并冲突，请运行 `mergetool` 查看差异：
 
 ```shell
 git mergetool
