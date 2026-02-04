@@ -935,14 +935,50 @@ echo "xxx command executed successfully."
 exit 0  # Exit with status 0 if everything is okay
 ```
 
-## 获取固定路径
+## 从脚本所在目录获取路径
 
 ```bash
 #!/bin/bash
-
 set -euo pipefail
+export PS4='+ ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+[ "${DEBUG:-false}" = true ] && set -x
+
 SCRIPT_PATH=$(realpath "$(dirname "$0")")
 WORK_CODE_PATH=${SCRIPT_PATH%%/work_code/*}/work_code
+echo "${WORK_CODE_PATH}"
+```
+
+## 从脚本运行目录获取路径
+
+**方法1：简单写法（可能不符合预期）**
+强烈依赖pwd为work_code子目录，否则出错
+
+```bash
+#!/bin/bash
+set -uo pipefail
+export PS4='+ ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+[ "${DEBUG:-false}" = true ] && set -x
+
+RUN_DIR=$(realpath "$(pwd)")
+WORK_CODE_PATH=${RUN_DIR%%/work_code/*}/work_code
+echo "${WORK_CODE_PATH}"
+```
+
+**方法2：安全写法**
+
+```bash
+#!/bin/bash
+set -uo pipefail
+export PS4='+ ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
+[ "${DEBUG:-false}" = true ] && set -x
+
+RUN_DIR="$(realpath "$PWD")"
+if [[ ${RUN_DIR} =~ ^(.*/work_code)(/.*)?$ ]]; then
+  WORK_CODE_PATH="${BASH_REMATCH[1]}"
+else
+  echo "ERROR: not under work_code: ${RUN_DIR}" >&2
+  return 1
+fi
 echo "${WORK_CODE_PATH}"
 ```
 
