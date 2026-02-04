@@ -34,6 +34,93 @@
 开始通过适用于 Linux 的 Windows 子系统使用 Visual Studio Code
 <https://learn.microsoft.com/zh-cn/windows/wsl/tutorials/wsl-vscode>
 
+### ssh 到 wsl
+
+一、最常用：Windows 本机 SSH 到 WSL（推荐）
+
+> **同一台 Windows 机器**，这是 90% 场景
+
+1. 确保 WSL 内 sshd 已启动
+
+   在 **WSL 里**：
+
+   ```bash
+   sudo apt install -y openssh-server
+   sudo service ssh start
+   ```
+
+   确认监听：
+
+   ```bash
+   ss -lnpt | grep sshd
+   ```
+
+   必须看到 `:22`
+
+   ***
+
+2. Windows → WSL（localhost）
+
+   在 **Windows PowerShell / CMD**：
+
+   ```bash
+   ssh <用户名>@localhost
+   ```
+
+   例如：
+
+   ```bash
+   ssh cui@localhost
+   ```
+
+   ✅ 原因说明（很关键）：
+   - WSL2 会**自动把 Linux 的端口映射到 Windows 的 localhost**
+   - **不需要知道 WSL 的 IP**
+   - 前提：`sshd` 监听 `0.0.0.0:22`
+
+二、从局域网其他机器 SSH 到 WSL
+
+> ⚠️ **WSL2 是 NAT 虚拟机，不能直接用 WSL IP**
+
+方案 A(推荐方案)：端口转发（稳定）
+
+1. 查 WSL IP（WSL 内）
+
+   ```bash
+   ip addr show eth0
+   ```
+
+   例如：
+
+   ```bash
+   172.29.88.101
+   ```
+
+2. Windows 设置端口转发（管理员 PowerShell）
+
+   ```bash
+   netsh interface portproxy add v4tov4 `
+     listenaddress=0.0.0.0 listenport=2222 `
+     connectaddress=172.29.88.101 connectport=22
+   ```
+
+3. 局域网访问
+
+   ```bash
+   ssh <用户名>@<Windows_IP> -p 2222
+   ```
+
+方案 B（不推荐）：直接连 WSL IP
+
+```bash
+ssh user@172.29.88.101
+```
+
+❌ 缺点：
+
+- WSL IP **每次重启都会变**
+- 防火墙经常拦
+
 ### win11 修改蓝牙设备的名称教程
 
 <https://zhuanlan.zhihu.com/p/625885504>
@@ -102,11 +189,9 @@ type env:path
 - **步骤二：把 WinRAR 添加到系统环境变量**
   如把 `C:\Program Files\WinRAR` 添加到系统环境变量。
 - **步骤三：执行 RAR 命令**
-
   - **压缩文件**：
 
     使用`rar a`命令来创建压缩包。
-
     - **命令格式**:
 
       `rar a <输出压缩包名.rar> <文件或文件夹名称>`
@@ -115,14 +200,12 @@ type env:path
   - **解压文件**：
 
     使用`rar x`命令来解压压缩包。
-
     - **命令格式**:
 
       `rar x <压缩包名.rar> <目标目录>`
       示例：`rar x my_archive.rar C:\Extract`（将`my_archive.rar`解压到`C:\Extract`目录）。
 
   **常见命令和参数**
-
   - `a`：将文件添加到压缩文件中。
 
   - `x`：解压文件。
