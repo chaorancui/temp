@@ -706,67 +706,124 @@ git rebase 会以 branch_a 为参照，提取 branch_b 分支上的提交，将�
 
 通常而言，在开发过程中很少应用 git merge 合并代码，更常用的是 git rebase。此外在开发过程中，经常使用 git rebase 命令获取 master 主分支的最新提交代码，在完成个人的开发任务之后，也需要 rebase master 分支上的代码才能申请 Pull Request，自动合并。
 
-### git mergetool 默认设置
+### git mergetool 介绍
 
+**一、列出可用工具**
+
+在终端中运行如下命令：
+
+```shell
+git mergetool --tool-help
+```
+
+输出打印出当前设置的所有支持的差异工具：
+
+```shell
+'git mergetool --tool=<tool>' may be set to one of the following:
+                nvimdiff
+                nvimdiff1
+                nvimdiff2
+                nvimdiff3
+                vimdiff
+                vimdiff1
+                vimdiff2
+                vimdiff3
+
+The following tools are valid, but not currently available:
+                araxis
+                bc
+                bc3
+                bc4
+                meld
+                tortoisemerge
+                winmerge
+```
+
+根据选择的编辑器，可以使用不同的工具。例如：
+
+- Emacs 系: `Ediff`, `emerge`
+- Vim 系: `vimdiff1`, `vimdiff2`, `vimdiff3`, `vimdiff`(= vimdiff3)
+- Nvim 系: `nvimdiff1`, `nvimdiff2`, `nvimdiff3`, `nvimdiff`(= nvimdiff3)
+- Vim 系: `vimdiff`
+- GUI 系（跨平台）: `meld`
+- 商业 GUI 天花板: `Araxis Merge`
+
+**二、`*diff1 / *diff2 / *diff3` 差异**
+
+这是 Git 的 **diff 参与窗口数量**：
+
+| 工具     | 窗口数 | 含义                 |
+| -------- | ------ | -------------------- |
+| `*diff1` | 1      | 几乎没人用           |
+| `*diff2` | 2      | ours vs theirs       |
+| `*diff3` | 3      | base / ours / theirs |
+
+强烈建议：**3-way diff**。原因很现实：
+
+- 能看到 **base（共同祖先）**
+- 判断“谁改了什么”更清晰
+- cherry-pick / rebase 冲突更容易判断
+
+**三、不同平台选择建议**
+
+1. 纯终端 / 服务器 / SSH 场景: `nvimdiff / vimdiff`
+   - 不依赖 X / GUI
+   - 可脚本化
+   - 键盘效率极高
+   - 能和 git / lazygit / fugitive 深度集成
+2. 桌面开发（Linux / macOS）: `meld`
+   - 3-way
+   - 颜色直观
+   - 新人友好
+   - 开源、跨平台
+3. 商业 / 大型代码库 / 法务级别对比: Araxis Merge（付费）
+   - 超强 3-way 算法
+   - 大文件 / 二进制友好
+   - GitHub、Perforce 官方推荐过
+
+[Git 合并冲突的解决方法](https://www.lsbin.com/tag/git合并冲突的解决方法/)：进一步的步骤显示了如何为 Vim 设置**vimdiff**工具的示例。
 [Git 中的合并冲突如何解决](https://www.lsbin.com/tag/git中的合并冲突如何解决/)？为 设置默认差异工具**`git mergetool`**：
 
-1. 在终端中运行以下行：
+**四、你这种环境下的「最优配置」**
 
-   ```shell
-   git mergetool --tool-help
+1. 设置默认 mergetool
+
+   ```bash
+   # 设置默认合并工具
+   git config --global merge.tool nvimdiff
+   # 启动合并解析工具前不提示
+   git config --global mergetool.prompt false
    ```
 
-   输出打印出当前设置的所有支持的差异工具：
+2. 冲突时直接一条命令
 
-   ```shell
-   'git mergetool --tool=<tool>' may be set to one of the following:
-                   nvimdiff
-                   nvimdiff1
-                   nvimdiff2
-                   nvimdiff3
-                   vimdiff
-                   vimdiff1
-                   vimdiff2
-                   vimdiff3
-
-   The following tools are valid, but not currently available:
-                   araxis
-                   bc
-                   bc3
-                   bc4
-                   meld
-                   tortoisemerge
-                   winmerge
+   ```bash
+   git mergetool
    ```
 
-   根据选择的编辑器，可以使用不同的工具。例如：
-   - **Emacs**差异工具：Ediff 或 emerge
-   - **Vim**差异工具：vimdiff1、vimdiff2 或 vimdiff3
-   - **Nvim**差异工具：nvimdiff1、nvimdiff2 或 nvimdiff3、nvimdiff（默认为3）
+   自动打开 **3 个窗口**：
 
-   [Git 合并冲突的解决方法](https://www.lsbin.com/tag/git合并冲突的解决方法/)：进一步的步骤显示了如何为 Vim 设置**vimdiff**工具的示例。
-
-2. 更改 `git config` 设置默认合并工具：
-
-   ```shell
-   git config merge.tool <tool name>
-   # 例如，如果使用 Vim，请运行：
-   git config merge.tool vimdiff
+   ```bash
+   [ BASE ] [ OURS ] [ THEIRS ]
+               ↓
+            [ RESULT ]
    ```
 
-3. 设置冲突显示格式， diff3 工具以显示两个文件的共同祖先，即任何编辑之前的版本：
+**五、和 lazygit 的关系（很多人会搞混）**
 
-   ```shell
-   git config merge.conflictstyle diff3
-   ```
+> **lazygit ≠ mergetool**
 
-4. 启动合并解析工具前不提示
+推荐组合是：
 
-   ```shell
-   git config mergetool.prompt false
-   ```
+- **lazygit**：
+  - 选文件
+  - 一键 ours / theirs
+  - 触发 continue / abort
+- **nvimdiff**：
+  - 复杂冲突
+  - 精确合并
 
-   Git 的 diff 工具设置已完成。
+实战中是 **lazygit 进，nvimdiff 出**
 
 ### git mergetool 解决合并冲突
 
@@ -811,35 +868,7 @@ git mergetool <filename>
 
 一旦信息被更新，保存并退出用**`:wqa`**。
 
-> 配置 vim 快捷键：**[Git_mergetool_tutorial_with_Vim.md](https://gist.github.com/karenyyng/f19ff75c60f18b4b8149)**
->
-> ```shell
-> let mapleader=','
-> let g:mapleader=','
->
-> if &diff
->  map <leader>1 :diffget LOCAL<CR>
->  map <leader>2 :diffget BASE<CR>
->  map <leader>3 :diffget REMOTE<CR>
-> endif
-> ```
->
-> vim 窗口移动
->
-> ```shell
-> Ctrl+W+W     # toggle between the diff columns
-> Ctrl w + h   # move to the split on the left
-> Ctrl w + j   # move to the split below
-> Ctrl w + k   # move to the split on top
-> Ctrl w + l   # move to the split on the right
-> # 对于高级导航，可通过命令获取信息:help window-moving。
-> ```
->
-> [关于 vim：使用 vimdiff 时加载不同的颜色](https://www.codenong.com/2019281/)
-
-### vim 中解决冲突的命令
-
-作为编辑器之神, vim 自然早早就考虑到了很多人会使用其进行冲突合并, 因此也内置了很多非常高效有用的操作命令, 我挑选了比较有用的列在下面:
+#### 解决冲突操作（核心）
 
 - `:diffget LOCAL`: 选择 LCOAL 作为本行最终结果
 
