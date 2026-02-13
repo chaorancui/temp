@@ -96,6 +96,18 @@ lspci -nn | grep -i nvidia  # 筛选显卡设备
 
 `lsusb` 是 Linux 系统中一个非常常用的命令，用于列出连接到系统上的 USB（通用串行总线）设备的信息。这个命令主要用于调试和查看 USB 设备的状态，是排查 USB 设备识别问题的利器。
 
+**安装方式**：
+
+```bash
+sudo apt update
+# Debian/Ubuntu
+sudo apt install usbutils
+# Arch Linux
+sudo yum install usbutils
+# Arch Linux
+sudo yum install usbutils
+```
+
 **基本用法**：
 
 ```bash
@@ -359,7 +371,6 @@ sudo journalctl -u <service_name>
 1. Unit（单元）
 
    `systemd` 通过 **unit**（单元）管理系统的各类服务、挂载点、套接字等。每个单元有不同的类型，用于表示不同的任务或资源。例如：
-
    - **service unit**（服务单元）：用于管理后台服务进程（例如 HTTP 服务、数据库服务等）。
    - **mount unit**（挂载单元）：用于挂载文件系统。
    - **socket unit**（套接字单元）：用于处理网络通信或文件 I/O 等任务。
@@ -745,7 +756,6 @@ wpa_supplicant 工具集，包括 wpa_supplicant*、*wpa_passphrase、wpa_cli
 
 - **有线网卡**是基于电信号传输的物理链路，不存在射频模块。
 - **无线网卡**具备：
-
   - 天线 + 射频模块
   - 调制/解调 + 频段配置（2.4GHz / 5GHz）
   - 受限于无线法规与功率控制
@@ -952,7 +962,6 @@ ip a show wlo1
    ```
 
    安装结果包括：
-
    - `/sbin/wpa_supplicant`：无线认证守护进程
    - `/sbin/wpa_cli`：命令行控制工具
    - `/etc/wpa_supplicant/wpa_supplicant.conf`：配置文件（你需手动写）
@@ -977,7 +986,6 @@ ip a show wlo1
 2. `wpa_supplicant`：无线网络的内核级别大管家
 
    `wpa_supplicant` 是 Linux 无线连接的**核心守护进程**，负责：
-
    - 认证（WPA2/WPA3）
    - 密钥协商（EAP/PSK）
    - 自动重连、漫游支持
@@ -1008,7 +1016,6 @@ ip a show wlo1
    > priority 越大，优先级越高。你也可以不给 priority，手动选择哪个启用。
 
    特点：
-
    - 所有连接命令都通过它处理
    - 适合嵌入式系统、init 脚本启动
    - 非常稳定、可高度定制
@@ -1017,7 +1024,6 @@ ip a show wlo1
 3. `wpa_cli`：对 `wpa_supplicant` 的交互控制工具
 
    `wpa_cli` 是一个控制 `wpa_supplicant` 的命令行接口工具，可以用来：
-
    - 交互控制连接、断开、扫描
    - 添加/移除网络
    - 获取连接状态
@@ -1052,7 +1058,6 @@ ip a show wlo1
    ```
 
    特点：
-
    - 需要 `wpa_supplicant` 已启动
    - 非常底层，适合高手调试或开发环境
    - 一般不推荐初学者直接使用
@@ -1062,7 +1067,6 @@ ip a show wlo1
    `nmcli` 是 `NetworkManager` 的命令行控制工具。是现代桌面 Linux（如 Ubuntu、Fedora）默认无线网络控制方式。
 
    优点：
-
    - 易用：无需手写配置文件
    - 统一管理有线、无线、VPN
    - 支持自动连接、保存配置
@@ -1130,7 +1134,6 @@ ip a show wlo1
 2. **常见查询类型**
 
    以下是 `dig` 支持的一些常见查询类型：
-
    - **A**：查询 IPv4 地址（默认查询类型）。
    - **AAAA**：查询 IPv6 地址。
    - **MX**：查询邮件交换记录（Mail Exchange）。
@@ -1141,7 +1144,6 @@ ip a show wlo1
    - **TXT**：查询文本记录，常用于域名验证或 SPF 配置。
 
 3. **常用选项**
-
    - `+short`：仅显示简洁的输出（例如，只显示 IP 地址）。
    - `+trace`：显示 DNS 查询的完整跟踪路径，查看从根服务器到目标服务器的所有查询过程。
    - `+all`：显示所有相关信息，包括查询的每个步骤和每个 DNS 记录。
@@ -1149,7 +1151,6 @@ ip a show wlo1
    - `+ndots=<num>`：指定域名解析时要求的最小点数，默认是 1。
 
 4. **基本用法**
-
    1. 查询 A/MX/NS/CNAME/TXT/PTR/SOA 记录
 
       ```bash
@@ -1187,7 +1188,6 @@ ip a show wlo1
 5. **输出示例**
 
    以查询 `example.com` 的 A 记录为例，执行 `dig example.com` 后的输出通常包括以下几部分：
-
    - **QUESTION SECTION**：显示查询的目标域名和查询类型。
    - **ANSWER SECTION**：显示查询的结果（例如，`example.com` 的 IP 地址）。
    - **AUTHORITY SECTION**：显示负责该域名的授权 DNS 服务器。
@@ -1458,13 +1458,11 @@ list server '127.0.0.1#5450'
 
 如果你贴出 `/etc/config/dhcp` 我可以一起帮你检查下是不是已经正确接入 Clash DNS。
 
-
-
 `/etc/config/dhcp` 配置说明
 
 你贴出的 `/etc/config/dhcp` 配置说明：
 
-------
+---
 
 ### ✅ 当前 dnsmasq 配置重点如下：
 
@@ -1475,10 +1473,10 @@ list server '127.0.0.1#7874'
 
 表示：
 
-* 系统 **禁用了默认的 `/etc/resolv.conf`**，即不会使用运营商 DNS（✅）
-* 所有 DNS 请求都会被转发到 **127.0.0.1:7874**
+- 系统 **禁用了默认的 `/etc/resolv.conf`**，即不会使用运营商 DNS（✅）
+- 所有 DNS 请求都会被转发到 **127.0.0.1:7874**
 
-------
+---
 
 ### ⚠️ 但你的 Clash 配置中监听的端口是：
 
@@ -1496,13 +1494,13 @@ listen: 127.0.0.1:5450
 
 所以终端或设备通过 OpenWRT 解析域名时，dnsmasq 把请求发到了 7874，而 Clash 根本不监听这个端口，结果是 DNS 请求被吃掉或失败，终端无法解析域名。
 
-------
+---
 
 ## ✅ 解决方案：统一端口配置
 
 你有两个选项：
 
-------
+---
 
 ### ✅ 方案 1：**改 dnsmasq 指向 5450**
 
@@ -1515,7 +1513,7 @@ uci commit dhcp
 /etc/init.d/dnsmasq restart
 ```
 
-------
+---
 
 ### ✅ 方案 2：**改 Clash 配置，监听 7874**
 
@@ -1537,7 +1535,7 @@ bash
 /etc/init.d/openclash restart
 ```
 
-------
+---
 
 ## ✅ 检查是否生效
 
@@ -1563,7 +1561,7 @@ dig www.google.com
 
 看是否解析到真实的 Google IP，而不是污染 IP（如 `198.18.x.x`）
 
-------
+---
 
 ### 2. curl 测试是否成功连接：
 
@@ -1577,37 +1575,29 @@ curl https://www.google.com
 
 如果之前 curl 失败但浏览器能打开，此修改后 curl 应该也成功。
 
-------
+---
 
 ## 🔄 总结
 
-| 项目               | 状态          | 建议                             |
-| ------------------ | ------------- | -------------------------------- |
-| Clash DNS 监听端口 | 5450          | ✅ 保留                           |
-| dnsmasq 转发端口   | 7874 ❌ 不一致 | 改为 `5450` 一致 ✅               |
+| 项目               | 状态           | 建议                             |
+| ------------------ | -------------- | -------------------------------- |
+| Clash DNS 监听端口 | 5450           | ✅ 保留                          |
+| dnsmasq 转发端口   | 7874 ❌ 不一致 | 改为 `5450` 一致 ✅              |
 | 是否使用加密 DNS   | 有 DoH/tls ✅  | 保持                             |
-| fake-ip 模式       | 没显示配置    | 可考虑开启增强分流               |
+| fake-ip 模式       | 没显示配置     | 可考虑开启增强分流               |
 | 浏览器能解析       | 因自带 DoH ✅  | 终端靠系统 DNS，需要修好转发路径 |
 
-
-
-------
+---
 
 如你愿意，我可以提供一份优化后的 clash.yaml DNS 片段 + `/etc/config/dhcp` 一致匹配的示例配置。是否需要？
 
-
-
-
-
 帮我整理一下上述openwrt设置dns的方式，默认使用什么，是怎样运作的？安装了openwrt后又是怎样使用和运作的
-
-
 
 ###### ChatGPT 说：
 
 当然可以。下面我会系统性地帮你梳理 **OpenWRT 默认 DNS 设置方式**、**工作机制**，以及 **安装 OpenClash 后如何改变其 DNS 流程**。
 
-------
+---
 
 ## 🧠 一、OpenWRT 默认 DNS 设置机制（无 OpenClash 时）
 
@@ -1619,9 +1609,7 @@ curl https://www.google.com
 | `/etc/resolv.conf`    | 系统 DNS 上游配置文件，一般由 WAN 接口自动获取运营商 DNS |
 | `/etc/config/network` | 设置网络接口时，也可指定 `dns` 字段来自定义 DNS          |
 
-
-
-------
+---
 
 ### 📌 默认 DNS 流程如下：
 
@@ -1638,7 +1626,7 @@ dnsmasq 转发 DNS 请求到 `/etc/resolv.conf` 指定的上游 DNS
 如被污染（如访问 Google）→ 返回错误或 198.18.x.x
 ```
 
-------
+---
 
 ## 🧠 二、安装 OpenClash 后 DNS 机制发生的变化
 
@@ -1654,7 +1642,7 @@ yaml复制编辑dns:
     - https://1.1.1.1/dns-query
 ```
 
-------
+---
 
 ### 📌 如果未配合 dnsmasq 设置，默认仍然是这样：
 
@@ -1667,7 +1655,7 @@ dnsmasq（监听 53）→ 运营商 DNS
     ⚠️ 这里绕过了 Clash，自然会污染
 ```
 
-------
+---
 
 ### ✅ 正确的配合方式（你的目标）：
 
@@ -1690,19 +1678,17 @@ dnsmasq
 转发到 Clash 的本地 DNS → 通过加密 DNS 查询 → 返回正确解析
 ```
 
-------
+---
 
 ## ✅ 总结：OpenWRT DNS 运作机制对比表
 
-| 场景                              | 监听端口                       | 上游 DNS                     | 是否污染         |
-| --------------------------------- | ------------------------------ | ---------------------------- | ---------------- |
+| 场景                              | 监听端口                       | 上游 DNS                     | 是否污染          |
+| --------------------------------- | ------------------------------ | ---------------------------- | ----------------- |
 | 默认 dnsmasq（无 Clash）          | 53                             | `/etc/resolv.conf`（运营商） | ✅可能污染        |
 | 加装 Clash（未配置 dnsmasq 转发） | Clash 5450，dnsmasq 仍查运营商 | Clash未接入                  | ❌Clash DNS未生效 |
 | 配置 dnsmasq → Clash              | dnsmasq 53 → Clash 5450        | Clash 通过 DoH、TLS 查询     | ✅无污染          |
 
-
-
-------
+---
 
 ## ✅ 建议最佳实践（你的系统）
 
@@ -1726,10 +1712,10 @@ list server '127.0.0.1#5450'
 ```
 
 1. **客户端 DNS 设置为网关 IP（如 192.168.1.1）**
-   * DHCP 自动下发即可
-   * curl、终端都走统一的 DNS 流程
+   - DHCP 自动下发即可
+   - curl、终端都走统一的 DNS 流程
 
-------
+---
 
 ## 🛠 可选优化：加入 fake-ip 模式（避免污染与分流问题）
 
@@ -1743,6 +1729,6 @@ yaml复制编辑dns:
     - 'localhost'
 ```
 
-------
+---
 
 如你希望，我还可以给你整理一张完整的 **Clash DNS 数据流图** 或自动检测脚本，帮你快速验证设置是否成功。是否需要？
