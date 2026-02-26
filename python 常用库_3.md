@@ -303,7 +303,6 @@ print(b)
 **:warning: <font color=blue>注意点（必须读）</font>**
 
 1. **字节序（endianness）**
-
    - NumPy 默认使用 **本机字节序（little-endian）**
    - 如果你的数据是 big-endian，则需指定：
 
@@ -312,7 +311,6 @@ print(b)
    ```
 
 2. **数据必须连续（C-contiguous）**
-
    - 如果你的原数组不是 C 连续的，例如经过**切片**或**转置**：
 
    ```python
@@ -816,12 +814,10 @@ print(loaded_array)
    ```
 
    `numpy.savetxt` 的主要参数如下：
-
    - `fname`：文件名，或者文件对象。
    - `X`：要保存的数组。
    - `fmt`：数据格式，默认是 `'%.18e'`，支持以下格式化控制。可以指定不同的格式化字符串，如 `'%.2f'`（保留两位小数）。
      Further explanation of the _fmt_ parameter (`%[flag]width[.precision]specifier`):
-
      - flags:
 
        `-` : left justify
@@ -868,7 +864,7 @@ print(loaded_array)
    # 保存到文本文件，格式化为小数点后两位，逗号分隔
    np.savetxt("array_data.txt", array, fmt="%10.4f", delimiter=",")
    np.savetxt("array_data_1d.txt", array.reshape(1, -1), fmt="%f", delimiter=',', newline=' ') # delimiter 仅对二维数组有效，因此 reshape(1, -1)
-   print(f"name: {str('array')+',':<20} shape: {str(array.shape)+',':<15} size: {str(array.nbytes)+',':<15} nbytes: {str(array.nbytes)+',':<15} dtype: {str(array.dtype):<10}")
+   print(f"name: {str('array')+',':<20} shape: {str(array.shape)+',':<15} size: {str(array.size)+',':<15} nbytes: {str(array.nbytes)+',':<15} dtype: {str(array.dtype):<10}")
    ```
 
    **大于 2 维的数组写入文件函数**：
@@ -961,7 +957,6 @@ numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, 
    ```
 
    **参数说明：**
-
    - **`a`, `b`**
      可以是标量（单个数）、列表、NumPy 数组，形状需要能广播到相同形状。
    - **`rtol`**（Relative tolerance，相对误差容忍度，默认 `1e-5`）
@@ -978,12 +973,10 @@ numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, 
    $$|a - b| \le (\text{atol} + \text{rtol} \times |b|)$$
 
    也就是说：
-
    - **`atol`** 控制的是数值特别小的情况（绝对误差）
    - **`rtol`** 控制的是数值特别大的情况（相对误差）
 
 3. **示例**
-
    1. **浮点数比较**
 
       ```python
@@ -1028,7 +1021,6 @@ numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, 
    ```
 
    参数说明：
-
    - **`a`**
      要检查的输入数组，可以是布尔数组，也可以是数值（会自动转换为布尔值，0/False 视为假，其它为真）。
    - **`axis`**（默认 `None`）
@@ -1042,13 +1034,11 @@ numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, 
      只对满足条件的位置计算（NumPy 1.20+ 新增）。
 
 2. **工作原理**
-
    - 输入如果是布尔数组，`np.all` 直接检查是否全为 `True`。
    - 输入如果是数值数组，会先转成布尔值（`0` → False，非零 → True）。
    - 返回单个布尔值（或按 `axis` 返回布尔数组）。
 
 3. **示例**
-
    1. **布尔数组**
 
       ```python
@@ -1094,7 +1084,6 @@ numpy.array2string(a, max_line_width=None, precision=None, suppress_small=None, 
       ```
 
 4. **总结**：
-
    - `np.all` = **全都为真** 的判断器
    - 常用在数据比较、验证条件、过滤等场景
    - 搭配 `np.isclose`、`np.isnan`、`arr > 0` 等布尔条件特别好用
@@ -1317,7 +1306,6 @@ bytes.hex(sep=None, bytes_per_sep=1)
    ```
 
    说明：
-
    - `'A'` → `0x41`
    - `'B'` → `0x42`
    - `'C'` → `0x43`
@@ -1432,7 +1420,6 @@ b'\x00\x00\x02\x00\x01\x00\x03\x00'
    ```
 
    创建一个新的 [`ArgumentParser`](https://docs.python.org/zh-cn/3.13/library/argparse.html#argparse.ArgumentParser) 对象。所有的参数都应当作为关键字参数传入。每个参数在下面都有它更详细的描述，但简而言之，它们是：
-
    - [prog](https://docs.python.org/zh-cn/3.13/library/argparse.html#prog) - 程序的名称 (默认值: `os.path.basename(sys.argv[0])`)
    - [usage](https://docs.python.org/zh-cn/3.13/library/argparse.html#usage) - 描述程序用途的字符串（默认值：从添加到解析器的参数生成）
    - [description](https://docs.python.org/zh-cn/3.13/library/argparse.html#description) - 要在参数帮助信息之前显示的文本（默认：无文本）
@@ -1454,7 +1441,6 @@ b'\x00\x00\x02\x00\x01\x00\x03\x00'
    ```
 
    定义单个的命令行参数应当如何解析。每个形参都在下面有它自己更多的描述，长话短说有：
-
    - [name or flags](https://docs.python.org/zh-cn/3.13/library/argparse.html#name-or-flags) - 一个名称或是由选项字符串组成的列表，例如 `'foo'` 或 `'-f', '--foo'`。
    - [action](https://docs.python.org/zh-cn/3.13/library/argparse.html#action) - 当参数在命令行中出现时使用的动作基本类型。
    - [nargs](https://docs.python.org/zh-cn/3.13/library/argparse.html#nargs) - 命令行参数应当消耗的数目。
@@ -1477,7 +1463,6 @@ b'\x00\x00\x02\x00\x01\x00\x03\x00'
    将参数字符串转换为对象并将其设为命名空间的属性。 返回带有成员的命名空间。
 
    之前对 [`add_argument()`](https://docs.python.org/zh-cn/3.13/library/argparse.html#argparse.ArgumentParser.add_argument) 的调用决定了哪些对象会被创建以及它们如何被赋值。 请参阅 `add_argument()` 的文档了解详情。
-
    - [args](https://docs.python.org/zh-cn/3.13/library/argparse.html#args) - 要解析的字符串列表。 默认值是从 [`sys.argv`](https://docs.python.org/zh-cn/3.13/library/sys.html#sys.argv) 获取。
    - [namespace](https://docs.python.org/zh-cn/3.13/library/argparse.html#namespace) - 用于获取属性的对象。 默认值是一个新的空 [`Namespace`](https://docs.python.org/zh-cn/3.13/library/argparse.html#argparse.Namespace) 对象。
 
@@ -1526,7 +1511,6 @@ b'\x00\x00\x02\x00\x01\x00\x03\x00'
 
 4. **`action`**
    控制如何处理参数的输入。常见的 `action` 值有：
-
    - `'store'`：保存参数值（默认行为）。
    - `'store_true'`：如果参数在命令行中出现，则将参数的值设置为 `True`。
    - `'store_false'`：如果参数在命令行中出现，则将参数的值设置为 `False`。
@@ -1546,7 +1530,6 @@ b'\x00\x00\x02\x00\x01\x00\x03\x00'
 
 6. **`nargs`**
    设置命令行参数接受的值的数量。常见的 `nargs` 值包括：
-
    - `'?'`：参数是可选的，并且有默认值。
    - `'*'`：参数接受任意数量的值，结果是一个列表。
    - `'+'`：参数至少需要一个值。
@@ -1626,7 +1609,6 @@ argparse 写在：
    ```
 
    **优点：**
-
    - 遵循 Python 程序的入口惯例（`if __name__ == "__main__":`）。
    - 方便封装逻辑，后续可以复用 `main()` 或在单元测试时绕过参数解析。
    - 避免全局作用域在 import 时就执行 `argparse.parse_args()`（会导致导入时报错）。
@@ -1644,12 +1626,10 @@ argparse 写在：
    ```
 
    **缺点：**
-
    - 如果这个文件被其他模块 import，会立刻尝试解析命令行参数，通常会报错（因为没有传递参数）。
    - 不利于测试和扩展，几乎没有大型项目这样写。
 
    适用场景：
-
    - 小脚本（one-off scripts），只在命令行运行，且不会被 import。
    - 临时工具，个人使用。
 
@@ -1675,7 +1655,6 @@ Python **标准库**和**官方工具**的源码，普遍写法是：
 2. **函数参数传递 args（便于单元测试）**
 
    很多官方库不会直接 `parse_args()`，而是允许 `main(args)` 接收一个参数：
-
    - **`pydoc` 源码** 和 **`unittest` CLI** 都是这样写的。
    - 这样测试时可以直接传一个 `list` 作为参数，而不是依赖命令行。
 
@@ -1743,7 +1722,6 @@ pip install argcomplete
    ```
 
    适合你有很多脚本的情况，只要这些脚本有：
-
    - `# PYTHON_ARGCOMPLETE_OK`
    - 调用了 `argcomplete.autocomplete(parser)`
 
@@ -1977,7 +1955,6 @@ mycli/
    这样就能体验到自动补全和多子命令结构的功能。
 
 7. 使用方式
-
    1. 创建一个名为 `mycli` 的目录。
    2. 在该目录下，按上述结构创建文件并复制内容。
    3. 确保 `mycli.py` 文件可执行：
