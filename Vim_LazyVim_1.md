@@ -1120,3 +1120,55 @@ LazyVim 官方已经内置了对 Yazi 的完美支持（通过 `LazyExtras`）�
    # 安装示例 (Ubuntu/Debian)
    sudo apt install fd-find ripgrep fzf zoxide
    ```
+
+**二、在 LazyVim 中集成 Yazi**
+
+如果在 LazyVim 中找不到 `util.yazi`，原因通常有两点：
+
+1. **LazyVim 版本较旧**：`util.yazi` 是较新版本中引入的 Extra。
+2. **索引未更新**：有时候 `:LazyExtras` 的缓存列表没有及时刷新。
+
+别担心，**手动集成 Yazi 插件**也非常简单，而且能让你获得更好的自定义空间。
+
+1. 创建或打开文件： `~/.config/nvim/lua/plugins/yazi.lua`，将以下代码粘贴进去。
+
+   ```lua
+   return {
+     {
+       "mikavilpas/yazi.nvim",
+       event = "VeryLazy",
+       keys = {
+         -- 在当前文件所在目录打开 Yazi
+         {
+           "<leader>-",
+           function()
+             require("yazi").yazi()
+           end,
+           desc = "Open yazi at the current file",
+         },
+         -- 在项目根目录打开 Yazi
+         {
+           "<leader>fy",
+           function()
+             require("yazi").yazi(nil, vim.fn.getcwd())
+           end,
+           desc = "Open yazi in project root",
+         },
+       },
+       opts = {
+         -- 如果你想让 Yazi 浮动窗口更漂亮，可以保持默认或自定义
+         floating_window_styling = {
+           border = "rounded",
+         },
+       },
+     },
+   }
+   ```
+
+   这段代码会自动下载插件，并设置好推荐的快捷键。
+
+2. 重启并安装
+
+   保存文件后，重启 Neovim。
+   - 你会看到 `Lazy.nvim` 的界面弹出，自动下载并安装 `yazi.nvim`。
+   - 安装完成后，按 **`<leader>-`** (空格 + 减号)。
