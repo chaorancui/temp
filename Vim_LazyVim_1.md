@@ -66,7 +66,6 @@ Nerd Fonts 字体下载：<https://www.nerdfonts.com/#home>
   - Info: Programming ligatures, extension of Fira Mono font, enlarged operators
   - `0, g` 等字符格式比较规整，但是不喜欢连起来的判等号
 - `FiraMono Nerd Font`：
-
   - Info: Mozilla typeface, dotted zero
   - `0, g` 等 字符差点意思，整体挺好
 
@@ -220,14 +219,12 @@ LazyVim 的插件管理机制虽然初看复杂，但其核心逻辑其实非常
    ```
 
    `lazy.nvim` 会通过 **仓库短名 (`nvim-treesitter`)** 来识别这个配置属于哪个插件。
-
    - **官方已有的插件**：如果 LazyVim 官方已经定义了 `nvim-treesitter`，而你在自己的 `treesitter.lua` 里也写了 `nvim-treesitter`，`lazy.nvim` 会识别出这是**同一个插件**。
    - **新插件**：如果你写了一个官方没包含的地址（如 `"someone/my-new-plugin"`），它就会去下载并安装这个新插件。
 
 3. 配置合并机制 (Merging)
 
    这是 LazyVim 最强大的地方。当你（用户）和 LazyVim（官方）同时配置同一个插件时，会发生**合并**：
-
    1. **加载官方配置**：LazyVim 预设了一套 `opts`（例如默认的高亮设置）。
    2. **查找用户覆盖**：它发现你在 `lua/plugins/treesitter.lua` 里也写了 `opts`。
    3. **合并/覆盖**：
@@ -603,7 +600,6 @@ Flash 的理念是：**“两次按键，跳到屏幕任意位置”**。
    ```
 
    效果：
-
    - 屏幕上所有 `f` 都被高亮并标上字母
    - 再按提示字母，瞬间跳过去
 
@@ -614,7 +610,6 @@ Flash 的理念是：**“两次按键，跳到屏幕任意位置”**。
    ```
 
    不是编辑，而是：
-
    - **在选中区域内跳转**
    - 用于精确定位修改点
 
@@ -627,7 +622,6 @@ Flash 的理念是：**“两次按键，跳到屏幕任意位置”**。
    ```
 
    效果：
-
    - 跳转到：
      - 函数
      - if / for / while
@@ -663,7 +657,6 @@ Flash 的理念是：**“两次按键，跳到屏幕任意位置”**。
    ```
 
    解释：
-
    - `d`：delete
    - `s`：flash jump
    - `x`：跳到字符 x
@@ -843,7 +836,6 @@ tree-sitter --version
    ```
 
    如果没有，需要安装：
-
    - **Ubuntu/Debian**: `sudo apt install build-essential`
    - **Arch Linux**: `sudo pacman -S base-devel`
    - **macOS**: `xcode-select --install`
@@ -875,7 +867,6 @@ tree-sitter --version
 1. 恢复文件标签（Session 恢复）
 
    LazyVim 默认集成了 `persistence.nvim`，它会自动保存你每个项目的会话。
-
    - **手动恢复：** 当你进入一个项目目录并打开 nvim 时，可以使用以下快捷键：
      - `<leader>qs`：恢复**当前目录**的上次会话（最常用，等同于 VSCode 恢复项目）。
      - `<leader>ql`：恢复**最后一次**使用的会话（不限目录）。
@@ -999,3 +990,133 @@ return {
 2. 使用 `Ctrl + n` 看到某个选项变色（被高亮）。
 3. 直接按 **回车**。
 4. 如果该项被填入代码中，说明补全成功。
+
+# 终端文件管理器
+
+NeoVim 集成终端文件管理器（尤其是 **Yazi**）可以极大地提升你的“终端体验”，它结合了 GUI 的直观和 CLI 的速度。
+
+## 推荐原因
+
+相比于默认的终端或 NeoTree，集成 `Yazi`/`Ranger` 的核心优势在于：
+
+1. **极速导航与操作**：
+   - NeoTree 是“侧边栏”，适合看结构；Yazi 是“全屏工作台”，适合**快速移动**。
+   - 你不需要输入 `:cd long/path/to/dir`，只需按几个键就能飞速跳转（配合 `zoxide` 更是神器）。
+2. **无缝集成（关键优势）**：
+   - 如果你只是在普通终端运行 `yazi`，选中文件回车会用另一个 Vim 打开（导致嵌套）。
+   - **LazyVim 集成版**：在 Yazi 中选中文件按下回车，它会**直接在当前的 Neovim 窗口中打开该文件**。这让它变成了一个超级强大的“文件选择器”。
+3. **多媒体预览**：
+   - Yazi 支持高清图片、视频缩略图、PDF 预览，这是 NeoTree 做不到的，也是普通终端 `ls` 做不到的。
+4. **批量操作**：
+   - 想把 10 个文件批量重命名？在 Yazi 中选中它们，按 `r`，它会调用你的编辑器（Neovim）让你一次性修改，保存即生效。
+
+**最佳方案：推荐使用 Yazi**
+
+虽然 Ranger 是经典，但在 Neovim 社区，**Yazi 是目前的绝对主流**。
+
+- **Yazi**: Rust 编写（极快），原生支持异步（不卡顿），现代化的图片预览。
+- **Ranger**: Python 编写，大文件夹下可能会卡顿，配置相对复杂。
+
+## 在 LazyVim 中集成 Yazi
+
+LazyVim 官方已经内置了对 Yazi 的完美支持（通过 `LazyExtras`），你不需要自己写复杂的配置。
+
+1. 安装 Yazi (前提)
+
+   你首先需要在你的系统终端里安装 Yazi 本体。
+   - **MacOS**: `brew install yazi`
+   - **Windows (Winget)**: `winget install sxyazi.yazi`
+   - **Linux**: 请参考官方文档（通常是 `cargo install --locked yazi-fm` 或包管理器）。
+
+2. 在 LazyVim 中启用
+
+   LazyVim 提供了一个“开关”来开启这个功能。
+   1. 在 Neovim 中输入命令：`:LazyExtras`
+   2. 在列表中找到 **`util.yazi`**（通常在列表下方）。
+   3. 按 **`x`** 键选中启用它。
+   4. 按 **`q`** 退出，LazyVim 会自动安装 `mikavil/yazi.nvim` 插件。
+
+3. 如何使用
+
+   启用后，你的快捷键通常是：
+   - **`<leader>-`** (Leader键 + 减号)：这是 LazyVim 为 Yazi 默认绑定的快捷键。
+
+   **操作流程：**
+   1. 按下 `<leader>-`，会弹出一个浮动的 Yazi 窗口。
+   2. 像在终端一样浏览文件（使用 `h/j/k/l`）。
+   3. 选中文件按 **Enter** -> **在当前 Neovim buffer 打开**。
+   4. 选中文件按 **`<C-v>`** (Ctrl+v) -> **垂直分屏打开**。
+   5. 选中文件按 **`<C-x>`** (Ctrl+x) -> **水平分屏打开**。
+
+**总结建议**
+
+| **工具**                  | **场景**                           | **评价**                                   |
+| ------------------------- | ---------------------------------- | ------------------------------------------ |
+| **Terminal (`<C-/>`)**    | 运行脚本、Git命令、编译            | 必须有，但**不适合找文件**。               |
+| **NeoTree (`<leader>e`)** | 查看项目结构、新增/删除文件        | 直观，但键盘操作较慢。                     |
+| **Yazi (`<leader>-`)**    | **极速找文件**、预览图片、批量操作 | **强烈推荐**，能替代 80% 的 NeoTree 场景。 |
+
+## 注意
+
+**一、yazi 安装方案（含离线）**
+
+在 Linux 上，如果 `cargo install` 失败（通常是因为编译环境缺少依赖或内存不足），你可以直接根据你的发行版使用包管理器或直接下载编译好的二进制文件。
+
+以下是除了 Cargo 之外最推荐的几种安装方式：
+
+1. 使用系统包管理器 (最快)
+
+   根据你使用的 Linux 发行版，执行对应的命令：
+
+   ```bash
+   # Arch Linux / Manjaro
+   sudo pacman -S yazi
+
+   # Fedora / RHEL / CentOS
+   sudo dnf copr enable lihaohong/yazi
+   udo dnf install yazi
+
+   # Ubuntu / Debian / Linux Mint**: Yazi 目前在官方旧仓库可能没有，推荐使用第三方仓库或 Snap
+   sudo snap install yazi --classic
+   ```
+
+2. 下载预编译二进制文件 (无需编译，成功率 100%)
+
+   如果你不想处理复杂的依赖报错，直接从 GitHub 下载官方编译好的运行文件即可：
+   1. 前往 [Yazi GitHub Releases](https://github.com/sxyazi/yazi/releases) 页面。
+
+   2. 找到最新版本（Latest），下载符合你架构的文件，例如：
+      - `yazi-x86_64-unknown-linux-gnu.zip` (大多数 PC 使用这个)
+      - `yazi-aarch64-unknown-linux-gnu.zip` (ARM 架构如树莓派使用)
+
+      &nbsp;
+      如果安装后运行，**有 `GLIBC version not found` 相关的报错**，则说明系统版本的 `GLIBC` 版本和 yazi 需要的版本不匹配。
+      可以选择 Yazi 官方通常都会提供的 `musl` 版本（静态链接版本）的二进制包。`musl` 版本将所有依赖库都打包进了二进制文件，**不依赖系统的 GLIBC 版本**，几乎可以在任何 Linux 发行版上运行。
+      - `yazi-x86_64-unknown-linux-musl.zip` (静态链接版本 Musl)
+
+      ```bash
+      $ yazi -v
+      yazi: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.39' not found (required by yazi)
+      ```
+
+   3. 解压并将二进制文件移动到你的路径中：
+
+      ```bash
+      unzip yazi-x86_64-unknown-linux-gnu.zip
+      cd yazi-x86_64-unknown-linux-gnu
+      # 移动到 /usr/local/bin 即可在全局使用
+      sudo cp yazi ya /usr/local/bin/
+      ```
+
+3. 安装必要的运行时依赖 (解决报错的关键)
+
+   无论用哪种方式安装，Yazi 的核心体验依赖于一些外部工具。如果你的系统缺少这些，Yazi 运行起来可能“不好用”。建议顺手装上：
+   - **fd**: 用于快速搜索文件名。
+   - **ripgrep (rg)**: 用于搜索文件内容。
+   - **fzf**: 用于模糊找回。
+   - **zoxide**: 用于目录快速跳转。
+
+   ```bash
+   # 安装示例 (Ubuntu/Debian)
+   sudo apt install fd-find ripgrep fzf zoxide
+   ```
