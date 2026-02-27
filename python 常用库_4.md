@@ -68,6 +68,15 @@
    print(p.stem)       # data
    print(p.suffix)     # .csv
    print(p.parent)     # /home/user
+   print(p.parent.name)     # user
+
+   # 路径末尾是否是文件/目录都通用
+   Path('/home/user/data.csv').parent.name   # user
+   Path('/home/user/').parent.name           # home
+
+   # 获取多级父目录
+   p.parents[0].name  # 等价于 p.parent.name -> user
+   p.parents[1].name  # home
    ```
 
 6. **检测路径/文件存在与类型**
