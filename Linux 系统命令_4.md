@@ -324,6 +324,7 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
 - `-P`: 等同于 --partial 和 --progress，在文件传输过程中显示进度，并保留已传输的部分文件。
 - `-h`: 以易读的格式显示文件大小（例如 KB、MB、GB）
 - `--dry-run`: 模拟同步过程，但不实际执行任何操作
+- `-m`: rsync 在传输完成后，如果某个目录下没有任何实际传输的文件，就不在目标端创建这个目录。
 
 **目录后加不加 `/`：**
 
@@ -458,6 +459,21 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
       3. 如果什么都不匹配，默认是包含。
 
       > :pushpin: `--include` 是一个「白名单」，但 rsync 默认是「全允许」的。所以你必须配合 `--exclude='*'` 才能让 `--include` 生效为「只包含这些，其他都不要」。
+
+   4. 过滤顺序敏感
+      - 在递归目录时，**目录本身也要通过过滤**。`*.c` / `*.h` 不匹配目录名，目录会先被 `--exclude="*"` 排除，导致 根本不会进入**子目录**去寻找 `.c` / `.h` 文件。
+      - `--include="*/"` 放在最前面，让所有目录通过， 才能递归进去找目标文件。
+      - `--include` 和 `--exclude` 的顺序敏感的。即：
+
+        过滤规则是**按顺序逐条匹配**的，对每个文件， 从上到下扫描规则，**第一条匹配的规则生效，后续规则忽略**。所以顺序不同，结果可能完全不同：
+
+        ```bash
+        # 先排除所有，再包含 .c —— .c 文件已经被第一条排除了，include 不会"撤销"它
+        --exclude="*" --include="*.c"   # ❌ 结果：什么都不打包
+
+        # 先包含 .c，再排除所有 —— .c 先匹配到 include，后面的 exclude 不再作用于它
+        --include="*.c" --exclude="*"   # ✅ 结果：只打包 .c 文件
+        ```
 
 **高级用法：**
 
