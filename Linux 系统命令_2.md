@@ -1439,11 +1439,27 @@ echo "文件名:   $(basename "$path")"
 
    ```bash
    tar -cvf code.tar \
-       --wildcards \
-       --include="*.c" \
-       --include="*.h" \
-       --exclude="*"
+     --wildcards \
+     --include="*/" \
+     --include="*.c" \
+     --include="*.h" \
+     --exclude="*" \
+     your_directory/
    ```
+
+   - tar 在递归目录时，**目录本身也要通过过滤**。`*.c` / `*.h` 不匹配目录名，目录会先被 `--exclude="*"` 排除，导致 tar 根本不会进入**子目录**去寻找 `.c` / `.h` 文件。
+   - `--include="*/"` 放在最前面，让所有目录通过，tar 才能递归进去找目标文件。
+   - `--include` 和 `--exclude` 的顺序敏感的。即：
+
+     tar 的过滤规则是**按顺序逐条匹配**的，对每个文件，tar 从上到下扫描规则，**第一条匹配的规则生效，后续规则忽略**。所以顺序不同，结果可能完全不同：
+
+     ```bash
+     # 先排除所有，再包含 .c —— .c 文件已经被第一条排除了，include 不会"撤销"它
+     --exclude="*" --include="*.c"   # ❌ 结果：什么都不打包
+
+     # 先包含 .c，再排除所有 —— .c 先匹配到 include，后面的 exclude 不再作用于它
+     --include="*.c" --exclude="*"   # ✅ 结果：只打包 .c 文件
+     ```
 
 6. 追加文件到已存在的 `.tar` 文件中（仅限未压缩的 tar）
 
