@@ -239,6 +239,110 @@
 | 替代 os/os.path 写法             | 更可读、更现代化                 |
 | 与 `open()`, `with` 搭配读写文件 | 可直接用路径对象，无需字符串转换 |
 
+## pathlib VS shutil
+
+在 Python 的文件操作界，`pathlib` 和 `shutil` 就像是**瑞士军刀**与**重型重工**的区别。
+
+- `pathlib` 侧重于路径的“对象化”和基础操作。
+- `shutil` 则专为高层级的“文件管理”（如递归拷贝、压缩）而生。
+
+**一、核心操作对比表**
+
+下面是这两个模块在常见任务中的对比：
+
+| **操作类型**   | **pathlib (面向对象)**      | **shutil (功能增强)**            |
+| -------------- | --------------------------- | -------------------------------- |
+| **创建文件**   | `path.touch()`              | -                                |
+| **创建目录**   | `path.mkdir(parents=True)`  | -                                |
+| **移动**       | `path.rename(target)`       | `shutil.move(src, dst)` (更安全) |
+| **拷贝文件**   | - (需结合 `write_bytes`)    | `shutil.copy2(src, dst)`         |
+| **拷贝文件夹** | -                           | `shutil.copytree(src, dst)`      |
+| **删除文件**   | `path.unlink()`             | -                                |
+| **删除文件夹** | `path.rmdir()` (仅限空目录) | `shutil.rmtree(path)` (递归删除) |
+
+**二、具体代码实现**
+
+1. **创建操作 (Creating)**
+
+   `pathlib` 是创建文件和目录的首选，它的语法非常直观。
+
+   Python
+
+   ```python
+   from pathlib import Path
+   import shutil
+
+   p = Path("test_folder/sub_dir/file.txt")
+
+   # 创建目录 (parents=True 相当于 mkdir -p)
+   p.parent.mkdir(parents=True, exist_ok=True)
+
+   # 创建空文件
+   p.touch()
+   ```
+
+2. **拷贝操作 (Copying)**
+
+   `pathlib` 本身没有内置的 `copy` 方法，这时必须使用 `shutil`。
+
+   ```python
+   source = Path("file.txt")
+   dest = Path("backup/file_v2.txt")
+
+   # 拷贝单个文件 (保留元数据)
+   shutil.copy2(source, dest)
+
+   # 拷贝整个文件夹
+   shutil.copytree("my_project", "my_project_backup")
+   ```
+
+3. **移动操作 (Moving)**
+
+   虽然 `pathlib` 有 `rename` 方法，但跨磁盘分区移动时可能会失败。`shutil.move` 则会自动处理这些底层细节。
+
+   ```python
+   # pathlib 方式 (推荐用于同磁盘改名)
+   Path("old_name.txt").rename("new_name.txt")
+
+   # shutil 方式 (推荐用于移动到不同位置)
+   shutil.move("data.csv", "archive/data.csv")
+   ```
+
+4. **删除操作 (Deleting)**
+
+   如果你要删除一个非空的文件夹，`pathlib` 会报错，此时 `shutil` 是唯一选择。
+
+   ```python
+   # 删除单个文件
+   Path("temp.log").unlink(missing_ok=True)
+
+   # 删除空文件夹
+   Path("empty_dir").rmdir()
+
+   # 强力删除整个文件夹及其内容
+   shutil.rmtree("old_logs")
+   ```
+
+**三、场景推荐**
+
+虽然两者经常配合使用，但你可以根据以下逻辑进行选择：
+
+1. 优先使用 `pathlib` 的场景：
+   - **路径计算与拼接**：使用 `path / "subdir" / "file.txt"` 比 `os.path.join` 优雅得多。
+   - **文件属性检查**：判断是否存在 (`.exists()`)、是否是文件 (`.is_file()`)、获取后缀 (`.suffix`)。
+   - **读取/写入小文件**：`path.read_text()` 和 `path.write_text()` 极其方便。
+   - **创建目录/空文件**。
+
+2. 必须使用 `shutil` 的场景：
+   - **拷贝操作**：无论是拷贝文件还是整个目录。
+   - **递归删除**：删除内含文件的文件夹（`rmtree`）。
+   - **归档压缩**：如创建或解压 `.zip`、`.tar` 文件（`shutil.make_archive`）。
+   - **跨设备移动**：将文件从 C 盘移动到 D 盘。
+
+3. 最佳实践
+
+   **混合使用。** 在现代 Python 代码中，通常先用 `pathlib.Path` 定义和处理路径对象，当涉及到复杂的拷贝或递归删除任务时，再将 Path 对象传递给 `shutil` 函数（`shutil` 函数完全兼容 Path 对象）。
+
 ## typing 库
 
 Python 的 `typing` 库是 **类型提示（Type Hints）** 的核心工具库，Python 3.5 以后引入，旨在给 Python 这种动态语言增加静态类型检查的能力，提高代码可读性和可靠性，同时可以配合 IDE 或类型检查工具（如 `mypy`、Pyright）发现潜在错误。
