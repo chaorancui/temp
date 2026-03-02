@@ -10,46 +10,97 @@
 
 ## 终端设置代理
 
-**方法一：通过环境变量（最推荐，最通用）**
+1. **方法一：通过环境变量（最推荐，最通用）**
 
-这是最标准的方法。大部分 Linux 程序（包括 `curl`、`wget`、`nvim` 等）都会自动读取 `http_proxy` 和 `https_proxy` 环境变量。
+   这是最标准的方法。大部分 Linux 程序（包括 `curl`、`wget`、`nvim` 等）都会自动读取 `http_proxy` 和 `https_proxy` 环境变量。
 
-在你的终端执行：
-
-```bash
-export http_proxy="http://proxy.com:port"
-export https_proxy="http://proxy.com:port"
-
-# 如果代理需要账号密码，格式如下：
-export http_proxy="http://user:password@proxy.com:port"
-export https_proxy="http://user:password@proxy.com:port"
-```
-
-**如果要永久生效：** 将上述两行添加到你的 `~/.bashrc`（如果你用的是 bash）或 `~/.zshrc` 文件末尾，然后执行 `source ~/.bashrc`。
-
-**方法二：创建 curl 配置文件（类似 git config）**
-
-你可以专门为 `curl` 创建一个配置文件，这样即使不设置全局环境变量，`curl` 命令也会自动走代理。
-
-1. 创建或编辑文件：`~/.curlrc`
-2. 在文件中添加以下内容：
+   在你的终端执行：
 
    ```bash
-   proxy ="http://proxy.com:port"
+   export http_proxy="http://proxy.com:port"
+   export https_proxy="http://proxy.com:port"
 
    # 如果代理需要账号密码，格式如下：
-   proxy = "http://user:password@proxy.com:port"
+   export http_proxy="http://user:password@proxy.com:port"
+   export https_proxy="http://user:password@proxy.com:port"
    ```
 
-3. 让 curl 跳过 SSL 验证：
+   **如果要永久生效：** 将上述两行添加到你的 `~/.bashrc`（如果你用的是 bash）或 `~/.zshrc` 文件末尾，然后执行 `source ~/.bashrc`。
+
+   **或者提供2个文件设置环境变量**：
+   `proxy_on.sh`:
 
    ```bash
-   insecure
+   #!/bin/bash
+   set -euo pipefail
+
+   # --- 请修改以下为你公司的实际代理地址 ---
+   PROXY_URL="http://user:password@proxy.com:port"
+
+   export http_proxy="$PROXY_URL"
+   export https_proxy="$PROXY_URL"
+
+
+   # 同时设置大写版本（为了兼容性）
+   export HTTP_PROXY="$PROXY_URL"
+   export HTTPS_PROXY="$PROXY_URL"
+
+
+   # 为 NO_PROXY 设置不走代理的地址（通常是内网地址）
+   export no_proxy="localhost,127.0.0.1,localaddress,.localdomain.com"
+   export NO_PROXY="localhost,127.0.0.1,localaddress,.localdomain.com"
+
+   echo "代理已开启: $PROXY_URL"
    ```
 
-   `insecure` 参数会告诉 `curl` 忽略 SSL 证书检查。
+   `proxy_off.sh`:
 
-保存后，你可以运行 `curl -I https://google.com` 测试一下是否成功。
+   ```bash
+   #!/bin/bash
+   set -euo pipefail
+
+   unset http_proxy https_proxy
+   unset HTTP_PROXY HTTPS_PROXY
+   unset no_proxy NO_PROXY
+
+   echo "代理已关闭"
+   ```
+
+2. **方法二：创建 curl 配置文件（类似 git config）**
+
+   你可以专门为 `curl` 创建一个配置文件，这样即使不设置全局环境变量，`curl` 命令也会自动走代理。
+   1. 创建或编辑文件：`~/.curlrc`
+   2. 在文件中添加以下内容：
+
+      ```bash
+      proxy ="http://proxy.com:port"
+
+      # 如果代理需要账号密码，格式如下：
+      proxy = "http://user:password@proxy.com:port"
+
+      # curl 跳过 SSL 验证
+      insecure
+      ```
+
+      `insecure` 参数会告诉 `curl` 忽略 SSL 证书检查。
+
+   保存后，你可以运行 `curl -I https://google.com` 测试一下是否成功。
+
+3. **方法三：创建 wgetrc 配置文件（类似 git config）**
+
+   你可以专门为 `wgetrc` 创建一个配置文件，这样即使不设置全局环境变量，`wgetrc` 命令也会自动走代理。
+   1. 创建或编辑文件：`~/.wgetrc`
+   2. 在文件中添加以下内容：
+
+      ```bash
+      # 如果代理需要账号密码，格式如下：
+      https_proxy = http://user:password@proxy.com:port
+      http_proxy = http://user:password@proxy.com:port
+
+      use_proxy = on
+      # 如果公司代理证书有问题，可以加上下面这行跳过检查（有风险但管用）
+      check_certificate = off
+      ```
 
 ## curl 命令
 
