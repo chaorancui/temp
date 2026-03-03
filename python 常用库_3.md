@@ -1405,6 +1405,114 @@ x.tobytes('F')
 b'\x00\x00\x02\x00\x01\x00\x03\x00'
 ```
 
+## round 舍入模式
+
+**Python 内置** 、**NumPy** 、**PyTorch** 中的默认 round（舍入）模式都是 IEEE 754 的 **round to nearest, ties to even（银行家舍入）**。
+
+### NumPy 的 round 行为
+
+1. 默认 round 模式（ties-to-even）：
+
+   ```python
+   import numpy as np
+
+   np.round([1.5, 2.5, 3.5, 4.5])
+   # array([2., 2., 4., 4.])
+   ```
+
+2. NumPy 中其他舍入模式指定方法：
+
+   | 目标      | 函数          |
+   | --------- | ------------- |
+   | 向 0      | `np.trunc(x)` |
+   | 向下 (−∞) | `np.floor(x)` |
+   | 向上 (+∞) | `np.ceil(x)`  |
+   | 最近偶数  | `np.round(x)` |
+
+   ```python
+   x = np.array([1.5, -1.5])
+
+   np.trunc(x)   # [ 1. -1.]
+   np.floor(x)   # [ 1. -2.]
+   np.ceil(x)    # [ 2. -1.]
+   np.round(x)   # [ 2. -2.]
+   ```
+
+### PyTorch 的 round 行为
+
+1. 默认 round 模式（ties-to-even）：
+
+   ```python
+   import torch
+
+   x = torch.tensor([1.5, 2.5, 3.5, 4.5])
+   torch.round(x)
+   # tensor([2., 2., 4., 4.])
+   ```
+
+   ✔ 与 NumPy 完全一致
+   ✔ CPU / CUDA 都遵循 IEEE 754 最近偶数
+
+2. PyTorch 中其他舍入模式指定方法：
+
+   | 舍入策略  | 函数            |
+   | --------- | --------------- |
+   | 向 0      | `torch.trunc()` |
+   | 向下 (−∞) | `torch.floor()` |
+   | 向上 (+∞) | `torch.ceil()`  |
+   | 最近偶数  | `torch.round()` |
+
+   ```python
+   x = torch.tensor([1.5, -1.5])
+
+   torch.trunc(x)   # tensor([ 1., -1.])
+   torch.floor(x)   # tensor([ 1., -2.])
+   torch.ceil(x)    # tensor([ 2., -1.])
+   torch.round(x)   # tensor([ 2., -2.])
+   ```
+
+### 注意
+
+1. 实现 ties away from zero
+
+   需要手写逻辑：
+
+   ```python
+   # NumPy 版
+   def round_half_away_from_zero(x):
+       return np.sign(x) * np.floor(np.abs(x) + 0.5)
+
+   # Torch 版：
+   def round_half_away_from_zero_torch(x):
+       return torch.sign(x) * torch.floor(torch.abs(x) + 0.5)
+   ```
+
+2. 量化 / int 转换要特别小心
+
+   很多坑就在这里：
+
+   ```python
+   x = torch.tensor([2.5])
+   x.int()     # tensor([2], dtype=torch.int32)
+   ```
+
+   👉 float → int 是 toward zero，不是 round！
+
+   如果你在做：
+   - int8 量化
+   - scale + round
+   - softmax / layernorm 定点化
+
+   必须**显式 round 再 cast**
+
+3. 工程常见问题
+
+   NumPy / PyTorch 默认 round 是“最近偶数”，但很多芯片量化规范要求的是 “round half away from zero” 或 “round down”。
+
+   这会导致：
+   - Python 仿真 vs NPU / DSP 结果 **对不上**
+   - 边界值（±0.5）误差集中爆发
+
 ## argparse 库
 
 `argparse` 是 Python 中用于处理命令行参数的标准库，它允许你轻松地定义和解析程序运行时的命令行参数。通过它，你可以设置程序需要的输入参数、指定参数的类型、默认值等，并且自动生成帮助文档。
