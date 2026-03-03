@@ -1512,3 +1512,118 @@ b'\x00\x00\x02\x00\x01\x00\x03\x00'
    这会导致：
    - Python 仿真 vs NPU / DSP 结果 **对不上**
    - 边界值（±0.5）误差集中爆发
+
+## NumPy 和 PyTorch 数据类型
+
+简单来说，PyTorch 的数据类型（Dtype）很大程度上是对 NumPy 的“复刻”，但为了深度学习的特殊需求（如 GPU 计算、低精度训练），它做了一些精简和优化。
+
+1. 数据类型对比表：
+
+   | **类型**             | **PyTorch (torch.dtype)**   | **NumPy (np.dtype)** | **备注**                       |
+   | -------------------- | --------------------------- | -------------------- | ------------------------------ |
+   | **32位浮点数**       | `torch.float32` 或 `float`  | `np.float32`         | **PyTorch 默认类型**           |
+   | **64位浮点数**       | `torch.float64` 或 `double` | `np.float64`         | **NumPy 默认类型**             |
+   | **16位浮点数**       | `torch.float16` 或 `half`   | `np.float16`         | 常用语混合精度训练             |
+   | **16位脑浮点**       | `torch.bfloat16`            | (部分版本支持)       | 专门为深度学习优化的16位浮点数 |
+   | **8位整数 (有符号)** | `torch.int8`                | `np.int8`            | 常用于模型量化                 |
+   | **8位整数 (无符号)** | `torch.uint8`               | `np.uint8`           | 图像处理常用                   |
+   | **32位整数**         | `torch.int32` 或 `int`      | `np.int32`           | -                              |
+   | **64位整数**         | `torch.int64` 或 `long`     | `np.int64`           | 常用于分类标签、索引           |
+   | **布尔型**           | `torch.bool`                | `np.bool_`           | 只有 True/False                |
+   | **复数**             | `torch.complex64/128`       | `np.complex64/128`   | 用于信号处理等                 |
+
+2. 核心区别：
+
+   **默认类型的差异**
+   - **NumPy**：默认通常是 `float64`（双精度）。因为 NumPy 诞生于科学计算，对精度要求极高。
+   - **PyTorch**：默认通常是 `float32`（单精度）。深度学习模型在 `float32` 下训练更快，且显存占用减半，精度损失在可接受范围内。
+
+   **设备支持 (Device Support)**
+   - **NumPy**：只支持 **CPU** 计算。
+   - **PyTorch**：每种数据类型都有对应的 **CPU** 和 **GPU (CUDA)** 版本。例如，`torch.cuda.FloatTensor` 是在 GPU 上的 `float32` 格式。
+
+   **特殊类型 (bfloat16)**
+   - PyTorch 支持 `bfloat16`（Brain Floating Point），这是由 Google 开发的一种格式。它具有与 `float32` 相同的指数范围，但精度较低。这在训练超大模型（如 LLM）时能极大地防止梯度溢出，而 NumPy 对此支持较弱。
+
+3. 两者之间的转换
+
+   PyTorch 和 NumPy 共享底层的内存地址（如果是 CPU 张量），所以转换非常快：
+
+   ```python
+   import torch
+   import numpy as np
+
+   # NumPy -> Torch
+   np_arr = np.array([1, 2, 3])
+   torch_tensor = torch.from_numpy(np_arr)
+
+   # Torch -> NumPy
+   torch_tensor = torch.ones(5)
+   np_arr = torch_tensor.numpy()
+   ```
+
+   > [!IMPORTANT]
+   > **注意：** 如果你是在 GPU 上的 Tensor，**必须先转回 CPU 才能转成 NumPy**：`tensor.cpu().numpy()`。
+
+## PyTorch 模块
+
+### 导出数据
+
+1. **导出为文本 (类似 `savetxt`)**
+
+   PyTorch 官方并没有直接命名为 `savetxt` 的函数，但你可以通过**转换回 NumPy 处理（最常用）：**
+
+   ```python
+   import torch
+   import numpy as np
+
+   t = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+   # 必须先转为 cpu，再转为 numpy
+   np.savetxt("data.txt", t.cpu().numpy(), fmt='%f')
+   ```
+
+2. **导出为二进制原始数据 (类似 `tofile`)**
+
+   PyTorch 的 `Tensor` 对象有一个 `.untyped_storage()` 方法（旧版本为 `.storage()`），结合 Python 的文件操作可以模拟 `tofile`：
+
+   ```python
+   t = torch.randn(3, 3)
+   # 写入二进制文件
+   with open("data.bin", "wb") as f:
+       f.write(t.numpy().tobytes()) # 或者使用下方的 torch.save
+   ```
+
+3. **PyTorch 的“工业级”存储方案**
+
+   在深度学习中，通常不会使用 `txt` 导出（因为速度慢且丢失维度信息），而是使用以下两种方式：
+
+   **A. `torch.save()` (最通用)**
+
+   这类似于 NumPy 的 `np.save`，但它不仅保存数据，还保存了张量的 **数据类型 (Dtype)** 和 **形状 (Shape)**。
+   - **保存：** `torch.save(t, 'tensor.pt')`
+   - **加载：** `t = torch.load('tensor.pt')`
+
+   **B. `Safetensors` (Hugging Face 推荐)**
+
+   在 2026 年，如果你在处理大型模型权重，`safetensors` 已经成为了行业标准。它比 `torch.save` 更安全（防止恶意代码注入）且加载速度极快。
+
+   | **功能**     | **PyTorch 原生 (.pt)** | **Safetensors (.safetensors)** | **备注**   |
+   | ------------ | ---------------------- | ------------------------------ | ---------- |
+   | **安全性**   | 较低 (基于 pickle)     | 极高                           | 工业界首选 |
+   | **加载速度** | 快                     | 极快 (内存映射)                | 适合大模型 |
+   | **通用性**   | 仅限 PyTorch           | 跨框架 (Jax, TF, Torch)        | -          |
+
+快速对比表
+
+| **NumPy 函数** | **PyTorch 等效/替代方案**                   |
+| -------------- | ------------------------------------------- |
+| `np.savetxt()` | `np.savetxt(t.numpy())` 或手动写入          |
+| `np.tofile()`  | `t.numpy().tofile()`                        |
+| `np.save()`    | `torch.save(t, 'file.pt')`                  |
+| `np.savez()`   | `torch.save({'a': t1, 'b': t2}, 'file.pt')` |
+
+总结建议
+
+- 如果是为了**给人看**或者简单的跨软件读取：先转成 `numpy()` 再用 `savetxt`。
+- 如果是为了**保存训练结果/断点**：永远使用 `torch.save()`。
+- 如果是为了**在不同设备或框架间高效传输**：建议使用 `safetensors` 库。
