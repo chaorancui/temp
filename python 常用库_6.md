@@ -1,4 +1,129 @@
 [toc]
 
-# python 常用库_6
+# PyTorch 模块
 
+## 导出数据
+
+1. **导出为文本 (类似 `savetxt`)**
+
+   PyTorch 官方并没有直接命名为 `savetxt` 的函数，但你可以通过**转换回 NumPy 处理（最常用）：**
+
+   ```python
+   import torch
+   import numpy as np
+
+   t = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
+   # 必须先转为 cpu，再转为 numpy
+   np.savetxt("data.txt", t.cpu().numpy(), fmt='%f')
+   ```
+
+2. **导出为二进制原始数据 (类似 `tofile`)**
+
+   PyTorch 的 `Tensor` 对象有一个 `.untyped_storage()` 方法（旧版本为 `.storage()`），结合 Python 的文件操作可以模拟 `tofile`：
+
+   ```python
+   t = torch.randn(3, 3)
+   # 写入二进制文件
+   with open("data.bin", "wb") as f:
+       f.write(t.numpy().tobytes()) # 或者使用下方的 torch.save
+   ```
+
+3. **PyTorch 的“工业级”存储方案**
+
+   在深度学习中，通常不会使用 `txt` 导出（因为速度慢且丢失维度信息），而是使用以下两种方式：
+
+   **A. `torch.save()` (最通用)**
+
+   这类似于 NumPy 的 `np.save`，但它不仅保存数据，还保存了张量的 **数据类型 (Dtype)** 和 **形状 (Shape)**。
+   - **保存：** `torch.save(t, 'tensor.pt')`
+   - **加载：** `t = torch.load('tensor.pt')`
+
+   **B. `Safetensors` (Hugging Face 推荐)**
+
+   在 2026 年，如果你在处理大型模型权重，`safetensors` 已经成为了行业标准。它比 `torch.save` 更安全（防止恶意代码注入）且加载速度极快。
+
+   | **功能**     | **PyTorch 原生 (.pt)** | **Safetensors (.safetensors)** | **备注**   |
+   | ------------ | ---------------------- | ------------------------------ | ---------- |
+   | **安全性**   | 较低 (基于 pickle)     | 极高                           | 工业界首选 |
+   | **加载速度** | 快                     | 极快 (内存映射)                | 适合大模型 |
+   | **通用性**   | 仅限 PyTorch           | 跨框架 (Jax, TF, Torch)        | -          |
+
+快速对比表
+
+| **NumPy 函数** | **PyTorch 等效/替代方案**                   |
+| -------------- | ------------------------------------------- |
+| `np.savetxt()` | `np.savetxt(t.numpy())` 或手动写入          |
+| `np.tofile()`  | `t.numpy().tofile()`                        |
+| `np.save()`    | `torch.save(t, 'file.pt')`                  |
+| `np.savez()`   | `torch.save({'a': t1, 'b': t2}, 'file.pt')` |
+
+总结建议
+
+- 如果是为了**给人看**或者简单的跨软件读取：先转成 `numpy()` 再用 `savetxt`。
+- 如果是为了**保存训练结果/断点**：永远使用 `torch.save()`。
+- 如果是为了**在不同设备或框架间高效传输**：建议使用 `safetensors` 库。
+
+## transpose 函数
+
+在 PyTorch 中，进行维度转置（Transpose）有多种方法。虽然它们都能改变数据的维度顺序，但在语义和适用场景上有所区别。
+
+1. `torch.transpose(input, dim0, dim1)`
+
+   这是最基础的转置函数。它**只能交换两个特定的维度**。
+   - **语法**：`tensor.transpose(dim0, dim1)`
+   - **适用场景**：经典的矩阵转置（行变列，列变行）。
+
+   ```python
+   import torch
+
+   x = torch.randn(2, 3)  # 形状 (2, 3)
+   y = x.transpose(0, 1)  # 形状 (3, 2)
+   ```
+
+2. `torch.permute(*dims)`
+
+   这是在深度学习中最常用的函数。它可以**一次性重新排列所有维度**，比 `transpose` 更强大、更直观。
+   - **语法**：`tensor.permute(dim0, dim1, dim2, ...)`
+   - **适用场景**：改变图像张量的布局（例如从 `[通道, 高, 宽]` 转换为 `[高, 宽, 通度]`）。
+
+   ```python
+   # 假设有一个图像张量 (C, H, W)
+   img = torch.randn(3, 224, 224)
+
+   # 转换为 (H, W, C)，常用于绘图
+   img_permuted = img.permute(1, 2, 0)
+   ```
+
+3. `tensor.T` (快捷属性)
+
+   这是模仿 NumPy 的简洁写法。
+   - **1D 张量**：返回自身。
+   - **2D 张量**：等同于 `transpose(0, 1)`。
+   - **高维张量**：在最新版本的 PyTorch 中，`.T` 会报错或警告（建议改用 `.mT` 处理最后两维，或用 `permute` 显式指定）。
+
+   ```python
+   x = torch.randn(2, 3)
+   print(x.T.shape)  # torch.Size([3, 2])
+   ```
+
+4. 关键点：连续性 (Contiguous)
+
+   转置操作**不会改变内存中数据的实际存储顺序**，它只是改变了“看数据的方式”（即步长 Stride）。
+
+   这就引出了一个常见的坑：如果你在转置后紧接着使用 `view()`，程序会报错。
+
+   > **解决方法**：在转置后调用 `.contiguous()`。
+
+   ```python
+   x = torch.randn(2, 3)
+   y = x.transpose(0, 1).contiguous().view(-1) # 只有先 contiguous 才能 view
+   ```
+
+**核心方法对比表**
+
+| 方法                  | 功能描述         | 优点                                |
+| --------------------- | ---------------- | ----------------------------------- |
+| `transpose(a, b)`     | 交换两个维度     | 简单，符合数学直觉                  |
+| `permute(a, b, c...)` | 重新排列所有维度 | 灵活，处理高维数据必备              |
+| `.T`                  | 2D 矩阵快速转置  | 书写极简                            |
+| `.mT`                 | 批量矩阵转置     | 专门处理形如 `(Batch, N, M)` 的数据 |
