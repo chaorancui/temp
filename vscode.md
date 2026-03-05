@@ -81,7 +81,6 @@ exit
 当远程服务器无法访问外网或网络不稳定一直安装失败时，就需要手动安装。
 
 1. **下载 VS Code Server**：
-
    - 使用 `wget` 或 `curl`
 
      从能联网的机器上运行下述命令下载 VS Code Server。例如：
@@ -97,7 +96,6 @@ exit
      下载完成之后，把软件包拷贝到不能联网的远程服务器。可以使用 scp 命令或者 winscp 等 ftp 工具。
 
 2. **解压下载的文件**：
-
    - 解压下载的 tar 文件：
 
      ```shell
@@ -111,7 +109,6 @@ exit
      ```
 
 3. **设置权限**：
-
    - 确保文件和目录具有正确的权限，以便 VS Code 可以运行：
 
      ```shell
@@ -119,7 +116,6 @@ exit
      ```
 
 4. **重启 VS Code 并重新连接**：
-
    - 断开远程连接，然后重新连接。VS Code 应该检测到 VS Code Server 已经安装，并直接使用它。
 
 ### 修改 Server 默认安装路径
@@ -139,7 +135,6 @@ exit
 ### C++ 插件
 
 - **C/C++ Extension Pack**: 此扩展包包含一组用于 Visual Studio Code 中 C++ 开发的流行扩展。**安装这 1 个，会自动安装下面 4 个**。
-
   - [C/C++](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools)
   - [C/C++ 主题](https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-themes)
   - [CMake](https://marketplace.visualstudio.com/items?itemName=twxs.cmake)
@@ -164,7 +159,7 @@ BasedOnStyle: LLVM
 IndentWidth: 4
 TabWidth: 4
 UseTab: Never
-ColumnLimit: 120
+ColumnLimit: 150
 
 # 大括号规则：函数/类换行；控制语句不换行；else 同行
 BreakBeforeBraces: Custom
@@ -173,11 +168,11 @@ BraceWrapping:
   AfterControlStatement: Never
   AfterEnum: true
   AfterFunction: true
-  AfterNamespace: false # namespace 的 { 不换行
+  AfterNamespace: false  # namespace 的 { 不换行
   AfterStruct: true
   AfterUnion: true
   BeforeCatch: false
-  BeforeElse: false # else 与 } 同行
+  BeforeElse: false  # else 与 } 同行
   IndentBraces: false
   SplitEmptyFunction: false
   SplitEmptyRecord: false
@@ -191,20 +186,28 @@ AccessModifierOffset: -4
 # 空格与操作符
 SpaceBeforeParens: ControlStatements
 SpaceAroundPointerQualifiers: Default
-PointerAlignment: Right # 指针符号紧挨变量
-ReferenceAlignment: Right # 引用符号紧挨变量
+PointerAlignment: Right  # 指针符号紧挨变量
+ReferenceAlignment: Right  # 引用符号紧挨变量
 SpacesBeforeTrailingComments: 2
 
-# 关键修改：函数参数配置
+# 注释格式
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: 1
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 1
+
+# 函数参数配置
 BinPackParameters: true
 BinPackArguments: true
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowAllArgumentsOnNextLine: false
 # 新增配置：控制第一个参数位置
-AlignAfterOpenBracket: DontAlign # 不在开括号后对齐
-PenaltyBreakOpenParenthesis: 1000 # 增加开括号后换行的惩罚，避免第一个参数换行
-PenaltyBreakFirstLessLess: 120 # 降低第一个<<前的换行惩罚
-PenaltyExcessCharacter: 100 # 超过列限制的字符惩罚
+AlignAfterOpenBracket: DontAlign  # 不在开括号后对齐
+PenaltyBreakOpenParenthesis: 1000  # 增加开括号后换行的惩罚，避免第一个参数换行
+PenaltyBreakFirstLessLess: 120     # 降低第一个<<前的换行惩罚
+PenaltyExcessCharacter: 100        # 超过列限制的字符惩罚
 PenaltyReturnTypeOnItsOwnLine: 200 # 返回类型在自己行的惩罚
 
 # 换行规则
@@ -213,7 +216,7 @@ AllowShortIfStatementsOnASingleLine: Never
 AllowShortLoopsOnASingleLine: false
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortBlocksOnASingleLine: Never
-AlwaysBreakTemplateDeclarations: Yes # 模板声明总是换行
+AlwaysBreakTemplateDeclarations: Yes  # 模板声明总是换行
 
 # 运算符换行
 BreakBeforeBinaryOperators: None
@@ -221,8 +224,8 @@ BreakConstructorInitializers: BeforeColon
 
 # 注释与 include
 ReflowComments: true
-SortIncludes: Never # 不对头文件排序
-IncludeBlocks: Preserve # 保持原有的 include 块结构
+SortIncludes: Never  # 不对头文件排序
+IncludeBlocks: Preserve  # 保持原有的 include 块结构
 
 # 其他格式细节
 KeepEmptyLinesAtTheStartOfBlocks: false
@@ -268,19 +271,15 @@ SeparateDefinitionBlocks: Leave
 
 3. shell-format-rev - lumirelle
    快捷键：Ctrl + Shift + F
-
    - **功能**:
-
      - 基于 [`shfmt`](https://github.com/mvdan/sh)（一个成熟的 Shell 格式化工具）。
      - 支持自动格式化 `.sh`、`.bash` 等文件。
      - 可配置缩进（空格/制表符）、换行风格等。
 
    - **安装**:
-
      1. 在 VS Code 扩展商店搜索 `ShellFormat`。
 
      2. 安装后，需确保系统已安装 `shfmt`。
-
         - 从 [shfmt GitHub Releases](https://github.com/mvdan/sh/releases) 下载对应版本（如 `shfmt_*_linux_amd64`）。
         - Windows：重命名为 `shfmt.exe`，并放入 `C:\Windows\System32` 或添加到 `PATH`。
         - Linux：重命名为 `shfmt`，赋予执行权限并安装：`chmod +x shfmt`,`sudo mv shfmt /usr/local/bin/`
@@ -433,7 +432,6 @@ SeparateDefinitionBlocks: Leave
    `remark-math` 是一个 `remark` 插件，它能够识别并处理 Markdown 中的数学公式。你可以使用它配合 Prettier 一起工作。
 
    **步骤**：
-
    1. 安装 `remark-math` 和 `remark-html-katex`（用于将数学公式转换成可视化效果）：
 
       ```bash
@@ -490,7 +488,6 @@ SeparateDefinitionBlocks: Leave
    这种方法适用于需要跳过特定文件的情况，而不是局部忽略公式的格式化。
 
 4. 总结
-
    - **局部忽略**：使用 `<!-- prettier-ignore -->` 注释跳过某个数学公式的格式化。
    - **插件方式**：使用 `remark-math` 插件结合 Prettier，让 Prettier 识别数学公式并跳过其格式化。
    - **全局忽略**：通过 `.prettierignore` 文件，忽略某些特定的 Markdown 文件的格式化。
@@ -504,7 +501,6 @@ SeparateDefinitionBlocks: Leave
 1. 安装 VSCode 插件
 
    首先需要在 VSCode 中安装相关插件：
-
    - `PlantUML`：这是一个可以让你在 Markdown 中使用 PlantUML 语法绘制 UML 图的插件。需要安装 java。
    - `Markdown All in One`：支持 Markdown(键盘快捷键、目录、自动预览等)。
    - `Markdown Preview Enhanced`：可以对 Markdown 做增强预览, 比如支持各种绘图等。
@@ -539,7 +535,6 @@ SeparateDefinitionBlocks: Leave
 5. 配置 VSCode 设置
 
    如果是**在 Markdown 文件中嵌入 UML 代码**，预览时需要配置 `markdown-preview-enhanced` 插件，下面<font color=red><b>配置一个就可以</b></font>。
-
    - 方法一：使用 PlantUML 官网提供的 `plantuml.jar` 包（需要本地安装 JDK 并配置 java 系统环境变量）
    - 方法二：直接使用 plantumlServer。只有联网才能用，且意味着你的文件共享在网络上，如果是私密文件请使用本地 Server。
 
@@ -562,7 +557,6 @@ SeparateDefinitionBlocks: Leave
    ```
 
    如果是**直接新建 plantuml 文件编写代码**，则需要对 `PlantUML` 插件进行配置：
-
    - 实测配置了 java 和 Graphviz 的系统环境变量后，不进行下述配置也可以。如果不行请再配置。
 
    ```json
@@ -594,7 +588,6 @@ SeparateDefinitionBlocks: Leave
    使用 `PlantUML` 插件，你可以右键 UML 代码块，选择“Export Current Diagram”来导出图片格式，如 PNG、SVG 或 PDF。
 
 9. 总结
-
    1. 安装 PlantUML 插件。
    2. 安装并配置 Java 和 Graphviz。
    3. 在 Markdown 中使用 `plantuml` 代码块编写 UML 代码。
@@ -1061,7 +1054,6 @@ shellcheck --severity=warning --shell=bash script.sh
    VS Code 默认会在 "Problems" 面板中显示错误和警告。虽然这不是直接显示在代码末尾，但它提供了一个集中的错误查看位置。
 
 2. 安装 **Error Lens** 扩展：
-
    - 在扩展市场中搜索 `Error Lens` 并安装。
 
    - `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
@@ -1097,7 +1089,6 @@ shellcheck --severity=warning --shell=bash script.sh
 
 2. **添加编译选项宏**：
    正常做完上述配置后，`#ifdef` 和 `#endif` 等指令区域应该会显示为灰色的背景或其他变暗效果。但有时候代码里会有些宏是编译器定义的，代码中无法正确拿到这些宏定义的值，可以通过在 `c_cpp_properties.json` 文件中配置这些宏，让 **C/C++ 插件** 正常高亮条件编译指令。
-
    - 通过从命令面板（Ctrl+Shift+P）中选择的 **C/C++ 编辑配置(JSON)** 来创建 `c_cpp_properties.json` 文件。或者通过从命令面板（Ctrl+Shift+P）中选择**C/C++: 编辑配置(UI)** 中直接设置选项（会自动生成文件）。参考：[vscode C/C++ 官方文档](https://vscode.js.cn/docs/cpp/configure-intellisense)。
    - **修改 `defines` 这一项，在里面添加宏**。下面例子添加了 MY_MACRO 和 DEBUG 宏。
    - 其余的都是默认配置，暂无修改诉求。
@@ -1286,7 +1277,6 @@ Specifies the current working directory for the debugger, which is the base fold
 虽然 `c_cpp_properties.json` 没有提供直接的排除选项，但你可以控制 `includePath` 的设置，间接影响哪些文件被包含在 IntelliSense 中。
 
 1. 打开或创建 `c_cpp_properties.json` 文件：
-
    - 按 `Ctrl` + `Shift` + `P` 打开命令面板。
    - 输入 `C/C++: Edit Configurations (UI)` 或 `C/C++: Edit Configurations (JSON)` 并选择。
 
@@ -1319,7 +1309,6 @@ Specifies the current working directory for the debugger, which is the base fold
 另一个方法是通过 VS Code 的**工作区配置**设置排除文件或目录，这样可以影响到 IntelliSense 的显示效果。
 
 1. 打开 `.vscode/settings.json` 文件：
-
    - 进入工作区文件夹，找到 `.vscode` 文件夹。
    - 创建或编辑 `settings.json` 文件。
 
@@ -1358,7 +1347,6 @@ Specifies the current working directory for the debugger, which is the base fold
    ```
 
    这个配置会排除：
-
    - `build` 目录及其所有子目录
    - `third_party` 目录及其所有子目录
    - `test` 目录及其所有子目录
