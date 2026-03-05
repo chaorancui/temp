@@ -272,40 +272,37 @@ return {
 return {
   {
     "mg979/vim-visual-multi",
-    branch = "master",
-    event = "VeryLazy",
-    init = function()
-      -- 使用 Ctrl 而不是默认的 \
-      vim.g.VM_maps = {
-        ["Find Under"] = "<C-d>", -- 选中当前单词并添加光标
-        ["Find Subword Under"] = "<C-d>", -- 同上
-        ["Select All"] = "<C-S-l>", -- 选中所有匹配项
-        ["Skip Region"] = "<C-x>", -- 跳过当前匹配
-        ["Remove Region"] = "<C-p>", -- 移除当前光标
-        ["Add Cursor Down"] = "<C-Down>", -- 向下添加光标
-        ["Add Cursor Up"] = "<C-Up>", -- 向上添加光标
-      }
-
-      -- 设置主题
-      vim.g.VM_theme = "iceblue"
-
-      -- 其他配置
-      vim.g.VM_highlight_matches = "underline" -- 匹配项显示下划线
-    end,
   },
 }
 ```
 
-使用方法：
+Github 地址：[mg979/vim-visual-multi](https://github.com/mg979/vim-visual-multi)
 
-- `<C-d>` - 选中光标下的单词，再次按下选中下一个相同单词
-- `<C-x>` - 跳过当前匹配，继续下一个
-- `<C-p>` - 取消最后一个光标
-- `<C-Down>` / `<C-Up>` - 在上下行添加光标
-- `<C-S-l>` - 选中所有匹配的单词
-- `n` / `N` - 在多光标间导航
-- `q` - 退出多光标模式
-- 在多光标模式下，可以正常使用 `i`, `a`, `c`, `d` 等编辑命令
+Basic usage:
+
+- select words with Ctrl-N (like `Ctrl-d` in Sublime Text/VS Code)
+- create cursors vertically with `Ctrl-Down/Ctrl-Up`
+- select one character at a time with `Shift-Arrows`
+- press `n/N` to get next/previous occurrence
+- press `[/]` to select next/previous cursor
+- press `q` to skip current and get next occurrence
+- press `Q` to remove current cursor/selection
+- start insert mode with `i,a,I,A`
+
+Two main modes:
+
+- in **cursor mode** commands work as they would in normal mode
+- in **extend mode** commands work as they would in visual mode
+- press Tab to switch between «cursor» and «extend» mode
+
+Most vim commands work as expected (motions, r to replace characters, ~ to change case, etc). Additionally you can:
+
+- run macros/ex/normal commands at cursors
+- align cursors
+- transpose selections
+- add patterns with regex, or from visual mode
+
+And more... of course, you can enter insert mode and autocomplete will work.
 
 ## 代码跳转：字符匹配
 
