@@ -566,6 +566,152 @@ return {
 
 ```
 
+# 重置 LazyVim 插件系统
+
+我理解你的困境。让我帮你完整地重置 LazyVim 的插件系统。以下是清除缓存并重新开始的步骤：
+
+## 重置步骤
+
+1. 完全清除 LazyVim 的缓存和数据
+
+   ```bash
+   # 备份现有配置（以防需要恢复）
+   cp -r ~/.config/nvim ~/.config/nvim.backup
+
+   # 删除 Lazy.nvim 的缓存和状态
+   rm -rf ~/.local/share/nvim/lazy
+   rm -rf ~/.cache/nvim
+   rm -rf ~/.local/state/nvim
+
+   # 删除 Lazy 的 lock 文件
+   rm ~/.config/nvim/lazy-lock.json
+   ```
+
+2. 清除 Mason（LSP/DAP/Formatter 管理器）的缓存
+
+   ```bash
+   # 如果你使用了 Mason
+   rm -rf ~/.local/share/nvim/mason
+   ```
+
+3. 清除 Packer 或其他包管理器的缓存（如果有）
+
+   ```bash
+   rm -rf ~/.local/share/packer_nvim
+   ```
+
+4. 重新启动 Neovim
+
+   ```bash
+   nvim
+   ```
+
+   启动时 Lazy.nvim 会：
+   - 自动检测 `~/.config/nvim/init.lua` 中的插件定义
+   - 重新下载所有插件
+   - 运行初始化和配置
+   - 生成新的 `lazy-lock.json`
+
+5. 首次启动后的操作
+
+   ```vim
+   " 在 Neovim 中执行这些命令
+   :Lazy sync      " 同步所有插件（下载、更新、删除）
+   :Lazy install   " 确保所有插件都已安装
+   :Mason          " 打开 Mason，手动安装需要的 LSP/Formatter
+   :checkhealth    " 检查健康状态，找出问题
+   ```
+
+6. 如果仍有问题，逐步调试
+
+   **简化你的配置：**
+
+   编辑 `~/.config/nvim/init.lua`，临时注释掉大部分插件：
+
+   ```lua
+   -- 只保留最基础的设置
+   require("config.lazy")  -- 如果你有分离的配置
+
+   -- 暂时注释其他所有插件导入
+   -- require("config.keymaps")
+   -- require("config.autocmds")
+   ```
+
+   然后逐个启用插件，检查哪个导致问题。
+
+7. 更激进的重置（如果上述步骤无效）
+
+   <font color=red>注：下述操作会完全删除LazyVim的个性化配置，请提前备份配置文件。</font>
+
+   ```bash
+   # 完全删除 nvim 数据
+   rm -rf ~/.config/nvim
+   rm -rf ~/.local/share/nvim
+   rm -rf ~/.cache/nvim
+   rm -rf ~/.local/state/nvim
+
+   # 重新克隆 LazyVim 启动模板
+   git clone https://github.com/LazyVim/starter ~/.config/nvim
+   rm -rf ~/.config/nvim/.git
+   nvim
+   ```
+
+## 完整一键脚本
+
+如果你想一步到位，可以运行这个脚本：
+
+```bash
+#!/bin/bash
+
+echo "🔄 开始清除 LazyVim 缓存..."
+
+# 备份配置
+cp -r ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d_%H%M%S)
+echo "✅ 配置已备份"
+
+# 清除缓存
+rm -rf ~/.local/share/nvim/lazy
+rm -rf ~/.cache/nvim
+rm -rf ~/.local/state/nvim
+rm -rf ~/.local/share/nvim/mason
+rm ~/.config/nvim/lazy-lock.json
+
+echo "✅ 缓存已清除"
+echo "🚀 请运行: nvim"
+```
+
+保存为 `reset_lazyvim.sh`，然后运行：
+
+bash
+
+```bash
+chmod +x reset_lazyvim.sh
+./reset_lazyvim.sh
+```
+
+## 常见问题排查
+
+如果重启后仍有问题，检查以下几点：
+
+1. **查看错误信息**：
+
+   ```vim
+   :checkhealth
+   :Lazy log
+   ```
+
+2. **检查 init.lua 语法**：
+
+   ```bash
+   nvim -c "luafile ~/.config/nvim/init.lua" -c "qa"
+   ```
+
+3. **查看插件日志**：
+
+   ```bash
+   tail -f ~/.local/state/nvim/lazy/log
+   ```
+
 # 插件介绍
 
 ## flash.nvim
@@ -707,6 +853,12 @@ LazyVim 的假设是：
   ```
 
 ## nvim-treesitter
+
+该`nvim-treesitter`插件提供：
+
+1. 用于安装、更新和删除[**树状图解析器**](https://github.com/nvim-treesitter/nvim-treesitter/blob/main/SUPPORTED_LANGUAGES.md)的功能；
+2. 一系列用于启用 Neovim 中为这些语言内置的树状视图功能的**查询；**
+3. 一个用于开发[treesitter-based features](https://github.com/nvim-treesitter/nvim-treesitter#Supported-features)的试验场，这些功能考虑上游合并到 Neovim 中。
 
 **Requirements:**
 
