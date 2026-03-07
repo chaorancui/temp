@@ -52,6 +52,23 @@ LazyVim 是一个基于 [💤 lazy.nvim](https://github.com/folke/lazy.nvim) 的
 
 [Installation](https://www.lazyvim.org/installation)
 
+### 配置 runtimepath
+
+如果是包管理工具安装，则默认会包含 runtimepath。
+如果是二进制安装，并导出系统环境变量，则neovim不知道runtimepath路径，需要自己在下述文件中自行配置：
+
+`~/.config/nvim/init.lua`:
+
+```lua
+-- ~/.config/nvim/init.lua
+-- 由于是家目录二进制安装，主动配置正确的 runtimepath
+if not vim.opt.runtimepath:get() then
+  vim.opt.runtimepath:append(vim.fn.stdpath("data") .. "/site")
+end
+
+require("config.lazy")
+```
+
 ## 图标/字体乱码
 
 注意，需要修改 terminal 的字体为 nerdfonts 中才不会出现乱码。
@@ -77,6 +94,67 @@ LazyVim 除了预装了很多插件，还有一些默认不启用的插件，称
 注：建议安装带 `recommended` 的插件。
 
 # LazyVim 介绍
+
+## runtimepath 介绍
+
+`runtimepath` 是 Neovim 的 **"搜索路径"** —— Neovim 会在这些目录里寻找各种运行时资源。
+
+**类比理解：**
+
+```log
+runtimepath 就像 Linux 的 PATH 环境变量
+
+PATH=/usr/local/bin:/usr/bin:/bin
+  ↓
+告诉系统去这些目录里找可执行程序
+
+runtimepath=~/.config/nvim:~/.local/share/nvim/site:...
+  ↓
+告诉 Neovim 去这些目录里找 Lua 脚本、插件、配置等
+```
+
+**runtimepath 包含的资源类型**
+
+1. **插件 (Plugins)**
+
+   ```log
+   ~/.local/share/nvim/lazy/nvim-treesitter/
+     ↑
+   Neovim 通过 runtimepath 找到这个目录
+   ```
+
+2. **Treesitter Query 文件**
+
+   ```log
+   ~/.local/share/nvim/site/queries/bash/highlights.scm
+   ~/.local/share/nvim/site/queries/python/highlights.scm
+     ↑
+   Treesitter 需要通过 runtimepath 找到这些文件
+   ```
+
+3. **自定义 Lua 模块**
+
+   ```log
+   ~/.config/nvim/lua/config/
+     ↑
+   你的 require("config.lazy") 就是通过 runtimepath 找到的
+   ```
+
+4. **颜色主题 (Colorschemes)**
+
+   ```log
+   ~/.local/share/nvim/site/colors/
+     ↑
+   vim.cmd.colorscheme("tokyonight")
+   ```
+
+5. **自定义命令和函数**
+
+   ```log
+   ~/.config/nvim/plugin/
+     ↑
+   所有 .lua 和 .vim 文件都会自动加载
+   ```
 
 ## LazyVim 加载顺序
 
