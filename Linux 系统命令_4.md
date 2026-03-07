@@ -73,7 +73,7 @@
    2. 在文件中添加以下内容：
 
       ```bash
-      proxy ="http://proxy.com:port"
+      proxy = "http://proxy.com:port"
 
       # 如果代理需要账号密码，格式如下：
       proxy = "http://user:password@proxy.com:port"
@@ -94,8 +94,8 @@
 
       ```bash
       # 如果代理需要账号密码，格式如下：
-      https_proxy = http://user:password@proxy.com:port
       http_proxy = http://user:password@proxy.com:port
+      https_proxy = http://user:password@proxy.com:port
 
       use_proxy = on
       # 如果公司代理证书有问题，可以加上下面这行跳过检查（有风险但管用）
@@ -104,6 +104,9 @@
 
 ## curl 命令
 
+> [Everything curl](https://everything.curl.dev/)
+> 本书旨在为普通读者和有一定经验的开发者提供趣味性和实用性。书中内容丰富，可供不同读者选择阅读。
+>
 > [curl 的用法指南](https://www.ruanyifeng.com/blog/2019/09/curl-reference.html)
 >
 > [curl 命令详解](https://handerfly.github.io/linux/2019/05/26/curl%E5%91%BD%E4%BB%A4%E8%AF%A6%E8%A7%A3/)
