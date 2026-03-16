@@ -585,3 +585,253 @@ build   deploy
 $ ./mycli.py build --<Tab>
 --target  --help
 ```
+
+## Pydantic 库
+
+**一、Pydantic 简介**
+
+Pydantic 是一个基于 Python 类型提示的数据验证和设置管理库。它利用 Python 3.6+ 的类型注解来定义数据模型，并在运行时自动验证传入的数据，将其转换为正确的类型，同时提供友好的错误信息。
+
+**核心功能**：
+
+- **数据验证**：根据模型定义自动检查字段类型、范围、约束等。
+- **类型转换**：尝试将输入转换为声明的类型（如字符串 `"123"` 转为整数 123）。
+- **序列化/反序列化**：轻松将模型实例转换为字典、JSON 或其他格式。
+- **解析复杂结构**：支持嵌套模型、列表、联合类型等。
+- **集成友好**：与 FastAPI、Flask、Django 等 Web 框架无缝集成。
+
+**二、核心概念与基本用法**
+
+1. 定义模型
+
+   继承 `pydantic.BaseModel`，使用类型注解声明字段。
+
+   ```python
+   from pydantic import BaseModel
+
+   class User(BaseModel):
+       id: int
+       name: str
+       age: int = 0          # 默认值
+       email: str | None = None   # 可选字段，默认为 None
+   ```
+
+2. 实例化与验证
+
+   创建实例时自动进行验证和类型转换。
+
+   ```python
+   user = User(id="123", name="Alice", age="25")  # 字符串自动转为 int
+   print(user)  # id=123 name='Alice' age=25 email=None
+   ```
+
+   如果数据不合法，抛出 `pydantic.ValidationError`：
+
+   ```python
+   try:
+       User(id="abc", name="Bob")  # id 无法转为 int
+   except ValidationError as e:
+       print(e)
+   ```
+
+3. 字段类型与约束
+
+   支持多种内置类型及自定义类型：
+   - 基本类型：`int`, `float`, `str`, `bool`, `bytes`
+   - 容器类型：`List`, `Dict`, `Set`, `Tuple`
+   - 特殊类型：`Optional`, `Union`, `Literal`, `Any`
+   - 约束类型：`conint`, `constr`, `EmailStr`, `UrlStr` 等（需导入）
+
+   ```python
+   from pydantic import constr, conint, EmailStr
+
+   class Product(BaseModel):
+       name: constr(min_length=1, max_length=100)  # 字符串长度限制
+       price: conint(gt=0, le=10000)                # 整数范围
+       email: EmailStr                               # 邮箱格式
+   ```
+
+4. 自定义验证器
+
+   使用 `@field_validator`（Pydantic v2）或 `@validator`（v1）为字段添加自定义验证逻辑。
+
+   ```python
+   from pydantic import field_validator
+
+   class Order(BaseModel):
+       quantity: int
+       price: float
+
+       @field_validator('quantity')
+       def check_positive(cls, v):
+           if v <= 0:
+               raise ValueError('quantity must be positive')
+           return v
+   ```
+
+   Pydantic v2 引入了 `@model_validator` 用于跨字段验证：
+
+   ```python
+   from pydantic import model_validator
+
+   class Booking(BaseModel):
+       start: int
+       end: int
+
+       @model_validator(mode='after')
+       def check_start_before_end(self):
+           if self.start >= self.end:
+               raise ValueError('start must be before end')
+           return self
+   ```
+
+5. 嵌套模型
+
+   模型可以嵌套其他模型，形成复杂结构。
+
+   ```python
+   class Address(BaseModel):
+       city: str
+       street: str
+
+   class Person(BaseModel):
+       name: str
+       address: Address
+
+   data = {'name': 'Alice', 'address': {'city': 'Beijing', 'street': 'Main St'}}
+   person = Person(**data)
+   print(person.address.city)  # Beijing
+   ```
+
+6. 配置（Config）
+
+   通过内部类 `Config` 或 `model_config` 设置模型行为，如允许额外字段、字段别名、严格模式等。
+
+   Pydantic v2 使用 `model_config` 字典：
+
+   ```python
+   from pydantic import BaseModel, ConfigDict
+
+   class MyModel(BaseModel):
+       model_config = ConfigDict(extra='forbid')  # 禁止额外字段
+       name: str
+   ```
+
+7. 解析与导出
+   - **从字典/JSON 创建**：`Model(**data)` 或 `Model.model_validate(data)`（v2）。
+   - **导出为字典**：`model.model_dump()`。
+   - **导出为 JSON**：`model.model_dump_json()`。
+
+   ```python
+   user = User(id=1, name="Alice")
+   user_dict = user.model_dump()          # {'id': 1, 'name': 'Alice', 'age': 0}
+   user_json = user.model_dump_json()     # '{"id":1,"name":"Alice","age":0}'
+   ```
+
+8. 错误处理
+
+   验证失败时捕获 `ValidationError`，可通过 `e.errors()` 获取详细错误列表。
+
+**三、典型使用场景**
+
+1. 配置管理
+
+   将配置文件（YAML/JSON）加载为 Pydantic 模型，确保配置项类型正确、字段完整，并自动完成类型转换。例如之前的 `TestCaseConfig`：
+
+   ```python
+   from pydantic import BaseModel
+   from typing import Optional
+
+   class VerificationConfig(BaseModel):
+       golden_path: str = ""
+       output_path: str = ""
+
+   class TestCaseConfig(BaseModel):
+       test_config_path: str
+       verification_config: VerificationConfig
+
+   # 从 YAML 加载后验证
+   raw = yaml.safe_load(open("case.yaml"))
+   case = TestCaseConfig.model_validate(raw)
+   ```
+
+   优势：配置结构清晰，错误在启动时暴露，避免运行时因配置错误导致崩溃。
+
+2. 数据清洗与解析
+
+   处理外部数据（如 CSV、第三方 API 响应），将其转换为结构化模型。
+
+   ```python
+   import csv
+   from pydantic import BaseModel, ValidationError
+
+   class Stock(BaseModel):
+       symbol: str
+       price: float
+
+   stocks = []
+   with open('stocks.csv') as f:
+       reader = csv.DictReader(f)
+       for row in reader:
+           try:
+               stocks.append(Stock(**row))
+           except ValidationError as e:
+               print(f"Invalid row: {row}, error: {e}")
+   ```
+
+3. 环境变量解析
+
+   使用 `pydantic-settings` 将环境变量映射为配置对象。
+
+   ```python
+   from pydantic_settings import BaseSettings
+
+   class Settings(BaseSettings):
+       database_url: str
+       debug: bool = False
+
+       class Config:
+           env_prefix = "MYAPP_"   # 环境变量前缀
+
+   settings = Settings()  # 自动从 os.environ 读取
+   ```
+
+4. API 请求/响应验证
+
+   与 FastAPI 深度集成，自动验证请求体和响应。
+
+   ```python
+   from fastapi import FastAPI
+   from pydantic import BaseModel
+
+   app = FastAPI()
+
+   class Item(BaseModel):
+       name: str
+       price: float
+
+   @app.post("/items/")
+   async def create_item(item: Item):   # FastAPI 自动验证并注入 item
+       return item
+   ```
+
+**四、Pydantic v1 与 v2 主要区别**
+
+| 特性        | v1                         | v2                                             |
+| :---------- | :------------------------- | :--------------------------------------------- |
+| 验证器      | `@validator`               | `@field_validator`                             |
+| 模型验证器  | -                          | `@model_validator`                             |
+| 配置        | 内部类 `Config`            | `model_config = ConfigDict(...)`               |
+| 解析方法    | `obj.dict()`, `obj.json()` | `obj.model_dump()`, `obj.model_dump_json()`    |
+| 从 ORM 创建 | `from_orm`                 | `model_validate` (with `from_attributes=True`) |
+
+**五、在你的项目中使用 Pydantic 的收益**
+
+- **强类型保障**：避免配置中字段类型错误（例如将布尔值写成字符串）。
+- **自动路径拼接**：通过自定义验证器或字段处理，可统一处理相对路径。
+- **清晰的错误定位**：当 YAML 缺少字段或类型错误时，Pydantic 会明确指出是哪个用例的哪个字段有问题。
+- **易于扩展**：新增字段只需在模型类中添加类型注解，其余逻辑自动生效。
+
+**六、总结**
+
+Pydantic 是现代 Python 数据验证的事实标准，它通过类型提示实现了声明式的数据模型，让数据验证、清洗和序列化变得简单而可靠。无论是配置管理、API 开发还是数据解析，Pydantic 都能显著提升代码的健壮性和可维护性。
