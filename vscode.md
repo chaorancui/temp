@@ -261,6 +261,9 @@ SeparateDefinitionBlocks: Leave
 
 ### shell 插件
 
+> 1. shell-format - foxundermoon, 不可使用，很早就不维护了
+> 2. shell-format-rev - lumirelle, 20260316 插件市场无法获取
+
 编写 shell 脚本，有以下插件可以选择：
 
 1. shellman - Remisa
@@ -269,37 +272,44 @@ SeparateDefinitionBlocks: Leave
 2. shellcheck - Timon Wong
    语法错误检查
 
-3. shell-format-rev - lumirelle
+3. Shell Formatter
    快捷键：Ctrl + Shift + F
    - **功能**:
-     - 基于 [`shfmt`](https://github.com/mvdan/sh)（一个成熟的 Shell 格式化工具）。
-     - 支持自动格式化 `.sh`、`.bash` 等文件。
-     - 可配置缩进（空格/制表符）、换行风格等。
-
+     - **Smart Formatting 智能格式化** - Automatically format Shell scripts with shfmt ([Usage](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#format-document-格式化文档))
+     - **Error Detection 错误检测** - Detect syntax and semantic errors with shellcheck ([View Errors](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#view-errors-and-warnings-查看错误和警告))
+     - **Automatic Diagnosis 自动诊断** - Automatic checking when opening, saving, or editing
+     - **Quick Fixes 快速修复** - One-click fix for formatting issues ([Quick Fix](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#quick-fix-issues-快速修复问题))
+     - **Multi-language Support 多语言支持** - Support for 17 languages with automatic detection ([Details](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#multi-language-support-多语言支持))
+     - **Tool Status Monitoring 工具状态监控** - Check which tools are currently active ([View Details](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#view-tool-status-查看工具状态))
+     - **Performance Monitoring 性能监控** - Real-time performance metrics and analysis reports ([Details](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#performance-monitoring-性能监控))
+     - **Detailed Logs 详细日志** - Timestamped operation logs with customizable format ([View Logs](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#view-logs-查看日志))
    - **安装**:
-     1. 在 VS Code 扩展商店搜索 `ShellFormat`。
+     1. 在 VS Code 扩展商店搜索 `Shell Formatter`。
 
      2. 安装后，需确保系统已安装 `shfmt`。
         - 从 [shfmt GitHub Releases](https://github.com/mvdan/sh/releases) 下载对应版本（如 `shfmt_*_linux_amd64`）。
         - Windows：重命名为 `shfmt.exe`，并放入 `C:\Windows\System32` 或添加到 `PATH`。
         - Linux：重命名为 `shfmt`，赋予执行权限并安装：`chmod +x shfmt`,`sudo mv shfmt /usr/local/bin/`
-
      3. 插件路径配置
 
         ```json
-        "shellformat.path": "/usr/local/bin/shfmt"  // Linux/macOS
+        "shell-formatter.language": "local",
+        "shell-formatter.tabSize": 2,
+        "shell-formatter.plugins.shfmt": {
+          "enabled": true,
+          "path": "path/to/shfmt"
+        },
+        "shell-formatter.plugins.shellcheck": {
+          "enabled": true,
+          "path": "shellcheck"
+        },
+        "shell-formatter.log": {
+          "enabled": false,
+          "level": "info",
+          "format": "[%timestamp] [%level] [%name] [%method:%line] %message"
+        },
+        "shell-formatter.onError": "showProblem"
         ```
-
-   - **配置**:
-     在 `settings.json` 中添加规则，例如：
-
-     ```json
-     "shellformat.flag": "-i 2"  // 2空格缩进
-     ```
-
-到这里，刀就已经磨好了，去劈柴吧少年~
-
-> 本文转载自：[VScode 打造 shell 脚本 IDE](https://zhuanlan.zhihu.com/p/199187317)
 
 ### 代码编辑插件
 
