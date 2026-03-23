@@ -44,6 +44,82 @@
 | **自定义均值方差** | `torch.normal`    | `torch.normal(0, 0.1, (5,))`                |
 | **0/1二项分布**    | `torch.bernoulli` | `torch.bernoulli(torch.tensor([0.5, 0.8]))` |
 
+## 数据类型转换
+
+在 PyTorch 中，数据类型转换（Dtype Casting）是一个非常高频的操作。你可以通过多种方式实现，最推荐的是使用 `.to()` 方法，因为它不仅能改类型，还能顺便移动设备（如从 CPU 到 GPU）。
+
+1. **通用且推荐：`.to()` 方法**
+
+   这是目前最标准的方法，语义清晰，且支持非阻塞操作。
+
+   ```python
+   import torch
+
+   tensor = torch.randn(2, 2)  # 默认是 float32
+   # 转换为 float16 (半精度)
+   tensor_half = tensor.to(torch.float16)
+   # 转换为 int32
+   tensor_int = tensor.to(torch.int32)
+   ```
+
+2. **快捷简便：`.type()` 方法**
+
+   如果你只需要改变类型，可以使用这个方法。如果不传参数，它会返回张量的类型字符串。
+
+   ```python
+   # 转换为双精度浮点型
+   tensor_double = tensor.type(torch.float64)
+   ```
+
+3. **别名方法（最快语法糖）**
+
+   PyTorch 为每种基本类型都提供了专门的转换函数，写起来最省事：
+   - **`.float()`**: 转换为 `float32`
+   - **`.double()`**: 转换为 `float64`
+   - **`.half()`**: 转换为 `float16`
+   - **`.int()`**: 转换为 `int32`
+   - **`.long()`**: 转换为 `int64` (常用于索引和标签)
+   - **`.bool()`**: 转换为布尔型
+
+   ```python
+   # 深度学习中最常用的：将标签转换为长整型
+   labels = torch.tensor([1.0, 2.0]).long()
+   ```
+
+4. **常用数据类型对照表**
+
+   为了方便你选择，这里列出了最常用的几种类型：
+
+   | **目标类型**  | **PyTorch 对应关键字**            | **常用场景**             |
+   | ------------- | --------------------------------- | ------------------------ |
+   | **32位浮点**  | `torch.float32` 或 `torch.float`  | 网络权重、输入数据       |
+   | **64位浮点**  | `torch.float64` 或 `torch.double` | 高精度科学计算           |
+   | **16位浮点**  | `torch.float16` 或 `torch.half`   | 混合精度训练（省显存）   |
+   | **64位整数**  | `torch.int64` 或 `torch.long`     | 类别标签、Embedding 索引 |
+   | **32位整数**  | `torch.int32` 或 `torch.int`      | 一般计数                 |
+   | **8位无符号** | `torch.uint8`                     | 图像掩码（Mask）         |
+
+**⚠️ 两个关键注意事项**
+
+1. **就地转换（In-place）**：
+
+   上述所有转换方法（`.to()`, `.float()` 等）**都不会改变原张量**，而是返回一个新的张量。
+
+   ```python
+   x = torch.ones(2, dtype=torch.float32)
+   x.int()       # 这行代码执行了，但 x 依然是 float32
+   x = x.int()   # 必须重新赋值才能生效
+   ```
+
+2. **设备兼容性**：
+
+   如果你在进行类型转换的同时需要移动设备（比如从 CPU 移到 GPU），一次性使用 `.to()` 是效率最高的方案：
+
+   ```python
+   device = "cuda" if torch.cuda.is_available() else "cpu"
+   tensor = tensor.to(device, dtype=torch.float16)
+   ```
+
 ## 导出数据
 
 1. **导出为文本 (类似 `savetxt`)**
