@@ -154,89 +154,230 @@ exit
 - `.clang-format` 配置
 
 ```yaml
+# 继承 LLVM 官方风格作为基础
 BasedOnStyle: LLVM
-# 基础设置
-IndentWidth: 4
-TabWidth: 4
-UseTab: Never
-ColumnLimit: 150
 
-# 大括号规则：函数/类换行；控制语句不换行；else 同行
+# ============================================================================
+# 【基础缩进与制表符设置】
+# ============================================================================
+
+# 一个缩进级别的空格数（4个空格）
+IndentWidth: 4
+
+# Tab 字符的宽度（当使用 Tab 时的显示宽度）
+TabWidth: 4
+
+# 不使用 Tab 字符，全部用空格代替
+UseTab: Never
+
+# 单行最大列数（超过此长度会自动换行）
+ColumnLimit: 120
+
+# ============================================================================
+# 【大括号换行规则】- 控制 { 和 } 的位置
+# ============================================================================
+
+# 使用自定义的大括号换行规则（Custom 可细粒度控制，不用 LLVM 默认的）
 BreakBeforeBraces: Custom
+
 BraceWrapping:
+  # 类声明的 { 换到新行：class Foo { → class Foo\n{
   AfterClass: true
+
+  # 控制语句（if/while/for）的 { 不换行：if (x) { → if (x) {（同行）
   AfterControlStatement: Never
+
+  # 枚举声明的 { 换到新行
   AfterEnum: true
+
+  # 函数声明的 { 换到新行：void foo() { → void foo()\n{
   AfterFunction: true
-  AfterNamespace: false  # namespace 的 { 不换行
+
+  # namespace 的 { 不换行，保持 namespace foo {（同行）
+  AfterNamespace: false
+
+  # 结构体声明的 { 换到新行
   AfterStruct: true
+
+  # 联合体声明的 { 换到新行
   AfterUnion: true
+
+  # catch 块的 { 不换行：} catch { → } catch {（同行）
   BeforeCatch: false
-  BeforeElse: false  # else 与 } 同行
+
+  # else 块的 { 不换行：} else { → } else {（else 与 } 同行）
+  BeforeElse: false
+
+  # 不在大括号内再缩进（大括号本身不额外缩进）
   IndentBraces: false
+
+  # 不把空函数体拆成两行：void foo() {} 保持一行
   SplitEmptyFunction: false
+
+  # 不把空结构体/类拆成两行：struct Foo {} 保持一行
   SplitEmptyRecord: false
+
+  # 不把空命名空间拆成两行：namespace Foo {} 保持一行
   SplitEmptyNamespace: false
 
-# 缩进与命名空间
+# ============================================================================
+# 【缩进与命名空间设置】
+# ============================================================================
+
+# 命名空间内的代码不额外缩进（namespace Foo { void f() 中 f 与 namespace 同列）
 NamespaceIndentation: None
+
+# case 标签相对 switch 缩进一级（switch { case: ... 时 case 缩进）
 IndentCaseLabels: true
+
+# public/private/protected 访问修饰符相对类定义缩进的列数（-4 表示向左缩进 4 列）
 AccessModifierOffset: -4
 
-# 空格与操作符
+# ============================================================================
+# 【空格规则】- 控制操作符和括号周围的空格
+# ============================================================================
+
+# 仅在控制语句（if/while/for）前加空格：if (x) 有空格，func(x) 无空格
 SpaceBeforeParens: ControlStatements
+
+# 指针/引用限定符（const、volatile）周围的空格处理方式
 SpaceAroundPointerQualifiers: Default
-PointerAlignment: Right  # 指针符号紧挨变量
-ReferenceAlignment: Right  # 引用符号紧挨变量
+
+# 指针符号 * 紧贴变量名：int *p（而不是 int* p）
+PointerAlignment: Right
+
+# 引用符号 & 紧贴变量名：int &ref（而不是 int& ref）
+ReferenceAlignment: Right
+
+# 末尾注释前的空格数量（// 前保持 2 个空格）
 SpacesBeforeTrailingComments: 2
 
-# 注释格式
+# ============================================================================
+# 【注释对齐与格式】
+# ============================================================================
+
+# 行内注释（// 之后的内容）前的空格设置
 SpacesInLineCommentPrefix:
+  # 最少 1 个空格：// 后面至少有一个空格
   Minimum: 1
+  # 最多 1 个空格：// 后面最多只有一个空格（保持统一）
   Maximum: 1
+
+# 末尾注释的对齐方式
 AlignTrailingComments:
+  # 始终对齐末尾注释（多行代码的注释竖排对齐）
   Kind: Always
+  # 即使中间有空行，也继续对齐（值为 1 表示允许跨越 1 行空行）
   OverEmptyLines: 1
 
-# 函数参数配置
+# ============================================================================
+# 【关键配置：函数参数换行与对齐】- 这是格式化的核心
+# ============================================================================
+
+# 允许多个函数参数装在一行（而不是每个参数独占一行）
 BinPackParameters: true
+
+# 允许多个函数调用参数装在一行（与 BinPackParameters 对应）
 BinPackArguments: true
+
+# 不允许所有函数声明参数一起换到下一行（false 强制分散在多行中对齐）
+# 即使参数过多，也要分散在多行而不是整块换行
 AllowAllParametersOfDeclarationOnNextLine: false
+
+# 不允许所有函数调用参数一起换到下一行（与上一项对应）
 AllowAllArgumentsOnNextLine: false
-# 新增配置：控制第一个参数位置
-AlignAfterOpenBracket: DontAlign  # 不在开括号后对齐
-PenaltyBreakOpenParenthesis: 1000  # 增加开括号后换行的惩罚，避免第一个参数换行
-PenaltyBreakFirstLessLess: 120     # 降低第一个<<前的换行惩罚
-PenaltyExcessCharacter: 100        # 超过列限制的字符惩罚
-PenaltyReturnTypeOnItsOwnLine: 200 # 返回类型在自己行的惩罚
 
-# 换行规则
+# 换行后的参数对齐到开括号的位置（这是实现紧凑排列的关键）
+# 例如：void Init(param1, param2,
+#                 param3, param4)  <- param3 对齐到 ( 的下一列
+AlignAfterOpenBracket: Align
+
+# 在开括号处换行的惩罚值（越低越容易触发换行；100 是适度的）
+# 这个值会让 clang-format 优先在开括号后换行，而不是其他位置
+PenaltyBreakOpenParenthesis: 100
+
+# 在第一个 << 运算符前换行的惩罚值（用于流式输出，如 std::cout << ）
+PenaltyBreakFirstLessLess: 120
+
+# 超过列限制的每个字符的惩罚值（1000 很高，强制 clang-format 必须换行以避免超长）
+PenaltyExcessCharacter: 1000
+
+# 返回类型单独占一行的惩罚值（100 是相对较低的，允许长签名时返回类型换行）
+# 例如：long_return_type\nvoid Init(...) 时不会被严厉惩罚
+PenaltyReturnTypeOnItsOwnLine: 100
+
+# ============================================================================
+# 【换行规则】- 控制何时保持单行 vs 何时强制换行
+# ============================================================================
+
+# 空的短函数是否保留单行：Empty 表示只有 {} 的空函数保持单行
 AllowShortFunctionsOnASingleLine: Empty
-AllowShortIfStatementsOnASingleLine: Never
-AllowShortLoopsOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
-AllowShortBlocksOnASingleLine: Never
-AlwaysBreakTemplateDeclarations: Yes  # 模板声明总是换行
 
-# 运算符换行
+# 短的 if 语句是否单行：Never 表示 if 总是多行（即使很短也会换行）
+AllowShortIfStatementsOnASingleLine: Never
+
+# 短的 while/for 循环是否单行：false 表示总是多行
+AllowShortLoopsOnASingleLine: false
+
+# 短的 case 标签是否单行：false 表示不单行
+AllowShortCaseLabelsOnASingleLine: false
+
+# 短的代码块（如 if(x) return;）是否单行：Never 表示总是多行
+AllowShortBlocksOnASingleLine: Never
+
+# 模板声明是否总是换行：Yes 表示 template<class T> 后面的代码总是换行
+AlwaysBreakTemplateDeclarations: Yes
+
+# ============================================================================
+# 【运算符与初始化列表换行】
+# ============================================================================
+
+# 二元运算符在哪里换行：None 表示在运算符后换行（不在运算符前）
+# 例如：condition && other_condition → condition &&\nother_condition
 BreakBeforeBinaryOperators: None
+
+# 构造函数初始化列表的换行方式：BeforeColon 表示在 : 前换行
+# 例如：Foo::Foo()\n    : member1(value1)\n    , member2(value2) {}
 BreakConstructorInitializers: BeforeColon
 
-# 注释与 include
+# ============================================================================
+# 【注释与头文件包含】
+# ============================================================================
+
+# 是否重新流布注释（即重新排列注释以适应列限制）：true 表示允许换行重排
 ReflowComments: true
-SortIncludes: Never  # 不对头文件排序
-IncludeBlocks: Preserve  # 保持原有的 include 块结构
 
-# 其他格式细节
+# 是否对 #include 进行排序：Never 表示保持原有顺序，不排序
+SortIncludes: Never
+
+# include 的分块方式：Preserve 表示保持原有的 include 块结构（不重新分组）
+IncludeBlocks: Preserve
+
+# ============================================================================
+# 【其他格式细节】
+# ============================================================================
+
+# 不保持块起始处的空行（块内首行不要空行）
 KeepEmptyLinesAtTheStartOfBlocks: false
-AlignConsecutiveAssignments: None
-AlignConsecutiveDeclarations: None
-AlignTrailingComments: true
 
-# 允许连续空白行数量
+# 连续赋值语句是否对齐：None 表示不对齐（每个赋值独立）
+# int x = 1;
+# int abcd = 2;    <- 不对齐 = 符号
+AlignConsecutiveAssignments: None
+
+# 连续声明是否对齐：None 表示不对齐（变量名不竖排对齐）
+# int x, y;
+# int abcd, ef;    <- 不对齐
+AlignConsecutiveDeclarations: None
+
+# ============================================================================
+# 【空行控制】
+# ============================================================================
+
+# 最多允许连续的空白行数量（代码中最多保留 2 个空行）
 MaxEmptyLinesToKeep: 2
 
-# 保持定义块之间空行
+# 保持定义块之间的空行：Leave 表示不改变原有的空行（保留用户的格式）
 SeparateDefinitionBlocks: Leave
 ```
 
