@@ -2,6 +2,48 @@
 
 # PyTorch 模块
 
+## 随机数生成
+
+1. **浮点型随机数 (Floating-point)**
+
+   这些函数默认生成 `torch.float32` 类型的张量，通常用于权重初始化或噪声模拟。
+   - **`torch.rand(*size)`**：生成 $[0, 1)$ 之间**均匀分布**的随机数。
+   - **`torch.randn(*size)`**：生成均值为 0，方差为 1 的**标准正态分布**（高斯分布）随机数。
+   - **`torch.rand_like(input)`**：根据输入张量的形状（shape）生成 $[0, 1)$ 的均匀分布随机数。
+
+2. **整型随机数 (Integer)**
+
+   如果你需要生成索引、类别标签或随机采样掩码，通常使用以下函数：
+   - **`torch.randint(low=0, high, size)`**：生成在 $[low, high)$ 范围内的均匀分布**整数**。注意是不包含 `high` 的。
+   - **`torch.randperm(n)`**：生成一个从 $0$ 到 $n-1$ 的**随机排列**（Random Permutation）。常用于打乱数据索引。
+
+3. **特定概率分布 (Specific Distributions)**
+
+   除了最常用的均匀分布和正态分布，PyTorch 还提供了一些进阶分布函数：
+   - **`torch.normal(mean, std, *size)`**：生成指定均值 $\mu$ 和标准差 $\sigma$ 的正态分布。
+   - **`torch.bernoulli(input)`**：生成**伯努利分布**（0 或 1）。输入是一个包含概率 $p$ 的张量，输出结果按该概率随机呈现 0 或 1。
+   - **`torch.poisson(input)`**：根据输入张量中的速率参数（$\lambda$）生成**泊松分布**随机数。
+   - **`torch.exponential(lambd=1.0)`**：生成**指数分布**随机数。
+
+4. **随机种子：**
+   为了保证实验的可复现性，建议在代码开头设置随机种子：
+
+   ```python
+   import torch
+   torch.manual_seed(42) # 42 是宇宙的终极答案
+   ```
+
+快速查阅表
+
+| **生成目标**       | **推荐函数**      | **示例**                                    |
+| ------------------ | ----------------- | ------------------------------------------- |
+| **0到1均匀分布**   | `torch.rand`      | `torch.rand(2, 3)`                          |
+| **标准正态分布**   | `torch.randn`     | `torch.randn(2, 3)`                         |
+| **指定范围整数**   | `torch.randint`   | `torch.randint(0, 10, (2, 2))`              |
+| **打乱索引/排列**  | `torch.randperm`  | `torch.randperm(10)`                        |
+| **自定义均值方差** | `torch.normal`    | `torch.normal(0, 0.1, (5,))`                |
+| **0/1二项分布**    | `torch.bernoulli` | `torch.bernoulli(torch.tensor([0.5, 0.8]))` |
+
 ## 导出数据
 
 1. **导出为文本 (类似 `savetxt`)**
