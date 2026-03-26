@@ -120,66 +120,65 @@
    tensor = tensor.to(device, dtype=torch.float16)
    ```
 
-## 导出数据
+## 导入/导出数据
 
-1. **导出为文本 (类似 `savetxt`)**
+1. 官方标准方法：`torch.save()` 与 `torch.load()`
 
-   PyTorch 官方并没有直接命名为 `savetxt` 的函数，但你可以通过**转换回 NumPy 处理（最常用）：**
+   这是 PyTorch 最核心的存储方式。它不仅保存数据，还保存了 Tensor 的 **元数据**（如 `dtype`、`device`、`shape` 等）。适用于在 PyTorch 环境内部保存中间结果、模型权重。
 
    ```python
    import torch
-   import numpy as np
+   x = torch.randn(3, 3)
 
-   t = torch.tensor([[1.0, 2.0], [3.0, 4.0]])
-   # 必须先转为 cpu，再转为 numpy
-   np.savetxt("data.txt", t.cpu().numpy(), fmt='%f')
+   # 保存
+   torch.save(x, 'data.pt')
+   # 读取
+   x_loaded = torch.load('data.pt')
    ```
 
-2. **导出为二进制原始数据 (类似 `tofile`)**
+   **注意**：如果你在 GPU 上保存了 Tensor，默认读取时也会尝试加载到 GPU。如果目标机器没 GPU，需指定：`torch.load('data.pt', map_location='cpu')`。
 
-   PyTorch 的 `Tensor` 对象有一个 `.untyped_storage()` 方法（旧版本为 `.storage()`），结合 Python 的文件操作可以模拟 `tofile`：
+2. 类似 NumPy 的文本/二进制存储
+
+   PyTorch 本身没有内置 `savetxt`/`tofile`，但由于 Tensor 和 NumPy 数组共享底层内存，转换极其简单。
+
+   存储为可读文本 (类似 `savetxt`)
 
    ```python
-   t = torch.randn(3, 3)
-   # 写入二进制文件
-   with open("data.bin", "wb") as f:
-       f.write(t.numpy().tobytes()) # 或者使用下方的 torch.save
+   import numpy as np
+
+   # 必须先转到 CPU，再转为 numpy
+   x_np = x.cpu().numpy()
+   np.savetxt('data.txt', x_np, delimiter=',', fmt='%.4f')
    ```
 
-3. **PyTorch 的“工业级”存储方案**
+   存储为原始二进制 (类似 `tofile`)
 
-   在深度学习中，通常不会使用 `txt` 导出（因为速度慢且丢失维度信息），而是使用以下两种方式：
+   ```python
+   # 写入
+   x.cpu().numpy().tofile('data.bin')
 
-   **A. `torch.save()` (最通用)**
+   # 读取时必须手动指定 dtype 和 shape
+   original_data = np.fromfile('data.bin', dtype=np.float32).reshape(3, 3)
+   ```
 
-   这类似于 NumPy 的 `np.save`，但它不仅保存数据，还保存了张量的 **数据类型 (Dtype)** 和 **形状 (Shape)**。
-   - **保存：** `torch.save(t, 'tensor.pt')`
-   - **加载：** `t = torch.load('tensor.pt')`
+3. 安全且高效的新标准：`Safetensors`
 
-   **B. `Safetensors` (Hugging Face 推荐)**
+   这是由 Hugging Face 开发的一种新格式，正逐渐取代 `.pt` 成为行业标准。
+   **优点**：**安全性极高**（防止 Pickle 反序列化攻击）、**速度极快**（支持零拷贝加载）。
+   **安装**：`pip install safetensors`
 
-   在 2026 年，如果你在处理大型模型权重，`safetensors` 已经成为了行业标准。它比 `torch.save` 更安全（防止恶意代码注入）且加载速度极快。
+   ```python
+   from safetensors.torch import save_file, load_file
 
-   | **功能**     | **PyTorch 原生 (.pt)** | **Safetensors (.safetensors)** | **备注**   |
-   | ------------ | ---------------------- | ------------------------------ | ---------- |
-   | **安全性**   | 较低 (基于 pickle)     | 极高                           | 工业界首选 |
-   | **加载速度** | 快                     | 极快 (内存映射)                | 适合大模型 |
-   | **通用性**   | 仅限 PyTorch           | 跨框架 (Jax, TF, Torch)        | -          |
+   tensors = {"my_tensor": x}
+   # 保存 (必须以字典形式存储)
+   save_file(tensors, "model.safetensors")
 
-快速对比表
-
-| **NumPy 函数** | **PyTorch 等效/替代方案**                   |
-| -------------- | ------------------------------------------- |
-| `np.savetxt()` | `np.savetxt(t.numpy())` 或手动写入          |
-| `np.tofile()`  | `t.numpy().tofile()`                        |
-| `np.save()`    | `torch.save(t, 'file.pt')`                  |
-| `np.savez()`   | `torch.save({'a': t1, 'b': t2}, 'file.pt')` |
-
-总结建议
-
-- 如果是为了**给人看**或者简单的跨软件读取：先转成 `numpy()` 再用 `savetxt`。
-- 如果是为了**保存训练结果/断点**：永远使用 `torch.save()`。
-- 如果是为了**在不同设备或框架间高效传输**：建议使用 `safetensors` 库。
+   # 读取
+   loaded = load_file("model.safetensors")
+   x_loaded = loaded["my_tensor"]
+   ```
 
 ## transpose 函数
 
