@@ -21,7 +21,6 @@ windows 查看安装 python 版本：py -0
 下面是这 4 种风格的核心区别总结：
 
 1. `pep8`（Python 官方风格）
-
    - **基准：** [PEP 8](https://peps.python.org/pep-0008/)
    - **缩进宽度：** 4 空格
    - **换行控制：** 比较宽松（更早换行）
@@ -35,7 +34,6 @@ windows 查看安装 python 版本：py -0
    ```
 
 2. `google`
-
    - **基准：** Google Python Style Guide
    - **缩进宽度：** 4 空格
    - **函数参数：** 尽可能保持在一行，除非超长
@@ -48,7 +46,6 @@ windows 查看安装 python 版本：py -0
    ```
 
 3. `chromium`
-
    - **基准：** Chromium 项目中的 Python 风格
    - **缩进宽度：** 2 空格（与其他风格不同）
    - **格式更紧凑：** 倾向少换行，节省垂直空间
@@ -60,7 +57,6 @@ windows 查看安装 python 版本：py -0
    ```
 
 4. `facebook`
-
    - **Facebook 风格（不公开文档）**
    - **缩进宽度：** 4 空格
    - **长行换行：** 更激进的分行
@@ -89,34 +85,28 @@ windows 查看安装 python 版本：py -0
 你可以基于上述任意一个内置风格**自定义参数**，创建你自己的配置文件。`yapf` 配置文件可以放在多个位置，会按照一定的顺序查找这些配置文件。以下是可以放置 `yapf` 配置支持格式和优先级顺序：
 
 1. `yapf` 支持的配置文件格式包括：
-
    - `setup.cfg`
    - `tox.ini`
    - `.style.yapf`
    - `pyproject.toml`（支持较新版本）
 
 2. `yapf` 配置文件的查找优先级（从高到低）：
-
    1. 显式指定配置路径（最高优先级）
-
       - 使用 `--style=/path/to/your/configfile` 指定的配置文件。
 
    2. 当前目录及其父目录中查找配置文件
 
       按以下顺序查找，并向上递归查找，直到文件系统根或用户主目录：
-
       - `.style.yapf`
       - `setup.cfg` （含 `[yapf]` section）
       - `tox.ini` （含 `[yapf]` section）
       - `pyproject.toml`（含 `[tool.yapf]` section，v0.32.0+ 支持）
 
    3. 用户主目录中的 `.style.yapf`（如果存在）
-
       - 路径通常是 `~/.style.yapf` 或 `%USERPROFILE%\.style.yapf`
       - 属于“全局配置”，如果项目中没有配置文件，会使用它。
 
    4. 默认内置风格
-
       - 如果没有找到任何配置文件，使用 `pep8` 风格作为默认。
       - 除非显式指定了 `--style=google`、`chromium`、`facebook` 等。
 
@@ -156,7 +146,6 @@ windows 查看安装 python 版本：py -0
    ```
 
    建议
-
    - 如果是单个项目，推荐将 `.style.yapf` 或 `setup.cfg` 放在项目根目录。
    - 如果多个项目共用一套规则，可以放到用户目录下 `~/.style.yapf`（但不是所有版本都支持）。
    - 使用 `--style=...` 显式指定配置文件，可以避免查找混乱。
@@ -164,16 +153,13 @@ windows 查看安装 python 版本：py -0
 4. 可配置项
 
    可以在官方文档或运行以下命令查看所有可用项 `yapf --style-help`。
-
    1. 基本缩进设置
-
       - `indent_width=4`：缩进宽度为 4 个空格。
       - `continuation_indent_width=4`：续行缩进宽度为 4 个空格。
       - `use_tabs=False`：不使用制表符，仅用空格。
       - `indent_blank_lines=False`：不缩进空行。
 
    2. 括号与缩进处理
-
       - `align_closing_bracket_with_visual_indent=True`：闭合括号与视觉缩进对齐。
       - `coalesce_brackets=False`：不合并连续括号。
       - `dedent_closing_brackets=False`：闭合括号不单独一行并取消缩进。
@@ -182,7 +168,6 @@ windows 查看安装 python 版本：py -0
       - `space_between_ending_comma_and_closing_bracket=True`：结束逗号与闭合括号间加空格。
 
    3. 字典与集合格式
-
       - `allow_multiline_dictionary_keys=False`：禁止字典键跨多行。
       - `each_dict_entry_on_separate_line=True`：每个字典条目单独一行。
       - `force_multiline_dict=False`：不强制多行字典格式。
@@ -191,14 +176,12 @@ windows 查看安装 python 版本：py -0
       - `spaces_around_dict_delimiters=False`：字典分隔符周围不加空格。
 
    4. 列表与元组格式
-
       - `spaces_around_list_delimiters=False`：列表分隔符周围不加空格。
       - `spaces_around_tuple_delimiters=False`：元组分隔符周围不加空格。
       - `disable_split_list_with_comment=False`：允许在含注释的列表中换行。
       - `disable_ending_comma_heuristic=False`：不禁用以逗号结尾的列表换行规则。
 
    5. 运算符与表达式格式
-
       - `arithmetic_precedence_indication=False`：不用空格表示运算符优先级。
       - `no_spaces_around_selected_binary_operators=`：未指定禁止空格的二元运算符。
       - `spaces_around_power_operator=False`：幂运算符周围不加空格。
@@ -208,7 +191,6 @@ windows 查看安装 python 版本：py -0
       - `split_before_logical_operator=True`：在逻辑运算符前换行。
 
    6. 函数与参数格式
-
       - `allow_split_before_default_or_named_assigns=True`：允许在默认值/命名赋值前换行。
       - `split_before_named_assigns=False`：不在命名赋值前换行。
       - `split_arguments_when_comma_terminated=False`：逗号结尾时不换行参数列表。
@@ -216,7 +198,6 @@ windows 查看安装 python 版本：py -0
       - `split_before_expression_after_opening_paren=False`：不在开括号后表达式前换行。
 
    7. 换行与拆分规则
-
       - `join_multiple_lines=True`：合并短行为一行。
       - `split_all_comma_separated_values=False`：不拆分所有逗号分隔值。
       - `split_all_top_level_comma_separated_values=False`：不拆分顶级逗号分隔值。
@@ -226,7 +207,6 @@ windows 查看安装 python 版本：py -0
       - `split_complex_comprehension=False`：不拆分复杂推导式。
 
    8. 注释与文档字符串
-
       - `spaces_before_comment=2`：行尾注释前保留 2 空格。
       - `blank_line_before_class_docstring=False`：类文档字符串前不插空行。
       - `blank_line_before_module_docstring=False`：模块文档字符串前不插空行。
@@ -234,20 +214,17 @@ windows 查看安装 python 版本：py -0
       - `i18n_function_call=`：未设置国际化函数调用名。
 
    9. 空行与间距
-
       - `blank_lines_around_top_level_definition=2`：顶级定义周围保留 2 空行。
       - `blank_lines_between_top_level_imports_and_variables=1`：顶级导入与变量间保留 1 空行。
       - `blank_line_before_nested_class_or_def=True`：嵌套类/函数前插空行。
       - `spaces_around_default_or_named_assign=False`：默认值/命名赋值周围不加空格。
 
    10. Lambda 与推导式
-
        - `allow_multiline_lambdas=False`：禁止多行 Lambda 表达式。
        - `split_complex_comprehension=False`：不拆分复杂推导式。
        - `split_penalty_comprehension=80`：推导式换行惩罚值为 80。
 
    11. 换行惩罚值（Split Penalties）
-
        - `split_penalty_after_opening_bracket=30`：开括号后换行惩罚值。
        - `split_penalty_after_unary_operator=10000`：一元运算符后换行惩罚值。
        - `split_penalty_arithmetic_operator=300`：算术运算符换行惩罚值。
@@ -259,7 +236,6 @@ windows 查看安装 python 版本：py -0
        - `split_penalty_import_names=0`：导入名称拆分惩罚值。
 
    12. 其他杂项
-
        - `column_limit=120`：列限制为 120 字符。
        - `continuation_align_style=SPACE`：续行对齐使用空格。
        - `split_before_dict_set_generator=True`：字典/集合生成器前换行。
@@ -332,6 +308,66 @@ pip search xxx
 # 软件源安装某个包（临时使用）
 pip install -i https://pypi.tuna.tsinghua.edu.cn/simple xxx		# 清华源
 ```
+
+## pip 配置代理
+
+在内网（受限网络）环境下，`pip` 确实和 `curl`、`wget` 一样，有多种配置代理的方式。你可以根据你是想“临时用一次”还是“永久配置”来选择方案。
+
+1. 使用环境变量（最通用）
+
+   `pip` 会自动识别系统中的 `http_proxy` 和 `https_proxy` 环境变量。这和 `curl/wget` 的原理是一样的。
+
+   在终端执行：
+
+   ```bash
+   export http_proxy="http://代理服务器IP:端口"
+   export https_proxy="http://代理服务器IP:端口"
+
+   # 然后正常执行你的安装命令
+   venv/bin/pip install torch --force-reinstall --index-url https://download.pytorch.org/whl/cu121
+   ```
+
+   > 注意：这种方式仅对当前终端会话有效。
+
+2. 命令行临时指定（最快）
+
+   如果你只是偶尔安装一个包，可以直接在命令后面加上 `--proxy` 参数。
+
+   ```bash
+   venv/bin/pip install torch --force-reinstall \
+   --index-url https://download.pytorch.org/whl/cu121 \
+   --proxy http://代理服务器IP:端口
+   ```
+
+   - **格式：** `http://user:password@proxy_address:port`（如果需要账号密码）。
+
+3. 修改配置文件（永久生效）
+
+   如果你希望以后都不用重复输入代理地址，可以修改 `pip` 的配置文件。
+
+   **配置文件路径：**
+   - **Linux/macOS:** `~/.pip/pip.conf` 或 `~/.config/pip/pip.conf`
+   - **Windows:** `%APPDATA%\pip\pip.ini`
+   - **虚拟环境（仅对该 venv 生效）:** `venv/pip.conf`
+
+   在文件中添加以下内容：
+
+   ```ini toml
+   [global]
+   proxy = http://代理服务器IP:端口
+   # 如果你的 index-url 是 http 而不是 https，可能还需要信任该主机
+   # trusted-host = download.pytorch.org
+   ```
+
+进阶避坑指南
+
+1. **PyTorch 文件巨大：** PyTorch 的 WHL 文件通常有几个 GB，如果内网代理不稳定或有限速，经常会报 `ReadTimeoutError`。
+   - **对策：** 增加超时时间。
+   - 命令：`pip install --default-timeout=1000 ...`
+2. **完全断网环境（离线安装）：** 如果代理也出不去（比如真正的物理隔离网），建议在有网的机器上先下载 `.whl` 文件，然后拷贝进去安装：
+   - **下载：** `pip download torch --index-url https://download.pytorch.org/whl/cu121`
+   - **拷贝后安装：** `pip install torch-xxx.whl`
+3. **No proxy 干扰：** 如果你的内网环境既需要代理访问外网，又需要直连内网的其他仓库，记得检查 `no_proxy` 环境变量，避免代理干扰了内网通信。
 
 # python 虚拟环境
 
