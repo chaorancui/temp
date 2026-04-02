@@ -182,41 +182,41 @@ BreakBeforeBraces: Custom
 
 BraceWrapping:
   # 类声明的 { 换到新行：class Foo { → class Foo\n{
-  AfterClass: true
-
-  # 控制语句（if/while/for）的 { 不换行：if (x) { → if (x) {（同行）
-  AfterControlStatement: Never
-
+  AfterClass: false
+  
+  # 结构体声明的 { 换到新行
+  AfterStruct: false
+  
+  # 联合体声明的 { 换到新行
+  AfterUnion: false
+  
   # 枚举声明的 { 换到新行
-  AfterEnum: true
-
-  # 函数声明的 { 换到新行：void foo() { → void foo()\n{
-  AfterFunction: true
-
+  AfterEnum: false
+  
   # namespace 的 { 不换行，保持 namespace foo {（同行）
   AfterNamespace: false
-
-  # 结构体声明的 { 换到新行
-  AfterStruct: true
-
-  # 联合体声明的 { 换到新行
-  AfterUnion: true
-
+  
+  # 控制语句（if/while/for）的 { 不换行：if (x) { → if (x) {（同行）
+  AfterControlStatement: Never
+  
+  # 函数声明的 { 换到新行：void foo() { → void foo()\n{
+  AfterFunction: true
+  
   # catch 块的 { 不换行：} catch { → } catch {（同行）
   BeforeCatch: false
-
+  
   # else 块的 { 不换行：} else { → } else {（else 与 } 同行）
   BeforeElse: false
-
+  
   # 不在大括号内再缩进（大括号本身不额外缩进）
   IndentBraces: false
-
+  
   # 不把空函数体拆成两行：void foo() {} 保持一行
   SplitEmptyFunction: false
-
+  
   # 不把空结构体/类拆成两行：struct Foo {} 保持一行
   SplitEmptyRecord: false
-
+  
   # 不把空命名空间拆成两行：namespace Foo {} 保持一行
   SplitEmptyNamespace: false
 
