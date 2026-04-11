@@ -109,8 +109,6 @@
 
    或者如果你有多个字体文件：
 
-   bash
-
    ```bash
    cp /path/to/your/fonts/* ~/.local/share/fonts/
    ```
