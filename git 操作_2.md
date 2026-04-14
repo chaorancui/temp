@@ -449,156 +449,175 @@ scope 用于说明 commit 影响的范围，比如数据层、控制层、视图
 
 ### Git-cz 工具
 
-## 代码对比工具
+## git 中 Current 和 Incoming
 
-### diff 命令
+在 Git 冲突中，**Current** 和 **Incoming** 是用来表示**两边冲突代码来源**的术语。但**它们的含义会因为是 merge 还是 rebase 而不同**，这是最容易混淆的地方。
 
-`diff` 命令是 Linux 下自带的一个强大的文本比对工具，而且使用起来非常方便。而且它在大多数的 Linux 发行版里已经预装了，它可以逐行比对两个文本文件，并输出它们的差异点。更多介绍可以直接查看它的 man 手册。
+**一、什么是 Current 和 Incoming**
 
-```text
-man diff
+当 Git 发生冲突时，文件中会出现类似：
+
+```log
+<<<<<<< HEAD
+current 内容
+=======
+incoming 内容
+>>>>>>> branch
 ```
 
-但是，diff 命令虽然强大，但它的输出结果实在是太感人了，不直观也不清晰。于是，有大佬为了弥补这个缺点，基于 diff 开发了更强大的工具。这里推荐两个：`colordiff` 和 `wdiff` 。
+含义：
 
-**colordiff 命令**
+| 标记           | 含义                     |
+| -------------- | ------------------------ |
+| `<<<<<<< HEAD` | **Current**（当前版本）  |
+| `=======`      | 分隔线                   |
+| `>>>>>>> xxx`  | **Incoming**（传入版本） |
 
-`colordiff` 是一个 Perl 脚本工具，它的输出结果和 diff 命令一样，但是会给代码着色，并且具有语法高亮功能。同时，你如果不喜欢它的默认颜色的话，还可以自定义主题。
+**二、最重要：merge 和 rebase 含义不同**
 
-你可以自行安装 colordiff 到你的电脑，根据不同的发行版选择不同的安装命令。
+这是 **最关键的点** 👇
 
-```text
-yum install colordiff             [On CentOS/RHEL/Fedora]
-dnf install colordiff             [On Fedora 23+ version]
-sudo apt-get install colordiff    [On Debian/Ubuntu/Mint]
+1. **merge 场景（最常见）**
+
+   ```bash
+   git checkout br_dev
+   git merge master
+   ```
+
+   此时：
+
+   | 名称     | 含义                 |
+   | -------- | -------------------- |
+   | Current  | 当前分支（br_dev）   |
+   | Incoming | 被合并分支（master） |
+
+   例子：
+
+   ```log
+   <<<<<<< HEAD
+   int a = 1;   // br_dev (Current)
+   =======
+   int a = 2;   // master (Incoming)
+   >>>>>>> master
+   ```
+
+2. rebase 场景（容易搞错）
+
+   ```bash
+   git pull origin master --rebase
+   # 或
+   git rebase master
+   ```
+
+   此时 **刚好相反**：
+
+   | 名称     | 含义                 |
+   | -------- | -------------------- |
+   | Current  | master（基底分支）   |
+   | Incoming | 当前分支（你的提交） |
+
+   例子：
+
+   ```bash
+   <<<<<<< HEAD
+   int a = 1;   // master (Current)
+   =======
+   int a = 2;   // br_dev (Incoming)
+   >>>>>>> commit
+   ```
+
+**三、为什么 rebase 会反过来**
+
+因为 rebase 的本质是：
+
+```log
+master ---- A ---- B
+              \
+               C (你的分支)
 ```
 
-同样，你可以使用 man 命令查看它的帮助文档：
+rebase 后：
 
-```text
-man colordiff
+```log
+master ---- A ---- B ---- C'
 ```
 
-**wdiff 命令**：
+Git 在做的是：
 
-diff 命令是逐行比较差异，而 `wdiff` 更变态，是逐字比较。所以如果你的文本只是修改了少数一些词语的话，使用 wdiff 命令将更加高效。
+> 把你的提交 **C** "应用" 到 master 上
 
-安装命令如下：
+因此：
 
-```java
-yum install wdiff             [On CentOS/RHEL/Fedora]
-dnf install wdiff             [On Fedora 23+ version]
-sudo apt-get install wdiff    [On Debian/Ubuntu/Mint]
-```
+- master → Current
+- 你的提交 → Incoming
 
-更详细内容可以查看它的 man 手册。
+**四、推荐配置（更清晰的冲突显示）**
 
-```text
-man wdiff
-```
+建议开启：
 
-### vimdiff 命令
-
-`vimdiff` 等同于 `vim -d` 命令，即 Vim 编辑器的 diff 模式。
-
-该命令后面通常会接两个或多个文件名作为参数，这些文件会同时在 Vim 编辑器的分割窗口中打开，并高亮显示文件中内容有差异的部分。
-
-![img](https://pic2.zhimg.com/80/v2-848d80bd879ae1afbee71f01c14b4ad1_720w.webp)
-
-它的中文主页是：[http://vimcdoc.sourceforge.net/doc/diff.html](https://link.zhihu.com/?target=http%3A//vimcdoc.sourceforge.net/doc/diff.html)
-
-以上介绍的两款是 Linux 命令行的对比工具，我们再来看一些 GUI 比对工具。
-
-配置方法：
-
-```shell
-git config --global merge.tool vimdiff
+```bash
 git config --global merge.conflictstyle diff3
-git config --global mergetool.prompt false
-
-#让git mergetool不再生成备份文件(*.orig)
-git config --global mergetool.keepBackup false
 ```
 
-使用方法：
+冲突会变成：
 
-```shell
-git mergetool <filename>
-# 文件名参数是可选的。如果不传文件名，那么将会自动挨个打开有冲突的文件
+```log
+<<<<<<< HEAD
+Current
+||||||| base
+原始版本
+=======
+Incoming
+>>>>>>> branch
 ```
 
-上一层三个小窗口分别对应：
+更容易判断修改来源。
 
-- `LOCAL` buffer: 当前分支
-- `BASE` buffer: 两个分支共同祖先，代表两个分支修改前
-- `REMOTE` buffer: 需要合并到当前分支的分支
+**总结**
 
-下层窗口为：
+| 场景   | Current            | Incoming     |
+| ------ | ------------------ | ------------ |
+| merge  | 当前分支           | 被合并分支   |
+| rebase | 基底分支（master） | 当前分支提交 |
 
-- `MERGED` buffer: 合并后的，即有冲突的
+## git 中 ours / theirs
 
-鼠标移动到 MERGED 窗口(CTRL-w 切换窗口)，
+在 Git 冲突处理中，**ours / theirs** 和 **current / incoming** 本质是同一套概念，只是 **不同工具 / 命令的不同叫法**。
 
-:diffget REMOTE # 获取 REMOTE 的修改到 MERGED 文件, 忽略大小写
-:diffg BASE # get from base
-:diffg LOCAL # get from local
+**current ≈ ours**
+**incoming ≈ theirs**
 
-注意：通过 diffget 只能选取 local, base, remote 三种的一种，要想都需要 3 种或者两种，只能通过修改 MERGED 文件
+| 工具    | 术语               |
+| ------- | ------------------ |
+| Git CLI | ours / theirs      |
+| VSCode  | current / incoming |
+| Git GUI | local / remote     |
 
-修改完成后， 保存
+**常用命令（非常实用）**
 
-:wqa
+```bash
+# 选择当前（ours）
+git checkout --ours file.cpp
 
-vimdiff 命令参考
-
-```shell
-]c      # nect difference
-[c      # previous difference
-zo      # open folded text
-zc      # close folded text
-zr      # open all folds
-zm      # close all folds
-:diffupdate     # re-scan the file for difference
-do      # diff obtain
-dp      # diff put
-:set diffopt+=iwhite    # to avoid whitespace comparison
-Ctrl+W+W                # toggle between the diff columns
-Ctrl+W+h/j/k/l          # 移动鼠标到不同窗口
-:set wrap               # wrap line
-:set nowrap
-:syn off                # remove colors
+# 选择对方（theirs）
+git checkout --theirs file.cpp
 ```
 
-### 3.Kompare
+merge 策略中易混淆的参数：
 
-`Kompare` 是基于 diff 的一个 GUI 工具，使用者可以很方便看到文件之间的差异，并且支持合并这些差异。
+```bash
+git merge -X ours    # 冲突时优先用 ours
 
-Kompare 的特性有如下：
+git merge -X theirs  # 冲突时优先用 theirs
 
-- 支持多种 diff 格式；
-- 支持目录之间的比对；
-- 支持读取 diff 文件；
-- 自定义界面；
-- 创建及应用源文件的 patch 文件。
+git merge -s ours    # 完全忽略对方分支（危险）
+```
 
-![img](https://pic2.zhimg.com/80/v2-71af4459230d42591e1cf8ee46a47fe1_720w.webp)
-
-该工具的主页为：[https://www.kde.org/applications/de](https://link.zhihu.com/?target=https%3A//www.kde.org/applications/development/kompare/)
-
-### 5.Meld
-
-`Meld` 是一个轻量级 GUI 代码比对工具，它支持用户比对文件、目录，并且高度集成版本控制软件。但针对软件开发人员，它的以下几个特性尤为吸引人：
-
-- 执行双向和三向差异并合并
-- 轻松地在差异和冲突之间导航
-- 逐个文件地比较两个或三个目录，显示新文件，缺失文件和更改文件
-- 支持许多版本控制系统，包括 Git，Mercurial，Bazaar 和 SVN 等。
-
-![img](https://pic2.zhimg.com/80/v2-aefe344aacb4f560ac927b068a044555_720w.webp)
-
-它的官网为：[http://meldmerge.org/](https://link.zhihu.com/?target=http%3A//meldmerge.org/)
-
-> [推荐 9 款代码对比工具](https://zhuanlan.zhihu.com/p/336414874)
+| 命令        | 含义                     |
+| ----------- | ------------------------ |
+| `-X ours`   | 冲突时优先用 ours        |
+| `-X theirs` | 冲突时优先用 theirs      |
+| `-s ours`   | 完全忽略对方分支（危险） |
 
 ## 解决 Git 合并冲突
 
@@ -626,16 +645,10 @@ her she had to be back by 11pm.
 如果我们执行`git config --global merge.conflictstyle diff3`将`conflictstyle`设成`diff3`，则结果会变成
 
 ```shell
-<<<<<<< HEAD
 Alice asked her parents if she could
 borrow their car. They said ok but told
-||||||| merged common ancestors
-Alice asked her father if she could
-borrow his car. He said ok but told
-=======
 Alice asked her father if she could
 borrow his motorbike. He said ok but told
->>>>>>> feature_branch
 her she had to be back by 11pm.
 ```
 
@@ -687,24 +700,6 @@ git merge --strategy-option theirs
 3.**单独审查更改**。最后一个选项是分别查看每个更改。此选项也是最佳选择，尤其是在处理多个文件和人员时。为了使这项工作更易于管理，请使用特殊工具来帮助查看个别冲突。
 
 最终，选择保留哪些代码部分以及不保留哪些部分取决于开发人员对当前项目的决定。
-
-### git 使用 ours 和 theirs
-
-> [Git-优雅地解决冲突：使用 ours 和 theirs]<https://blog.csdn.net/qq_41603165/article/details/104922336>
-
-对于 merge 和 rebase 来说，ours 和 theirs 对应的分支正好是相反的。
-
-假设当前指向的分支为`branch_a`，
-
-在使用 merge 时 `git merge branch_b`，ours 指的是当前分支，即 branch_a，theirs 指的是要被合并的分支，即 branch_b。
-
-而在使用 rebase 时 `git rebase branch_b`，theirs 指的是当前分支，即 branch_a，ours 指向修改参考分支，即 branch_b。
-
-git merge 会抽取两个分支上新增的提交，并将其合并在一起，产生一个新的提交 D，生成的 D 节点有两个父节点。其中在合并的过程中可能会发生冲突。
-
-git rebase 会以 branch_a 为参照，提取 branch_b 分支上的提交，将这些修改作用在 branch_a 分支上，最终结果不会产生新的提交节点。其中在将提取的修改作用在 branch_a 的过程中可能会发生冲突。
-
-通常而言，在开发过程中很少应用 git merge 合并代码，更常用的是 git rebase。此外在开发过程中，经常使用 git rebase 命令获取 master 主分支的最新提交代码，在完成个人的开发任务之后，也需要 rebase master 分支上的代码才能申请 Pull Request，自动合并。
 
 ### git mergetool 介绍
 
