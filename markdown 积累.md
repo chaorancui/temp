@@ -450,6 +450,8 @@ Hugo 是目前世界上最快的静态网站生成器（SSG）。如果说 Hexo 
    - **内容驱动**：完美支持 Markdown，并提供强大的“Shortcodes”功能来扩展功能（如插入视频、推文等）。
 
 2. 安装 Hugo
+
+   > 推荐安装 **Extended 版本**（支持 Sass/SCSS）
    - 二进制安装：去 [Hugo GitHub Releases](https://github.com/gohugoio/hugo/releases) 下载最新的二进制包。
    - 命令行安装：
 
