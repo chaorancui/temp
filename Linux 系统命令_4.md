@@ -915,19 +915,45 @@ UserKnownHostsFile /dev/null
 
 1. **`-J`（ProxyJump，推荐）**
 
+   如果你使用的是 OpenSSH 7.3 或更高版本，直接在命令中加入 `-J` 即可。
+
+   如果你需要经过多个跳板机才能到达目的地，`-J` 同样支持逗号分隔的列表。
+
    ```bash
-   ssh -J jumpuser@jump.xx.xx.xx:52000 \
-       workuser@target.xx.xx.xx
+   ssh -J <jump_user>@<jump_ip>:<jump_port> -p <target_port> <target_user>@<target_ip>
+   ssh -J user1@jump1,user2@jump2 user@target	# SSH 会先连接 jump1，再从 jump1 连接 jump2，最后到达目标。
+   ```
+
+   对应 scp：
+
+   ```bash
+   ######## local -> remote
+   scp -J <jump_user>@<jump_ip>:<jump_port> \
+   -P <target_port> \
+   <src_path> \
+   <target_user>@<target_ip>:<dst_path>
+
+   ######## remote -> local
+   scp -J <jump_user>@<jump_ip>:<jump_port> \
+   -P <target_port> \
+   <target_user>@<target_ip>:<src_path> \
+   <dst_path>
    ```
 
    对应 rsync：
 
    ```bash
-   sshpass -p xxxx \
+   ######## local -> remote
+   rsync -avzP \
+   -e "ssh -J <jump_user>@<jump_ip>:<jump_port>" \
+   <src_path> \
+   <target_user>@<target_ip>:<dst_path>
+
+   ######## remote -> local
    rsync -avzP \
    -e "ssh -J <jumpuser>@<jumpip>:<jumpport>" \
-   <src_path> \
-   <workuser>@<workip>:<dst_path>
+   <target_user>@<target_ip>:<src_path> \
+   <dst_path>
    ```
 
    - 语义清晰
@@ -937,29 +963,77 @@ UserKnownHostsFile /dev/null
 
 2. **`ProxyCommand + -W`（底层但通用）**
 
+   如果系统版本非常老（比如某些远古时期的 CentOS 6），不支持 `-J` 参数，则需要使用 `-o` 来调用 `ProxyCommand`。
+
    ```bash
    # 不带 sshpass
-   ssh -o ProxyCommand="ssh -p <jumpport> <jumpuser>@<jumpip> -W %h:%p" \
-     -p <workport> <workuser>@<workip>
+   ssh -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" -p <target_port> <target_user>@<target_ip>
+
    # 带 sshpass
-   sshpass -p <wordpassword> ssh -o ProxyCommand="sshpass -p <jumppassword> ssh -p <jumpport> <jumpuser>@<jumpip> -W %h:%p" \
-     -p <workport> <workuser>@<workip>
+   sshpass -p <target_password> ssh -o ProxyCommand="sshpass -p <jump_password> ssh -p <jumpport> <jumpuser>@<jumpip> -W %h:%p" -p <target_port> <target_user>@<target_ip>
    ```
 
-   rsync 写法：
+   注：`-W %h:%p` 的作用是将标准输入输出转发到目标主机的特定端口。
+
+   对应 scp：
 
    ```bash
+   ######## local -> remote
+   # 不带 sshpass
+   scp -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" \
+   -P <target_port> \
+   <src_path> \
+   <target_user>@<target_ip>:<dst_path>
+   # 带 sshpass
+   sshpass -p <target_password> \
+   scp -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" \
+   -P <target_port> \
+   <src_path> \
+   <target_user>@<target_ip>:<dst_path>
+
+   ######## remote -> local
+   # 不带 sshpass
+   scp -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" \
+   scp -J <jump_user>@<jump_ip>:<jump_port> \
+   -P <target_port> \
+   <target_user>@<target_ip>:<src_path> \
+   <dst_path>
+   # 带 sshpass
+   sshpass -p <target_password> \
+   scp -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" \
+   scp -J <jump_user>@<jump_ip>:<jump_port> \
+   -P <target_port> \
+   <target_user>@<target_ip>:<src_path> \
+   <dst_path>
+   ```
+
+   对应 rsync：
+
+   ```bash
+   ######## local -> remote
    # 不带 sshpass
    rsync -avzP \
-     -e 'ssh -p <workport> -o ProxyCommand="ssh -p <jumpport> <jumpuser>@<jumpip> -W %h:%p"' \
-     <src_dir> \
-     <workuser>@<workip>:<dst_dir>
+   -e 'ssh -p <target_port> -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p"' \
+   <src_path> \
+   <target_user>@<target_ip>:<dst_path>
    # 带 sshpass
-   sshpass -p <wordpassword> \
-     rsync -avzP \
-     -e 'ssh -p <workport> -o ProxyCommand="sshpass -p <jumppassword> ssh -p <jumpport> <jumpuser>@<jumpip> -W %h:%p"' \
-     <src_dir> \
-     <workuser>@<workip>:<dst_dir>
+   sshpass -p <target_password> \
+   rsync -avzP \
+   -e 'ssh -p <target_port> -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p"' \
+   <src_path> \
+   <target_user>@<target_ip>:<dst_path>
+
+   ######## remote -> local
+   rsync -avzP \
+   -e 'ssh -p <target_port> -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p"' \
+   <target_user>@<target_ip>:<src_path> \
+   <dst_path>
+   # 带 sshpass
+   sshpass -p <target_password> \
+   rsync -avzP \
+   -e 'ssh -p <target_port> -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p"' \
+   <target_user>@<target_ip>:<src_path> \
+   <dst_path>
    ```
 
    - 所有 OpenSSH 版本可用
