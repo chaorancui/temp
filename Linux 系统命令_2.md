@@ -1250,13 +1250,13 @@ realpath --relative-to=/home /home/user/mydir
 # 输出：user/mydir
 
 # 脚本所在目录
-SCRIPT_DIR=$(realpath "$(dirname "$0")")  # 可解析符号链接
-SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd) # 跨平台兼容性好
-echo "SCRIPT_DIR: $SCRIPT_DIR"
+SCRIPT_PATH=$(realpath "$(dirname "$0")")  # 可解析符号链接
+SCRIPT_PATH=$(cd "$(dirname "$0")" && pwd) # 跨平台兼容性好
+echo "SCRIPT_PATH: $SCRIPT_PATH"
 
 # 运行脚本的工作目录
-RUN_DIR=$(realpath "$(pwd)")
-echo "RUN_DIR: $RUN_DIR"
+RUN_PATH=$(realpath "$(pwd)")
+echo "RUN_PATH: $RUN_PATH"
 ```
 
 `realpath` 命令非常适用于需要在脚本中确保路径一致性的场景。
@@ -1382,9 +1382,9 @@ echo "文件名:   $(basename "$path")"
 1. 获取当前脚本所在目录（经典写法）
 
    ```bash
-   SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)    # 兼容性好
-   SCRIPT_DIR=$(realpath "$(dirname "$0")")     # 可解析符号链接
-   echo "$SCRIPT_DIR"
+   SCRIPT_PATH=$(cd "$(dirname "$0")" && pwd)    # 兼容性好
+   SCRIPT_PATH=$(realpath "$(dirname "$0")")     # 可解析符号链接
+   echo "$SCRIPT_PATH"
    ```
 
    解释：
@@ -1398,7 +1398,7 @@ echo "文件名:   $(basename "$path")"
 
    ```bash
    # 获取上2级目录
-   PARENT_DIR=$(dirname "$(dirname "$path")")      # 连续两次 `dirname` 即可
+   PARENT_PATH=$(dirname "$(dirname "$path")")      # 连续两次 `dirname` 即可
 
    for ((i=0; i<2; i++)); do DIR=$(dirname "$DIR"); done
    ```
@@ -1420,10 +1420,10 @@ echo "文件名:   $(basename "$path")"
       echo "$dir"
    }
 
-   SCRIPT_DIR=$(realpath "$(dirname "$0")")
-   ROOT_DIR=$(get_dir_up "$SCRIPT_DIR" 3)
-   echo "当前脚本: $SCRIPT_DIR"
-   echo "项目根目录: $ROOT_DIR"
+   SCRIPT_PATH=$(realpath "$(dirname "$0")")
+   ROOT_PATH=$(get_dir_up "$SCRIPT_PATH" 3)
+   echo "当前脚本: $SCRIPT_PATH"
+   echo "项目根目录: $ROOT_PATH"
    ```
 
    > 如果不传第二个参数，默认取上一级。
