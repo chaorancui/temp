@@ -804,8 +804,10 @@ apt-get install openssh-server -y
 ps -e | grep ssh # 有sshd,说明ssh服务已经启动。如果没有启动，输入`service ssh start`启动服务
 
 # 6.修改配置，
-# 打开配置文件`/etc/ssh/sshd_config`
+# 打开配置文件`vim /etc/ssh/sshd_config`
 PermitRootLogin yes  # 原文件为`PermitRootLogin without-password`，需要改成左边，没有就新增
+PubkeyAuthentication yes # 原文件是注释，放开此配置
+PasswordAuthentication yes # 原文件是注释，放开此配置
 Port 22  # 可能原文件为`#Port 22`，即默认放开 22 端口给 ssh 用。
 Port xxx # 如果 docker run 用的是 host 模式，这里直接指定一个合法端口给 ssh 用就可以，如 10086，宿主机和 docker 都是用这个端口，注意不要冲突。如果 docker run 命令中为 bridge 模式（默认）且用 -p <host_port>:<container_port>的<container_port>为22，此处`Port 22`；若<container_port>为其他值如10086，则此处需要改成`Port 10086`。放开多个端口需同时添加多条`Port xxx`。
 
