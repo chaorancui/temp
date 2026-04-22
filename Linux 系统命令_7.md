@@ -683,7 +683,7 @@ command | rg [OPTIONS] PATTERN
    rg -B 2 foo
    ```
 
-4. 文件类型过滤
+4. **文件类型过滤**
 
    ```bash
    # 只搜索 Python 文件
@@ -699,7 +699,7 @@ command | rg [OPTIONS] PATTERN
    rg --type-list
    ```
 
-5. Glob 模式过滤
+5. **Glob 模式过滤**
 
    ```bash
    # 只搜索 .cpp 和 .h 文件
@@ -712,7 +712,7 @@ command | rg [OPTIONS] PATTERN
    rg -g 'src/**' foo
    ```
 
-6. 统计匹配
+6. **统计匹配**
 
    ```bash
    # 统计每个文件的匹配行数
@@ -728,7 +728,7 @@ command | rg [OPTIONS] PATTERN
    rg --files-without-match foo
    ```
 
-7. 输出格式控制
+7. **输出格式控制**
 
    ```bash
    # 显示行号（终端下默认开启）
@@ -750,7 +750,7 @@ command | rg [OPTIONS] PATTERN
    rg -p foo | less -R
    ```
 
-8. 搜索隐藏文件 / 忽略规则控制
+8. **搜索隐藏文件 / 忽略规则控制**
 
    ```bash
    # 搜索隐藏文件和目录（以 . 开头的）
@@ -767,7 +767,7 @@ command | rg [OPTIONS] PATTERN
    rg -uuu foo
    ```
 
-9. 正则表达式进阶
+9. **正则表达式进阶**
 
    ```bash
    # 固定字符串搜索（不解析正则元字符）
@@ -792,7 +792,7 @@ command | rg [OPTIONS] PATTERN
    rg -U 'start.*end'
    ```
 
-10. 目录遍历控制
+10. **目录遍历控制**
 
     ```bash
     # 限制搜索深度为 2 层
@@ -809,7 +809,7 @@ command | rg [OPTIONS] PATTERN
     rg --files src/
     ```
 
-11. 搜索二进制 / 压缩文件
+11. **搜索二进制 / 压缩文件**
 
     ```bash
     # 把二进制文件当文本搜索
@@ -822,7 +822,7 @@ command | rg [OPTIONS] PATTERN
     rg --binary foo
     ```
 
-12. 管道与组合使用
+12. **管道与组合使用**
 
     ```bash
     # 在命令输出中搜索
@@ -838,7 +838,7 @@ command | rg [OPTIONS] PATTERN
     rg --json foo
     ```
 
-13. 排序输出
+13. **排序输出**
 
     ```bash
     # 按文件路径排序
