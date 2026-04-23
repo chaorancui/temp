@@ -215,7 +215,15 @@
 
    （通常 cookies.txt 可通过浏览器导出）
 
-5. HTTPS 证书问题（内网常见）
+5. 很多带鉴权的下载链接
+
+   这是因为你的下载链接带了 query 参数 (?Expires=...&Signature=...)，wget 默认会把整个 URL 当作文件名的一部分，导致文件名变得很奇怪。
+
+   ```bash
+   wget --no-check-certificate --content-disposition URL
+   ```
+
+6. HTTPS 证书问题（内网常见）
 
    ```bash
    wget --no-check-certificate https://example.com/data.tar.gz
