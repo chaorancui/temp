@@ -135,3 +135,226 @@ npm 主要干 3 件事
      npm config delete proxy
      npm config delete https-proxy
      ```
+
+## npm 和 npx
+
+**一、npm vs npx 对比**
+
+| 维度         | npm      | npx            |
+| ------------ | -------- | -------------- |
+| 主要用途     | 管理依赖 | 执行工具       |
+| 是否安装包   | 是       | 否（临时下载） |
+| 是否全局安装 | 支持     | 不需要         |
+| 使用场景     | 项目构建 | CLI 工具运行   |
+
+一句话总结：
+
+- **npm：用来“安装和管理包”**
+- **npx：用来“直接运行包里的工具”**
+
+1. **npm 是什么**
+
+   **npm（Node Package Manager）** 是 Node.js 的官方包管理工具，主要用于：
+   - 管理项目依赖（安装 / 卸载 / 更新）
+   - 发布和分发 JavaScript 包
+   - 管理版本（package.json / package-lock.json）
+
+   核心作用
+
+   | 能力     | 说明                           |
+   | -------- | ------------------------------ |
+   | 依赖管理 | 安装项目所需库                 |
+   | 版本控制 | 锁定依赖版本                   |
+   | 脚本运行 | 执行 package.json 中的 scripts |
+   | 包发布   | 发布自己的 npm 包              |
+
+2. **npx 是什么**
+
+   **npx（Node Package Executor）** 是 npm 提供的一个工具（npm ≥ 5.2 内置），用于：
+
+   > **直接执行 npm 包中的 CLI 工具，而无需全局安装**
+
+   npx 解决的问题
+
+   在没有 npx 时：
+
+   ```bash
+   npm install -g some-cli
+   some-cli
+   ```
+
+   问题：
+   - 污染全局环境
+   - 版本冲突
+   - 一次性工具也要安装
+
+   使用 npx：
+
+   ```bash
+   npx some-cli
+   ```
+
+   优势：
+   - 不需要全局安装
+   - 自动下载并执行
+   - 用完即可丢弃
+
+3. **npx 执行机制**
+
+   执行优先级：
+
+   ```log
+   1. 当前项目 node_modules/.bin
+   2. 全局已安装包
+   3. 远程 npm registry（临时下载）
+   ```
+
+**二、npm 和 npx 的典型用法**
+
+npm 常用命令
+
+1. 初始化项目
+
+   ```bash
+   npm init
+   npm init -y
+   ```
+
+2. 安装依赖
+
+   ```bash
+   # 安装到项目（推荐）
+   npm install lodash
+
+   # 安装为开发依赖
+   npm install --save-dev eslint
+   ```
+
+3. 全局安装
+
+   ```bash
+   npm install -g typescript
+   ```
+
+4. 卸载依赖
+
+   ```bash
+   npm uninstall lodash
+   ```
+
+5. 更新依赖
+
+   ```bash
+   npm update
+   ```
+
+6. 运行脚本
+
+   ```bash
+   npm run build
+   npm run start
+   ```
+
+7. 查看依赖
+
+   ```bash
+   npm list
+   npm list -g
+   ```
+
+8. 配置（企业环境常用）
+
+   ```bash
+   npm config set proxy http://host:port
+   npm config set https-proxy http://host:port
+   npm config set strict-ssl false
+   ```
+
+**npx 常用命令**
+
+1. 直接运行 CLI（最常用）
+
+   ```bash
+   npx cowsay hello
+   ```
+
+2. 创建项目（脚手架工具）
+
+   ```bash
+   npx create-react-app myapp
+   npx create-next-app
+   ```
+
+3. 指定版本运行（推荐）
+
+   ```bash
+   npx create-react-app@5.0.1 myapp
+   ```
+
+   避免版本不一致
+
+4. 运行本地依赖
+
+   ```bash
+   npx eslint .
+   ```
+
+   等价于：
+
+   ```bash
+   ./node_modules/.bin/eslint .
+   ```
+
+5. 一次性工具执行
+
+   ```bash
+   npx degit user/repo project
+   npx prisma migrate dev
+   npx vite
+   ```
+
+6. 忽略本地版本
+
+   ```bash
+   npx --ignore-existing eslint .
+   ```
+
+7. 指定 registry（网络问题常用）
+
+   ```bash
+   npx --registry=https://registry.npmmirror.com cowsay hi
+   ```
+
+8. 自动确认（CI/CD）
+
+   ```bash
+   npx --yes some-cli
+   ```
+
+9. 传递参数
+
+   ```bash
+   npx cowsay "hello world"
+   ```
+
+**三、使用建议（实践经验）**
+
+什么时候用 npm：
+
+- 项目依赖管理
+- 长期使用的工具
+- 构建 / 编译 / 发布流程
+
+什么时候用 npx：
+
+- 一次性工具
+- 脚手架创建项目
+- 临时执行 CLI
+- 避免全局污染
+
+企业网络建议：
+
+```bash
+npm config set strict-ssl false
+npm config set proxy http://proxy:port
+```
