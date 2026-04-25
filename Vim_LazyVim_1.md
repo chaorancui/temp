@@ -377,7 +377,7 @@ vim.g.clipboard = {
 
 **`~/.config/lua/plugins/ui.lua`**
 
-```Lua
+```lua
 return {
   -- 1. 优化 Snacks.picker (处理长路径显示问题)
   {
@@ -395,23 +395,6 @@ return {
             devicons = true,
           },
         },
-      },
-    },
-    -- 覆盖 LazyVim 默认快捷键，确保调用我们配置好的 picker
-    keys = {
-      {
-        "<leader>bb",
-        function()
-          Snacks.picker.buffers()
-        end,
-        desc = "Buffers (Snacks)",
-      },
-      {
-        "<leader>,",
-        function()
-          Snacks.picker.buffers()
-        end,
-        desc = "Buffers (Snacks)",
       },
     },
   },
@@ -458,93 +441,13 @@ return {
       })
     end,
   },
-
-
-  {
-    "nvim-lua/plenary.nvim", -- 大部分 LazyVim 插件都依赖它，确保它存在
-    config = function()
-      -- 定义颜色池（Catppuccin 风格）
-      local colors = {
-        { bg = "#89b4fa", fg = "#11111b" }, -- Blue
-        { bg = "#f38ba8", fg = "#11111b" }, -- Red
-        { bg = "#a6e3a1", fg = "#11111b" }, -- Green
-        { bg = "#f9e2af", fg = "#11111b" }, -- Yellow
-        { bg = "#fab387", fg = "#11111b" }, -- Orange
-        { bg = "#cba6f7", fg = "#11111b" }, -- Mauve
-      }
-
-      local current_color_idx = 1
-      local word_match_ids = {} -- 存储单词到 match id 的映射
-
-      -- 核心高亮函数
-      local function toggle_word_highlight()
-        local word = vim.fn.expand("<cword>")
-        if word == "" then
-          return
-        end
-
-        -- 如果该单词已经高亮，则取消它
-        if word_match_ids[word] then
-          vim.fn.matchdelete(word_match_ids[word])
-          word_match_ids[word] = nil
-          return
-        end
-
-        -- 获取下一个颜色
-        local color = colors[current_color_idx]
-        local group_name = "CustomWordHL" .. current_color_idx
-
-        -- 定义高亮组
-        vim.api.nvim_set_hl(0, group_name, { bg = color.bg, fg = color.fg, bold = true })
-
-        -- 执行高亮匹配
-        local match_id = vim.fn.matchadd(group_name, "\\<" .. word .. "\\>")
-        word_match_ids[word] = match_id
-
-        -- 循环索引
-        current_color_idx = (current_color_idx % #colors) + 1
-      end
-
-      -- 清除所有高亮函数
-      local function clear_all_highlights()
-        for word, id in pairs(word_match_ids) do
-          pcall(vim.fn.matchdelete, id)
-        end
-        word_match_ids = {}
-        current_color_idx = 1
-      end
-
-      -- 绑定快捷键 (LazyVim 风格)
-      vim.keymap.set("n", "<leader>hl", toggle_word_highlight, { desc = "Highlight Word (Cycle Color)" })
-      vim.keymap.set("n", "<leader>hc", clear_all_highlights, { desc = "Clear All Highlights" })
-    end,
-  },
 }
-
 ```
 
 **`~/.config/lua/plugins/editor.lua`**
 
 ```Lua
 return {
-  {
-    "nvim-treesitter/nvim-treesitter",
-    version = "v0.9.2", -- 兼容 tree-sitter-cli 0.22.x
-    build = ":TSUpdate",
-    opts = function(_, opts)
-      local install = require("nvim-treesitter.install")
-      -- 1. 既然你的 git clone 通，强制用 git
-      install.prefer_git = true
-      -- 2. 既然没有能用的 CLI，强制用 gcc
-      install.compilers = { "gcc" }
-      -- 3. 核心：强制不使用外部 tree-sitter CLI
-      install.use_native_parsers = false
-
-      -- 确保基础语言在列表中
-      opts.ensure_installed = opts.ensure_installed or {}
-      vim.list_extend(opts.ensure_installed, { "cpp", "c", "lua", "vim", "vimdoc" })
-    end,
-  },
 
   -- 会话恢复后，Neo-tree 能够自动对齐到当前打开的文件
   {
@@ -601,6 +504,38 @@ return {
       -- vim.g.gutentags_define_advanced_commands = 1
     end,
   },
+  {
+    "mikavilpas/yazi.nvim",
+    event = "VeryLazy",
+    keys = {
+      -- 在当前文件所在目录打开 Yazi
+      {
+        "<leader>-",
+        function()
+          require("yazi").yazi()
+        end,
+        desc = "Open yazi at the current file",
+      },
+      -- 在项目根目录打开 Yazi
+      {
+        "<leader>fy",
+        function()
+          require("yazi").yazi(nil, vim.fn.getcwd())
+        end,
+        desc = "Open yazi in project root",
+      },
+    },
+    opts = {
+      -- 如果你想让 Yazi 浮动窗口更漂亮，可以保持默认或自定义
+      floating_window_styling = {
+        border = "rounded",
+      },
+    },
+  },
+  {
+    "mg979/vim-visual-multi",
+    event = "VeryLazy",
+  },
 }
 
 ```
@@ -609,39 +544,189 @@ return {
 
 ```Lua
 return {
-  -- 进入项目且没有打开特定文件时，自动加载上次的标签页
+  -- 会话管理：进入项目且没有打开特定文件时，自动恢复上次的会话
   {
     "folke/persistence.nvim",
-    event = "VimEnter", -- 进入 Vim 之后触发
-    config = function(_, opts)
-      local persistence = require("persistence")
-      persistence.setup(opts)
-
-      -- 在这里注册自动命令，此时插件环境已经 Ready
-      vim.api.nvim_create_autocmd("VimEnter", {
-        group = vim.api.nvim_create_augroup("auto_restore_session", { clear = true }),
-        callback = function()
-          -- 仅在直接输入 nvim (argc == 0) 且不是从管道读入数据时恢复
-          if vim.fn.argc() == 0 and not vim.g.started_with_stdin then
-            -- 1. 恢复文件标签页
-            persistence.load()
-
-            -- 2. 强制触发 BufReadPost 事件，确保 gitsigns 等插件开始工作
-            vim.schedule(function()
-              -- 解决 Git 状态不显示的问题
-              for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                if vim.api.nvim_buf_is_valid(buf) then
-                  vim.api.nvim_exec_autocmds("BufReadPost", { buffer = buf })
-                end
-              end
-            end)
-          end
-        end,
-      })
-    end,
+    event = "BufReadPre",
   },
 }
+```
 
+**`~/.config/lua/plugins/format.lua`**
+
+```lua
+return {
+  "stevearc/conform.nvim",
+  opts = {
+    -- 显式关闭保存时自动格式化（与全局 autoformat = false 保持一致）
+    format_on_save = false,
+
+    formatters_by_ft = {
+      -- 为 C++ 和 C 指定使用 clang-format
+      cpp = { "clang-format" },
+      c = { "clang-format" },
+    },
+    formatters = {
+      ["clang-format"] = {
+        -- 核心配置：通过 prepend_args 传递参数
+        -- --style=file:<path> 告诉 clang-format 使用指定路径的配置文件
+        prepend_args = { "--style=file:" .. vim.fn.expand("~/.clang-format") },
+      },
+    },
+  },
+}
+```
+
+**`~/.config/lua/plugins/treesitter.lua`**
+
+```lua
+-- LazyVim nvim-treesitter 最终配置 (完全移除问题插件)
+-- 存放位置: ~/.config/nvim/lua/plugins/treesitter.lua
+
+return {
+  {
+    "nvim-treesitter/nvim-treesitter",
+    version = false,
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    cmd = { "TSUpdateSync", "TSUpdate", "TSInstall" },
+    keys = {
+      { "<c-space>", desc = "Increment selection" },
+      { "<bs>",      desc = "Decrement selection", mode = "x" },
+    },
+    opts = {
+      ensure_installed = {
+        -- 编程语言
+        "bash",
+        "c",
+        "cpp",
+        "python",
+
+        -- 配置文件格式
+        "json",
+        "yaml",
+        "toml",
+        "xml",
+
+        -- 标记和文档
+        "markdown",
+        "markdown_inline",
+        "html",
+
+        -- 通用工具
+        "vim",
+        "lua",
+        "git_config",
+        "gitignore",
+        "diff",
+        "dockerfile",
+        "make",
+        "cmake",
+        "query",
+      },
+
+      sync_install = false,
+      auto_install = true,
+      ignore_install = {},
+
+      highlight = {
+        enable = true,
+        disable = function(lang, buf)
+          local max_filesize = 100 * 1024
+          local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(buf))
+          if ok and stats and stats.size > max_filesize then
+            return true
+          end
+        end,
+        additional_vim_regex_highlighting = false,
+      },
+
+      incremental_selection = {
+        enable = true,
+        keymaps = {
+          init_selection = "<C-space>",
+          node_incremental = "<C-space>",
+          scope_incremental = "<c-s>",
+          node_decremental = "<bs>",
+        },
+      },
+
+      indent = {
+        enable = true,
+        disable = { "python" },
+      },
+
+
+    },
+  },
+
+}
+```
+
+**`~/.config/lua/plugins/word-highlight.lua`**
+
+```lua
+-- 自定义单词高亮功能（从 ui.lua 的 plenary 配置中提取）
+-- 使用 nvim_set_hl + matchadd 实现循环彩色高亮单字
+
+local colors = {
+  { bg = "#89b4fa", fg = "#11111b" }, -- Blue
+  { bg = "#f38ba8", fg = "#11111b" }, -- Red
+  { bg = "#a6e3a1", fg = "#11111b" }, -- Green
+  { bg = "#f9e2af", fg = "#11111b" }, -- Yellow
+  { bg = "#fab387", fg = "#11111b" }, -- Orange
+  { bg = "#cba6f7", fg = "#11111b" }, -- Mauve
+}
+
+local current_color_idx = 1
+local word_match_ids = {} -- 存储单词到 match id 的映射
+
+-- 核心高亮函数
+local function toggle_word_highlight()
+  local word = vim.fn.expand("<cword>")
+  if word == "" then
+    return
+  end
+
+  -- 如果该单词已经高亮，则取消它
+  if word_match_ids[word] then
+    vim.fn.matchdelete(word_match_ids[word])
+    word_match_ids[word] = nil
+    return
+  end
+
+  -- 获取下一个颜色
+  local color = colors[current_color_idx]
+  local group_name = "CustomWordHL" .. current_color_idx
+
+  -- 定义高亮组
+  vim.api.nvim_set_hl(0, group_name, { bg = color.bg, fg = color.fg, bold = true })
+
+  -- 执行高亮匹配
+  local match_id = vim.fn.matchadd(group_name, "\\<" .. word .. "\\>")
+  word_match_ids[word] = match_id
+
+  -- 循环索引
+  current_color_idx = (current_color_idx % #colors) + 1
+end
+
+-- 清除所有高亮函数
+local function clear_all_highlights()
+  for _, id in pairs(word_match_ids) do
+    pcall(vim.fn.matchdelete, id)
+  end
+  word_match_ids = {}
+  current_color_idx = 1
+end
+
+-- 绑定快捷键
+vim.keymap.set("n", "<leader>hl", toggle_word_highlight, { desc = "Highlight Word (Cycle Color)" })
+vim.keymap.set("n", "<leader>hc", clear_all_highlights, { desc = "Clear All Highlights" })
+
+return {
+  -- 此文件不需要依赖任何插件，用空 spec 占位即可被 lazy.nvim 加载
+  { "nvim-lua/plenary.nvim", lazy = true },
+}
 ```
 
 # 重置 LazyVim 插件系统
