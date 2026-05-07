@@ -113,8 +113,6 @@ model_folder
   }
   ```
 
-
-
 - **加载时机**：`AutoTokenizer.from_pretrained` 会读取这个文件，把特殊 token 映射到词表 ID，并用于编码/解码时自动插入/去除这些 token。
 
 **五、 `tokenization_hummingbird.py`**
@@ -241,6 +239,156 @@ assign --> cpu : 放到 CPU / 磁盘 的权重
 @enduml
 ```
 
+## Hugging Face 模型下载
+
+在 Hugging Face 下载动辄数十 GB 的大模型，传统的 `git clone` 极易由于 LFS 域名重定向、SSL 握手失败或代理超时而中断。
+
+### 官方 `hf` 工具（推荐）
+
+官方已将 `huggingface-cli` 升级为更简洁、高效的 `hf` 工具，采用 Rust/Python 混合架构，专门针对大文件传输进行了多线程优化。
+
+**一、安装/更新工具**
+
+```bash
+# 建议强制重装以确保版本为最新（支持 hf 命令）
+python -m pip install --upgrade huggingface_hub --force-reinstall
+```
+
+**二、执行下载**
+
+```bash
+hf download <Repo_ID> --local-dir <Local_Path> --max-workers 8
+```
+
+- `--local-dir`: 指定下载路径，建议关闭符号链接（`--local-dir-use-symlinks False`）。
+- `--max-workers`: 开启多线程加速（通常 8-16 为佳）。
+
+### Git 备选方案
+
+如果必须使用 `git clone`，请务必针对 **LFS 子域名** 解决代理失效问题：
+
+```bash
+# 1. 关闭 SSL 校验
+git config --global http.sslVerify false
+
+# 2. 设置全域代理（涵盖所有 CDN 域名）
+git config --global http.proxy http://user:password@proxy.example.com:8080
+
+# 3. 分两步执行以提高成功率
+GIT_LFS_SKIP_SMUDGE=1 git clone https://huggingface.co/Qwen/Qwen3.6-35B-A3B
+cd Qwen3.6-35B-A3B
+git lfs pull
+```
+
+**核心避坑指南：**
+
+- **优先使用 `hf` 而非 `git`**：Git 处理大文件时一旦中断很难完美恢复，`hf` 的 CheckSum 机制更适合大模型。
+- **Token 是必须的**：即便模型是 Public 的，带上 `HF_TOKEN` 能显著提升并发稳定性。
+- **处理 `.lock` 文件**：下载卡住超过 1 分钟且提示 `waiting to acquire lock`，直接删除 `.cache` 目录下的锁文件。
+
+## hf 命令行工具
+
+1. 核心架构与优势
+   - **并发下载**：原生支持 `--max-workers`，大幅提升内网带宽利用率。
+   - **断点续传**：基于文件 Checksum 校验，下载中断后无需重来。
+   - **自动缓存管理**：提供更透明的缓存扫描与清理功能。
+   - **零 Git 依赖**：下载权重不再需要处理复杂的 `git-lfs` 域名重定向问题。
+
+2. 基础配置与认证
+
+   在使用任何命令前，建议先配置好环境。
+
+   **身份认证**
+
+   ```bash
+   # 交互式登录
+   hf auth login
+
+   # 或者直接使用环境变量（推荐用于 CI/CD 或服务器环境）
+   export HF_TOKEN="hf_xxxxxxxxxxxx"
+   ```
+
+   **代理设置（企业内网必备）**
+
+   ```bash
+   export http_proxy="http://user:password@proxy.example.com:8080"
+   export https_proxy="http://user:password@proxy.example.com:8080"
+   export HTTPS_PROXY="http://user:password@proxy.example.com:8080"
+   export HTTP_PROXY="http://user:password@proxy.example.com:8080"
+   ```
+
+3. 常用命令速查表
+
+   | **命令**       | **用途**               | **核心参数**                                |
+   | -------------- | ---------------------- | ------------------------------------------- |
+   | `hf download`  | **下载**模型或数据集   | `--local-dir`, `--include`, `--max-workers` |
+   | `hf upload`    | **上传**文件到 HF Hub  | `--private`, `--commit-message`             |
+   | `hf models ls` | **搜索/列出**模型库    | `--search`, `--sort`, `--limit`             |
+   | `hf info`      | 查看当前系统环境与缓存 | 无                                          |
+   | `hf auth`      | 管理登录状态           | `login`, `logout`                           |
+
+4. 深度实战示例
+
+   **A. 下载指定模型（带多线程与过滤）**
+
+   如果你只需要模型权重，不需要 `.bin` 文件（只要 `.safetensors`），可以进行过滤：
+
+   ```bash
+   hf download Qwen/Qwen3.6-35B-A3B \
+       --local-dir ./Qwen3.6-35B \
+       --max-workers 8
+       --include "*.safetensors" \
+   ```
+
+   **B. 上传量化后的模型**
+
+   假设你完成了 NPU 适配或量化，需要上传到自己的私人仓库：
+
+   ```bash
+   # 将当前目录下的 my_model 文件夹上传到 HF 个人仓库
+   hf upload my-username/qwen3.6-npu-optimized ./my_model_dir --private
+   ```
+
+   **C. 搜索特定架构的模型**
+
+   在茫茫模型海中寻找特定系列：
+
+   ```bash
+   hf models ls --search "Qwen3.6" --sort downloads --limit 10
+   ```
+
+   **D. 诊断环境问题**
+
+   当下载卡顿或路径不对时，运行此命令查看 `hf` 到底在看哪个文件夹：
+
+   ```bash
+   hf info
+   ```
+
+**常用子命令总结表**
+
+| 模块           | 命令                                                 | 用途                  | 示例                                                 |
+| -------------- | ---------------------------------------------------- | --------------------- | ---------------------------------------------------- |
+| **认证**       | `hf login`                                           | 登录 Hugging Face Hub | `hf login`                                           |
+|                | `hf logout`                                          | 登出账号              | `hf logout`                                          |
+| **用户信息**   | `hf whoami`                                          | 查看当前用户          | `hf whoami`                                          |
+| **搜索**       | `hf search models <关键词>`                          | 搜索模型              | `hf search models bert --task text-classification`   |
+|                | `hf search datasets <关键词>`                        | 搜索数据集            | `hf search datasets glue`                            |
+| **信息查看**   | `hf model info <model>`                              | 查看模型详情          | `hf model info gpt2`                                 |
+|                | `hf dataset info <dataset>`                          | 查看数据集详情        | `hf dataset info glue`                               |
+|                | `hf space info <space>`                              | 查看 Space 信息       | `hf space info my-space`                             |
+| **仓库管理**   | `hf repo create <name> --type <model/dataset/space>` | 创建仓库              | `hf repo create my-model --type model`               |
+|                | `hf repo clone <url>`                                | 克隆仓库              | `hf repo clone https://huggingface.co/user/my-model` |
+|                | `hf repo push --path <file/dir>`                     | 上传文件/目录         | `hf repo push --path ./`                             |
+|                | `hf repo download <repo> --revision <branch>`        | 下载整个仓库          | `hf repo download bert-base-uncased`                 |
+| **缓存管理**   | `hf cache list`                                      | 查看缓存              | `hf cache list`                                      |
+|                | `hf cache clear`                                     | 清理缓存              | `hf cache clear`                                     |
+| **单文件下载** | `hf get <file>`                                      | 下载单个文件          | `hf get gpt2/config.json`                            |
+| **Space 管理** | `hf space create <name> --type <gradio/streamlit>`   | 创建 Space            | `hf space create demo-space --type gradio`           |
+|                | `hf space push`                                      | 上传 Space            | `hf space push`                                      |
+|                | `hf space info <space>`                              | 查看 Space 信息       | `hf space info demo-space`                           |
+
+
 ## NORM 类算子对比
 
 [【RMSNorm】RMSNorm 详解](https://blog.csdn.net/fanjinglian_/article/details/144264133)
@@ -250,18 +398,15 @@ assign --> cpu : 放到 CPU / 磁盘 的权重
 1. **归一化的背景**
 
    在神经网络训练过程中，输入数据的尺度差异可能导致梯度爆炸或梯度消失，影响模型的收敛速度和稳定性。为了缓解这一问题，研究人员提出了不同类型的归一化方法。
-
    - **Batch Normalization (BN)**：对每一层的输出进行归一化，使用整个批次的统计量（均值和方差）。BN 在卷积神经网络（CNN）中表现优秀，但在序列数据（如 RNN 和 Transformer）中效果不佳。
    - **Layer Normalization (LN)**：每个样本独立进行归一化，通常用于处理变长的序列数据（如 RNN 和 Transformer）。LayerNorm 在保持序列特性方面表现较好，但在计算上较为复杂，且容易在训练过程中存在不稳定性。
 
 2. **RMSNorm 的基本原理**
 
    RMSNorm 是一种改进的归一化方法，它摒弃了传统归一化方法中的均值计算，改为使用均方根（Root Mean Square，RMS）来进行标准化。具体来说，RMSNorm 通过以下步骤对输入进行归一化：
-
    - **计算输入的 RMS 值**： RMSNorm 通过计算输入张量的每个元素的平方和的均值，得到 RMS 值。公式如下：
 
    ![](https://i-blog.csdnimg.cn/direct/9bd3928973034982859de754556a9b1d.png)
-
    - **缩放和偏移**： 与传统的归一化方法类似，RMSNorm 通过一个缩放因子（通常是一个可学习的参数）对输入进行缩放。由于 RMSNorm 没有计算均值，它主要依赖于 **RMS 值** 和 **缩放因子** 来调整输入数据的分布。
 
    最终，归一化后的输出为：
@@ -271,7 +416,6 @@ assign --> cpu : 放到 CPU / 磁盘 的权重
 3. **RMSNorm 的优点**
 
    RMSNorm 相较于传统的归一化方法（如 LayerNorm 和 BatchNorm）具有以下优点：
-
    - **计算效率**： RMSNorm 相比于 LayerNorm，避免了对输入张量的均值计算，简化了计算流程。对于每个输入样本，只需要计算平方和的均值（RMS），因此计算量更小，特别是在处理长序列数据时，能够显著提高效率。
 
    - **稳定性**： 在一些应用中，LayerNorm 会因为均值的计算不稳定（例如，存在大的偏差或噪声）导致训练不稳定。RMSNorm 通过去除均值计算，减少了这种不稳定性，使得训练过程更加平滑。
@@ -289,13 +433,11 @@ assign --> cpu : 放到 CPU / 磁盘 的权重
    | **适用数据类型** | 长序列数据、变长序列   | 序列数据（如 RNN, Transformer）  | 卷积神经网络（CNN）              |
    | **训练稳定性**   | 稳定                   | 稳定，但在某些情况下不如 RMSNorm | 在小批量上训练较稳定             |
    | **训练速度**     | 较快                   | 中等                             | 较慢（需要在每个批次计算统计量） |
-
    - **RMSNorm vs. LayerNorm**：虽然两者都是逐样本归一化，但 RMSNorm 更简单，去除了均值计算，计算速度和稳定性更高，尤其在序列模型中更具优势。
    - **RMSNorm vs. BatchNorm**：BatchNorm 依赖于批次内的统计量，而 RMSNorm 不需要批次统计量，且适用于变长序列数据，相较之下，BatchNorm 对序列数据不太适用。
 
 5. **RMSNorm 的局限性**
 
    虽然 RMSNorm 有很多优点，但它也存在一些局限性：
-
    - **无均值归一化**：尽管 RMSNorm 避免了均值的计算，但这可能导致它在某些任务中表现不如 LayerNorm，尤其是在输入数据的均值对于模型性能至关重要的情况下（例如，图像数据）。
    - **缺乏对批量统计的依赖**：虽然这一点使 RMSNorm 适合处理变长的序列，但在一些任务中，BatchNorm 可能会提供更好的效果，特别是在有足够大批量数据时。
