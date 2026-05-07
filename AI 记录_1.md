@@ -113,6 +113,8 @@ model_folder
   }
   ```
 
+
+
 - **加载时机**：`AutoTokenizer.from_pretrained` 会读取这个文件，把特殊 token 映射到词表 ID，并用于编码/解码时自动插入/去除这些 token。
 
 **五、 `tokenization_hummingbird.py`**
