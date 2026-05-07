@@ -388,6 +388,14 @@ git lfs pull
 |                | `hf space push`                                      | 上传 Space            | `hf space push`                                      |
 |                | `hf space info <space>`                              | 查看 Space 信息       | `hf space info demo-space`                           |
 
+## AccessToken 记录
+
+- ccr_20260605, READ
+
+  ```bash
+  export HF_TOKEN="hf_
+  PiGeFQNeLgPwltfeCpLxXdNCFaoGoHdRRE"
+  ```
 
 ## NORM 类算子对比
 
