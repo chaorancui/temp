@@ -221,7 +221,7 @@ esac
    echo ${var//_/ }     # 输出: hello world test
    ```
 
-## 引用变量：`$VAR` 和 `${VAR}`
+## 引用变量`$VAR`vs`${VAR}`
 
 在Shell脚本中，`$var` 和 `${var}` 的**核心功能是一样的**，都是获取变量的值。但 `${var}` 提供了更多的灵活性和安全性：
 
