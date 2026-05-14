@@ -293,6 +293,25 @@ pip install SomePackage              # 最新版本
 pip install SomePackage==1.0.4       # 指定版本
 pip install 'SomePackage>=1.0.4'     # 最小版本
 
+# 有些 Python 库提供可选功能，如果你不装，核心功能仍能用；如果你需要额外功能，需要额外依赖包。作者用 extras_require 在 setup.py 或 pyproject.toml 定义
+# 注意：
+# - 外层单引号 ' ' 在 Linux/Mac 必须，否则 shell 会把 [] 当作 glob 通配符。
+# - Windows 上不强制，但推荐也加上。
+pip install 'optimum[exporters]'       # 安装 extras
+pip install 'package[extra1,extra2]'   # 同时装多个 extras
+pip install 'optimum[exporters]>=1.18' # 把版本限制和 extras 合并
+
+# 从 Git 安装
+pip install git+https://github.com/username/repo.git
+
+# 从本地或 URL 安装
+pip install ./mypackage
+pip install https://example.com/mypackage-0.1.tar.gz
+
+# 限制版本范围
+pip install 'package>=1.0,<2.0'
+
+
 # 显示安装包信息
 pip show xxx
 
