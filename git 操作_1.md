@@ -394,7 +394,6 @@ git config --list
 
    在 GitHub / GitLab / Gitee 上**新建一个空仓库**
    注意：
-
    - 不要勾选 “Initialize with README / .gitignore / LICENSE”（否则会产生冲突）
 
    远端仓库地址一般是：
@@ -419,7 +418,6 @@ git config --list
    ```
 
    说明：
-
    - `-M main`：将当前分支命名为 main（新标准）
    - `-u`：设置上游分支，后续只需 `git push`
 
@@ -450,7 +448,6 @@ git push -u origin main
 1. `.gitmodules` 文件的作用
 
    `.gitmodules` 文件包含子模块的相关配置，每个子模块通常包含以下信息：
-
    1. **路径** (`path`): 子模块在主项目中的存储路径。这个路径是相对于主项目的根目录的。
    2. **URL** (`url`): 子模块仓库的远程 URL。这是子模块代码的来源。
    3. **名称** (`name`): 子模块的名称，用于标识子模块。
@@ -470,7 +467,6 @@ git push -u origin main
    - `url` 指定了子模块的远程仓库地址。
 
 3. 使用子模块的常见操作
-
    1. **添加子模块**: 可以使用 `git submodule add` 命令添加一个子模块。例如：
 
       ```bash
@@ -494,7 +490,6 @@ git push -u origin main
       ```bash
       git submodule update --remote
       ```
-
    - **优点**:
      - 允许在一个项目中包含独立的外部库或其他项目代码。
      - 子模块保持独立的 Git 历史和版本控制。
@@ -881,7 +876,6 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   ```
 
   具体来说，-vv 选项表示 "verbose"（详细）模式，会显示每个分支的更多详细信息，如下：
-
   - 本地分支名：列出当前所有的本地分支，当前分支会以 `*` 标记。
   - 跟踪分支：如果一个本地分支设置了远程分支跟踪（即和某个远程分支有关联），则会显示该远程分支的名称。
   - 分支的提交哈希值：列出分支最新一次提交的哈希值（简短的形式）。
@@ -904,7 +898,6 @@ git log [<options>] [<revision range>] [[\--] <path>…]
 
 - `-vv` 选项查看本地分支与跟踪分支的差异
   在使用 git branch -vv 时，ahead 和 behind 的信息（如 ahead 2, behind 1）只有在特定条件下才会显示。具体来说，这取决于以下几个因素：
-
   1. 没有设置跟踪分支
      如果本地分支没有设置为跟踪远程分支，则 git branch -vv 不会显示 ahead 或 behind 信息。这种情况下，它无法比较本地分支和远程分支之间的提交差异。你可以通过以下命令**检查某个分支是否设置了跟踪分支**：
 
@@ -1070,7 +1063,6 @@ git log [<options>] [<revision range>] [[\--] <path>…]
   其中，`new_branch_name` 是要创建的新的本地分支名称，`commid_id` 是 cherry-pick 或 fetch 后的最新 commit id。
 
   显示 commit id 而不是分支名的情况：
-
   1. 在本地 A 仓库拉取 B 仓库 master 分支，checkout 到 B/master 后，是只有最新 commit id 而没有分支名称的。
 
   2. cherry-pick 后的代码没有分支名，只有最新的 commit id，同样需要为最新的 commit id 创建一个分支，用于推送远程仓库时
@@ -1205,7 +1197,6 @@ Git 实际做了三步：
    **标准流程，语义**：让 dev 看起来像是从当前 master 拉出来的。
 
 2. 交互式 rebase（**整理提交历史**）
-
    - 方法 1：指名要合并的版本号区间
 
      ```bash
@@ -1272,7 +1263,6 @@ Git 实际做了三步：
    > 真正被移动的提交范围是：`(old_base, branch]`，也就是 branch 上、但不包含 old_base 的那一串提交
 
    示例，现在假设：
-
    - dev 是错误地从 C 拉出来的
    - 正确基线应该是 D（或另一个分支）
 
@@ -1290,13 +1280,11 @@ Git 实际做了三步：
    ```
 
    Git 实际做了什么：
-
    - 找到 dev 和 C 之后的提交：F G H
    - 把它们从原位置“剪掉”
    - 把 F' G' H' 重新生成到 D 之后
 
    最终：
-
    - F/G/H 内容相同
    - hash 全变
    - C 不再是 dev 的祖先
@@ -1434,7 +1422,6 @@ git reset --hard <commit-id>
 1. **git 补丁**
 
    通过使用 `git diff` 和 `git format-patch` 创建补丁，以及使用 `git apply` 和 `git am` 应用补丁，可以在不同的 Git 仓库之间方便地交换和管理代码更改。检查和调试补丁有助于确保补丁的正确应用，并解决可能出现的冲突和错误。
-
    - 创建补丁
 
      使用 `git diff` 和 `git format-patch` 创建补丁。
@@ -1444,6 +1431,10 @@ git reset --hard <commit-id>
      ```shell
      # 生成当前工作目录中所有更改的补丁，并保存到 patch.diff 文件中
      git diff > patch.diff
+
+     # 如果有 untracked 文件，需要
+     git add .
+     git diff --cached > my.patch
      ```
 
      `git format-patch` 命令可以将提交转换为补丁文件，适用于多个提交。
@@ -1534,12 +1525,10 @@ git reset --hard <commit-id>
    ```
 
 3. **深入理解 `git patch-id`**
-
    - **唯一标识补丁内容**：`git patch-id` 生成的 ID **仅依赖于补丁内容，而不是提交的元数据（如时间戳、作者）**。
    - **去除空白差异**：`git patch-id` 默认会忽略空白字符的差异，因此即使补丁的空白字符有所不同，只要实质内容相同，生成的 Patch-ID 也是相同的。
 
    使用场景
-
    - **补丁重复检测**：在大型代码库或复杂的开发环境中，可以使用 `git patch-id` 来检测和消除重复的补丁。
    - **补丁追踪**：当补丁在不同的分支或项目中传播时，可以使用 Patch-ID 追踪补丁的应用情况。
 
