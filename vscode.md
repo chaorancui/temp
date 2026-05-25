@@ -1,4 +1,4 @@
-[toc]
+[TOC]
 
 # VSCode
 
@@ -129,6 +129,25 @@ exit
 [VSCode 远程连接时显示 The remote host may not meet VS Code Server‘s prerequisites for glibc and libstdc+](https://blog.csdn.net/weixin_55944949/article/details/136082838)
 
 [The remote host doesn't meet the prerequisites for running VS Code Server](https://github.com/microsoft/vscode/issues/245872)
+
+## ## 插件安装位置
+
+**本地安装路径 (Windows & Linux)：**
+
+无论是 Windows 还是 Linux，本地插件的默认路径都存放在当前**用户的个人文件夹**下：
+
+| 操作系统    | 默认插件安装路径                                                                     |
+| ----------- | ------------------------------------------------------------------------------------ |
+| **Windows** | `%USERPROFILE%\.vscode\extensions`<br>例如：`C:\Users\你的用户名\.vscode\extensions` |
+| **Linux**   | `~/.vscode/extensions` 或 `/home/你的用户名/.vscode/extensions`                      |
+
+如果想确认或者修改这个路径，可以参考[这篇文章](https://worktile.com/kb/ask/574559.html)[](https://worktile.com/kb/ask/574559.html)[](https://blog.csdn.net/lanwp5302/article/details/147494623)。
+
+**远程服务器插件安装路径 (Remote-SSH)：**
+
+当你通过 Remote-SSH 连接到远程 Linux 服务器时，所有为远程开发环境安装的插件，都会被安装在远程服务器的这个位置：**`~/.vscode-server/extensions/`**
+
+你可以通过 SSH 登录到远程服务器，然后执行 `ls ~/.vscode-server/extensions` 命令，来查看远程服务器上已经安装了哪些插件。
 
 ## 插件
 
@@ -424,13 +443,14 @@ SeparateDefinitionBlocks: Leave
      - **Tool Status Monitoring 工具状态监控** - Check which tools are currently active ([View Details](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#view-tool-status-查看工具状态))
      - **Performance Monitoring 性能监控** - Real-time performance metrics and analysis reports ([Details](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#performance-monitoring-性能监控))
      - **Detailed Logs 详细日志** - Timestamped operation logs with customizable format ([View Logs](https://marketplace.visualstudio.com/items?itemName=bdq460.shell-formatter&ssr=false#view-logs-查看日志))
+
    - **安装**:
      1. 在 VS Code 扩展商店搜索 `Shell Formatter`。
-
      2. 安装后，需确保系统已安装 `shfmt`。
         - 从 [shfmt GitHub Releases](https://github.com/mvdan/sh/releases) 下载对应版本（如 `shfmt_*_linux_amd64`）。
         - Windows：重命名为 `shfmt.exe`，并放入 `C:\Windows\System32` 或添加到 `PATH`。
         - Linux：重命名为 `shfmt`，赋予执行权限并安装：`chmod +x shfmt`,`sudo mv shfmt /usr/local/bin/`
+
      3. 插件路径配置
 
         ```json
@@ -1206,9 +1226,7 @@ shellcheck --severity=warning --shell=bash script.sh
 
 2. 安装 **Error Lens** 扩展：
    - 在扩展市场中搜索 `Error Lens` 并安装。
-
    - `Error Lens` 扩展能够将错误和警告信息直接显示在相应的代码行末。
-
    - 安装后，可以**根据需要**进行配置。打开设置文件（`settings.json`），添加或修改以下配置项：
 
      ```json
