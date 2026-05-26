@@ -8,6 +8,89 @@ windows 查看安装 python 版本：py -0
 
 查看 python 安装路径：where python
 
+## 切换默认 python 版本
+
+在 Linux 同时安装 Python 2 和 Python 3 时，“默认 python 版本”本质上是由 **`python` 命令指向谁**决定的。不同发行版（Ubuntu / CentOS / Arch）处理方式略有差异，下面给你几种标准、可控的做法。
+
+**一、alias（不会影响系统）**
+
+只影响当前用户 shell：
+
+```bash
+echo "alias python=python3" >> ~/.bashrc
+source ~/.bashrc
+```
+
+验证：
+
+```bash
+python --version
+```
+
+优点：
+
+- 安全
+- 不影响 apt / 系统脚本
+- 随时可撤销
+
+**二、update-alternatives（系统级可控切换）**
+
+查看系统python
+
+```bash
+which python
+python --version
+
+which python3
+python3 --version
+```
+
+1. 注册 python2 / python3
+
+   ```bash
+   sudo update-alternatives --install /usr/bin/python python /usr/bin/python2 1
+   sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 2
+   ```
+
+2. 选择默认版本
+
+   ```bash
+   sudo update-alternatives --config python
+   ```
+
+   然后会出现类似：
+
+   ```log
+   Selection    Path                Priority
+   ------------------------------------------------
+   * 1          /usr/bin/python2    1
+     2          /usr/bin/python3    2
+   ```
+
+   输入编号即可切换默认 python。
+
+所以这个方法虽然“正规”，但在服务器/镜像环境里仍可能有副作用。
+
+**三、通用做法：软链接（更直接，但风险更高）**
+
+1. 查看当前 python 指向
+
+   ```bash
+   ls -l /usr/bin/python
+   ```
+
+2. 修改默认指向
+
+   ```bash
+   sudo ln -sf /usr/bin/python3 /usr/bin/python
+   # 或
+   sudo ln -sf /usr/bin/python2 /usr/bin/python
+   ```
+
+   :warning: 注意：
+   - 可能影响系统脚本（尤其老系统依赖 python2）
+   - 不推荐在系统级环境随意改
+
 ## 代码格式化插件
 
 ### yapf
@@ -283,11 +366,11 @@ each_dict_entry_on_separate_line = False
 pip 是 Python 包管理工具，该工具提供了对 Python 包的查找、下载、安装、卸载的功能。
 
 ```shell
-pip --version	# 显示版本和路径，也可判断是否已经安装pip
-pip --help		# 获取帮助
-pip list		# 列出已安装的包
-pip list -o		# 查看可升级的包
-pip install -U pip	# 升级 pip
+pip --version    # 显示版本和路径，也可判断是否已经安装pip
+pip --help        # 获取帮助
+pip list        # 列出已安装的包
+pip list -o        # 查看可升级的包
+pip install -U pip    # 升级 pip
 # 安装包
 pip install SomePackage              # 最新版本
 pip install SomePackage==1.0.4       # 指定版本
@@ -325,7 +408,7 @@ pip uninstall xxx
 pip search xxx
 
 # 软件源安装某个包（临时使用）
-pip install -i https://pypi.tuna.tsinghua.edu.cn/simple xxx		# 清华源
+pip install -i https://pypi.tuna.tsinghua.edu.cn/simple xxx        # 清华源
 ```
 
 ## pip 配置代理
@@ -371,7 +454,7 @@ pip install -i https://pypi.tuna.tsinghua.edu.cn/simple xxx		# 清华源
 
    在文件中添加以下内容：
 
-   ```ini toml
+   ```ini
    [global]
    proxy = http://代理服务器IP:端口
    # 如果你的 index-url 是 http 而不是 https，可能还需要信任该主机
@@ -411,12 +494,12 @@ virtualenv --no-site-packages [虚拟环境名称]
 
 # 激活环境
 cd venv
-source ./bin/activate	# Linux
-.\Scripts\activate.bat	# Windows
+source ./bin/activate    # Linux
+.\Scripts\activate.bat    # Windows
 
 # 退出环境
-deactivate					# Linux
-.\Scripts\deactivate.bat	# Windows
+deactivate                    # Linux
+.\Scripts\deactivate.bat    # Windows
 
 # 删除环境
 # 直接删除venv文件夹来删除环境
