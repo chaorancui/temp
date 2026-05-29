@@ -1,6 +1,6 @@
-[toc]
+[TOC]
 
-# python 常用库\_4
+# python 常用库\_6
 
 ## pathlib
 
@@ -342,6 +342,134 @@
 3. 最佳实践
 
    **混合使用。** 在现代 Python 代码中，通常先用 `pathlib.Path` 定义和处理路径对象，当涉及到复杂的拷贝或递归删除任务时，再将 Path 对象传递给 `shutil` 函数（`shutil` 函数完全兼容 Path 对象）。
+
+## 获取当前脚本所在路径
+
+```python
+from pathlib import Path
+
+
+CURRENT_FILE = Path(__file__).resolve()     # 当前脚本文件路径
+CURRENT_DIR = CURRENT_FILE.parent           # 当前脚本所在目录
+
+
+# 工程根目录（按层级回退）
+ROOT_DIR = CURRENT_DIR.parents[2]
+DEFAULT_COMPILE_CONFIG = {
+    "ROOT_LM_IR": str(ROOT_DIR / "build_irpb/lm_ir"),
+
+    "ROOT_NPU_FMK": str(ROOT_DIR / "vendor/hisi/npu"),
+
+    "ROOT_DDK_LIB": str(
+        ROOT_DIR /
+        "vendor/hisi/npu/run_workspace/image/hiai_ddk/ddk_internal/tools/tools_omg/master/lib64"
+    )
+}
+
+
+
+from pathlib import Path
+
+CURRENT_FILE = Path(__file__).resolve()
+ROOT_DIR = None
+for p in [CURRENT_FILE] + list(CURRENT_FILE.parents):
+    if (p / "vendor").exists() and (p / "build_irpb").exists():
+        ROOT_DIR = p
+        break
+
+if ROOT_DIR is None:
+    raise RuntimeError("Cannot find project root")
+
+DEFAULT_COMPILE_CONFIG = {
+    "ROOT_LM_IR": str(ROOT_DIR / "build_irpb/lm_ir"),
+    "ROOT_NPU_FMK": str(ROOT_DIR / "vendor/hisi/npu"),
+}
+```
+
+## 在 Python 中处理文件路径，强烈推荐使用 Python 3 引入的 **`pathlib`** 库，它比传统的 `os.path` 更加面向对象且优雅。
+
+**方法一：根据“固定的目录层级”向上查找（最常见）**
+
+如果你知道当前脚本距离项目根目录隔了多少层文件夹，可以直接向上回溯。
+
+```python
+from pathlib import Path
+
+# 1. 获取当前脚本的绝对路径
+current_file_path = Path(__file__).resolve()
+print(f"当前脚本路径: {current_file_path}")
+
+# 2. 获取项目根目录
+# 假设脚本位于: 项目根目录/src/scripts/my_script.py (需要向上退 3 级)
+# .parents[0] 是 scripts/ 目录
+# .parents[1] 是 src/ 目录
+# .parents[2] 是 项目根目录
+project_root = current_file_path.parents[2]
+
+print(f"项目根目录: {project_root}")
+```
+
+**方法二：根据“指定的目录名称（前缀）”动态截取**
+
+如果你的脚本运行层级不固定，但你知道项目根目录的**文件夹名称**（例如项目叫 `my_project`），可以通过遍历父级目录来动态匹配。这种方法比直接按字符串截取（`split`）更安全，可以避免路径中出现同名文件夹导致的错误。
+
+```python
+from pathlib import Path
+
+current_file_path = Path(__file__).resolve()
+
+# 指定你想要作为根目录的文件夹名称
+target_prefix_dir = "my_project"
+
+project_root = None
+# 遍历当前文件的所有父级目录
+for parent in current_file_path.parents:
+    if parent.name == target_prefix_dir:
+        project_root = parent
+        break
+
+if project_root is None:
+    raise FileNotFoundError(f"Cannot find directory [{target_prefix_dir}] in path [{current_file_path}]")
+```
+
+**方法三：传统的 `os.path` 写法（兼容极老版本的 Python）**
+
+如果你必须维护旧代码，可以使用 `os` 模块。原理是一样的，只是写法略显繁琐。
+
+```python
+import os
+
+# 1. 获取当前脚本的绝对路径
+current_file_path = os.path.abspath(__file__)
+print(f"当前脚本路径: {current_file_path}")
+
+# 2. 向上找两级作为根目录
+# 假设路径为 root/src/my_script.py
+current_dir = os.path.dirname(current_file_path) # src目录
+project_root = os.path.dirname(current_dir)      # root目录
+
+print(f"项目根目录: {project_root}")
+```
+
+**方法四：进阶最佳实践：通过“特征文件”定位根目录**
+
+在大型项目中，最稳妥的做法不是依赖路径层级或固定的文件夹名字（因为文件夹可能会被重命名），而是向上寻找包含特定文件（如 `.git`, `requirements.txt` 或 `pyproject.toml`）的目录作为根目录。
+
+```python
+from pathlib import Path
+
+def get_project_root(current_path: Path, marker_file: str = ".git") -> Path:
+    """从当前路径向上寻找包含特定文件的目录作为项目根目录"""
+    for parent in [current_path] + list(current_path.parents):
+        if (parent / marker_file).exists():
+            return parent
+    raise FileNotFoundError(f"向上寻找未找到包含 {marker_file} 的项目根目录")
+
+# 使用示例
+current_path = Path(__file__).resolve()
+root_dir = get_project_root(current_path, marker_file="requirements.txt")
+print(f"特征定位的项目根目录: {root_dir}")
+```
 
 ## typing 库
 
