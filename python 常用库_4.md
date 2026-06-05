@@ -180,7 +180,9 @@
    x_loaded = loaded["my_tensor"]
    ```
 
-## transpose 函数
+# 常用函数记录
+
+## transpose
 
 在 PyTorch 中，进行维度转置（Transpose）有多种方法。虽然它们都能改变数据的维度顺序，但在语义和适用场景上有所区别。
 
@@ -244,3 +246,114 @@
 | `permute(a, b, c...)` | 重新排列所有维度 | 灵活，处理高维数据必备              |
 | `.T`                  | 2D 矩阵快速转置  | 书写极简                            |
 | `.mT`                 | 批量矩阵转置     | 专门处理形如 `(Batch, N, M)` 的数据 |
+
+## torch.argsort
+
+`torch.argsort` 是 PyTorch 中非常实用的一个函数，它的核心作用是：**返回张量（Tensor）排序后的索引（Indices），而不是排序后的数值本身。**
+
+当你需要知道"最小的元素在哪个位置"、"最大的元素在哪个位置"，或者需要根据某一个张量的顺序去调整另一个张量时，这个函数就派上用场了。
+
+**核心参数介绍**
+
+```python
+torch.argsort(input, dim=-1, descending=False)
+```
+
+- **`input`** (Tensor)：输入的张量。
+- **`dim`** (int, 可选)：沿着哪一个维度进行排序。默认是 `-1`（即最后一个维度）。
+- **`descending`** (bool, 可选)：排序顺序。默认是 `False`（升序）；如果设置为 `True`，则按降序（从大到小）排序。
+
+> 💡 **补充小知识**：`torch.argsort(x)` 实际上等价于 `torch.sort(x).indices`。
+
+**示例：一维张量（1D Tensor）**
+
+```python
+import torch
+
+# 创建一个无序的一维张量
+x = torch.tensor([30, 10, 20, 50, 40])
+
+# 进行升序 argsort
+indices = torch.argsort(x)
+
+print("原始张量 x:", x)
+print("排序后的索引:", indices)
+```
+
+输出结果：
+
+```log
+原始张量 x: tensor([30, 10, 20, 50, 40])
+排序后的索引: tensor([1, 2, 0, 4, 3])
+```
+
+**示例：二维张量与维度（2D Tensor & dim）**
+
+在处理矩阵（二维张量）时，我们可以指定是"按行排序"还是"按列排序"。
+
+```python
+# 创建一个 2x3 的二维张量
+y = torch.tensor([[5, 1, 3],
+                  [9, 2, 6]])
+
+# 1. 默认情况：dim=-1（在二维里等同于 dim=1，即每一行内部进行排序）
+indices_row = torch.argsort(y, dim=1)
+
+# 2. 降序排序：descending=True
+indices_desc = torch.argsort(y, dim=1, descending=True)
+
+# 3. 按列排序：dim=0（每一列内部进行纵向排序）
+indices_col = torch.argsort(y, dim=0)
+
+print("按行升序索引:\n", indices_row)
+print("按行降序索引:\n", indices_desc)
+print("按列升序索引:\n", indices_col)
+```
+
+输出结果：
+
+```log
+按行升序索引:
+ tensor([[1, 2, 0],
+        [1, 2, 0]])
+
+按行降序索引:
+ tensor([[0, 2, 1],
+        [0, 2, 1]])
+
+按列升序索引:
+ tensor([[0, 0, 0],
+        [1, 1, 1]])
+```
+
+二维结果解析：
+
+- **按行升序 (`dim=1`)**：
+  - 第一行 `[5, 1, 3]` 排序后是 `[1, 3, 5]`，它们原来的索引分别是 `[1, 2, 0]`。
+  - 第二行 `[9, 2, 6]` 排序后是 `[2, 6, 9]`，它们原来的索引分别是 `[1, 2, 0]`。
+
+- **按列升序 (`dim=0`)**：
+  - 对比第一列 `[5, 9]`，5 比 9 小，所以索引顺序是 `[0, 1]`。
+  - 对比第二列 `[1, 2]`，1 比 2 小，所以索引顺序是 `[0, 1]`。
+  - 第三列同理。
+
+**常见应用场景：根据索引重排张量**
+
+`torch.argsort` 最强大的地方在于，你可以用它返回的索引去重新排列**另一个**相关的张量（通常配合 `torch.gather` 或直接切片使用）。
+
+例如，你有同学的名字和他们的成绩，你想让名字按照成绩从高到低排列：
+
+```python
+names = ["Alice", "Bob", "Charlie", "David"]
+scores = torch.tensor([85, 92, 78, 99])
+
+# 获取成绩降序排列的索引
+sort_indices = torch.argsort(scores, descending=True)
+# sort_indices 结果为: tensor([3, 1, 0, 2])
+
+# 根据索引重新排列名字（将 tensor 转为列表索引）
+sorted_names = [names[i] for i in sort_indices]
+
+print("成绩从高到低的名单:", sorted_names)
+# 输出: ['David', 'Bob', 'Alice', 'Charlie']
+```
