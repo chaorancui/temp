@@ -689,9 +689,12 @@ ssh -p 22 my@127.0.0.1
    ```shell
    # 1.通过 ssh-copy-id 命令，命令有点类似 scp，需要输入密码
    ssh-copy-id -p 22 -i /path/id_rsa_xxx.pub user@host
+   ssh-copy-id -i /path/id_rsa_xxx.pub -o ProxyJump=<jump-user>@<jump-server>:2222 -p 2223 <target-user>@<target-host>
 
    # 2.手动将直接将公钥文件内容拷贝到服务器的 ~/.ssh/authorized_keys 文件中，没有文件则创建文件
    ```
+
+   `ssh-copy-id`要求**所有选项必须位于目标主机名之前**，把`-i ~/.ssh/id_rsa_xxx.pub`放在了主机名`<target-user>@<target-host>`的后面，会导致程序多解析了一个参数。
 
 3. **文件权限配置**
    - ssh 密钥登录时，用户的 `~/.ssh` 目录及其内部文件（如 `authorized_keys`）的权限设置必须严格（安全性考虑），**否则 SSH 认证会失败**。
