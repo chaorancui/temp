@@ -4,7 +4,7 @@
 
 ## 脚本常用代码片段
 
-**一、安全选项及调试：**
+### 一、安全选项及调试
 
 ```bash
 #!/bin/bash
@@ -13,12 +13,81 @@ export PS4='+ ${BASH_SOURCE}:${LINENO}: ${FUNCNAME[0]:+${FUNCNAME[0]}(): }'
 [ "${DEBUG:-false}" = true ] && set -x
 ```
 
-**二、路径处理：**
+### 二、路径处理
 
 ```bash
+# 脚本所在目录
 SCRIPT_PATH=$(realpath "$(dirname "$0")")
 WORK_CODE_PATH=${SCRIPT_PATH%%/work_code/*}/work_code
 echo "WORK_CODE_PATH: ${WORK_CODE_PATH}"
+
+# 运行脚本的工作目录
+RUN_PATH=$(realpath "$(pwd)")
+echo "RUN_PATH: $RUN_PATH"
+```
+
+### 三、Log 等级
+
+```bash
+# =========================
+# Log Level Definition
+# =========================
+LOG_LEVEL_DEBUG=0
+LOG_LEVEL_INFO=1
+LOG_LEVEL_WARN=2
+LOG_LEVEL_ERROR=3
+
+# 默认日志级别（可通过环境变量覆盖）
+LOG_LEVEL=${LOG_LEVEL:-$LOG_LEVEL_INFO}
+
+# =========================
+# Color Definition
+# =========================
+COLOR_RESET="\033[0m"
+COLOR_DEBUG="\033[36m"   # cyan
+COLOR_INFO="\033[32m"    # green
+COLOR_WARN="\033[33m"    # yellow
+COLOR_ERROR="\033[31m"   # red
+
+# =========================
+# Internal print function
+# =========================
+_log() {
+    local level=$1
+    local level_name=$2
+    local color=$3
+    shift 3
+
+    if [ "$LOG_LEVEL" -le "$level" ]; then
+        echo -e "$(date '+%Y-%m-%d %H:%M:%S') ${color}[${level_name}]${COLOR_RESET} $*"
+    fi
+}
+
+# =========================
+# Public API
+# =========================
+log_debug() {
+    _log $LOG_LEVEL_DEBUG "DEBUG" "$COLOR_DEBUG" "$@"
+}
+
+log_info() {
+    _log $LOG_LEVEL_INFO "INFO" "$COLOR_INFO" "$@"
+}
+
+log_warn() {
+    _log $LOG_LEVEL_WARN "WARN" "$COLOR_WARN" "$@"
+}
+
+log_error() {
+    _log $LOG_LEVEL_ERROR "ERROR" "$COLOR_ERROR" "$@"
+}
+
+# 使用放方式
+LOG_LEVEL=0   # 打开 debug
+log_debug "this is debug"
+log_info  "system started"
+log_warn  "disk usage high"
+log_error "something failed"
 ```
 
 ## `set` 命令
