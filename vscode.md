@@ -306,10 +306,10 @@ AllowAllParametersOfDeclarationOnNextLine: false
 # 不允许所有函数调用参数一起换到下一行（与上一项对应）
 AllowAllArgumentsOnNextLine: false
 
-# 换行后的参数对齐到开括号的位置（这是实现紧凑排列的关键）
+# 换行后的参数对齐。Align 对齐到开括号的位置; DontAlign: 不对齐到开括号，使用连续缩进
 # 例如：void Init(param1, param2,
-#                 param3, param4)  <- param3 对齐到 ( 的下一列
-AlignAfterOpenBracket: Align
+#                param3, param4)  <- param3 对齐到 ( 的下一列
+AlignAfterOpenBracket: DontAlign
 
 # 在开括号处换行的惩罚值（越低越容易触发换行；100 是适度的）
 # 这个值会让 clang-format 优先在开括号后换行，而不是其他位置
