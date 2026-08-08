@@ -133,6 +133,122 @@ ssh user@172.29.88.101
 
 - 还可以通过控制面板查看已安装的字体。 根据你的 Windows 版本，你将转到**控制面板** > **字体** -- 或 - **控制面板** > **外观和个性化** > **字体**。
 
+## OpenSSH 服务
+
+### 开启 OpenSSH 服务
+
+在 Windows 10 和 Windows 11 上开启 OpenSSH 服务，主要有两种方法：**图形界面**和**命令行**。如果你的系统版本在 Windows 10 1809 及以上，就已经内置了 OpenSSH 服务。
+
+**安装方式：**
+
+1. 方法一：通过图形界面安装（适合不熟悉命令行的用户）
+   1. **打开设置**：按 `Win + I` 键打开"设置"。
+   2. **进入可选功能**：点击"**应用**" -> "**可选功能**"。
+   3. **添加可选功能**：在"可选功能"页面，点击"**添加可选功能**"（Win11 后面会显示"查看功能"）。
+   4. **安装服务**：在列表中找到"**OpenSSH 服务器**"（OpenSSH Server），勾选并点击"**安装**"（或"添加"）。
+
+2. 方法二：通过 PowerShell 命令行安装（推荐）
+
+   这个方法更快捷，不容易卡顿。
+   1. **以管理员身份运行 PowerShell**：右键点击"开始"菜单，选择"**Windows PowerShell (管理员)**"或"**终端 (管理员)**"。
+   2. **安装 OpenSSH 服务器**：在窗口中输入以下命令并按回车：
+
+      ```powershell
+      Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+      ```
+
+3. 方法三：离线安装（使用第三方编译的安装包）
+
+   可以使用由 PowerShell 团队在 GitHub 上维护的 Windows 版 OpenSSH。
+   1. **下载安装包**：访问 [**PowerShell/Win32-OpenSSH**](https://github.com/PowerShell/Win32-OpenSSH/releases) 的GitHub发布页面。
+
+   2. **选择文件**：根据你的系统位数，下载对应的 `.msi` 安装包文件或 `.zip` 压缩包。
+      - **对于 `.msi` 文件**：直接双击运行，按照向导提示完成安装即可。
+      - **对于 `.zip` 压缩包**：
+        - 将压缩包解压到一个目录，例如 `C:\Program Files\OpenSSH`。
+        - 以**管理员身份**打开PowerShell，并切换到该目录，然后执行安装脚本：
+
+          ```powershell
+          cd "C:\Program Files\OpenSSH"
+          .\install-sshd.ps1
+          ```
+
+          (如果遇到执行策略错误，可先运行 `powershell.exe -ExecutionPolicy Bypass -File install-sshd.ps1`)
+
+**安装后的验证与配置：**
+
+无论通过哪种方式安装，后续的启动和配置步骤都是一样的。
+
+1. **启动SSH服务并设置为开机自启**（以管理员身份在PowerShell中执行）：
+
+   ```powershell
+   # 启动服务
+   Start-Service sshd
+   # 检查服务状态 Running 说明启动成功
+   Get-Service sshd
+   # 设置开机自启
+   Set-Service -Name sshd -StartupType 'Automatic'
+   ```
+
+2. **检查防火墙规则**：确保防火墙允许TCP端口22的入站连接。可以执行以下命令来创建规则（如果已存在可跳过）：
+
+   ```powershell
+   New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+   ```
+
+完成以上步骤后，你就可以从Linux系统通过 `ssh 用户名@IP地址` 的方式连接到你的Windows电脑了。
+
+如果安装后还是有问题，可以检查一下事件查看器里的“Windows日志” -> “应用程序”和“系统”，看看有没有相关的错误记录。
+
+### SSH 服务配置文件
+
+配置文件位于 `C:\ProgramData\ssh\sshd_config`（注意 `ProgramData` 是隐藏文件夹）。
+**以管理员身份**用记事本打开该文件，重点检查以下几项：
+
+```conf
+# 确保允许密码认证
+PasswordAuthentication yes
+
+# 确保不允许空密码（默认 no，不用改）
+PermitEmptyPassword no
+
+# 如果启用了公钥认证，暂时可以先不管，但下面这条要确保没有把密码认证禁用
+PubkeyAuthentication yes   # 可保留，不影响密码登录
+
+# 检查是否有 AllowUsers 或 DenyUsers 指令
+# 如果有 AllowUsers，必须明确包含 c00619335，例如：
+AllowUsers c00619335
+# 如果有 DenyUsers，确保没有包含该用户
+```
+
+**修改后保存文件，然后重启 sshd 服务**（在 PowerShell 管理员下执行）：
+
+```powershell
+Restart-Service sshd
+```
+
+### Windows 使用 sshpass
+
+如果需要在 Windows 本机上直接使用 `sshpass`，可以安装第三方移植版本。
+
+1. **通过 `winget` 安装**（推荐）：
+
+   ```powershell
+   winget install xhcoding.sshpass-win32
+   ```
+
+2. **通过 `scoop` 安装**：
+
+   ```powershell
+   scoop install sshpass
+   ```
+
+安装后，在 Windows 的命令行或 PowerShell 中，用法与 Linux 下类似。例如：
+
+```powershell
+sshpass -p '密码' ssh 用户名@主机
+```
+
 ## 日常使用问题
 
 ### 文件夹无法删除
