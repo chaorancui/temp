@@ -933,7 +933,7 @@ UserKnownHostsFile /dev/null
    如果你需要经过多个跳板机才能到达目的地，`-J` 同样支持逗号分隔的列表。
 
    ```bash
-   ssh -J <jump_user>@<jump_ip>:<jump_port> -p <target_port> <target_user>@<target_ip>
+   ssh -J <jump_user>@<jump_host>:<jump_port> -p <target_port> <target_user>@<target_host>
    ssh -J user1@jump1,user2@jump2 user@target	# SSH 会先连接 jump1，再从 jump1 连接 jump2，最后到达目标。
    ```
 
@@ -941,15 +941,15 @@ UserKnownHostsFile /dev/null
 
    ```bash
    ######## local -> remote
-   scp -J <jump_user>@<jump_ip>:<jump_port> \
+   scp -J <jump_user>@<jump_host>:<jump_port> \
    -P <target_port> \
    <src_path> \
-   <target_user>@<target_ip>:<dst_path>
+   <target_user>@<target_host>:<dst_path>
 
    ######## remote -> local
-   scp -J <jump_user>@<jump_ip>:<jump_port> \
+   scp -J <jump_user>@<jump_host>:<jump_port> \
    -P <target_port> \
-   <target_user>@<target_ip>:<src_path> \
+   <target_user>@<target_host>:<src_path> \
    <dst_path>
    ```
 
@@ -958,14 +958,14 @@ UserKnownHostsFile /dev/null
    ```bash
    ######## local -> remote
    rsync -avzP \
-   -e "ssh -J <jump_user>@<jump_ip>:<jump_port>" \
+   -e "ssh -J <jump_user>@<jump_host>:<jump_port>" \
    <src_path> \
-   <target_user>@<target_ip>:<dst_path>
+   <target_user>@<target_host>:<dst_path>
 
    ######## remote -> local
    rsync -avzP \
    -e "ssh -J <jumpuser>@<jumpip>:<jumpport>" \
-   <target_user>@<target_ip>:<src_path> \
+   <target_user>@<target_host>:<src_path> \
    <dst_path>
    ```
 
@@ -980,10 +980,10 @@ UserKnownHostsFile /dev/null
 
    ```bash
    # 不带 sshpass
-   ssh -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" -p <target_port> <target_user>@<target_ip>
+   ssh -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p" -p <target_port> <target_user>@<target_host>
 
    # 带 sshpass
-   sshpass -p <target_password> ssh -o ProxyCommand="sshpass -p <jump_password> ssh -p <jumpport> <jumpuser>@<jumpip> -W %h:%p" -p <target_port> <target_user>@<target_ip>
+   sshpass -p <target_password> ssh -o ProxyCommand="sshpass -p <jump_password> ssh -p <jumpport> <jumpuser>@<jumpip> -W %h:%p" -p <target_port> <target_user>@<target_host>
    ```
 
    注：`-W %h:%p` 的作用是将标准输入输出转发到目标主机的特定端口。
@@ -993,30 +993,30 @@ UserKnownHostsFile /dev/null
    ```bash
    ######## local -> remote
    # 不带 sshpass
-   scp -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" \
+   scp -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p" \
    -P <target_port> \
    <src_path> \
-   <target_user>@<target_ip>:<dst_path>
+   <target_user>@<target_host>:<dst_path>
    # 带 sshpass
    sshpass -p <target_password> \
-   scp -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" \
+   scp -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p" \
    -P <target_port> \
    <src_path> \
-   <target_user>@<target_ip>:<dst_path>
+   <target_user>@<target_host>:<dst_path>
 
    ######## remote -> local
    # 不带 sshpass
-   scp -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" \
-   scp -J <jump_user>@<jump_ip>:<jump_port> \
+   scp -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p" \
+   scp -J <jump_user>@<jump_host>:<jump_port> \
    -P <target_port> \
-   <target_user>@<target_ip>:<src_path> \
+   <target_user>@<target_host>:<src_path> \
    <dst_path>
    # 带 sshpass
    sshpass -p <target_password> \
-   scp -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p" \
-   scp -J <jump_user>@<jump_ip>:<jump_port> \
+   scp -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p" \
+   scp -J <jump_user>@<jump_host>:<jump_port> \
    -P <target_port> \
-   <target_user>@<target_ip>:<src_path> \
+   <target_user>@<target_host>:<src_path> \
    <dst_path>
    ```
 
@@ -1026,26 +1026,26 @@ UserKnownHostsFile /dev/null
    ######## local -> remote
    # 不带 sshpass
    rsync -avzP \
-   -e 'ssh -p <target_port> -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p"' \
+   -e 'ssh -p <target_port> -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p"' \
    <src_path> \
-   <target_user>@<target_ip>:<dst_path>
+   <target_user>@<target_host>:<dst_path>
    # 带 sshpass
    sshpass -p <target_password> \
    rsync -avzP \
-   -e 'ssh -p <target_port> -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p"' \
+   -e 'ssh -p <target_port> -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p"' \
    <src_path> \
-   <target_user>@<target_ip>:<dst_path>
+   <target_user>@<target_host>:<dst_path>
 
    ######## remote -> local
    rsync -avzP \
-   -e 'ssh -p <target_port> -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p"' \
-   <target_user>@<target_ip>:<src_path> \
+   -e 'ssh -p <target_port> -o ProxyCommand="ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p"' \
+   <target_user>@<target_host>:<src_path> \
    <dst_path>
    # 带 sshpass
    sshpass -p <target_password> \
    rsync -avzP \
-   -e 'ssh -p <target_port> -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_ip> -W %h:%p"' \
-   <target_user>@<target_ip>:<src_path> \
+   -e 'ssh -p <target_port> -o ProxyCommand="sshpass -p <jump_password> ssh -p <jump_port> <jump_user>@<jump_host> -W %h:%p"' \
+   <target_user>@<target_host>:<src_path> \
    <dst_path>
    ```
 
@@ -1054,6 +1054,125 @@ UserKnownHostsFile /dev/null
 
    > rsync 命令中，目的主机的端口号用 `-e 'ssh -p <port>'` 指定。
    > scp 命令中，目的主机的端口号用 `-P <port>` 指定。
+
+### sshpass 用法
+
+`sshpass` 是一个用于**非交互式 SSH 密码验证**的命令行工具。它允许你在命令行或 Shell 脚本中直接提供密码，让原本需要人工手动输入密码的 `ssh` 或 `scp` 命令能够自动运行，非常适合用于编写自动化运维脚本和定时任务。
+
+**一、sshpass 帮助信息：**
+
+```bash
+$ sshpass --help
+sshpass: invalid option -- '-'
+Usage: sshpass [-f|-d|-p|-e] [-hV] command parameters
+   -f filename   Take password to use from file
+   -d number     Use number as file descriptor for getting password
+   -p password   Provide password as argument (security unwise)
+   -e            Password is passed as env-var "SSHPASS"
+   With no parameters - password will be taken from stdin
+
+   -P prompt     Which string should sshpass search for to detect a password prompt
+   -v            Be verbose about what you're doing
+   -h            Show help (this screen)
+   -V            Print version information
+At most one of -f, -d, -p or -e should be used
+```
+
+**二、使用示例**
+
+```bash
+# 无跳板
+sshpass -p <target_password> ssh -o StrictHostKeyChecking=no \
+<target_user>@<target_host>
+
+# 使用 ProxyCommand 指定跳板
+sshpass -p <target_password> ssh -o StrictHostKeyChecking=no \
+-o ProxyCommand="sshpass -p <jump_password> ssh -W %h:%p <jump_user>@<jump_host>" \
+<target_user>@<target_host>
+```
+
+命令解析：
+
+- 外层的 `sshpass -p <target_password>` 用于为最终的目标机提供密码。
+- `-o ProxyCommand="..."` 告诉 SSH 通过一个代理命令来建立连接。
+- 内层的 `sshpass -p <jump_password> ssh -W %h:%p <jump_user>@<jump_host>` 负责连接到跳板机。其中：
+  - `-W %h:%p`：告诉 SSH 将连接转发到最终的目标主机和端口。
+  - `%h` 和 `%p` 会被外层 SSH 命令自动替换为目标机的 IP 和端口。
+
+**三、进阶安全用法：使用环境变量和文件描述符**
+
+要**完全不暴露密码明文**，最彻底的方法是使用 **SSH 密钥认证**。
+但如果因为某些限制（比如目标服务器不支持密钥，或必须用密码），使用 `sshpass` 时，**只能做到“不在命令行参数中暴露”，无法做到“密码不在任何地方以明文存在”** ---- 因为 `sshpass` 本质上需要把密码传递给 SSH 进程。
+不过，我们可以通过合理的方式，**避免密码出现在进程列表（ps）、shell 历史记录或脚本源码中**。
+
+**一、最推荐：改用 SSH 密钥认证（彻底免密）**
+
+把公钥复制到**跳板机**和**目标机**是更安全、更便捷的方案：
+
+1. **在当前机器上生成密钥对**（如果没有）：
+
+   ```bash
+   ssh-keygen -t ed25519 -C "your_email"
+   ```
+
+2. **将公钥（`id_ed25519.pub`）复制到 <跳板机> 和 <目标机>**：
+   - 分别放在 `C:\Users\用户名\.ssh\authorized_keys` 文件中。
+   - 确保文件权限正确（Windows 上通常自动处理）。
+
+3. **连接时直接用 `-J` 跳板**：
+
+   `-J` 选项是 `ProxyCommand` 的简化版
+
+   ```bash
+   ssh -J <jump_user>@<jump_host> <target_user>@<target_host>
+   ```
+
+**二、使用密码 + sshpass，尽量安全方案**
+
+1. 使用 `-f` 从文件读取密码（避免命令行暴露）
+
+   将密码写入一个文件，并设置严格的权限：
+
+   ```bash
+   echo "你的密码" > /path/to/password_file
+   chmod 600 /path/to/password_file
+
+   # 然后在命令中使用 `sshpass -f /path/to/password_file`：
+   sshpass -f /path/to/password_file ssh -o StrictHostKeyChecking=no \
+    -o ProxyCommand="sshpass -f /path/to/jump_password_file ssh -W %h:%p <jump_user>@<jump_host>" \
+    <target_user>@<target_host>
+   ```
+
+   **优点**：密码不会出现在 `ps aux` 或 `history` 中。
+   **缺点**：密码文件本身是明文的，需确保文件权限和存储安全（例如放到加密分区）。
+
+2. 使用环境变量（`-e`）
+
+   > 注意：`sshpass` 默认只读取环境变量 `SSHPASS`，如果要为跳板机和目标机提供不同密码，则无法支持。
+
+   将密码存入环境变量 `SSHPASS`，然后使用 `sshpass -e`。环境变量默认不会显示在进程列表中，但可能通过 `/proc/PID/environ` 被读到（需要 root 权限），风险比命令行略小。
+
+   ```bash
+   export SSHPASS="<target_jump_password>"
+
+   # 内层跳板用 SSHPASS，外层用另一个变量
+   sshpass -e ssh -o StrictHostKeyChecking=no \
+    -o ProxyCommand="sshpass -e ssh -W %h:%p <jump_user>@<jump_host>" \
+    <target_user>@<target_host>
+   ```
+
+3. 使用文件描述符（`-d`）并配合进程替换（不显式暴露）
+
+   如果你想避免创建永久文件，可以使用进程替换配合文件描述符，但需注意密码会出现在脚本源码中。
+
+   ```bash
+   sshpass -d 123 ssh -o StrictHostKeyChecking=no \
+   -o ProxyCommand="sshpass -d 124 ssh -W %h:%p <jump_user>@<jump_host>" \
+   <target_user>@<target_host> \
+   123<<<'目标机密码' 124<<<'跳板机密码'
+   ```
+
+   但这种写法**可能会因文件描述符顺序混乱而失败**，且密码仍以明文形式在脚本中。因此不推荐。
 
 ### ssh config 指定跳板机
 
