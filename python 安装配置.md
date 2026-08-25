@@ -547,3 +547,197 @@ pipenv install requests  # 或者直接安装库
 ## conda
 
 conda 可以直接创建不同 python 版本的虚拟环境。前面讲的 virtualenv 只是指定创建不同 python 版本的虚拟环境，前提是你的电脑上已经安装了不同版本的 python，与 conda 相比没有 conda 灵活。
+
+# UV
+
+`uv` 是一个用 Rust 编写的极速 Python 包管理器和解析器，由 Astral 团队开发（也是 Ruff 的开发者）。它旨在替代 pip、pip-tools、virtualenv、pyenv 等工具，提供一站式的 Python 项目管理体验。
+
+**uv 的核心优势**
+
+1. 极致的速度
+   - **Rust 实现**：由 Rust 编写，性能远超传统 Python 工具
+   - **并行下载**：支持并行下载和安装依赖，速度提升 10-100 倍
+   - **智能缓存**：内置高效的缓存机制，避免重复下载
+
+2. 统一的工具链
+
+   | 功能            | 传统工具          | uv  |
+   | --------------- | ----------------- | --- |
+   | 包管理          | pip               | ✅  |
+   | 虚拟环境        | virtualenv / venv | ✅  |
+   | Python 版本管理 | pyenv / conda     | ✅  |
+   | 依赖锁定        | pip-tools         | ✅  |
+   | 脚本运行        | pipx              | ✅  |
+
+3. 严格的依赖解析
+   - 支持复杂的依赖约束解析
+   - 生成跨平台的 `uv.lock` 锁文件
+   - 确保环境一致性
+
+4. 现代化的配置
+   - 通过 `pyproject.toml` 统一管理项目配置
+   - 支持多个包索引源
+   - 灵活的依赖分组管理
+
+5. 开发者友好
+   - 兼容 pip 工作流
+   - 清晰的命令行输出
+   - 丰富的错误提示
+
+# Miniconda
+
+**安装 Miniconda（如果尚未安装）**
+
+先检查你是否有 conda 命令：`conda --version`。如果没有，可以快速安装在个人目录下：
+
+```bash
+# 下载 Miniconda 安装包到当前目录
+wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/miniconda/Miniconda3-latest-Linux-x86_64.sh
+
+# 安装到你的个人目录（一路按 Enter 并输入 yes）
+bash Miniconda3-latest-Linux-x86_64.sh
+
+# 刷新环境变量使 conda 生效
+source ~/.bashrc
+```
+
+配置 conda 源
+
+```bash
+# 打开用户目录 .condarc，填入以下配置
+channels:
+  - defaults
+show_channel_urls: true
+default_channels:
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/r
+  - https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/msys2
+custom_channels:
+  conda-forge: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  msys2: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  bioconda: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  menpo: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  pytorch: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
+  deepmodeling: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/
+ssl_verify: false
+allow_other_channels: true
+auto_activate_base: false
+```
+
+配置 pip 源
+
+```bash
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+配置 uv pip 源(如果要使用 uv pip 加速)
+
+```bash
+# 创建配置文件 uv.toml
+mkdir ~/.config/uv && vim ~/.config/uv/uv.toml
+
+# 把如下内容粘贴进去
+python-install-mirror = "https://ghfast.top/https://github.com/astral-sh/python-build-standalone/releases/download"
+
+[[index]]
+name = "tsinghua"
+url = "https://mirrors.tuna.tsinghua.edu.cn/pypi/web/simple/"
+
+[[index]]
+name = "ustc"
+url = "https://mirrors.ustc.edu.cn/pypi/simple"
+default = true
+```
+
+创建虚拟环境
+
+```bash
+# 1. 创建隔离环境 mineru
+conda create -n mineru python=3.10 -y
+conda activate mineru
+```
+
+# MinerU 安装及使用
+
+**一、安装 MinerU 及其完整依赖**
+
+```bash
+#### pip 直接安装 ####
+# 2. 安装 MinerU 及其完整依赖
+pip install -U "mineru[all]"
+
+# 3. 安装匹配服务器 CUDA 12.2 的 PyTorch (使用 cu121)
+pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# 4. 安装 PaddlePaddle-GPU (用于系统 OCR 功能)
+pip install paddlepaddle-gpu==2.6.1
+
+
+#### uv pip 加速安装 ####
+# 2. 安装 uv 加速包管理（配置 uv 源）
+pip install --upgrade pip uv
+
+# 3. 安装 MinerU 及其所有功能模块
+uv pip install -U "mineru[all]"
+
+# 4. 安装适合你服务器（CUDA 12.2 驱动）的 PyTorch
+uv pip install -U torch torchvision --index-url https://download.pytorch.org/whl/cu121
+
+# 5. 安装 PaddlePaddle-GPU (用于系统 OCR 功能)
+uv pip install paddlepaddle-gpu==2.6.1
+```
+
+**二、下载模型权重（推荐 ModelScope 国内镜像）**
+
+```bash
+pip install modelscope
+# 将模型下载到你的家目录下（无需 root 权限）
+modelscope download --model OpenDataLab/PDF-Extract-Kit --local_dir ~/magic-pdf-models
+
+
+pip install huggingface_hub
+
+from huggingface_hub import snapshot_download
+snapshot_download(repo_id='opendatalab/pdf-extract-kit-1.0', local_dir='./', max_workers=20)
+```
+
+在你的家目录下创建配置文件 `~/magic-pdf.json`：
+
+```json
+{
+  "models-dir": "/your/path/magic-pdf-models",
+  "device-mode": "cuda",
+  "table-config": {
+    "is_formal": true,
+    "model": "TableMaster"
+  }
+}
+```
+
+_(请将 `/your/path/` 替换为你实际的绝对路径，可通过 `pwd` 命令查看)_
+
+**三、避坑指南：如何指定 GPU 运行（不与他人抢资源）**
+
+在多人共用服务器上，**最重要的一步是在运行程序前通过环境变量指定 GPU 卡号**。
+
+```bash
+# 1. 激活你的个人环境
+conda activate mineru
+
+# 2. 关键步骤：限制 MinerU 只使用 GPU 3（这样系统绝对不会去动 GPU 0-2）
+export CUDA_VISIBLE_DEVICES=3
+
+# 3. 运行你的 PDF 转转换命令
+magic-pdf -p /path/to/your/document.pdf -o ./output
+```
+
+如果你要启动 API 服务或 WebUI：
+
+```bash
+export CUDA_VISIBLE_DEVICES=3
+mineru-api --host 0.0.0.0 --port 8000
+```
+
+> **端口提示**：如果 8000 端口被别的同事占用了，启动报错，可以换成其他空闲端口（例如 `--port 8088` 或 `8899`）。
