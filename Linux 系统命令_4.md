@@ -588,6 +588,57 @@ to an rsync daemon, and require SRC or DEST to start with a module name.
 
 `rsync` 是一个非常高效、灵活的工具，适用于文件同步、备份和远程传输。它能够处理本地和远程文件的增量同步，并通过多种选项提供高效的数据传输、压缩、排除和文件比较等功能。通过合理配置和选择选项，`rsync` 可以极大地简化和加速大规模数据的同步任务。
 
+## rsync 安装
+
+**一、Linux 系统安装 rsync**
+
+绝大多数 Linux 发行版都默认预装了 `rsync`。你可以先用下面的命令检查一下是否已经安装：
+
+```bash
+rsync --version
+```
+
+如果系统提示“命令未找到”，再用对应的包管理器安装即可。
+
+| 发行版               | 包管理器 | 安装命令                                   |
+| :------------------- | :------- | :----------------------------------------- |
+| **Debian / Ubuntu**  | `apt`    | `sudo apt update` `sudo apt install rsync` |
+| **RHEL / CentOS 7**  | `yum`    | `sudo yum install rsync`                   |
+| **Fedora / RHEL 8+** | `dnf`    | `sudo dnf install rsync`                   |
+| **Arch Linux**       | `pacman` | `sudo pacman -S rsync`                     |
+| **openSUSE**         | `zypper` | `sudo zypper install rsync`                |
+| **Gentoo**           | `emerge` | `sudo emerge rsync`                        |
+
+**二、Windows 系统安装 rsync**
+
+Windows 没有原生 `rsync` 命令，需要通过第三方工具或环境来使用。这里有几种主流方法：
+
+- **方法一：使用 Windows Subsystem for Linux (WSL)（最推荐）**
+  这是体验最接近 Linux 原生环境的方法。
+  1. **启用 WSL**：在“控制面板” -> “程序” -> “启用或关闭 Windows 功能”中，勾选“**适用于 Linux 的 Windows 子系统**”并确定。
+  2. **安装 Linux 发行版**：打开 Microsoft Store，搜索并安装你喜欢的发行版（如 Ubuntu）。
+  3. **安装 rsync**：启动安装好的 Linux 终端，参照上方的 Linux 安装命令（如 `sudo apt install rsync`）进行安装。
+- **方法二：使用 Cygwin**
+  Cygwin 能在 Windows 上提供类 Linux 的环境和工具。
+  1. **下载安装程序**：从 [Cygwin 官网](https://www.cygwin.com/) 下载 `setup.exe`。
+  2. **运行并选择包**：运行安装程序，在“**选择软件包**”界面，搜索 `rsync`，在“**Net**”分类下找到并标记安装。
+  3. **完成安装**：继续完成后续安装步骤即可。
+- **方法三：使用独立打包的 rsync**
+  对于不想安装整个环境的用户，可以使用独立打包版本。
+  1. **下载**：从开源项目（如 [rsync-win](https://github.com/rn7s2/rsync-win)）的 Releases 页面下载 `rsync-win.zip`。
+  2. **解压**：将压缩包解压到一个文件夹。
+  3. **配置环境变量**：将包含 `rsync-win.exe` 的文件夹路径添加到系统的 `PATH` 环境变量中，以便在任意目录下调用。
+- **方法四：使用 cwRsync**
+  `cwRsync` 是专为 Windows 打包的 `rsync` 客户端和服务端套件。从其官网下载安装包，按提示安装即可。
+
+**三、验证安装**
+
+```bash
+rsync --version
+```
+
+如果能看到版本信息，就说明安装成功了。
+
 ## ssh-keygen
 
 > [ssh-keygen](http://linux.51yip.com/search/ssh-keygen)
