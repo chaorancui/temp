@@ -182,6 +182,122 @@
 
 # 常用函数记录
 
+## torch.Tensor
+
+### Tensor.expand
+
+```python
+tensor.expand(*sizes)
+```
+
+- `*sizes`：你期望的目标形状（可变参数或列表/元组）。你可以在目标形状中使用 **`-1`**，表示该维度保持原始大小不变。
+
+`expand` 遵循严格的广播逻辑，必须满足以下条件（与 `expand_as` 一致）：
+
+1. **维度数量**：`len(sizes)` **必须大于或等于** 原始张量的维度数。如果更多，多出来的维度会被放在**前面**（相当于自动在原始张量前面补了 1）。
+2. **维度对齐**：对于原始张量的每个维度：
+   - 如果目标维度大于原始维度，那么原始该维度的**大小必须为 1**（此时才能扩展）。
+   - 如果目标维度等于原始维度，大小必须完全相同（或者用 `-1` 保持原样）。
+   - （注意：如果目标维度小于原始维度，会直接报错，除非通过补 `-1` 在前面对齐）。
+
+```python
+import torch
+
+# 1. 基本扩展：将 (3, 1) 扩展为 (3, 4)
+a = torch.tensor([[1], [2], [3]])  # shape: (3, 1)
+b = a.expand(3, 4)
+print(b)
+# 输出：
+# tensor([[1, 1, 1, 1],
+#         [2, 2, 2, 2],
+#         [3, 3, 3, 3]])
+
+# 2. 使用 -1 保持维度不变
+c = torch.tensor([[1], [2], [3]])
+d = c.expand(-1, 4)  # 第一维保持 3，第二维扩展到 4
+print(d.shape)  # 输出: torch.Size([3, 4])
+
+# 3. 增加新的维度（在前面补维度）
+e = torch.tensor([1, 2, 3])  # shape: (3,)
+# 注意：原维度是 1 维，现在目标是 3 维 (1, 3, 4)
+# 新增的靠前维度 dim0=1，可以扩展到 1；dim1 对应原 dim0=3 保持不变；dim2 新增扩展为 4
+f = e.expand(1, 3, 4)
+print(f.shape)  # 输出: torch.Size([1, 3, 4])
+print(f)
+# 输出：
+# tensor([[[1, 1, 1, 1],
+#          [2, 2, 2, 2],
+#          [3, 3, 3, 3]]])
+
+# 4. 错误示例（会报错）
+g = torch.tensor([[1, 2], [3, 4]])  # shape: (2, 2)
+# g.expand(2, 4)  # 报错！因为第二维是 2（不是 1），无法扩展到 4
+```
+
+**注意事项（陷阱）**
+
+1. **共享内存（视图特性）**：因为返回的是视图，修改 `expand` 后的张量会影响原始数据！
+
+   ```python
+   x = torch.tensor([[1], [2]])
+   y = x.expand(2, 3)
+   y[0, 0] = 999
+   print(x)  # 输出: tensor([[999], [2]]) —— 原始数据被修改了！
+   ```
+
+   如果你需要独立的数据副本，请务必在最后加上 `.clone()`，例如：`new_tensor = x.expand(2, 3).clone()`。
+
+2. **与 `repeat` 的区别**：`repeat` 会**实际复制数据**并分配新内存（类似拷贝），而 `expand` 只是改变步长的视图。如果数据量巨大，优先使用 `expand` 来节省内存和计算时间。
+
+3. **维度只能扩展为 1 的维度**：这是硬性规定，如果某个维度不是 1 且目标尺寸不相等，一定会抛出运行时错误。
+
+### Tensor.expand_as
+
+`expand_as` 是 PyTorch 中一个用于**广播**张量的方法，它可以将一个张量**在不复制数据**的情况下，扩展成与另一个张量相同的形状。
+
+`expand_as` 的目标是让一个张量（我们称为 `A`）的形状变得与另一个张量（称为 `B`）完全相同。其用法非常简洁：
+
+```python
+A_expanded = A.expand_as(B)
+```
+
+这行代码的作用，**完全等同于** `A.expand(B.size())`。它返回的是原始张量 `A` 的一个**新视图（View）**。
+
+**注意：**
+
+- `expand_as` **不会复制原始数据**，而是创建一个新的张量视图。这个视图在底层通过设置步长（stride）为0来实现数据的“虚拟”扩展。
+  - 由于是视图，对新张量的修改会**直接影响**原始张量。这个设计使得 `expand_as` 非常高效，尤其适合处理大张量。
+- `expand_as` 的有效性取决于**广播规则**，核心限制是：**只能扩展原始张量中维度大小为 1 的维度**。非1的维度必须与目标张量的对应维度完全相等。
+  - **可行示例**：形状为 `(3, 1)` 的张量可以成功扩展为 `(3, 4)`。
+  - **不可行示例**：形状为 `(3, 2)` 的张量**无法**扩展为 `(4, 3)`，因为其第一维是3而非1，与目标的4不匹配。
+
+**典型应用场景**
+
+`expand_as` 在需要对不同形状的张量进行**逐元素操作**（如加法、乘法）前尤其有用。最常见的场景是在需要**广播**时，确保两个张量形状一致。
+
+例如，我们有一个形状为 `(3, 1)` 的偏置向量，想将它加到形状为 `(3, 4)` 的特征矩阵上：
+
+```python
+import torch
+
+# 特征矩阵 (3x4)
+features = torch.randn(3, 4)
+# 偏置向量 (3x1)
+bias = torch.randn(3, 1)
+
+# 将 bias 扩展成 (3x4)，然后与 features 相加
+result = features + bias.expand_as(features)
+print(result.shape)  # 输出: torch.Size([3, 4])
+```
+
+**`expand` vs. `expand_as` 对比**
+
+| 特性         | `expand`                  | `expand_as`                                       |
+| :----------- | :------------------------ | :------------------------------------------------ |
+| **形状指定** | 手动传入目标尺寸 `*sizes` | 传入另一个张量 `other`，形状自动取 `other.size()` |
+| **使用场景** | 明确知道想要变多大时      | 需要匹配某个现有张量的形状时                      |
+| **本质关系** | 基础方法                  | 语法糖，等价于 `expand(other.size())`             |
+
 ## transpose
 
 在 PyTorch 中，进行维度转置（Transpose）有多种方法。虽然它们都能改变数据的维度顺序，但在语义和适用场景上有所区别。
@@ -357,3 +473,137 @@ sorted_names = [names[i] for i in sort_indices]
 print("成绩从高到低的名单:", sorted_names)
 # 输出: ['David', 'Bob', 'Alice', 'Charlie']
 ```
+
+## torch.where
+
+`torch.where(condition, input, other, *, out=None) → Tensor`
+
+Return a tensor of elements selected from either `input` or `other`, depending on `condition`.
+
+The operation is defined as:
+
+$$
+\mathrm{out}_i=
+\begin{cases}
+\mathrm{input}_i        &
+\text{if condition}_i   \\
+\mathrm{other}_i        &
+\mathrm{otherwise}      &
+\end{cases}
+$$
+
+Note: The tensors `condition`, `input`, `other` must be [broadcastable](https://docs.pytorch.org/docs/2.13/notes/broadcasting.html#broadcasting-semantics).
+
+## torch.lerp
+
+`torch.lerp` 是 PyTorch 中用于执行**线性插值（Linear Interpolation）**的函数。它的核心作用是在两个张量之间，根据一个权重值进行逐元素的混合。
+
+**数学定义**
+
+对于每个位置的元素，`torch.lerp` 执行的计算公式如下：
+
+$$ output=start+weight×(end−start) $$
+
+或者等价地写作：
+
+$$ output=(1−weight)×start+weight×end $$
+
+- 当 `weight = 0` 时，输出完全等于 `start`。
+- 当 `weight = 1` 时，输出完全等于 `end`。
+- 当 `weight = 0.5` 时，输出是 `start` 和 `end` 的中点（平均值）。
+
+**函数签名与参数**
+
+```python
+torch.lerp(input, end, weight, *, out=None)
+```
+
+| 参数     | 说明                                                                                                                   |
+| :------- | :--------------------------------------------------------------------------------------------------------------------- |
+| `input`  | 起始张量（起点）。                                                                                                     |
+| `end`    | 结束张量（终点）。                                                                                                     |
+| `weight` | 插值权重。可以是一个**标量**（`float`），也可以是一个与 `input`/`end` **形状相同**的张量（允许逐元素设置不同的权重）。 |
+| `out`    | （可选）用于指定输出张量。                                                                                             |
+
+1. **逐元素计算**：`input` 和 `end` 必须满足**广播规则**（Broadcastable）。如果形状不一致，PyTorch 会自动尝试广播。
+2. **支持逐元素权重**：`weight` 也可以是一个张量，这允许你对张量中不同的位置施加不同的插值进度（例如，对图像的上半部分用 0.2，下半部分用 0.8）。
+3. **数据类型**：要求 `input` 和 `end` 为浮点数（Float）或复数类型。整数类型（如 `int`）会报错，因为插值结果往往是小数。
+4. **原地操作**：有对应的原地操作版本 **`torch.lerp_()`**，会直接修改 `input` 张量，节省内存。
+
+**代码示例**
+
+1. 基础使用（标量权重）
+
+   将两个向量按 30% 和 70% 的比例混合：
+
+   ```python
+   import torch
+
+   start = torch.tensor([1.0, 2.0, 3.0])
+   end = torch.tensor([4.0, 5.0, 6.0])
+
+   # 权重 0.3：结果 = start * 0.7 + end * 0.3
+   result = torch.lerp(start, end, 0.3)
+   print(result)  # 输出: tensor([1.9000, 2.9000, 3.9000])
+   # 计算验证: 1.0 + 0.3*(4.0-1.0) = 1.9
+   ```
+
+2. 广播机制
+
+   起始值是单行，结束值是多行，PyTorch 会自动广播起始行：
+
+   ```python
+   start = torch.tensor([[1.0, 2.0]])  # shape: (1, 2)
+   end = torch.tensor([[3.0, 4.0], [5.0, 6.0]])  # shape: (2, 2)
+
+   result = torch.lerp(start, end, 0.5)
+   print(result)
+   # 输出:
+   # tensor([[2.0000, 3.0000],   # (1+3)/2, (2+4)/2
+   #         [3.0000, 4.0000]])  # (1+5)/2, (2+6)/2
+   ```
+
+3. 张量作为权重（逐元素不同权重）
+
+   这在需要对不同像素或通道区别对待时非常有用：
+
+   ```python
+   start = torch.tensor([1.0, 2.0, 3.0])
+   end = torch.tensor([4.0, 5.0, 6.0])
+   weights = torch.tensor([0.1, 0.5, 0.9])
+
+   result = torch.lerp(start, end, weights)
+   print(result)  # 输出: tensor([1.3000, 3.5000, 5.7000])
+   ```
+
+**常见应用场景（非常实用）**
+
+1. **深度学习中的模型指数移动平均（EMA）**
+   在训练时更新影子权重（Shadow Weights）：
+
+   ```python
+   # shadow = shadow * decay + param * (1 - decay)
+   # 等价于 lerp 从 param 插值到 shadow，权重为 decay
+   shadow_weights = torch.lerp(param, shadow_weights, decay)
+   ```
+
+2. **图像混合（Cross-fading / Alpha Blending）**
+   将两张图片按透明度 `alpha` 混合：
+
+   ```python
+   blended = torch.lerp(image1, image2, alpha)
+   ```
+
+3. **渲染中的射线步进（Ray Marching）**
+   在两点之间平滑移动物体或摄像机位置。
+
+4. **数据增强（MixUp）**
+   在训练分类模型时，将两张图片和它们的标签按比例混合。
+
+**注意事项（踩坑提醒）**
+
+- **整数报错**：如果 `start` 是 `torch.tensor([1, 2, 3])`（整型），会直接报错。**务必先转换为 `.float()`**。
+- **`weight` 超出 [0, 1] 范围**：`torch.lerp` **不会**钳制（Clamp）权重！如果 `weight=2.0`，结果会外推（Extrapolate）到 `end` 范围之外（即 `2*end - start`）。如果你需要严格限制在 0~1 之间，请先执行 `weight = weight.clamp(0, 1)`。
+- **内存与视图**：`torch.lerp` 会**分配新内存**。如果你在循环中反复调用（例如 EMA 更新），建议使用 **`torch.lerp_()`**（原地操作）来避免内存暴涨，提升性能。
+
+总结：`torch.lerp` 是一个极其干净、高效的张量混合工具，掌握它可以让你在各种数值计算和模型训练技巧中事半功倍。如果你还想了解它与 `torch.nn.functional.interpolate`（用于缩放图像）的区别，随时可以问我！😄
