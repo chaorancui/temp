@@ -346,3 +346,15 @@ OpenCode 真正的瓶颈不是模型，而是：
 ```
 
 :point_right: 才是 Agent 的真正价值
+
+## opencode skills
+
+## opencode plugin
+
+按"边际价值 / 跟你已有功能不重叠"排序:
+1. @dietrichgebert/ponytail — "懒资深" skill,114k★ ⭐
+"@dietrichgebert/ponytail"
+作用:让 agent 写最少代码完成任务。官方 benchmark:少写 ~54% 代码、20% 更便宜、27% 更快。trendshift-listed。
+为什么对你有价值:
+- 跟 superpowers 互补——superpowers 教 agent "先 brainstorm 再动手",ponytail 教 agent "动手时少写"
+- 不冲突,可叠加
