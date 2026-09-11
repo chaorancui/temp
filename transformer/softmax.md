@@ -8,7 +8,7 @@ Softmax 函数也称为归一化指数函数，它能将一个含任意实数的
 
 ## 朴素 Softmax
 
-朴素（Naive）Softmax 公式为(即根据 Softmax 的定义描述的公式)：
+朴素 Softmax (Naive softmax) 公式为(即根据 Softmax 的定义描述的公式)：
 
 <!--prettier-ignore-->
 $$ \text{Softmax}⁡(𝑥_{𝑖})=\frac{𝑒^{𝑥_{𝑖}}}{\Sigma_{j}^{𝑁}𝑒^{𝑥_{j}}} $$
@@ -24,6 +24,45 @@ $$ \text{Softmax}⁡(𝑥_{𝑖})=\frac{𝑒^{𝑥_{𝑖}}}{\Sigma_{j}^{𝑁}�
 
 **解决方案：减去最大值（Safe Softmax）**
 
+### torch 实现
+
+```python
+import torch
+
+
+def naive_softmax(x):
+    """y = e^x / sum(e^x)"""
+    x = x.reshape(-1, x.shape[-1])  # Reshape to 2D tensor
+    mode = 2
+    if mode == 1:
+        e_x = torch.exp(x)
+        return e_x / e_x.sum(dim=-1, keepdim=True)
+    elif mode == 2:
+        x_expsum = torch.zeros(x.shape[0], 1)
+        y = torch.zeros(x.shape[0], x.shape[1])
+        # loop 1 - sum
+        for r in range(x.shape[0]):
+            for c in range(x.shape[1]):
+                x_expsum[r, 0] = x_expsum[r, 0] + torch.exp(x[r, c])
+        # loop 2 - softmax
+        for r in range(x.shape[0]):
+            for c in range(x.shape[1]):
+                y[r, c] = torch.exp(x[r, c]) / x_expsum[r, 0]
+        return y
+
+
+if __name__ == "__main__":
+    torch.manual_seed(42)
+    x = torch.randn((2, 8), dtype=torch.float32)
+    y = naive_softmax(x)
+    print(f"====x: {x.shape}")
+    print(x)
+    print(f"====y: {y.shape}")
+    print(y)
+    print(y.sum(dim=-1, keepdim=True))  # Should be all ones
+
+```
+
 ## 安全 Softmax
 
 利用指数函数的性质，对输入向量的每个元素减去同一个常数 $c$ （通常令 $c = \max(x)$），不改变 Softmax 的输出：
@@ -34,8 +73,136 @@ $$ \text{Softmax}(x_{i})=\frac{e^{x_{i} - \max(x)}}{\sum_{j}^{N}e^{x_{j} - \max(
 **为什么稳定**：
 
 - 最大值项 $\max(x)$ 被减去后，最大的指数项变成了 $e^{0} = 1$，彻底避免了上溢（`inf`）问题。
-- 其余项的指数输入均小于或等于 0（即 $x_{i} - \max(x) \le 0$），其计算结果被安全地限制在 \((0, 1]\) 区间内，有效防止了数值爆炸。
+- 其余项的指数输入均小于或等于 0（即 $x_{i} - \max(x) \le 0$），其计算结果被安全地限制在 $(0, 1]$ 区间内，有效防止了数值爆炸。
+
+### torch 实现
+
+```python
+import torch
+
+def safe_softmax(x):
+    """y = e^(x - max(x)) / sum(e^(x - max(x)))"""
+    x = x.reshape(-1, x.shape[-1])  # Reshape to 2D tensor
+    mode = 2
+    if mode == 1:
+        x_shifted = x - x.max(dim=-1, keepdim=True)[-1]
+        e_x = torch.exp(x_shifted)
+        return e_x / e_x.sum(dim=-1, keepdim=True)
+    elif mode == 2:
+        dtype = torch.float32
+        min_val = torch.finfo(dtype).min # 获取最小值
+        x_max = torch.full((x.shape[0], 1), min_val, dtype=dtype)
+        x_expsum = torch.zeros(x.shape[0], 1)
+        y = torch.zeros(x.shape[0], x.shape[1])
+        # loop 1 - max
+        for r in range(x.shape[0]):
+            for c in range(x.shape[1]):
+                x_max[r, 0] = torch.max(x_max[r, 0], x[r, c])
+        # loop 2 - exp sum
+        for r in range(x.shape[0]):
+            for c in range(x.shape[1]):
+                x_expsum[r, 0] = x_expsum[r, 0] + torch.exp(x[r, c] - x_max[r, 0])
+        # loop 3 - softmax
+        for r in range(x.shape[0]):
+            for c in range(x.shape[1]):
+                y[r, c] = torch.exp(x[r, c] - x_max[r, 0]) / x_expsum[r, 0]
+        return y
+
+
+if __name__ == "__main__":
+    torch.manual_seed(42)
+    x = torch.randn((2, 8), dtype=torch.float32)
+    y = safe_softmax(x)
+    print(f"====x: {x.shape}")
+    print(x)
+    print(f"====y: {y.shape}")
+    print(y)
+    print(y.sum(dim=-1, keepdim=True))  # Should be all ones
+
+```
 
 ## 在线 Softmax
 
 Online Softmax
+
+### 数学推导
+
+<!--prettier-ignore-->
+$$ \text{Softmax}(x_{i})=\frac{e^{x_{i} - \max(x)}}{\sum_{j}^{N}e^{x_{j} - \max(x)}} $$
+
+对于包含 N 个元素的向量 $[x_{1}, ..., x_{n}, x_{n+1}, ..., x_{N}]$,
+
+- $m_{n}$ 表示前 n 个元素的最大值
+- $d_{n}$ 表示前 n 个元素的指数和
+
+$$
+\begin{align*}
+m_{n} & = \max(x_{1}, ..., x_{n}) \\
+d_{n} & = \sum_{j=1}^{n}e^{x_{j} - m_{n}} \\
+\text{则前 n 个元素的 Softmax 值：}\\
+\text{Softmax}(x_{i}) & = \frac{e^{x_{i} - m_{n}}}{d_{n}}
+\end{align*}
+$$
+
+前 n+1 个元素的 Softmax:
+
+$$
+\begin{align*}
+m_{n+1} & = \max(m_{n}, x_{n+1}) \\
+d_{n+1} & = \sum_{j=1}^{n+1}e^{x_{j} - m_{n+1}} \\
+        & = \sum_{j=1}^{n}e^{x_{j} - m_{n+1}} + e^{x_{n+1} - m_{n+1}} \\
+        & = \sum_{j=1}^{n}e^{(x_{j} - m_{n}) + (m_{n} - m_{n+1})} + e^{x_{n+1} - m_{n+1}} \\
+        & = e^{m_{n} - m_{n+1}} * \sum_{j=1}^{n}e^{(x_{j} - m_{n})} + e^{x_{n+1} - m_{n+1}} \\
+        & = e^{m_{n} - m_{n+1}} * d_{n} + e^{x_{n+1} - m_{n+1}} \\
+\text{则前 n+1 个元素的 Softmax 值：}\\
+\text{Softmax}(x_{i}) & = \frac{e^{x_{i} - m_{n+1}}}{d_{n+1}}
+\end{align*}
+$$
+
+### torch 实现
+
+```python
+import torch
+
+def online_softmax(x):
+    """y = e^(x - max(x)) / sum(e^(x - max(x)))"""
+    x = x.reshape(-1, x.shape[-1])  # Reshape to 2D tensor
+    mode = 2
+    if mode == 1:
+        x_shifted = x - x.max(dim=-1, keepdim=True)[-1]
+        e_x = torch.exp(x_shifted)
+        return e_x / e_x.sum(dim=-1, keepdim=True)
+    elif mode == 2:
+        dtype = torch.float32
+        min_val = torch.finfo(dtype).min # 获取最小值
+        x_max = torch.full((x.shape[0], 1), min_val, dtype=dtype)
+        x_expsum = torch.zeros(x.shape[0], 1)
+        y = torch.zeros(x.shape[0], x.shape[1])
+        # loop 1 - max & exp sum
+        for r in range(x.shape[0]):
+            for c in range(x.shape[1]):
+                max_old = x_max[r, 0]
+                max_new = torch.max(max_old, x[r, c])
+                expsum_old = x_expsum[r, 0]
+                expsum_new = torch.exp(max_old - max_new) * expsum_old + torch.exp(x[r, c] - max_new)
+
+                x_max[r, 0] = max_new
+                x_expsum[r, 0] = expsum_new
+        # loop 2 - softmax
+        for r in range(x.shape[0]):
+            for c in range(x.shape[1]):
+                y[r, c] = torch.exp(x[r, c] - x_max[r, 0]) / x_expsum[r, 0]
+        return y
+
+
+if __name__ == "__main__":
+    torch.manual_seed(42)
+    x = torch.randn((2, 8), dtype=torch.float32)
+    y = online_softmax(x)
+    print(f"====x: {x.shape}")
+    print(x)
+    print(f"====y: {y.shape}")
+    print(y)
+    print(y.sum(dim=-1, keepdim=True))  # Should be all ones
+
+```
