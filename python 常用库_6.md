@@ -1593,3 +1593,154 @@ print(has_chinese_or_punc("hello"))        # False
 
 - [fantastic-matplotlib](https://datawhalechina.github.io/fantastic-matplotlib/)
 - [教程— Matplotlib 3.10.3 文档](https://matplotlib.org.cn/stable/tutorials/index)
+
+## re 库
+
+`re` 模块是 Python 处理正则表达式的标准库。为了方便你直接整理进 Wiki，这里将常用的匹配模式、核心函数及典型应用场景分类梳理如下：
+
+**一、模块核心概览**
+
+`re` 模块主要包含三种处理逻辑：
+
+1. **直接调用模块函数**（如 `re.search(...)`）：适合一次性匹配。
+2. **预编译表达式**（如 `pattern = re.compile(...)`）：适合在循环或多次重复使用的场景，性能更优。
+3. **匹配对象（Match Object）**：成功匹配后返回的对象，提供定位、分组提取等方法。
+
+**二、常见正则表达式元字符**
+
+| **元字符/语法** | **含义说明**                               | **示例**                  |
+| --------------- | ------------------------------------------ | ------------------------- |
+| `.`             | 匹配除换行符外的任意单个字符               | `a.c` 匹配 `"abc"`        |
+| `\d` / `\D`     | 匹配数字 / 非数字                          | `\d+` 匹配 `"123"`        |
+| `\w` / `\W`     | 匹配字母、数字、下划线、汉字 / 非单词字符  | `\w+`                     |
+| `\s` / `\S`     | 匹配任意空白字符 / 非空白字符              | `\s` 匹配 `\n`, `\t`, ` ` |
+| `^` / `$`       | 匹配字符串的开头 / 结尾                    | `^Hello`                  |
+| `*` / `+` / `?` | 重复 0 次或多次 / 1 次或多次 / 0 次或 1 次 | `a*`                      |
+| `{n,m}`         | 匹配前一个字符 $n$ 到 $m$ 次               | `\d{3,4}`                 |
+| `[...]`         | 字符集，匹配集合内的任意字符               | `[a-zA-Z]`                |
+| `(...)`         | 捕获分组                                   | `(\d{3})-(\d{4})`         |
+
+**三、核心 API 与示例**
+
+1. **寻找匹配：`search` vs `match` vs `findall` vs `finditer`**
+   - **`re.match()`**：仅从字符串**开头**开始匹配。如果开头不符合，立即返回 `None`。
+   - **`re.search()`**：扫描整个字符串，返回**第一个**匹配成功的对象。
+   - **`re.findall()`**：扫描整个字符串，以**列表**形式返回所有匹配到的字符串。
+   - **`re.finditer()`**：扫描整个字符串，返回由匹配对象构成的**迭代器**（适合海量文本处理，节省内存）。
+
+   ```python
+   import re
+
+   text = "Apple price: $12, Banana price: $5"
+
+   # search: 找第一个匹配
+   result_search = re.search(r"\$\d+", text)
+   if result_search:
+       print("search 找到:", result_search.group())  # 输出: $12
+
+   # findall: 找所有匹配
+   prices = re.findall(r"\$\d+", text)
+   print("findall 列表:", prices)  # 输出: ['$12', '$5']
+
+   # finditer: 迭代器形式
+   for match in re.finditer(r"\$\d+", text):
+       print(f"找到 {match.group()}，位置在 {match.span()}")
+   ```
+
+2. **文本替换：`re.sub`**
+
+   用于将匹配到的文本替换为新内容，支持传入**字符串**或**回调函数**。
+
+   ```python
+   import re
+
+   # 简单替换：掩码处理手机号
+   phone = "联系电话：13812345678"
+   masked_phone = re.sub(r"(\d{3})\d{4}(\d{4})", r"\1****\2", phone)
+   print(masked_phone)  # 输出: 联系电话：138****5678
+
+
+   # 动态替换（使用回调函数）：将匹配到的数字翻倍
+   def double_num(match):
+       value = int(match.group(0))
+       return str(value * 2)
+
+
+   text = "Item count: 5, total: 10"
+   new_text = re.sub(r"\d+", double_num, text)
+   print(new_text)  # 输出: Item count: 10, total: 20
+   ```
+
+3. **文本分割：`re.split`**
+
+   相比字符串自带的 `str.split()`，`re.split()` 支持按多种分隔符同时切分。
+
+   ```python
+   import re
+
+   text = "apple,banana;orange  grape\tlemon"
+
+   # 按逗号、分号、空格或制表符切分
+   words = re.split(r"[,;\s]+", text)
+   print(words)  # 输出: ['apple', 'banana', 'orange', 'grape', 'lemon']
+   ```
+
+4. **分组与命名分组（Groups & Named Groups）**
+
+   使用小括号 `()` 可以提取局部匹配文本，使用 `(?P<name>pattern)` 可以为分组命名，提高代码可读性。
+
+   ```python
+   import re
+
+   # 普通分组提取
+   date_str = "2026-09-30"
+   match = re.search(r"(\d{4})-(\d{2})-(\d{2})", date_str)
+   if match:
+       year, month, day = match.groups()
+       print(f"年: {year}, 月: {month}, 日: {day}")
+
+   # 命名分组提取
+   log_line = "IP: 192.168.1.1 - Status: 200"
+   pattern = r"IP:\s*(?P<ip>[\d.]+)\s*-\s*Status:\s*(?P<status>\d+)"
+
+   match = re.search(pattern, log_line)
+   if match:
+       data = match.groupdict()
+       print("解析字典:", data)  # 输出: {'ip': '192.168.1.1', 'status': '200'}
+       print("获取特定字段:", match.group("ip"))
+   ```
+
+5. **常用匹配标志（Flags）**
+
+   可以通过位或运算符 `|` 组合多个标志位：
+   - **`re.IGNORECASE` / `re.I`**：忽略大小写。
+   - **`re.DOTALL` / `re.S`**：让 `.` 字符匹配包括换行符在内的所有字符。
+   - **`re.MULTILINE` / `re.M`**：使 `^` 和 `$` 能匹配多行文本中每一行的开头和结尾。
+   - **`re.VERBOSE` / `re.X`**：允许书写多行表达式并添加注释，大幅提升复杂正则的可读性。
+
+   ```python
+   import re
+
+   # 多行匹配与忽略大小写
+   html_chunk = """
+   <DIV>
+     Hello World
+   </DIV>
+   """
+
+   # re.S 让 '.' 可以跨越换行符，re.I 忽略标签大小写
+   pattern = re.compile(r"<div>(.*?)</div>", re.DOTALL | re.IGNORECASE)
+   match = pattern.search(html_chunk)
+   if match:
+       print(match.group(1).strip())  # 输出: Hello World
+   ```
+
+**四、Wiki 避坑指南 / 进阶 Tips**
+
+1. **优先使用原始字符串（Raw String `r"..."`）**
+   - Python 的转义字符 `\` 会与正则表达式的 `\` 冲突。例如表示单个反斜杠时，常规字符串需要写成 `"\\\\"`，而原始字符串只需 `r"\\"`。
+2. **贪婪（Greedy）与非贪婪（Non-greedy）匹配**
+   - 默认情况下，`*`、`+`、`?` 是**贪婪**的，会尽可能多地匹配字符。
+   - 在量词后面加上 `?`（如 `.*?`、`+?`）即可转为**非贪婪**匹配（尽可能少地匹配）。
+3. **性能优化**
+   - 如果在循环或频繁调用的函数内部使用同一个正则表达式，务必使用 `re.compile()` 提前编译。
