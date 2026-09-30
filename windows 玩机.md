@@ -160,7 +160,7 @@ ssh user@172.29.88.101
 3. 方法三：离线安装（使用第三方编译的安装包）
 
    可以使用由 PowerShell 团队在 GitHub 上维护的 Windows 版 OpenSSH。
-   1. **下载安装包**：访问 [**PowerShell/Win32-OpenSSH**](https://github.com/PowerShell/Win32-OpenSSH/releases) 的GitHub发布页面。
+   1. **下载安装包**：访问 [PowerShell/Win32-OpenSSH](https://github.com/PowerShell/Win32-OpenSSH/releases) 的GitHub发布页面。
 
    2. **选择文件**：根据你的系统位数，下载对应的 `.msi` 安装包文件或 `.zip` 压缩包。
       - **对于 `.msi` 文件**：直接双击运行，按照向导提示完成安装即可。
