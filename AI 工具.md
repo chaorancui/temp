@@ -103,3 +103,304 @@
 
 问：我需要在线吗？
 答：您需要互联网连接进行 AI 处理，但所有笔记和截图都本地存储。一旦笔记在您的知识库中，您随时可以离线访问它们。
+
+# OpenCode 与 OMO 安装
+
+> 适用平台：Windows / Linux
+> 整理日期：2026-10-07
+> 官方文档：https://opencode.ai/docs/install ｜ 下载页：https://opencode.ai/zh/download
+
+**简介**
+
+| 工具                     | 说明                                                                                                                                                                       |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **OpenCode**             | 开源 AI 编程 CLI/桌面工具（类似 Claude Code），由 npm 包 `opencode-ai` 分发，基于 Bun 运行时                                                                               |
+| **OMO (Oh-My-OpenCode)** | OpenCode 的多 Agent 编排插件（现改名为 **oh-my-openagent**），将单一助手升级为 Sisyphus（总指挥）、Oracle（顾问）、Librarian（查资料）、Explore（搜代码）等专业 Agent 团队 |
+
+> 安全提示：`ohmyopencode.com` 网站并**非** OMO 官方站点，OMO 仅通过 GitHub 仓库发布：`code-yeongyu/oh-my-openagent`
+
+**前置条件**
+
+- **Node.js**（推荐 v18+，使用 npm 安装方式时必需；内网可用 node-v24.x），内置 npm
+- **Git**（OpenCode 依赖 git 操作）
+- （可选）**Bun**：`npm install -g bun`，部分依赖安装更快
+
+## OpenCode 安装
+
+### Windows 平台
+
+1. **方式 A：npm（推荐，最通用）**
+
+   ```powershell
+   npm install -g opencode-ai@latest
+   ```
+
+   > IDE（如 PyCharm/VS Code 内置终端）中 npm 不生效时，重启 IDE；PowerShell 报执行策略错误时执行：
+   >
+   > ```powershell
+   > Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+   > ```
+
+2. **方式 B：Chocolatey**
+
+   ```powershell
+   choco install opencode
+   ```
+
+3. **方式 C：Scoop**
+
+   ```powershell
+   scoop bucket add extras
+   scoop install extras/opencode
+   ```
+
+4. **方式 D：官方一键脚本（PowerShell）**
+
+   ```powershell
+   Invoke-WebRequest -Uri https://opencode.ai/install -UseBasicParsing | Invoke-Expression
+   ```
+
+5. **方式 E：手动下载安装包**
+   1. 访问 `https://opencode.ai/zh/download` 或 GitHub Releases（`github.com/anomalyco/opencode/releases`）
+   2. 下载 Windows x64 安装包（.exe / desktop 版）
+   3. 运行安装，将 opencode.exe 所在目录加入 `PATH`
+   4. （可选）在 `C:\Windows\System32` 新建 `opencode.cmd`：
+
+      ```bat
+      @echo off
+      "D:\你的安装路径\opencode-cli.exe" %*
+      ```
+
+**桌面版 / IDE 扩展**
+
+- **桌面版（Beta）**：官网下载安装包（Windows x64），右键"管理员运行"安装
+- **VS Code / Cursor / Zed / Windsurf**：扩展市场搜索 "OpenCode" 安装，快捷键 `Ctrl+Esc` 打开面板
+
+**验证安装**
+
+```powershell
+opencode --version   # 显示版本号即成功（如 1.0.150+）
+opencode              # 直接进入 TUI 界面
+```
+
+### Linux 平台
+
+> Windows 用户也可先装 WSL 再按本节操作（OpenCode 依赖较多 Linux 工具如 bash）。
+
+1. **方式 A：官方一键脚本（推荐）**
+
+   ```bash
+   curl -fsSL https://opencode.ai/install | bash
+   ```
+
+   - 安装目录优先级：`OPENCODE_INSTALL_DIR` 环境变量 > `XDG_BIN_DIR`（如 `$HOME/.local/bin`）> 默认路径
+   - 脚本本质是下载对应架构（x64/ARM64/Alpine）的二进制
+
+2. **方式 B：npm**
+
+   ```bash
+   npm install -g opencode-ai@latest
+   ```
+
+3. **方式 C：手动安装二进制（脚本因网络/证书失败时）**
+   1. 从 GitHub Releases（`github.com/anomalyco/opencode/releases`）下载对应架构二进制
+   2. 解压复制到系统 PATH：
+
+   ```bash
+   sudo cp opencode /usr/local/bin/opencode
+   sudo chmod +x /usr/local/bin/opencode
+   opencode -v
+   ```
+
+**验证与常用命令**
+
+```bash
+opencode --version   # 验证
+opencode            # TUI 界面
+opencode web        # 启动 Web 界面
+```
+
+### 升级 / 卸载
+
+```powershell
+# 升级（npm 方式）
+npm install -g opencode-ai@latest
+
+# 卸载
+npm uninstall -g opencode-ai
+```
+
+## 配置模型 Provider
+
+配置文件位置（优先级：项目级 > 用户级）：
+
+| 平台    | 用户级全局配置                                     | 项目级                  |
+| ------- | -------------------------------------------------- | ----------------------- |
+| Windows | `C:\Users\<用户名>\.config\opencode\opencode.json` | 项目根 `.opencode.json` |
+| Linux   | `~/.config/opencode/opencode.json`                 | 项目根 `.opencode.json` |
+
+OpenAI 兼容接口配置示例：
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "provider-1/qwen3-coder",
+  "provider": {
+    "provider-1": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "My Provider",
+      "models": {
+        "qwen3-coder": {
+          "name": "Qwen3 Coder"
+        }
+      },
+      "options": {
+        "baseURL": "http://<模型服务地址>/v1",
+        "apiKey": "sk-xxxx"
+      }
+    }
+  }
+}
+```
+
+> model 字段格式为 `provider的ID/model的ID`。配置后进入 opencode 输入 `/models` 可切换模型。
+
+## 4. OMO 安装
+
+> OMO: Oh-My-OpenCode / oh-my-openagent
+> Windows 与 Linux 命令完全一致（PowerShell / Bash），以下不区分平台。
+
+1. **标准安装流程**
+
+   ```bash
+   # 1. 全局安装 OMO CLI
+   npm install -g oh-my-opencode
+
+   # 2. 验证安装（输出版本号即成功）
+   oh-my-opencode -v
+
+   # 3. 集成到 opencode（交互式，订阅外部模型 Claude/Gemini/Copilot 一律选 No）
+   oh-my-opencode install
+   ```
+
+   非交互安装（内网无法订阅外部模型时推荐）：
+
+   ```bash
+   npx oh-my-openagent install --no-tui --claude=no --gemini=no --copilot=no
+   ```
+
+   安装完成后：
+   - 自动生成 `~/.config/opencode/oh-my-opencode.json`（配置 Agent 模型）
+   - `opencode.json` 末尾自动追加插件引用：`"plugin": ["oh-my-opencode"]`
+
+2. 内网替代安装方式（npm 源受限时）
+
+   在 `~/.config/opencode` 目录下本地安装，保证该目录存在 `node_modules`：
+
+   ```bash
+   cd ~/.config/opencode
+   npm install oh-my-openagent@3.15.3
+   npx oh-my-openagent install --no-tui --claude=no --gemini=no --copilot=no
+   ```
+
+   然后在 `opencode.json` 中把插件指向本地路径（见 4.4）。
+
+3. OMO 配置文件
+
+   配置文件：`~/.config/opencode/oh-my-opencode.json`（Windows：`C:\Users\<用户名>\.config\opencode\oh-my-opencode.json`）
+
+   ```json
+   {
+     "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-openagent/dev/assets/oh-my-opencode.schema.json",
+     "agents": {
+       "sisyphus": { "model": "my-provider/glm-4.7" },
+       "sisyphus-junior": { "model": "my-provider/glm-4.7" },
+       "hephaestus": { "model": "my-provider/glm-4.7" },
+       "oracle": { "model": "my-provider/glm-4.7" },
+       "librarian": { "model": "my-provider/glm-4.7" },
+       "explore": { "model": "my-provider/glm-4.7" },
+       "multimodal-looker": { "model": "my-provider/glm-4.7" },
+       "prometheus": { "model": "my-provider/glm-4.7" },
+       "metis": { "model": "my-provider/glm-4.7" },
+       "momus": { "model": "my-provider/glm-4.7" },
+       "atlas": { "model": "my-provider/glm-4.7" }
+     },
+     "categories": {
+       "visual-engineering": { "model": "my-provider/glm-4.7" },
+       "ultrabrain": { "model": "my-provider/glm-4.7" },
+       "deep": { "model": "my-provider/glm-4.7" },
+       "artistry": { "model": "my-provider/glm-4.7" },
+       "quick": { "model": "my-provider/glm-4.7" },
+       "unspecified-low": { "model": "my-provider/glm-4.7" },
+       "unspecified-high": { "model": "my-provider/glm-4.7" },
+       "writing": { "model": "my-provider/glm-4.7" }
+     }
+   }
+   ```
+
+   > `model` 格式同样是 `provider的ID/model的ID`，需与 opencode.json 中配置的 provider 对应。不同 Agent 可按需分配不同模型（如 librarian/explore 用轻量模型、oracle 用强模型，可另配 temperature）。
+
+4. 手动指定插件路径（内网/加载失败时修改 opencode.json）
+
+   ```json
+   {
+     "$schema": "https://opencode.ai/config.json",
+     "plugin": ["file:///C:/Users/<用户名>/.cache/opencode/node_modules/oh-my-openagent/dist/index.js"]
+   }
+   ```
+
+   注意：Windows 路径**使用正斜杠 `/`**。也可指向 npm 全局目录：`npm config get prefix` 查看 prefix，取 `<prefix>/node_modules/oh-my-openagent/dist/index.js`。
+
+5. **验证 OMO 生效**
+   1. 启动 `opencode`，默认 Agent 应为 **Sisyphus**（界面左下角显示助手标识）
+   2. `Tab` 键切换 Agent，`Ctrl+P` 切换模型
+   3. 可用 `/ultrawork`（或 `ULW`）触发 OMO 招牌的多 Agent 并行编排模式
+
+## 5. 内网环境（受限网络）注意事项
+
+公司内网/受限环境下，npm 与 curl 安装常因源和证书失败，按需采用：
+
+**npm 配置内网镜像源：**
+
+```powershell
+npm config set strict-ssl false
+npm config set registry http://mirrors.tools.huawei.com/npm/
+npm cache clean -f
+npm config get registry   # 验证
+```
+
+**临时跳过 Node TLS 校验：**
+
+```powershell
+# Windows (CMD)
+set NODE_TLS_REJECT_UNAUTHORIZED=0
+# Windows (PowerShell)
+$env:NODE_TLS_REJECT_UNAUTHORIZED="0"
+# Linux / WSL
+export NODE_TLS_REJECT_UNAUTHORIZED=0
+# 用完恢复（建议，提升安全性）
+Remove-Item Env:NODE_TLS_REJECT_UNAUTHORIZED
+```
+
+
+## 常见问题 FAQ
+
+| 现象                                 | 原因                                                                | 解决                                                                                                     |
+| ------------------------------------ | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| 装完 OMO 启动 opencode 没有 Sisyphus | 插件路径未正确引用                                                  | 在 opencode.json 的 plugin 数组中写 OMO 绝对路径（见 4.4），Windows 用正斜杠                             |
+| opencode v1.3.14+ 无法加载 OMO       | Arborist 升级引入 `@npmcli/agent`，代理 URL 类型与 Bun fetch 不兼容 | 手动指定插件路径，或回退 opencode v1.3.13                                                                |
+| 桌面版装 OMO 后界面卡死              | plugin 引用了错误的包位置                                           | 编辑 `opencode.jsonc`，将 oh-my-opencode 值改为 `npm config get prefix` 下 node_modules 的绝对路径后重启 |
+| PowerShell 无法执行 npm 脚本         | 默认执行策略限制                                                    | `Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser` 后重开终端                        |
+| npm 安装超时/失败                    | 外网源不可达                                                        | 配置内网镜像源（见第 5 节）                                                                              |
+| Linux curl 安装脚本报证书错误        | 内网 CA 证书问题                                                    | 替换 ca-certificates.crt（见第 5 节）或改用 npm / 手动二进制方式                                         |
+| GitHub 一键脚本不放心                | 管道执行远程脚本有安全风险                                          | 改用 npm 或官网手动下载安装包                                                                            |
+
+---
+
+## 参考链接
+
+
+- OpenCode 官网/文档：`https://opencode.ai` ｜ `https://opencode.ai/docs/install` ｜ `https://opencode.ai/zh/download`
+- OpenCode GitHub：`https://github.com/anomalyco/opencode`
+- OMO GitHub：`https://github.com/code-yeongyu/oh-my-openagent`（oh-my-opencode，中文 README）
+
