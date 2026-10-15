@@ -343,7 +343,7 @@
 
    **混合使用。** 在现代 Python 代码中，通常先用 `pathlib.Path` 定义和处理路径对象，当涉及到复杂的拷贝或递归删除任务时，再将 Path 对象传递给 `shutil` 函数（`shutil` 函数完全兼容 Path 对象）。
 
-## 获取当前脚本所在路径
+## 当前脚本所在路径
 
 ```python
 from pathlib import Path
@@ -386,7 +386,9 @@ DEFAULT_COMPILE_CONFIG = {
 }
 ```
 
-## 在 Python 中处理文件路径，强烈推荐使用 Python 3 引入的 **`pathlib`** 库，它比传统的 `os.path` 更加面向对象且优雅。
+## 提取指定路径
+
+在 Python 中处理文件路径，强烈推荐使用 Python 3 引入的 **`pathlib`** 库，它比传统的 `os.path` 更加面向对象且优雅。
 
 **方法一：根据“固定的目录层级”向上查找（最常见）**
 
