@@ -1096,19 +1096,7 @@ slice_result = x.narrow(dim=1, start=2, length=4)
    <img src="https://pic2.zhimg.com/v2-fa5b4490dc4a7f698543f9d37e28b6b1_1440w.jpg" style="width: 30%">
    </div>
 
-7. **GLU（Gated Linear Unit）**
-   - 公式：
-     $$ \text{GLU}(x)=x \odot \sigma(g(x)) $$
-     g(x) 表示的是向量 $x$ 经过一层 MLP 或者卷积，$ \odot $表示两个向量逐元素相乘，$ \sigma $ 表示 sigmoid 函数。
-   - 输出范围：$ (-\infty, +\infty) $
-   - 特点：
-     - 当$\sigma(g(x))$趋近于 0 时表示对$x$进行阻断，当$\sigma(g(x))$趋近于 1 时表示允许$x$通过，以此实现门控激活函数的效果。
-   - 优点：
-     - 信息选择性：GLU 通过门控机制，使得模型能够选择性地通过信息，从而提高模型的表达能力。
-     - 非线性增强：GLU 结合了线性变换和非线性激活，从而增强了模型的非线性特性。
-     - 提高模型性能：GLU 在许多任务中表现出色，特别是在自然语言处理（NLP）和序列建模任务中。
-
-8. **Swish / SiLU（Sigmoid Linear Unit）**
+7. **Swish / SiLU（Sigmoid Linear Unit）**
    - 公式：
      $$ \text{Swish}(x) = x \cdot \sigma(\beta x) $$
    - 输出范围：$ (-\infty, +\infty) $
@@ -1122,6 +1110,18 @@ slice_result = x.narrow(dim=1, start=2, length=4)
      <div style="text-align: center">
      <img src="https://image.jiqizhixin.com/uploads/editor/81698e3e-b92a-4695-a06c-aae3d0d11c68/640.png" style="width: 30%">
      </div>
+
+8. **GLU（Gated Linear Unit）**
+   - 公式：
+     $$ \text{GLU}(x)=x \odot \sigma(g(x)) $$
+     g(x) 表示的是向量 $x$ 经过一层 MLP 或者卷积，$ \odot $表示两个向量逐元素相乘，$ \sigma $ 表示 sigmoid 函数。
+   - 输出范围：$ (-\infty, +\infty) $
+   - 特点：
+     - 当$\sigma(g(x))$趋近于 0 时表示对$x$进行阻断，当$\sigma(g(x))$趋近于 1 时表示允许$x$通过，以此实现门控激活函数的效果。
+   - 优点：
+     - 信息选择性：GLU 通过门控机制，使得模型能够选择性地通过信息，从而提高模型的表达能力。
+     - 非线性增强：GLU 结合了线性变换和非线性激活，从而增强了模型的非线性特性。
+     - 提高模型性能：GLU 在许多任务中表现出色，特别是在自然语言处理（NLP）和序列建模任务中。
 
 9. **SwiGLU（Switched Gated Linear Unit）**
    - 公式：
