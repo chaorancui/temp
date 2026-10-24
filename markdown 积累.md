@@ -564,3 +564,80 @@ Hugo 是目前世界上最快的静态网站生成器（SSG）。如果说 Hexo 
       - **关于 Proxy**：如果你在公司内部网络，`git submodule` 可能会失败。记得配置好 Git 代理或使用内部镜像源。
       - **关于 Neovim**：建议给 `index.md` 设置一个快捷键，配合 `hugo server`。你甚至可以写一个简单的脚本，在 Neovim 保存时自动触发 Git 提交。
       - **F13 键位**：既然你喜欢 87% 键盘，可以把 F13 映射为一键启动 `hugo server` 的脚本，极大提升 Wiki 维护的幸福感。
+
+# markdown 嵌入画图
+
+- 代码评审友好、到处都要能看 → **Mermaid**
+- UML 重度 / GitLab 生态 → **PlantUML**
+- 图复杂、要好看、不在乎 diff → **draw.io/Excalidraw**
+
+## Excalidraw - 文件
+
+- 直接方案嵌入 `.excalidraw` 文件 ---- **不行**(所有主流渲染器都不支持)。
+- 间接方案嵌入 `.excalidraw.png / .excalidraw.svg` 双扩展名 ---- **文档的标准做法，几乎任意 Markdown 渲染器都能显示**。
+
+**`.excalidraw.png / .excalidraw.svg` 机制**
+
+- 它是一张真 PNG/SVG,场景 JSON 内嵌在 PNG 的 tEXt chunk / SVG 的 metadata 里(关键字 application/vnd.excalidraw+json)
+- 所以 `![](diagram.excalidraw.png)` 在 GitHub / GitLab / 各静态网站 都能当普通图片渲染;
+
+```log
+场景 JSON ──zlib deflate──► 字节流 ──逐字节映射为字符串(bstring)──► JSON 信封
+  {"version":"1","encoding":"bstring","compressed":true,"encoded":"…"}
+     ├──► PNG: 塞进 tEXt chunk,插在 IEND 前
+     └──► SVG: base64 后放进 <!-- payload-start … payload-end --> 注释块
+```
+
+**一、用法**
+
+和 markdown 中嵌入图片的方法一样，只不过把图片路径换成 `.excalidraw.png / .excalidraw.svg` 路径。
+
+PNG 版(点开看,它是张正常的图)
+![excalidraw-PNG](workflow.excalidraw.png)
+
+SVG 版(矢量缩放无损)
+![excalidraw-SVG](workflow.excalidraw.svg)
+
+**二、编辑方法**
+
+1. 网页：**[excalidraw.com](https://excalidraw.com)** → 导入 `workflow.excalidraw.png` → 编辑 → 导出为 svg或png。
+2. vscode插件：**VS Code** 装扩展 `pomdtr.excalidraw-editor` → 直接点开 `workflow.excalidraw.png` → 变成交互画板,保存时场景自动写回图片。
+
+## drawio - 文件
+
+编辑器和渲染器是同一个文件
+
+**一、用法**
+
+和 markdown 中嵌入图片的方法一样，只不过把图片路径换成 `.drawio.svg` 路径。
+
+![drawio图](workflow.drawio.svg)
+
+**二、"编辑"方案**
+
+1. 网页/app：**[app.diagrams.net](https://app.diagrams.net/)** → 导入 `workflow.drawio.svg` → 编辑 → 导出为 svg。
+2. vscode插件：**VS Code** 装扩展 `hediet.vscode-drawio` → 直接点开 `workflow.drawio.svg` → 变成交互画板,保存时场景自动写回图片。
+
+## PlantUML - 代码
+
+vscode插件：**VS Code** 装扩展 `shd101wyy.markdown-preview-enhanced`
+
+```plantuml
+@startuml
+title 同样的代码块,三个平台的命运
+GitHub ->> 你: ❌ 不渲染
+GitLab ->> 你: ✅ 原生成图
+VSCode内置预览 ->> 你: ❌ 需 MPE 扩展或 URL 图
+@enduml
+```
+
+## Mermaid - 代码
+
+```mermaid
+flowchart LR
+    A[在 .md 里写] --> B["mermaid 代码块"]
+    B --> C[VS Code 内置预览<br>bierner扩展已渲染]
+    A --> G[git push]
+    G --> D[GitHub / GitLab / Obsidian<br>原生渲染]
+    D --> E[纯文本 · diff 友好]
+```
